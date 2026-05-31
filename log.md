@@ -16,3 +16,5 @@ Append-only chronological record. Format: `## [YYYY-MM-DD] operation | descripti
 ## [2026-05-30] init | Wiki bootstrapped for coderails plugin. Seeded design, hooks, commands, investigations pages.
 
 ## [2026-05-31] ingest | verify-loop hardening session: meta-bullet exclusion, threshold <3→<1, string-coercion, weak-check deletion; new design/hook-exit-codes; session source recorded.
+
+## [2026-05-31] lint | Clean: 0 contradictions, 0 orphans, 0 stale, 0 real dangling links. Coverage gaps noted (1/10 commands, 2/6 hooks, 0/4 skills documented) — expected, wiki is young.
