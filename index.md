@@ -67,7 +67,7 @@ Skills in `coderails/skills/*/SKILL.md`.
 
 | Skill | Trigger summary | Status |
 |---|---|---|
-| `agentic-loop` | Multi-PR autonomous sessions; sits above `/workflow` | Not yet documented |
+| `agentic-loop` | Multi-PR autonomous sessions; sits above `/workflow` | [[agentic-loop]] |
 | `handoff` | Generates memory file + continuation prompt for next session | Not yet documented |
 | `planning-sequence` | Pre-Parade → Premortem → Red Team on a plan | Not yet documented |
 | `premortem` | Backwards-failure-mode analysis on a plan or decision | Not yet documented |
@@ -99,6 +99,7 @@ Point-in-time filed investigations (`<topic>_<YYYY-MM-DD>.md` naming).
 Ingested PR and change records (`sources/pr_<N>_*.md`; session sources for direct-edit work).
 
 - [[session_2026-05-31_verify-loop-hardening]] — verify-loop rework (meta-exclusion, threshold, string-coercion), cache-trap, exit-2 findings
+- [[session_2026-05-31_prompting-doc-alignment]] — prompting-doc alignment: --no-verify gate, agentic-loop context/delegate guidance, discipline scope+floor clauses, workflow parallel-calls
 
 ---
 

@@ -20,3 +20,5 @@ Append-only chronological record. Format: `## [YYYY-MM-DD] operation | descripti
 ## [2026-05-31] lint | Clean: 0 contradictions, 0 orphans, 0 stale, 0 real dangling links. Coverage gaps noted (1/10 commands, 2/6 hooks, 0/4 skills documented) — expected, wiki is young.
 
 ## [2026-05-31] ingest | Documented 4 hooks: destructive_bash_gate, test_gate, inject_context, discipline_catchup.
+
+## [2026-05-31] ingest | Prompting-doc alignment: --no-verify gate, agentic-loop context/delegate guidance, discipline scope+floor clauses, workflow parallel-calls.

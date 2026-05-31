@@ -2,13 +2,14 @@
 title: Discipline Loop
 type: design
 created: 2026-05-30
-last_updated: 2026-05-30
+last_updated: 2026-05-31
 sources:
   - templates/failure_log.md
   - hooks/scripts/check_confidence_labels.sh
   - hooks/scripts/check_verify_loop.sh
   - CLAUDE.md
   - instructions/self-checking-discipline.md
+  - sources/session_2026-05-31_prompting-doc-alignment.md
 tags:
   - discipline
   - hooks
@@ -99,14 +100,32 @@ This is the design intent: file-resolvable claims must be resolved before stoppi
 |---|---|---|
 | Confidence labels on non-trivial claims | `~/.claude/CLAUDE.md` prose | Advisory |
 | ≥200-char response must have one label | `check_confidence_labels.sh` | **Block (Stop hook)** |
-| Did Not Verify section after multi-file changes | `~/.claude/CLAUDE.md` prose | Advisory |
+| Did Not Verify section after file-editing responses | `~/.claude/CLAUDE.md` prose | Advisory |
 | DNV bullets must not name unread source files | `check_verify_loop.sh` | **Block (Stop hook)** |
 | Ask on ambiguity, verify memory before acting | `~/.claude/CLAUDE.md` prose | Advisory |
 
 The prose rules are not redundant. They cover the cases the hooks don't — short responses, conversational turns, runtime claims. The hooks cover the high-value case where Claude might stop with a false claim of completeness.
 
+## Prose as Standard, Hook as Floor (key design invariant)
+
+This is the central layering principle of the discipline loop, made explicit in `instructions/self-checking-discipline.md:10–11` (verified) as of 2026-05-31.
+
+The **prose rules** (in `~/.claude/CLAUDE.md`) describe the standard Claude *should* aim for:
+- Label every substantive claim with a confidence tag
+- Write a Did Not Verify section after any response that edits one or more files
+
+The **Stop hooks** enforce a *floor* that is intentionally lower than the prose standard:
+- `check_confidence_labels.sh` only blocks responses ≥200 chars with no label at all — it does not require every claim be labelled, just that the response isn't entirely unlabelled (verified: [[check_confidence_labels]])
+- `check_verify_loop.sh` only blocks when a DNV bullet names a source-resolvable file token — it does not require a DNV section on every response, just that named files be resolved (verified: [[check_verify_loop]])
+
+**Why the floor is lower than the standard:** mechanical hooks cannot encode nuanced judgment about what "substantive" means in context, or when a DNV section genuinely adds value vs. boilerplate. The prose standard asks Claude to apply judgment; the hooks catch the case where that judgment fails in a high-stakes way (a long response with no accountability markers, or a DNV that lists an unread file as a known gap). See [[hook-exit-codes]] for the block mechanisms.
+
+**What this means in practice:** following the hook floor is necessary but not sufficient. A response can satisfy both hooks (≥1 label, no file-named DNV bullet) while still falling short of the prose standard (many unlabelled claims, no DNV section at all on a file-editing response). The prose standard is the real target. The hooks are the backstop for clear failures.
+
 ## Cross-References
 
 - [[enforcement-model]] — why hooks can enforce things that commands cannot
+- [[check_confidence_labels]] — the confidence-label Stop hook in detail
 - [[check_verify_loop]] — the verify loop hook in detail
+- [[hook-exit-codes]] — which hook events block on exit 2 vs. permissionDecision: deny
 - [[install-and-cache-trap]] — hook edits in the repo do not take effect until cache is re-synced

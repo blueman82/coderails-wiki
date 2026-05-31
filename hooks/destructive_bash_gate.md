@@ -5,6 +5,7 @@ created: 2026-05-31
 last_updated: 2026-05-31
 sources:
   - hooks/scripts/destructive_bash_gate.sh
+  - sources/session_2026-05-31_prompting-doc-alignment.md
 tags: [hook, pretooluse-hook, enforcement, destructive-bash, block]
 ---
 
@@ -41,6 +42,7 @@ The full regex (verified: destructive_bash_gate.sh:14):
 |\bdd +if=
 |\bmkfs\.
 |\bchmod +-R +777
+|\bgit +commit +.*--no-verify
 ```
 
 Covered command families:
@@ -55,8 +57,23 @@ Covered command families:
 | `dd if=` | Raw disk write |
 | `mkfs.*` | Filesystem formatting |
 | `chmod -R 777` | World-write permission on a tree |
+| `git commit --no-verify` | Hook bypass — `--no-verify` anywhere in a `git commit` invocation |
 
 The grep is case-insensitive (`-i`), so `DROP table` matches. Word boundaries (`\b`) prevent false positives on substrings. (verified: destructive_bash_gate.sh:14, 16)
+
+### Why `git commit --no-verify` is destructive
+
+`--no-verify` bypasses all git commit hooks, which in coderails means defeating the discipline loop that `test_gate.sh`, and any user-configured pre-commit scripts, provide. Doc basis: "don't bypass safety checks (e.g. --no-verify)". (verified: [[session_2026-05-31_prompting-doc-alignment]])
+
+### Known false-positive: `--no-verify` in commit message text
+
+The pattern `\bgit +commit +.*--no-verify` uses `.*` which matches the entire argument string including `-m "..."` contents. A command like:
+
+```bash
+git commit -m "reminder: don't use --no-verify"
+```
+
+would match and be denied. The substring `--no-verify` in the commit message body triggers the pattern. This is a known limitation accepted as an acceptable tradeoff given the low frequency of such commit messages in practice. (inferred: no git-parsing logic in the hook to distinguish flag vs. message content)
 
 ## Block condition
 
