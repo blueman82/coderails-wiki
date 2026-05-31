@@ -52,12 +52,12 @@ See [[discipline-loop]] for the design rationale across all hooks.
 
 | Script | Event | Mode | Status |
 |---|---|---|---|
-| `inject_context.sh` | `UserPromptSubmit` | silent — injects `[ctx]` date/cwd/branch | Not yet documented |
-| `discipline_catchup.sh` | `UserPromptSubmit` | warn — re-injects discipline nudge if prior response missed labels | Not yet documented |
-| `check_confidence_labels.sh` | `Stop` | **block** (exit 2) — ≥200-char response with no label | Not yet documented |
+| `inject_context.sh` | `UserPromptSubmit` | silent — injects `[ctx]` date/cwd/branch | [[inject_context]] |
+| `discipline_catchup.sh` | `UserPromptSubmit` | warn — re-injects discipline nudge if prior response missed labels | [[discipline_catchup]] |
+| `check_confidence_labels.sh` | `Stop` | **block** (exit 2) — ≥200-char response with no label | [[check_confidence_labels]] |
 | `check_verify_loop.sh` | `Stop` | **block** (exit 2) — DNV bullet names a source-resolvable file token | [[check_verify_loop]] |
-| `destructive_bash_gate.sh` | `PreToolUse (Bash)` | **block** (permissionDecision: deny) | Not yet documented |
-| `test_gate.sh` | `PreToolUse (Bash)` | **block** on `git commit` if tests fail — opt-in via `.claude/test_command` | Not yet documented |
+| `destructive_bash_gate.sh` | `PreToolUse (Bash)` | **block** (permissionDecision: deny) | [[destructive_bash_gate]] |
+| `test_gate.sh` | `PreToolUse (Bash)` | **block** on `git commit` if tests fail — opt-in via `.claude/test_command` | [[test_gate]] |
 
 ---
 
