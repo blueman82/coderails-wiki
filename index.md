@@ -2,7 +2,7 @@
 title: Coderails Wiki Index
 type: index
 created: 2026-05-30
-last_updated: 2026-05-30
+last_updated: 2026-05-31
 sources: []
 tags: [index, catalog]
 ---
@@ -82,6 +82,7 @@ Architectural decisions and invariants.
 - [[discipline-loop]] — how the three discipline hooks compose into a coherent loop
 - [[config-resolution]] — dual-path `workflow.config.yaml` lookup used by all workflow commands
 - [[install-and-cache-trap]] — idempotency contracts for `install.sh`/`uninstall.sh` and the reload-plugins caveat
+- [[hook-exit-codes]] — which hook events block on exit 2; why coderails uses two block mechanisms
 
 ---
 
@@ -95,9 +96,9 @@ Point-in-time filed investigations (`<topic>_<YYYY-MM-DD>.md` naming).
 
 ## Sources
 
-Ingested PR and change records (`sources/pr_<N>_*.md`).
+Ingested PR and change records (`sources/pr_<N>_*.md`; session sources for direct-edit work).
 
-No sources ingested yet.
+- [[session_2026-05-31_verify-loop-hardening]] — verify-loop rework (meta-exclusion, threshold, string-coercion), cache-trap, exit-2 findings
 
 ---
 

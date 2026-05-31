@@ -2,9 +2,10 @@
 title: "Hook: check_verify_loop"
 type: component
 created: 2026-05-30
-last_updated: 2026-05-30
+last_updated: 2026-05-31
 sources:
   - hooks/scripts/check_verify_loop.sh
+  - sources/session_2026-05-31_verify-loop-hardening.md
 tags: [hook, stop-hook, discipline, enforcement, did-not-verify]
 ---
 
@@ -45,6 +46,21 @@ The block trigger regex (verified: check_verify_loop.sh:117):
 ```
 
 A bullet hits this if it contains a path with a known extension, or a `file:line` reference.
+
+## Meta-bullet exclusion
+
+A bullet that merely *mentions* a filename while reporting scope or completion is
+not a deferred verification, so it is dropped before the source-token count.
+Leading-clause markers like "nothing outstanding", "scoped out", "out of scope",
+"covered above", "did not enumerate", "already verified above" are filtered out.
+(verified: `meta_pattern` + `verifiable_bullets` in check_verify_loop.sh; added 2026-05-31)
+
+The marker is anchored to the bullet's leading clause (`^- …`) by design: a
+meta-word **appended** to a real claim does not match, so "did not read
+`prep.md:96`" still blocks while "Nothing outstanding; covered `prep.md:96` above"
+passes. This narrows the false-positive surface (three such blocks occurred during
+the 2026-05-31 session) without granting a bypass phrase for genuine claims. See
+[[session_2026-05-31_verify-loop-hardening]].
 
 ## Transcript-flush race mitigation
 
