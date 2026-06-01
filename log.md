@@ -26,3 +26,5 @@ Append-only chronological record. Format: `## [YYYY-MM-DD] operation | descripti
 ## [2026-05-31] lint | 1 fix (index.md "three"→"four" discipline hooks). No contradictions, no orphans, no stale, 3 dangling (workflow-chain/init known forward-refs, wiki-links template-only). Schema discrepancy: hook pages use type:component vs template type:hook; agentic-loop uses type:skill (correct). Coverage: 0/10 commands, 6/6 hooks, 1/4 skills documented.
 
 ## [2026-06-01] ingest | check_verify_loop escalated to total enforcement: source-token regex + meta_pattern removed, any untagged DNV bullet blocks, (unverifiable: …) is the sole escape. Updated hook page, index trigger row, added session source.
+
+## [2026-06-01] ingest | Both repos now hosted private under blueman82: plugin → github.com/blueman82/coderails (git init this session), wiki → github.com/blueman82/coderails-wiki. Added design/repo-hosting.md (clone locations, .gitignore rules); flagged stale "not a git repository" claim in CLAUDE.md.
