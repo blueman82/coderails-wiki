@@ -2,7 +2,7 @@
 title: Coderails Wiki Index
 type: index
 created: 2026-05-30
-last_updated: 2026-05-31
+last_updated: 2026-06-01
 sources: []
 tags: [index, catalog]
 ---
@@ -83,6 +83,7 @@ Architectural decisions and invariants.
 - [[config-resolution]] — dual-path `workflow.config.yaml` lookup used by all workflow commands
 - [[install-and-cache-trap]] — idempotency contracts for `install.sh`/`uninstall.sh` and the reload-plugins caveat
 - [[hook-exit-codes]] — which hook events block on exit 2; why coderails uses two block mechanisms
+- [[repo-hosting]] — where the plugin + wiki repos live (private, `blueman82`), clone locations, `.gitignore` rules
 
 ---
 
