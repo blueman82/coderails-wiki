@@ -92,6 +92,7 @@ Architectural decisions and invariants.
 Point-in-time filed investigations (`<topic>_<YYYY-MM-DD>.md` naming).
 
 - [[install-cache-trap_2026-05-30]] — initial investigation filed at wiki bootstrap
+- [[install-bash32-bad-substitution_2026-06-01]] — `${answer,,}` (bash 4) broke install.sh on macOS bash 3.2; fixed with `tr` lowercase
 
 ---
 
