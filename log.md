@@ -28,3 +28,5 @@ Append-only chronological record. Format: `## [YYYY-MM-DD] operation | descripti
 ## [2026-06-01] ingest | check_verify_loop escalated to total enforcement: source-token regex + meta_pattern removed, any untagged DNV bullet blocks, (unverifiable: …) is the sole escape. Updated hook page, index trigger row, added session source.
 
 ## [2026-06-01] ingest | Both repos now hosted private under blueman82: plugin → github.com/blueman82/coderails (git init this session), wiki → github.com/blueman82/coderails-wiki. Added design/repo-hosting.md (clone locations, .gitignore rules); flagged stale "not a git repository" claim in CLAUDE.md.
+
+## [2026-06-01] ingest | install.sh bash 3.2 bug: ${answer,,} (bash 4 case-mod) errored "bad substitution" on a macOS /bin/bash 3.2 machine at the overwrite prompt. Fixed in plugin repo (a312b28) with tr lowercase. Filed investigation, added bash-3.2 portability note to install-and-cache-trap.

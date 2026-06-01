@@ -2,7 +2,7 @@
 title: Install and Cache Trap
 type: design
 created: 2026-05-30
-last_updated: 2026-05-30
+last_updated: 2026-06-01
 sources:
   - .claude-plugin/plugin.json
   - ~/.claude/settings.json
@@ -83,7 +83,17 @@ The hooks that enforce the discipline loop live at `hooks/scripts/*.sh` in the r
 
 Claude Code's plugin architecture separates the marketplace source (which can be a local directory or a GitHub repo) from the installed cache. This allows version-pinning, rollback, and offline operation. For a local-directory plugin like coderails, the "version" is always `1.0.0` regardless of how many edits have been made — there is no semantic versioning increment on each save. The cache is only refreshed when the harness is explicitly asked to reinstall.
 
+## Bash 3.2 portability
+
+`install.sh` must run on **bash 3.2** — macOS ships that as `/bin/bash`, and the
+`#!/usr/bin/env bash` shebang picks up whatever is first on PATH (3.2 on a stock
+Mac). No bash-4 syntax: no `${var,,}`/`${var^^}` case modification, no associative
+arrays, no `mapfile`. A `${answer,,}` slipped in and broke the overwrite prompt on a
+3.2 machine with "bad substitution"; fixed by `tr` lowercase.
+See [[install-bash32-bad-substitution_2026-06-01]]. (verified: 2026-06-01)
+
 ## Cross-References
 
 - [[enforcement-model]] — hooks only enforce what the cache contains
 - [[discipline-loop]] — if a hook fix is in the repo but not the cache, the discipline enforcement is running the old version
+- [[install-bash32-bad-substitution_2026-06-01]] — the bash 3.2 syntax bug and fix
