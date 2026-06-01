@@ -34,21 +34,25 @@ record** — the 3-generation hook history genuinely could not be read from git 
 time, because there was no git history yet. Going forward, plugin changes *can* be
 traced through git. (verified this session)
 
-> ⚠️ NOTE: `coderails/CLAUDE.md` line "It is **not** a git repository" is now stale.
-> Not corrected in-source this session (source edits weren't authorised); flagged here.
+`coderails/CLAUDE.md` was corrected on 2026-06-01 (`9f15823`): the "not a git
+repository" line now reads "version-controlled in the private repo
+`github.com/blueman82/coderails`." (verified: edit committed + pushed this session)
 
 ## Plugin .gitignore
 
-The plugin repo excludes two things only (OS cruft + foreign-plugin scratch):
+The plugin repo excludes only machine-local, non-source files (OS cruft,
+foreign-plugin scratch, runtime logs):
 
 ```
 .DS_Store
 .remember/
+logs/
 ```
 
 `.remember/` is created and owned by the **`remember` plugin** (its SessionStart hook
 writes handoff/history buffers there) — machine-local session scratch, not coderails
-source, so it never pushes. (verified: `.gitignore` + `.remember/` inspection this session)
+source, so it never pushes. `logs/` holds runtime hook logs, added by a second machine
+(`cc55b14`). (verified: `.gitignore` this session)
 
 ## Wiki .gitignore (Obsidian)
 
