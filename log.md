@@ -24,3 +24,5 @@ Append-only chronological record. Format: `## [YYYY-MM-DD] operation | descripti
 ## [2026-05-31] ingest | Prompting-doc alignment: --no-verify gate, agentic-loop context/delegate guidance, discipline scope+floor clauses, workflow parallel-calls.
 
 ## [2026-05-31] lint | 1 fix (index.md "three"→"four" discipline hooks). No contradictions, no orphans, no stale, 3 dangling (workflow-chain/init known forward-refs, wiki-links template-only). Schema discrepancy: hook pages use type:component vs template type:hook; agentic-loop uses type:skill (correct). Coverage: 0/10 commands, 6/6 hooks, 1/4 skills documented.
+
+## [2026-06-01] ingest | check_verify_loop escalated to total enforcement: source-token regex + meta_pattern removed, any untagged DNV bullet blocks, (unverifiable: …) is the sole escape. Updated hook page, index trigger row, added session source.
