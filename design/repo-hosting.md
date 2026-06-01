@@ -52,7 +52,7 @@ logs/
 `.remember/` is created and owned by the **`remember` plugin** (its SessionStart hook
 writes handoff/history buffers there) — machine-local session scratch, not coderails
 source, so it never pushes. `logs/` holds runtime hook logs, added by a second machine
-(`cc55b14`). (verified: `.gitignore` this session)
+(`b5143fb`). (verified: `.gitignore` this session)
 
 ## Wiki .gitignore (Obsidian)
 
