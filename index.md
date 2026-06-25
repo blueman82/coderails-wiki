@@ -16,8 +16,8 @@ Schema and maintenance protocols are in `/Users/harrison/Github/coderails/AGENTS
 
 `coderails` is a Claude Code plugin (not an application) that ships three things:
 1. A workflow command chain: `prep → push → merge → wiki`
-2. Skills: `agentic-loop`, `test-driven-development`, `writing-plans`, `handoff`, `improve-prompt`, `planning-sequence`, `premortem`, `wiki-ingest`, `wiki-init`, `wiki-lint`, `wiki-query`
-3. A discipline loop: hooks that enforce confidence labels, verify-loop resolution, and destructive-bash blocking
+2. Skills: `agentic-loop`, `test-driven-development`, `writing-plans`, `handoff`, `improve-prompt`, `planning-sequence`, `premortem`, `wiki-ingest`, `wiki-init`, `wiki-lint`, `wiki-query`, `using-coderails`, `using-git-worktrees`, `requesting-code-review`, `receiving-code-review`, `finishing-a-development-branch`, `dispatching-parallel-agents`, `systematic-debugging`, `verification-before-completion`, `writing-skills`, `subagent-driven-development`, `executing-plans`, `brainstorming`
+3. A discipline loop: hooks that enforce confidence labels, verify-loop resolution, destructive-bash blocking, main-branch protection, and PR-workflow sequencing. **superpowers is no longer a dependency** — all core dev-workflow skills are vendored into the `coderails:` namespace. See [[self-containment]].
 
 Source: `coderails/CLAUDE.md`. Plugin manifest: `coderails/.claude-plugin/plugin.json`.
 
