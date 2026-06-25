@@ -95,3 +95,4 @@ Phase 2b (design adversarial review) is distinct from Phase 4's `/pr-review-tool
 - [[config-resolution]] — dual-path config lookup
 - [[agentic-loop]] — uses /workflow as a subroutine
 - [[enforcement-model]] — why commands are advisory, not enforcing
+- [[enforce_pr_workflow]] — the PreToolUse hook that mechanically enforces the push→review→merge sequence
