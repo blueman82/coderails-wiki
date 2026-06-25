@@ -45,6 +45,21 @@ All checks are NO_CONFIG-gated (Gate 4).
 
 The `finishing-a-development-branch` skill includes a "merge locally" option that bypasses the PR path entirely — no `gh pr merge` ever runs, so the pre-existing gate never fires. This left a bypass route. The `git merge` gate closes it: even a local fast-forward merge on main now requires review evidence. (verified — PR #40)
 
+## merge-base exclusion: the word-boundary footgun (PR #42)
+
+PR #40's original gate regex was `\bgit +merge\b`. This also matched `git merge-base` because in POSIX ERE (used by `grep -E`), `-` is a word boundary — so the boundary fires between `merge` and `-base`, and `\bmerge\b` matches. `git merge-base` is a read-only ancestor-lookup plumbing command; blocking it was wrong.
+
+**Before (PR #40):** `\bgit +merge\b`  
+**After (PR #42):** `\bgit +merge([[:space:]]|$)`
+
+The fix requires the token after "merge" to be whitespace or end-of-line, excluding `merge-base`, `merge-file`, and `merge-tree`. Applied at both Gate 3 (command classification) and the subcommand-detection block. New test Case 14 asserts `git merge-base HEAD main` on main → allow. (verified — hook source lines 28 and 37)
+
+See [[skills-hooks-seam]] for the general pattern and a note on hyphenated-command regex design.
+
+## Reordered git-merge block-message hint (PR #42)
+
+The block message for `git merge` on main now leads with the actual resolution ("Run /pr-review-toolkit:review-pr first") before listing `/coderails:merge` and the settings.json bypass. Matches the adjacent `gh pr merge` hint order.
+
 ## Log output
 
 Appends to `$CLAUDE_DISCIPLINE_LOG` on block. Format matches `key=value` convention.
