@@ -145,8 +145,10 @@ The skill was cut 454→434 lines: Phases 7&8 (corporate docker/Teleport residue
 - [[loop_stall_guard]] — C2 hook: the `LOOP-STOP` declaration enforcement
 - [[test-driven-development]] — vendored construction skill (Phase 3/3a)
 - [[writing-plans]] — vendored plan skill (Phase 2.8)
+- [[subagent-driven-development]] — vendored execution skill (Phase 3 worker-prompt, PR #24)
 - [[enforcement-model]] — hooks (mechanical) vs. skill prose (advisory)
 - [[discipline-loop]] — how the discipline hooks compose
+- [[self-containment]] — the broader initiative PR #24 is part of
 - [[session_2026-06-01_agentic-loop-delegate-all-impl]] — source for the delegate-all-impl-to-sonnet change (plugin commit 3c33f99)
 - [[session_2026-06-25_agentic-loop-upgrade-arc]] — the PR #12–#18 source record
 - [[session_2026-05-31_prompting-doc-alignment]] — earlier source for delegate/context guidance
