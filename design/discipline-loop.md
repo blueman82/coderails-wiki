@@ -86,11 +86,18 @@ Writing:
 ```markdown
 ## Did Not Verify
 - prep.md:96 — the exact config field name
+- The output will be correct when run
 ```
 
-blocks. `prep.md` has a known extension and `:96` is a line reference. The hook demands you read it before stopping.
+both block (as of 2026-06-01). The first names a file; the second is prose — but neither carries the `(unverifiable: …)` tag, so both are treated as deferrals the model could have resolved.
 
-This is the design intent: file-resolvable claims must be resolved before stopping. Genuinely unverifiable things (future runtime, external systems, another person's intent) may stay in DNV.
+The only passing form for a genuinely uncheckable item:
+
+```markdown
+- (unverifiable: external-system behaviour) Whether the CI pipeline will pass
+```
+
+This is the design intent: nothing is silently deferred. Genuinely unverifiable things (future runtime, external systems, user intent) may stay in DNV only if the tag makes the deferral explicit and greppable.
 
 ## Advisory vs. Enforced: Summary
 
