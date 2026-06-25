@@ -3,7 +3,7 @@ title: "finishing-a-development-branch"
 type: skill
 created: 2026-06-25
 last_updated: 2026-06-25
-sources: [sources/pr_19-30_self-containment-and-hardening.md]
+sources: [sources/pr_19-30_self-containment-and-hardening.md, sources/pr_42_skills-hooks-seam.md]
 tags: [skill, workflow, branch, completion]
 ---
 
