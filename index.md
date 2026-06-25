@@ -52,6 +52,7 @@ See [[discipline-loop]] for the design rationale across all hooks.
 
 | Script | Event | Mode | Status |
 |---|---|---|---|
+| `inject_bootstrap.sh` | `SessionStart` | silent — bootstraps session with `coderails:using-coderails` | [[inject_bootstrap]] |
 | `inject_context.sh` | `UserPromptSubmit` | silent — injects `[ctx]` date/cwd/branch | [[inject_context]] |
 | `discipline_catchup.sh` | `UserPromptSubmit` | warn — re-injects discipline nudge if prior response missed labels | [[discipline_catchup]] |
 | `check_confidence_labels.sh` | `Stop` | **block** (exit 2) — ≥200-char response with no label | [[check_confidence_labels]] |
@@ -60,8 +61,10 @@ See [[discipline-loop]] for the design rationale across all hooks.
 | `loop_stall_guard.sh` | `Stop` | **block** (exit 2) — agentic loop active + incomplete + no `LOOP-STOP: <category>` declaration | [[loop_stall_guard]] |
 | `destructive_bash_gate.sh` | `PreToolUse (Bash)` | **block** (permissionDecision: deny) | [[destructive_bash_gate]] |
 | `test_gate.sh` | `PreToolUse (Bash)` | **block** on `git commit` if tests fail — opt-in via `.claude/test_command` | [[test_gate]] |
+| `enforce_pr_workflow.sh` | `PreToolUse (Bash)` | **block** — `gh pr create` without prior `/push`; `gh pr merge` without prior `/review-pr` (NO_CONFIG opt-in) | [[enforce_pr_workflow]] |
+| `no_edit_on_main.sh` | `PreToolUse (Write\|Edit\|MultiEdit)` | **block** — code-file edits on `main`/`master` | [[no_edit_on_main]] |
 
-Stop hook order: `check_confidence_labels` → `check_verify_loop` → `loop_state_guard` (C1) → `loop_stall_guard` (C2). The two loop-state hooks share `hooks/scripts/lib/loop_state_common.sh` (vocab + active-loop detection) and `hooks/scripts/lib/agentic_loop_path.sh` (sole path authority). See [[spec-plan-progress-artifact-chain]].
+Stop hook order: `check_confidence_labels` → `check_verify_loop` → `loop_state_guard` (C1) → `loop_stall_guard` (C2). The two loop-state hooks share `hooks/scripts/lib/loop_state_common.sh` (vocab + active-loop detection) and `hooks/scripts/lib/agentic_loop_path.sh` (sole path authority). The three discipline hooks share `hooks/scripts/lib/discipline_common.sh` (transcript extraction + retry loop, added PR #29). See [[spec-plan-progress-artifact-chain]].
 
 ---
 
