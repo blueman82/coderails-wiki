@@ -72,6 +72,8 @@ Skills in `coderails/skills/*/SKILL.md`.
 | Skill | Trigger summary | Status |
 |---|---|---|
 | `agentic-loop` | Multi-PR autonomous sessions; sits above `/workflow` | [[agentic-loop]] |
+| `test-driven-development` | Worker construction discipline (red-green-refactor); code-guarded | [[test-driven-development]] |
+| `writing-plans` | Turn a resolved spec into a durable task-by-task `plan.md` (Phase 2.8) | [[writing-plans]] |
 | `handoff` | Generates memory file + continuation prompt for next session | Not yet documented |
 | `planning-sequence` | Pre-Parade → Premortem → Red Team on a plan | Not yet documented |
 | `premortem` | Backwards-failure-mode analysis on a plan or decision | Not yet documented |
