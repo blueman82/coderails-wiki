@@ -52,18 +52,21 @@ PreToolUse hooks block by emitting a JSON response with `permissionDecision: "de
 
 ## Current Hook Map
 
-From `CLAUDE.md` lines 53–60 (verified):
-
 | Event | Script | Mode |
 |---|---|---|
+| `SessionStart` | `inject_bootstrap.sh` | silent — bootstraps session with `coderails:using-coderails` context |
 | `UserPromptSubmit` | `inject_context.sh` | silent — prepends `[ctx]` (cwd, branch, date) |
 | `UserPromptSubmit` | `discipline_catchup.sh` | warn |
 | `Stop` | `check_confidence_labels.sh` | **block** — ≥200-char response with no confidence label |
-| `Stop` | `check_verify_loop.sh` | **block** — DNV bullet names a source-resolvable file token |
+| `Stop` | `check_verify_loop.sh` | **block** — any untagged DNV bullet |
+| `Stop` | `loop_state_guard.sh` | **block** — agentic-loop active but progress.json absent/mismatched |
+| `Stop` | `loop_stall_guard.sh` | **block** — agentic-loop active + incomplete + no LOOP-STOP declaration |
 | `PreToolUse` (Bash) | `destructive_bash_gate.sh` | **block** |
 | `PreToolUse` (Bash) | `test_gate.sh` | **block** on `git commit` if tests fail — opt-in only |
+| `PreToolUse` (Bash) | `enforce_pr_workflow.sh` | **block** — `gh pr create` without prior `/push`, `gh pr merge` without prior `/review-pr` |
+| `PreToolUse` (Write\|Edit\|MultiEdit) | `no_edit_on_main.sh` | **block** — code-file edits on main/master |
 
-`discipline_catchup.sh` is the only surviving warn-mode hook. Everything else that should be enforced has been promoted to block-mode or moved to a PreToolUse gate. See [[discipline-loop]] for the history of why warn-mode was abandoned.
+`discipline_catchup.sh` is the only surviving warn-mode hook. Everything else that should be enforced has been promoted to block-mode or moved to a PreToolUse gate. See [[discipline-loop]] for the history of why warn-mode was abandoned. (updated 2026-06-25 — added inject_bootstrap, enforce_pr_workflow, no_edit_on_main, loop-state hooks)
 
 ## When to Use Which
 
