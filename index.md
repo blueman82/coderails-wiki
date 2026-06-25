@@ -90,6 +90,7 @@ Architectural decisions and invariants.
 - [[install-and-cache-trap]] — idempotency contracts for `install.sh`/`uninstall.sh` and the reload-plugins caveat
 - [[hook-exit-codes]] — which hook events block on exit 2; why coderails uses two block mechanisms
 - [[repo-hosting]] — where the plugin + wiki repos live (private, `blueman82`), clone locations, `.gitignore` rules
+- [[spec-plan-progress-artifact-chain]] — the agentic-loop's full spec→plan→progress durable-artifact chain + the two-hook (C1 presence/ownership, C2 anti-stall) loop-state guard architecture
 
 ---
 
