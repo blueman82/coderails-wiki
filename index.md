@@ -133,6 +133,7 @@ Ingested PR and change records (`sources/pr_<N>_*.md`; session sources for direc
 - [[session_2026-06-01_verify-loop-total-enforcement]] — verify-loop escalated to total enforcement: source-token regex + meta_pattern removed, any untagged DNV bullet blocks, `(unverifiable: …)` is the sole escape
 - [[session_2026-06-01_agentic-loop-delegate-all-impl]] — agentic-loop: main context becomes pure orchestrator; every code change (even single-file) goes to sonnet agent for impl+verify; two-rung delegation ladder; new Phase 3a (plugin commit 3c33f99)
 - [[session_2026-06-25_agentic-loop-upgrade-arc]] — the agentic-loop upgrade arc (PRs #12–#18): Specs A (clean-migration), C1 (progress.json lifecycle), C2 (anti-stall), B (slim), D (vendored TDD), E (spec→plan artifacts), + #18 tool-agnostic cleanup
+- [[pr_19-30_self-containment-and-hardening]] — self-containment + plugin hardening cluster (PRs #19–#30): 12 skills vendored from superpowers, SessionStart bootstrap hook, no_edit_on_main + enforce_pr_workflow enforcement hooks, install.sh chmod derivation, discipline_common.sh extraction
 
 ---
 
