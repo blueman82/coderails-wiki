@@ -50,7 +50,7 @@ This is required because:
 
 ## `NO_CONFIG` as a sentinel
 
-`NO_CONFIG` is the literal string echoed when neither config path resolves. Commands check for it by string match and stop early. This lets a command fail fast in a misconfigured project rather than silently skipping features. (inferred: consistent usage across workflow.md:11, prep.md:11, push.md behaviour)
+`NO_CONFIG` is the literal string echoed when neither config path resolves. Commands check for it by string match and enter minimal mode — they do not stop. This lets commands degrade gracefully in an uninitialised project while still providing core worktree + push functionality. (verified: workflow.md:11–17, prep.md:11–16)
 
 ## Related
 
