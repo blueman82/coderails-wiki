@@ -87,7 +87,6 @@ Phase 2.6 forces a disposition decision before replacement work: **clean-break**
 
 | Field | Added by | Purpose |
 |---|---|---|
-<<<<<<< HEAD
 | `disposition`, `named_blocker`, `removal_ticket` | A | per-work-unit clean-break record |
 | `schema_version`, `session_id`, `status`, `created`, `last_updated`, `completed_marker` | C1 | lifecycle + presence/ownership |
 | `loop_stop_counts` (`{hard-stop, approval-gate, awaiting-input, complete}`) | C2 | per-category stall metric |
