@@ -1,13 +1,13 @@
 ---
 title: "Config Resolution: workflow.config.yaml"
-type: component
+type: design
 created: 2026-05-30
-last_updated: 2026-05-30
+last_updated: 2026-06-25
 sources:
   - commands/workflow.md
   - commands/prep.md
   - commands/push.md
-  - commands/workflow-init.md
+  - commands/init.md
 tags: [commands, config, workflow, monorepo]
 ---
 
