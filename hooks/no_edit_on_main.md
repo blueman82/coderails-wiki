@@ -2,8 +2,8 @@
 title: "no_edit_on_main.sh"
 type: hook
 created: 2026-06-25
-last_updated: 2026-06-25
-sources: [sources/pr_19-30_self-containment-and-hardening.md]
+last_updated: 2026-06-26
+sources: [sources/pr_19-30_self-containment-and-hardening.md, sources/pr_44_no-edit-plugin-source.md]
 tags: [hook, PreToolUse, enforcement, main-branch-protection]
 ---
 
