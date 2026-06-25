@@ -139,7 +139,6 @@ The skill was cut 454→434 lines: Phases 7&8 (corporate docker/Teleport residue
 
 ## Cross-references
 
-<<<<<<< HEAD
 - [[spec-plan-progress-artifact-chain]] — the design page for the artifact chain + two-hook guard
 - [[loop_state_guard]] — C1 hook: presence/ownership of `progress.json`
 - [[loop_stall_guard]] — C2 hook: the `LOOP-STOP` declaration enforcement
@@ -147,11 +146,6 @@ The skill was cut 454→434 lines: Phases 7&8 (corporate docker/Teleport residue
 - [[writing-plans]] — vendored plan skill (Phase 2.8)
 - [[enforcement-model]] — hooks (mechanical) vs. skill prose (advisory)
 - [[discipline-loop]] — how the discipline hooks compose
+- [[session_2026-06-01_agentic-loop-delegate-all-impl]] — source for the delegate-all-impl-to-sonnet change (plugin commit 3c33f99)
 - [[session_2026-06-25_agentic-loop-upgrade-arc]] — the PR #12–#18 source record
 - [[session_2026-05-31_prompting-doc-alignment]] — earlier source for delegate/context guidance
-=======
-- [[enforcement-model]] — hooks vs. commands; agentic-loop is purely advisory (skill prose)
-- [[discipline-loop]] — confidence labels and DNV rules propagate into spawned agent prompts
-- [[session_2026-05-31_prompting-doc-alignment]] — source for changes 2 and 3 in this skill
-- [[session_2026-06-01_agentic-loop-delegate-all-impl]] — source for delegate-all-impl-to-sonnet change (plugin commit 3c33f99)
->>>>>>> origin/main
