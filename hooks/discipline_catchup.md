@@ -1,8 +1,8 @@
 ---
 title: "Hook: discipline_catchup"
-type: component
+type: hook
 created: 2026-05-31
-last_updated: 2026-05-31
+last_updated: 2026-06-25
 sources:
   - hooks/scripts/discipline_catchup.sh
 tags: [hook, userpromptsubmit-hook, discipline, warn, confidence-labels, did-not-verify]
