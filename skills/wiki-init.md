@@ -64,4 +64,4 @@ This skill is the prerequisite for all three others. [[wiki-ingest]] fails (and 
 - [[wiki-ingest]] — the ongoing write operation; runs after every merged PR
 - [[wiki-lint]] — audits structural integrity; should run after every ingest
 - [[wiki-query]] — reads the vault this skill bootstrapped
-- [[workflow]] — wiki-init is a one-time setup; workflow uses ingest/lint/query in its recurring cycle
+- `/coderails:workflow` — wiki-init is a one-time setup; workflow uses ingest/lint/query in its recurring cycle
