@@ -72,6 +72,8 @@ The deliberate decoupling of branch cleanup from the merge step is a key design 
 
 The `protected` check uses the GitHub API directly rather than relying on `gh pr merge` to reject unapproved merges — this provides an explicit, user-readable error before the merge attempt. (inferred: merge.sh:37–40)
 
+**Enforcement-gap notice (added PR #43):** When no `workflow.config.yaml` is present, `merge.sh` emits an informational `info` line before `gh pr merge`: "review enforcement (enforce_pr_workflow) is inactive. Run /coderails:init to enable." This makes the opt-in nature of enforcement visible. Without the config, `enforce_pr_workflow` no-ops and the merge goes through unguarded. This is intentional — enforcement is opt-in, not default. The notice closes the visibility gap without blocking. (verified: scripts/merge.sh, PR #43 / df4b372)
+
 ## See also
 
 - [[push]] — creates the PR that this command merges
