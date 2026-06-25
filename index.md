@@ -135,6 +135,7 @@ Ingested PR and change records (`sources/pr_<N>_*.md`; session sources for direc
 - [[session_2026-06-25_agentic-loop-upgrade-arc]] — the agentic-loop upgrade arc (PRs #12–#18): Specs A (clean-migration), C1 (progress.json lifecycle), C2 (anti-stall), B (slim), D (vendored TDD), E (spec→plan artifacts), + #18 tool-agnostic cleanup
 - [[pr_19-30_self-containment-and-hardening]] — self-containment + plugin hardening cluster (PRs #19–#30): 12 skills vendored from superpowers, SessionStart bootstrap hook, no_edit_on_main + enforce_pr_workflow enforcement hooks, install.sh chmod derivation, discipline_common.sh extraction
 - [[pr_39_agentic-loop-slim-v2]] — agentic-loop slim v2 (reference-not-embody): PR #39 normalised 13 bare skill refs to `/coderails:` form; two independent passes against a four-part test found ZERO further passages to slim — the embodied content is irreducible autonomy supersets. Do not re-attempt
+- [[pr_40_hook-hardening]] — PR #40 hook hardening (2026-06-25): enforce_pr_workflow gains a `git merge` gate on main/master (closes local-merge bypass); inject_bootstrap jq refactor (escape_for_json removed, clean-break); new run_all.sh aggregate test runner with zero-test guard (13 suites)
 
 ---
 
