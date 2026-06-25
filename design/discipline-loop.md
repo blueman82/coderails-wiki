@@ -57,19 +57,17 @@ Logic at lines 44–66 (verified):
 - If text contains `(verified`, `(inferred`, or `(guess`: passes.
 - Otherwise: blocks with `exit 2` and a message naming the failure.
 
-**`check_verify_loop.sh`** — blocks when a `## Did Not Verify` bullet names a source-resolvable file token.
+**`check_verify_loop.sh`** — **total enforcement** (as of 2026-06-01): blocks when *any* `## Did Not Verify` bullet is left untagged. The sole escape is an explicit `(unverifiable: <reason>)` tag on the bullet's leading clause.
 
-From the script header (verified): *"A '## Did Not Verify' bullet that names a file or file:line (e.g. prep.md:96, hooks/scripts/x.sh) is something the model could have confirmed by reading the working tree, so listing it unresolved is the failure this hook catches. Bullets about runtime behaviour, external systems, or user intent name no such token and are treated as genuinely unverifiable — they pass."*
-
-Gate chain at lines 31–130 (verified):
+Gate chain (verified: [[check_verify_loop]]):
 1. No transcript file — allow stop.
 2. No files edited this turn (file_count < 1) — allow stop (pure conversation turns are exempt).
 3. `stop_hook_active == true` — allow stop (loop-guard: already blocked once this turn).
 4. Last response has no text — allow stop.
 5. No `## Did Not Verify` bullets — allow stop.
-6. A DNV bullet matches `[file.ext]` or `file:line` pattern — **block** with `exit 2`.
+6. Any DNV bullet **not** tagged `(unverifiable: …)` — **block** with `exit 2`.
 
-The regex at line 117 (verified) matches tokens with known source extensions (`.md`, `.sh`, `.json`, `.py`, `.ts`, `.tsx`, `.js`, `.jsx`, `.go`, `.yaml`, `.yml`, `.txt`) or `filename:linenumber` form. Bullets naming only runtime behaviour, external systems, or user intent carry no such token and pass through gate 5.
+The earlier source-token regex (matching `.md`, `.sh`, etc. extensions) and the `meta_pattern` allowlist were both removed in the 2026-06-01 escalation. Now prose claims block exactly as filename claims do — any untagged bullet is treated as something the model could have confirmed. See [[check_verify_loop]] for the full history. (inferred: [[session_2026-06-01_verify-loop-total-enforcement]])
 
 ## What This Means in Practice
 
