@@ -45,7 +45,7 @@ The skill defines a sequence of decimal-numbered phases (decimals are the establ
 | 0.5 | Orchestrator operating rules | Stop-ceremony: labels + DNV + `LOOP-STOP` together | C2 |
 | 1 | State the plan in bullets | Ask once to confirm | (pre-arc) |
 | 2 | Pre-flight via spawned agents | Delegate planning/premortem/wiki-query to sonnet agents | (pre-arc) |
-| 2.5 | Resolve design forks up front | Ask once; record decision + flip-condition | (pre-arc) |
+| 2.5 | Resolve design forks up front | Ask once; record decision + flip-condition. Design agent applies [[brainstorming]]'s quality discipline (YAGNI, design-for-isolation, weigh viable approaches) **without** brainstorming's human-approval gates — see PR #41 note below. | (pre-arc) + PR #41 |
 | 2.6 | Resolve disposition before replacement | clean-break vs preserve-compat; named blocker required | A |
 | 2.7 | Commit resolved design to `spec.md` | In-line write; ≥3-unit guard | E |
 | 2.8 | Write `plan.md` via `coderails:writing-plans` | ≥3-unit guard; the static SSOT Phase 3 consumes | E |
