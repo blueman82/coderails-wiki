@@ -80,5 +80,6 @@ Appends a `key=value` line to `$CLAUDE_DISCIPLINE_LOG`:
 
 - [[loop_state_guard]] — C1: presence/ownership guard; shares loop-active detection and the active-window off-switch
 - [[agentic-loop]] — the skill that must emit `LOOP-STOP` declarations; Phase 0.5 is the stop-ceremony note
-- [[discipline-loop]] — full hook composition
+- [[spec-plan-progress-artifact-chain]] — the two-hook loop-state guard architecture; why C1 speaks before C2
+- [[discipline-loop]] — full hook composition (all six Stop hooks)
 - [[enforcement-model]] — hooks vs. commands
