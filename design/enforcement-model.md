@@ -2,7 +2,7 @@
 title: Enforcement Model
 type: design
 created: 2026-05-30
-last_updated: 2026-05-30
+last_updated: 2026-06-25
 sources:
   - commands/workflow.md
   - CLAUDE.md
