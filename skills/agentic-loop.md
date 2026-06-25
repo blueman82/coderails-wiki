@@ -10,6 +10,7 @@ sources:
   - sources/session_2026-06-25_agentic-loop-upgrade-arc.md
   - sources/pr_19-30_self-containment-and-hardening.md
   - sources/pr_39_agentic-loop-slim-v2.md
+  - sources/pr_41_phase25-brainstorming-xref.md
 tags: [skill, agentic-loop, multi-agent, orchestration, context-window, delegation, artifact-chain, loop-state]
 ---
 
