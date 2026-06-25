@@ -2,7 +2,7 @@
 title: Coderails Wiki Index
 type: index
 created: 2026-05-30
-last_updated: 2026-06-25
+last_updated: 2026-06-25 (self-containment cluster)
 sources: []
 tags: [index, catalog]
 ---
