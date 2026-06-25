@@ -1,0 +1,72 @@
+---
+title: "Hook: loop_state_guard.sh"
+type: hook
+created: 2026-06-25
+last_updated: 2026-06-25
+sources:
+  - sources/session_2026-06-25_agentic-loop-upgrade-arc.md
+tags: [hook, agentic-loop, progress-json, stop-hook, loop-state]
+---
+
+# loop_state_guard.sh (C1)
+
+Stop hook that enforces `progress.json` presence + ownership when an agentic loop is active. Part of the two-hook loop-state guard architecture; the C1 (foundation) layer.
+
+Source: `coderails/hooks/scripts/loop_state_guard.sh`
+Shared lib: `coderails/hooks/scripts/lib/loop_state_common.sh`
+Path helper: `coderails/hooks/scripts/lib/agentic_loop_path.sh`
+
+## Event and mode
+
+| Field | Value |
+|---|---|
+| Event | `Stop` |
+| Mode | block (exit 2) |
+| Timeout | 15s (hooks.json) |
+| Stop order | 3rd (after confidence + verify, before loop_stall_guard) |
+
+## What it enforces
+
+**Presence + ownership only.** When an agentic loop is active in this session, `progress.json` must exist at the helper-resolved path and be stamped with the current `session_id`. It does NOT police whether the file's content is accurate or current — that is an honest boundary the same as `check_verify_loop.sh` documents ("forces the file to exist and be mine; cannot force content to be accurate").
+
+## Logic: skip gates (cheap first)
+
+1. **No transcript** — allow (nothing to inspect).
+2. **`stop_hook_active == true`** — allow (already blocked this turn; avoid stop-loop).
+3. **No agentic-loop Skill `tool_use` in transcript** — allow (not a loop). Detection is a structured `jq` match on `name == "Skill"` and `input.skill` matching `(^|:)agentic-loop$`. Text grep for "agentic-loop" is explicitly forbidden (would trip sessions that edit/discuss the skill).
+4. **`status == "complete"` AND not re-armed AND session-owned** — allow (loop is done). Re-armed = `invocation_count > completed_marker`.
+5. **File present AND session-owned AND `status != "complete"`** — allow (presence satisfied).
+6. **BLOCK (exit 2)** — three failure shapes: absent, session mismatch, stale-complete-after-rearm.
+
+## Block messages
+
+- **Absent**: includes the exact path from `agentic_loop_path.sh` and the stub JSON template. The model copies the path; it never computes it. (This is the C1 path-deadlock lesson: a model cannot reproduce a cwd-derived key.)
+- **Session mismatch**: shows both the file's session and the current session; tells the model to adopt (re-stamp) or reinitialise.
+- **Stale-complete-rearmed**: a new loop started but the prior loop's `complete` is still the recorded status; tells model to reinitialise the stub (carry `completed_marker` forward).
+
+## Path authority design
+
+`agentic_loop_path.sh` is the sole path authority. Both this hook (reader) and the orchestrator (writer, via `Bash` call) resolve the path through it. The model never computes the path — it reads the resolved path from a block message or from a direct `bash "$CLAUDE_PLUGIN_ROOT/hooks/scripts/lib/agentic_loop_path.sh"` call. Path: `$HOME/.claude/agentic-loop/<cwd-slug>/progress.json` where slug replaces `/` with `-` (mirrors Claude Code's own convention).
+
+## progress.json schema fields (C1 adds)
+
+`schema_version`, `session_id`, `status` (`initialising` | `in-progress` | `complete`), `created`, `last_updated`, `completed_marker`.
+
+## Log output
+
+Appends a `key=value` line to `$CLAUDE_DISCIPLINE_LOG`:
+`hook=loop_state_guard session=<id> invocations=<n> status=<s> owned=<0|1> reason=<r> blocked=<0|1>`
+
+## Known limitations
+
+- Cannot force the file's content to be accurate or current; a model can write a stub and never enrich it.
+- Concurrent same-cwd sessions share a path; the second sees a session mismatch and is told to adopt/reinitialise (could thrash in rare parallel-sessions-same-repo scenarios).
+- Forgotten within-session teardown leaves a benign `present+owned+in-progress` file (C1 does not block); over-fire risk from stale `in-progress` is C2's concern.
+
+## See also
+
+- [[loop_stall_guard]] — C2: requires a `LOOP-STOP` declaration when active+incomplete; shares loop-active detection via `loop_state_common.sh`
+- [[agentic-loop]] — the skill that creates and maintains `progress.json`; Phase -2 is the stub-first contract this hook enforces
+- [[spec-plan-progress-artifact-chain]] — how `progress.json` relates to `spec.md` / `plan.md`
+- [[discipline-loop]] — how the four (now six) discipline hooks compose
+- [[enforcement-model]] — hooks vs. commands
