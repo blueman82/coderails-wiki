@@ -62,7 +62,7 @@ See [[discipline-loop]] for the design rationale across all hooks.
 | `destructive_bash_gate.sh` | `PreToolUse (Bash)` | **block** (permissionDecision: deny) | [[destructive_bash_gate]] |
 | `test_gate.sh` | `PreToolUse (Bash)` | **block** on `git commit` if tests fail — opt-in via `.claude/test_command` | [[test_gate]] |
 | `enforce_pr_workflow.sh` | `PreToolUse (Bash)` | **block** — `gh pr create` without prior `/push`; `gh pr merge` or `git merge` (on main/master) without prior `/review-pr` (NO_CONFIG opt-in) | [[enforce_pr_workflow]] |
-| `no_edit_on_main.sh` | `PreToolUse (Write\|Edit\|MultiEdit)` | **block** — code-file edits on `main`/`master` | [[no_edit_on_main]] |
+| `no_edit_on_main.sh` | `PreToolUse (Write\|Edit\|MultiEdit)` | **block** — code-file + plugin-source (`skills/*/SKILL.md`, `commands/*.md`) edits on `main`/`master` | [[no_edit_on_main]] |
 
 Stop hook order: `check_confidence_labels` → `check_verify_loop` → `loop_state_guard` (C1) → `loop_stall_guard` (C2). The two loop-state hooks share `hooks/scripts/lib/loop_state_common.sh` (vocab + active-loop detection) and `hooks/scripts/lib/agentic_loop_path.sh` (sole path authority). The three discipline hooks share `hooks/scripts/lib/discipline_common.sh` (transcript extraction + retry loop, added PR #29). See [[spec-plan-progress-artifact-chain]].
 
