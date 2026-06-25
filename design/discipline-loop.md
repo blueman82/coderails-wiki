@@ -138,6 +138,12 @@ The coderails Stop hook array now has four hooks, running in order:
 
 The two loop-state hooks (C1/C2) pass immediately when no agentic-loop session is active — they add zero overhead to normal single-PR sessions. See [[spec-plan-progress-artifact-chain]] for the two-hook guard architecture.
 
+## Shared library: discipline_common.sh (added 2026-06-25, PR #29)
+
+The three discipline hooks (`check_confidence_labels.sh`, `check_verify_loop.sh`, `discipline_catchup.sh`) previously duplicated the transcript text-extraction jq expression and retry loop. PR #29 extracted this into `hooks/scripts/lib/discipline_common.sh`, mirroring the pattern of `lib/loop_state_common.sh`. Behaviour-preserving (proven against origin/main pre-refactor). A TDD test was added. (verified — PR #29)
+
+This means: edits to transcript-extraction logic now go in `discipline_common.sh`, not in each hook individually.
+
 ## Cross-References
 
 - [[enforcement-model]] — why hooks can enforce things that commands cannot
