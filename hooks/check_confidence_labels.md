@@ -1,8 +1,8 @@
 ---
 title: "Hook: check_confidence_labels"
-type: component
+type: hook
 created: 2026-05-30
-last_updated: 2026-05-30
+last_updated: 2026-06-25
 sources:
   - hooks/scripts/check_confidence_labels.sh
 tags: [hook, stop-hook, discipline, confidence-labels, enforcement]
