@@ -16,7 +16,7 @@ Schema and maintenance protocols are in `/Users/harrison/Documents/Github/codera
 
 `coderails` is a Claude Code plugin (not an application) that ships three things:
 1. A workflow command chain: `prep → push → merge → wiki`
-2. Skills: `agentic-loop`, `test-driven-development`, `writing-plans`, `handoff`, `planning-sequence`, `premortem`
+2. Skills: `agentic-loop`, `test-driven-development`, `writing-plans`, `handoff`, `improve-prompt`, `planning-sequence`, `premortem`, `wiki-ingest`, `wiki-init`, `wiki-lint`, `wiki-query`
 3. A discipline loop: hooks that enforce confidence labels, verify-loop resolution, and destructive-bash blocking
 
 Source: `coderails/CLAUDE.md`. Plugin manifest: `coderails/.claude-plugin/plugin.json`.
