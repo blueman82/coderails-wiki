@@ -8,6 +8,7 @@ sources:
   - sources/session_2026-05-31_prompting-doc-alignment.md
   - sources/session_2026-06-01_agentic-loop-delegate-all-impl.md
   - sources/session_2026-06-25_agentic-loop-upgrade-arc.md
+  - sources/pr_19-30_self-containment-and-hardening.md
 tags: [skill, agentic-loop, multi-agent, orchestration, context-window, delegation, artifact-chain, loop-state]
 ---
 
