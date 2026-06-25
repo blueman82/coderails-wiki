@@ -23,15 +23,17 @@ PreToolUse hook that blocks code-file edits (Write/Edit/MultiEdit) on `main` or 
 
 Skip gates (cheap first):
 
-1. If not on `main` or `master` branch — pass immediately.
-2. If target file extension is not in the code-file set (`.py`, `.ts`, `.tsx`, `.js`, `.jsx`, `.go`) — pass (docs, config, markdown allowed).
+1. If target file is **not** in the gated set — pass. The gated set is code extensions (`.py`, `.ts`, `.tsx`, `.js`, `.jsx`, `.go`) **plus plugin source carried in markdown**: `skills/*/SKILL.md` and `commands/*.md` (added PR #44). Plain docs/config — `README.md`, `docs/*.md`, non-`SKILL.md` skill markdown, `.json` — still pass.
+2. If not on `main` or `master` branch — pass.
 3. Otherwise — deny with a message indicating the current branch and suggesting the user checkout a feature branch.
 
-(verified — PR #27, 11/11 TDD tests pass)
+(verified — PR #27, 11/11 TDD tests; PR #44 extended to 17/17, plugin-source arms covered relative + absolute)
 
 ## Block condition
 
-Tool is Write, Edit, or MultiEdit AND current git branch is `main`/`master` AND the target file has a code extension. All three conditions must hold for the deny to fire.
+Tool is Write, Edit, or MultiEdit AND current git branch is `main`/`master` AND the target is a gated source file — a code extension, **or** plugin source in markdown (`skills/*/SKILL.md`, `commands/*.md`). All three conditions must hold for the deny to fire.
+
+The path arms are anchored on a `/` boundary (`*/skills/*/SKILL.md|skills/*/SKILL.md`) so a stray directory like `myskills/` can't match, with a bare relative arm for a path passed without a leading directory. (verified — PR #44, `case`-statement glob)
 
 ## Log output
 
