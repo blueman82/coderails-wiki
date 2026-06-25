@@ -56,7 +56,7 @@ The `git.worktree` bool in `AGENTS.md` is the only configuration difference betw
 
 ## Relationship to /workflow
 
-Called explicitly as the final phase of [[workflow]] (after `/merge`) to capture what was just shipped. Also usable standalone after any ad-hoc change the user wants recorded.
+Called explicitly as the final phase of `/coderails:workflow` (after `/merge`) to capture what was just shipped. Also usable standalone after any ad-hoc change the user wants recorded.
 
 ## See also
 
