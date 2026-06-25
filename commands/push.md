@@ -91,3 +91,4 @@ The strictcode pre-flight in [[workflow]] Phase 3 and the pre-flight inside this
 - [[merge]] — next step after push
 - [[config-resolution]] — dual-path config lookup
 - [[repo-hosting]] — github.com remote requirement enforced by `require::repo`
+- [[enforce_pr_workflow]] — PreToolUse hook that blocks `gh pr create` unless this command ran first (NO_CONFIG opt-in)
