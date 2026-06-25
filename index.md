@@ -30,18 +30,18 @@ See [[enforcement-model]] for why hooks enforce and commands do not.
 
 | Command | File | Status |
 |---|---|---|
-| `/coderails:workflow` | `commands/workflow.md` | Not yet documented |
-| `/coderails:prep` | `commands/prep.md` | Not yet documented |
-| `/coderails:push` | `commands/push.md` | Not yet documented |
-| `/coderails:merge` | `commands/merge.md` | Not yet documented |
-| `/coderails:workflow-init` | `commands/workflow-init.md` | Not yet documented |
-| `/coderails:test-gate-setup` | `commands/test-gate-setup.md` | Not yet documented |
-| `/coderails:assumptions` | `commands/assumptions.md` | Not yet documented |
-| `/coderails:disconfirm` | `commands/disconfirm.md` | Not yet documented |
-| `/coderails:notchecked` | `commands/notchecked.md` | Not yet documented |
-| `/coderails:verify` | `commands/verify.md` | Not yet documented |
+| `/coderails:workflow` | `commands/workflow.md` | [[workflow]] |
+| `/coderails:prep` | `commands/prep.md` | [[prep]] |
+| `/coderails:push` | `commands/push.md` | [[push]] |
+| `/coderails:merge` | `commands/merge.md` | [[merge]] |
+| `/coderails:init` | `commands/init.md` | [[init]] |
+| `/coderails:test-gate-setup` | `commands/test-gate-setup.md` | [[test-gate-setup]] |
+| `/coderails:assumptions` | `commands/assumptions.md` | [[assumptions]] |
+| `/coderails:disconfirm` | `commands/disconfirm.md` | [[disconfirm]] |
+| `/coderails:notchecked` | `commands/notchecked.md` | [[notchecked]] |
+| `/coderails:verify` | `commands/verify.md` | [[verify]] |
 
-Config resolution pattern shared by `workflow.md`, `prep.md`, `push.md`, `workflow-init.md`: [[config-resolution]]
+Config resolution pattern shared by `workflow.md`, `prep.md`, `push.md`, `init.md`: [[config-resolution]]
 
 ---
 
