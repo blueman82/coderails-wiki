@@ -7,6 +7,7 @@ sources:
   - commands/workflow.md
   - CLAUDE.md
   - hooks/hooks.json
+  - sources/pr_43_rough-edges.md
 tags:
   - hooks
   - enforcement
