@@ -121,7 +121,7 @@ The **prose rules** (in `~/.claude/CLAUDE.md`) describe the standard Claude *sho
 
 The **Stop hooks** enforce a *floor* that is intentionally lower than the prose standard:
 - `check_confidence_labels.sh` only blocks responses ≥200 chars with no label at all — it does not require every claim be labelled, just that the response isn't entirely unlabelled (verified: [[check_confidence_labels]])
-- `check_verify_loop.sh` only blocks when a DNV bullet names a source-resolvable file token — it does not require a DNV section on every response, just that named files be resolved (verified: [[check_verify_loop]])
+- `check_verify_loop.sh` (total enforcement as of 2026-06-01) blocks when any DNV bullet is untagged — the floor is: every deferral must carry an explicit `(unverifiable: …)` tag, or be resolved. The hook does not require a DNV section on every response, only that no untagged bullet exists when one does appear. (verified: [[check_verify_loop]])
 
 **Why the floor is lower than the standard:** mechanical hooks cannot encode nuanced judgment about what "substantive" means in context, or when a DNV section genuinely adds value vs. boilerplate. The prose standard asks Claude to apply judgment; the hooks catch the case where that judgment fails in a high-stakes way (a long response with no accountability markers, or a DNV that lists an unread file as a known gap). See [[hook-exit-codes]] for the block mechanisms.
 
