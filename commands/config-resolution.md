@@ -32,7 +32,7 @@ Priority:
 2. **Standalone repo**: `<git-root>/.claude/workflow.config.yaml`
 3. **Sentinel**: `NO_CONFIG` — the string that signals the project has not been initialised
 
-All three commands halt and prompt the user to run `/coderails:workflow-init` when they see `NO_CONFIG`.
+All three commands run in **minimal mode** when they see `NO_CONFIG` — they do NOT halt or prompt for `/coderails:init`. Minimal mode defaults: `config.jira` = null (skip all Jira steps), `config.wiki_path` = null (skip wiki phases), `config.worktree_base` = git root, `config.worktree_script` = null (use plain `git worktree add`), `config.strictcode_paths` = null (skip strictcode pre-flight). (verified: prep.md:11–16, workflow.md:11–17)
 
 ## workflow-init: the writer, not the reader
 
