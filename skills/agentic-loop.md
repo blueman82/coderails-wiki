@@ -115,8 +115,7 @@ The delegation decision is a two-rung ladder:
 - Explicitly invoke the `TeamCreate` tool; build a task list with `blockedBy` dependencies via `TaskUpdate`
 - If the user has named `TeamCreate` in their prompt, it is non-negotiable
 
-The old guidance "work directly when: single-file edits / sequential steps" was removed in plugin commit `3c33f99` because it contradicted the main-context-is-pure-orchestrator rule. The correct frame is which rung, not whether to delegate.
->>>>>>> origin/main
+The old guidance "work directly when: single-file edits / sequential steps" was removed in plugin commit `3c33f99` because it contradicted the main-context-is-pure-orchestrator rule. The correct frame is which rung, not whether to delegate. (This is the same two-rung threshold the Phase 2.7/2.8 complexity guard reuses for the spec/plan artifacts.)
 
 ## Context-window persistence
 
