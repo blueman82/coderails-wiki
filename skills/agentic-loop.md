@@ -96,22 +96,6 @@ Phase 2.6 forces a disposition decision before replacement work: **clean-break**
 ## Construction discipline (Spec D)
 
 Phase 3 and Phase 3a reference `coderails:test-driven-development` (code-guarded: "if the change adds or alters a function, method, or branch that can carry a test"). Vendored as a coderails-owned skill so the plugin keeps zero cross-plugin dependency (REVERSED from Spec A's "reference, not vendor" note). The reference sits near the TOP of the Phase 3a prompt-contract list (Phase 9's placement lesson: scope-shaping instructions get shortcut when buried low). `subagent-driven-development` was NOT vendored — the agentic-loop already embodies that orchestration pattern. See [[test-driven-development]].
-=======
-| 0 | Read the authorisation envelope | `<thinking>` block: verbatim quote, envelope class, in/out-of-scope sub-actions |
-| 1 | State the plan | Full plan in bullets; ask once to confirm |
-| 2 | Pre-flight via spawned agent | Delegate `/planning-sequence`, `/premortem`, `/wiki-query` to sonnet agent, not main context |
-| 3 | Delegate all impl to sonnet agents; TeamCreate when ≥3 units / dependency chains | **Default: main never implements.** Single sonnet `Agent` (impl+verify) for 1–2 self-contained units. `TeamCreate` for ≥3 PRs or cross-step dependency. |
-| 3a | Single sonnet agent for impl + verify (TeamCreate-is-overkill case) | One `model: sonnet` agent owns impl AND verification; reports back confidence-labelled + commits for durability |
-| 4 | Spawn workers; don't block on idle pings | Check artifacts not pings |
-| 5 | Disprove premise before each fix | Reproduce via SOT before spawning fix agent |
-| 6 | Match confirmation to envelope | Don't ask for things inside the authorised scope |
-| 7 | Skip-validation on cosmetic blockers | `./deploy --force --skip-drain --skip-validation` |
-| 8 | Rebase before push on stale worktrees | `git fetch origin && git rebase origin/main` |
-| 9 | Cluster wiki ingest | Run `/wiki-ingest` + `/wiki-lint` once at loop end, not per-PR |
-| 10 | v2/v3 names when respawning | Dead agents keep pinging; versioned names identify the live one |
-| 11 | Agent prompts include confidence labels | Pass the labelling standard into every spawned agent |
-| 12 | Status reports are claims, not evidence | Re-check artifact at moment of action, not moment of report |
->>>>>>> origin/main
 
 ## Delegation rung: single agent vs. TeamCreate
 
