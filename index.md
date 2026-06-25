@@ -10,7 +10,7 @@ tags: [index, catalog]
 # Coderails Wiki — Content Catalog
 
 This is the first file Claude reads when answering queries about the coderails plugin.
-Schema and maintenance protocols are in `/Users/harrison/Documents/Github/coderails/AGENTS.md`.
+Schema and maintenance protocols are in `/Users/harrison/Github/coderails/AGENTS.md`.
 
 ## What this plugin is
 
