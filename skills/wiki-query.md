@@ -73,4 +73,4 @@ Step 2 reads `index.md` before any content page. This is a deliberate forcing fu
 - [[wiki-ingest]] — writes the pages this skill reads
 - [[wiki-lint]] — audits structural integrity of the vault; query relies on lint having kept links valid
 - [[wiki-init]] — created the vault, installed Marp, registered with qmd
-- [[workflow]] — query is not a formal step in workflow, but investigation pages created by file-back often inform the next prep cycle
+- `/coderails:workflow` — query is not a formal step in workflow, but investigation pages created by file-back often inform the next prep cycle
