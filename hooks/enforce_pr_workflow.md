@@ -3,13 +3,13 @@ title: "enforce_pr_workflow.sh"
 type: hook
 created: 2026-06-25
 last_updated: 2026-06-25
-sources: [sources/pr_19-30_self-containment-and-hardening.md]
+sources: [sources/pr_19-30_self-containment-and-hardening.md, sources/pr_40_hook-hardening.md]
 tags: [hook, PreToolUse, enforcement, pr-workflow, workflow-chain]
 ---
 
 # enforce_pr_workflow.sh
 
-PreToolUse(Bash) hook that mechanically guards the PR workflow chain: blocks `gh pr create` unless `/coderails:push` ran this session, and blocks `gh pr merge` unless `/pr-review-toolkit:review-pr` ran this session.
+PreToolUse(Bash) hook that mechanically guards the PR workflow chain: blocks `gh pr create` unless `/coderails:push` ran this session; blocks `gh pr merge` unless `/pr-review-toolkit:review-pr` ran this session; and (since PR #40) blocks `git merge` on `main`/`master` unless `/pr-review-toolkit:review-pr` ran this session.
 
 ## Event and mode
 
@@ -23,14 +23,27 @@ PreToolUse(Bash) hook that mechanically guards the PR workflow chain: blocks `gh
 
 Skip gates (cheap first):
 
-1. If `workflow.config.yaml` is absent (NO_CONFIG sentinel) — pass immediately. The hook is opt-in via the full workflow stack. (inferred — PR #30 body)
-2. If the Bash command does not contain `gh pr create` or `gh pr merge` — pass.
-3. For `gh pr create`: scan the session transcript for evidence that `/coderails:push` ran. If not found — deny.
-4. For `gh pr merge`: scan the session transcript for evidence that `/pr-review-toolkit:review-pr` ran. If not found — deny.
+1. Empty command string — pass.
+2. `--help` / `--dry-run` flags — pass. `git merge --abort/--continue/--quit/--skip` (conflict-resolution ops) — pass.
+3. Command does not match `gh pr create`, `gh pr merge`, or `git merge` — pass.
+4. `workflow.config.yaml` absent (NO_CONFIG sentinel) — pass. The hook is opt-in via the full workflow stack. (verified — PR #30)
+4b. For `git merge` only: if not on `main` or `master` — pass. Feature branches are unconditionally allowed. Detached HEAD / empty branch name falls through to allow (same safe-fail default as [[no_edit_on_main]]).
+5. No transcript path in hook payload — pass (can't enforce).
+6. Transcript scan for required preceding step. If evidence found — pass. If not found — deny.
+
+Subcommand routing after Gate 3: `create` → requires `/coderails:push` evidence; `merge` (gh) or `git_merge` → requires `/pr-review-toolkit:review-pr` evidence.
 
 ## Block condition
 
-`gh pr create` called without a prior `/coderails:push` in the session transcript, OR `gh pr merge` called without a prior `/pr-review-toolkit:review-pr` in the session transcript. Both checks are NO_CONFIG-gated.
+- `gh pr create` called without a prior `/coderails:push` in the session transcript.
+- `gh pr merge` called without a prior `/pr-review-toolkit:review-pr` in the session transcript.
+- `git merge` on `main`/`master` called without a prior `/pr-review-toolkit:review-pr` in the session transcript. (added PR #40)
+
+All checks are NO_CONFIG-gated (Gate 4).
+
+## Why the `git merge` gate was added (PR #40)
+
+The `finishing-a-development-branch` skill includes a "merge locally" option that bypasses the PR path entirely — no `gh pr merge` ever runs, so the pre-existing gate never fires. This left a bypass route. The `git merge` gate closes it: even a local fast-forward merge on main now requires review evidence. (verified — PR #40)
 
 ## Log output
 
@@ -56,4 +69,5 @@ This hook is auto-chmod'd by `install.sh`'s hooks.json-derivation (PR #28). No m
 [[discipline-loop]] — broader discipline hook composition  
 [[push]] — the command this hook requires ran before `gh pr create`  
 [[workflow]] — the full chain this hook enforces  
+[[finishing-a-development-branch]] — the skill whose local-merge option motivated the git-merge gate  
 `coderails/hooks/scripts/enforce_pr_workflow.sh`
