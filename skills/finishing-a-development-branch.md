@@ -27,6 +27,10 @@ Downstream of the review loop. Typically: review done → this skill → `/coder
 4. Confirm review approval is recorded.
 5. Hand off to `/coderails:merge`.
 
+## Hook-gated actions
+
+**Option 1 — merge locally:** If a skill phase instructs `git merge` directly on main/master (rather than via `gh pr merge`), [[enforce_pr_workflow]] will block it unless `/pr-review-toolkit:review-pr` ran this session. Resolution: run `/pr-review-toolkit:review-pr` first, then retry the merge. In a workflow.config.yaml-configured repo this gate is always active; it is not opt-in at the command level. (verified — PR #42, CLAUDE.md seam convention)
+
 ## Failure modes encoded
 
 - Merging with failing tests.
