@@ -136,6 +136,14 @@ The skill was cut 454→434 lines: Phases 7&8 (corporate docker/Teleport residue
 
 A follow-up tried to shrink the skill further by replacing inline restatements with one-line references to the vendored `coderails:` skills. **The realistic delta was zero.** [[pr_39_agentic-loop-slim-v2|PR #39]] normalised 13 bare skill refs to the fully-qualified `/coderails:` form (so they resolve as invocable references) — and that was the entire actionable surface. Two independent passes (main context + a blind Explore agent) classified all 22 phases against a four-part test — **generic + fully-covered + worker-facing + no-autonomy-delta** — and both converged on **zero** replaceable passages. The embodied skills are autonomy *supersets, not duplicates*: every phase fails part 3 (orchestrator-facing) or part 4 (superset of the vendored skill), or is frozen. The last near-miss, Phase 5, is KEEP — its "reproduce before fixing" core is `coderails:systematic-debugging`'s Iron Law, but it is wrapped in an autonomy delta (the source-of-truth caching warning + the STOP-and-report hard-stop tie-in). **Do not re-attempt the slim:** further cuts would only delete autonomy deltas the constraints exist to preserve. See [[pr_39_agentic-loop-slim-v2]].
 
+## Phase 2.5 — brainstorming design-quality by reference (PR #41)
+
+Phase 2.5 spawns a design agent that applies [[brainstorming]]'s design-quality discipline — weigh viable approaches, YAGNI, prefer designs whose units stay small and independently testable (design-for-isolation) — **without** invoking the brainstorming skill itself. (verified: SKILL.md line 163)
+
+The rationale: brainstorming is human-gated by construction — its approval steps require a human in the loop. An autonomous loop can't pause at those gates; it would stall. So Phase 2.5 reuses brainstorming's *thinking* by reference, not its control flow. This is the same reference-not-embody pattern established by the Slimming v2 work: the loop borrows the design principles without being able to invoke the gated skill. (verified: SKILL.md Phase 2.7 "a loop cannot brainstorm with itself")
+
+The non-obvious/durable point: if anyone asks "why doesn't the autonomous loop just invoke brainstorming?" — the answer is that brainstorming blocks on a human at its approval gates. The loop reuses its design *quality criteria* at Phase 2.5 rather than calling the gated skill. See [[pr_41_phase25-brainstorming-xref]] and [[brainstorming]].
+
 ## Key architectural decisions encoded
 
 - **Pre-flight + worker agents use `model: sonnet`** — orchestration pattern; cost control. No escalation path; D's TDD and E's planning skills carry no model guidance that could escalate.
