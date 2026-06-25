@@ -166,3 +166,4 @@ The non-obvious/durable point: if anyone asks "why doesn't the autonomous loop j
 - [[session_2026-06-01_agentic-loop-delegate-all-impl]] — source for the delegate-all-impl-to-sonnet change (plugin commit 3c33f99)
 - [[session_2026-06-25_agentic-loop-upgrade-arc]] — the PR #12–#18 source record
 - [[session_2026-05-31_prompting-doc-alignment]] — earlier source for delegate/context guidance
+- [[pr_41_phase25-brainstorming-xref]] — PR #41 source record: Phase 2.5 references brainstorming's design-quality discipline without its gates
