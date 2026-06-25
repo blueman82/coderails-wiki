@@ -105,12 +105,13 @@ Skills in `coderails/skills/*/SKILL.md`.
 Architectural decisions and invariants.
 
 - [[enforcement-model]] — hooks vs. commands; the central design distinction
-- [[discipline-loop]] — how the four discipline hooks compose into a coherent loop
+- [[discipline-loop]] — how the six discipline hooks compose into a coherent loop
 - [[config-resolution]] — dual-path `workflow.config.yaml` lookup used by all workflow commands
 - [[install-and-cache-trap]] — idempotency contracts for `install.sh`/`uninstall.sh` and the reload-plugins caveat
 - [[hook-exit-codes]] — which hook events block on exit 2; why coderails uses two block mechanisms
 - [[repo-hosting]] — where the plugin + wiki repos live (private, `blueman82`), clone locations, `.gitignore` rules
 - [[spec-plan-progress-artifact-chain]] — the agentic-loop's full spec→plan→progress durable-artifact chain + the two-hook (C1 presence/ownership, C2 anti-stall) loop-state guard architecture
+- [[self-containment]] — the 2026-06-25 decision to vendor 12 superpowers skills into coderails; superpowers now uninstallable
 
 ---
 
