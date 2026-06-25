@@ -139,6 +139,7 @@ Ingested PR and change records (`sources/pr_<N>_*.md`; session sources for direc
 - [[pr_40_hook-hardening]] — PR #40 hook hardening (2026-06-25): enforce_pr_workflow gains a `git merge` gate on main/master (closes local-merge bypass); inject_bootstrap jq refactor (escape_for_json removed, clean-break); new run_all.sh aggregate test runner with zero-test guard (13 suites)
 - [[pr_41_phase25-brainstorming-xref]] — PR #41 (2026-06-25): Phase 2.5 design-fork resolver now applies brainstorming's design-quality discipline (YAGNI, design-for-isolation) by reference, without brainstorming's human-approval gates
 - [[pr_42_skills-hooks-seam]] — PR #42 (2026-06-25): merge-base regex exclusion bug fix; reordered git-merge hint; skills↔hooks seam convention; finishing-a-development-branch Option 1 hook note
+- [[pr_43_rough-edges]] — PR #43 (2026-06-25): failure_log template cleaned (3 stale dev-history rows removed); GitHub-only constraint made user-facing in README; merge.sh enforcement-gap notice when enforce_pr_workflow is inactive
 
 ---
 
