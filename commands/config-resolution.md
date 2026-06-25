@@ -34,15 +34,15 @@ Priority:
 
 All three commands run in **minimal mode** when they see `NO_CONFIG` — they do NOT halt or prompt for `/coderails:init`. Minimal mode defaults: `config.jira` = null (skip all Jira steps), `config.wiki_path` = null (skip wiki phases), `config.worktree_base` = git root, `config.worktree_script` = null (use plain `git worktree add`), `config.strictcode_paths` = null (skip strictcode pre-flight). (verified: prep.md:11–16, workflow.md:11–17)
 
-## workflow-init: the writer, not the reader
+## init: the writer, not the reader
 
-`workflow-init.md` does not contain the bash one-liner. It expresses the same monorepo-vs-standalone decision as prose steps and *writes* the config file rather than reading it. (verified: workflow-init.md:13–17)
+`init.md` does not contain the bash one-liner. It expresses the same monorepo-vs-standalone decision as prose steps and *writes* the config file rather than reading it. (inferred: consistent with CLAUDE.md statement about the scaffolder)
 
 The scaffolder checks whether `<git-root>/projects/<project-name>/` exists to decide which path to write to — the same branch the readers follow.
 
 ## Update discipline: all four files
 
-The CLAUDE.md for this repo states explicitly: "If you add a config field, update **all four** of `workflow.md`, `prep.md`, `push.md`, and `workflow-init.md`." (verified: CLAUDE.md — project instructions)
+The CLAUDE.md for this repo states explicitly: "If you add a config field, update **all four** of `workflow.md`, `prep.md`, `push.md`, and `init.md`." (verified: CLAUDE.md — project instructions)
 
 This is required because:
 - The three reader commands each embed the bash one-liner independently — they share no include mechanism.
