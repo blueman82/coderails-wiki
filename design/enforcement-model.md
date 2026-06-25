@@ -83,3 +83,6 @@ If someone asks "can we make the strictcode check mandatory before push?", the a
 
 - [[discipline-loop]] — the specific Stop hooks that enforce self-checking discipline
 - [[install-and-cache-trap]] — editing hooks in the repo does not update the running cache without reinstall
+- [[no_edit_on_main]] — PreToolUse hook that blocks code edits on main/master (added 2026-06-25)
+- [[enforce_pr_workflow]] — PreToolUse hook that gates `gh pr create`/`gh pr merge` (added 2026-06-25)
+- [[inject_bootstrap]] — SessionStart hook that bootstraps coderails context (added 2026-06-25)
