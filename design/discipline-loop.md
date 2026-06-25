@@ -127,9 +127,9 @@ The **Stop hooks** enforce a *floor* that is intentionally lower than the prose 
 
 **What this means in practice:** following the hook floor is necessary but not sufficient. A response can satisfy both hooks (≥1 label, no file-named DNV bullet) while still falling short of the prose standard (many unlabelled claims, no DNV section at all on a file-editing response). The prose standard is the real target. The hooks are the backstop for clear failures.
 
-## The full Stop hook composition (6 hooks total)
+## The Stop hook composition (4 Stop hooks; 11 hooks total across all events)
 
-The coderails Stop hook array now has four hooks, running in order:
+The coderails Stop hook array has four hooks, running in order:
 
 1. `check_confidence_labels` — confidence labels gate
 2. `check_verify_loop` — DNV resolution gate
