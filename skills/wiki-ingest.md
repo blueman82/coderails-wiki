@@ -63,4 +63,4 @@ Called explicitly as the final phase of `/coderails:workflow` (after `/merge`) t
 - [[wiki-init]] — prerequisite; creates the vault and AGENTS.md this skill reads
 - [[wiki-lint]] — runs after ingest to audit what was written
 - [[wiki-query]] — reads what ingest writes
-- [[workflow]] — calls wiki-ingest as its closing phase
+- `/coderails:workflow` — calls wiki-ingest as its closing phase
