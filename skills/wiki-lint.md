@@ -71,4 +71,4 @@ Step 4 (Suggest) comes after the report, not before. The pattern is: find what's
 - [[wiki-ingest]] — always run lint after ingest; the two are paired
 - [[wiki-query]] — reads the same vault pages lint audits
 - [[wiki-init]] — established the page-type structure lint checks against
-- [[workflow]] — lint runs as part of the workflow's post-merge wiki phase
+- `/coderails:workflow` — lint runs as part of the workflow's post-merge wiki phase
