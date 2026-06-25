@@ -56,4 +56,4 @@ This is required because:
 
 - [[enforcement-model]]
 - [[workflow-command-chain]]
-- [[workflow-init]]
+- [[init]]
