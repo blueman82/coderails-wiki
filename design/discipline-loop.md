@@ -127,10 +127,24 @@ The **Stop hooks** enforce a *floor* that is intentionally lower than the prose 
 
 **What this means in practice:** following the hook floor is necessary but not sufficient. A response can satisfy both hooks (≥1 label, no file-named DNV bullet) while still falling short of the prose standard (many unlabelled claims, no DNV section at all on a file-editing response). The prose standard is the real target. The hooks are the backstop for clear failures.
 
+## The full Stop hook composition (6 hooks total)
+
+The coderails Stop hook array now has four hooks, running in order:
+
+1. `check_confidence_labels` — confidence labels gate
+2. `check_verify_loop` — DNV resolution gate
+3. `loop_state_guard` — `progress.json` presence/ownership gate (agentic-loop sessions only)
+4. `loop_stall_guard` — `LOOP-STOP` declaration gate (agentic-loop sessions only)
+
+The two loop-state hooks (C1/C2) pass immediately when no agentic-loop session is active — they add zero overhead to normal single-PR sessions. See [[spec-plan-progress-artifact-chain]] for the two-hook guard architecture.
+
 ## Cross-References
 
 - [[enforcement-model]] — why hooks can enforce things that commands cannot
 - [[check_confidence_labels]] — the confidence-label Stop hook in detail
-- [[check_verify_loop]] — the verify loop hook in detail
+- [[check_verify_loop]] — the verify loop hook in detail (total enforcement as of 2026-06-01)
+- [[loop_state_guard]] — `progress.json` presence/ownership Stop hook (C1, added 2026-06-24)
+- [[loop_stall_guard]] — `LOOP-STOP` declaration Stop hook (C2, added 2026-06-24)
+- [[spec-plan-progress-artifact-chain]] — the two-hook loop-state guard design
 - [[hook-exit-codes]] — which hook events block on exit 2 vs. permissionDecision: deny
 - [[install-and-cache-trap]] — hook edits in the repo do not take effect until cache is re-synced
