@@ -85,6 +85,18 @@ Skills in `coderails/skills/*/SKILL.md`.
 | `wiki-init` | One-time vault bootstrap: creates vault, seeds AGENTS.md, wires Obsidian + qmd | [[wiki-init]] |
 | `wiki-lint` | Wiki structural integrity auditor: contradictions, stale pages, orphans, missing cross-refs | [[wiki-lint]] |
 | `wiki-query` | Wiki read operation; answers questions with citations, files hard answers back as investigations | [[wiki-query]] |
+| `using-coderails` | Session orientation; auto-loaded at SessionStart via inject_bootstrap hook | [[using-coderails]] |
+| `using-git-worktrees` | Git worktree mechanics for parallel agent isolation | [[using-git-worktrees]] |
+| `requesting-code-review` | PR review submission discipline; sits at push→review boundary | [[requesting-code-review]] |
+| `receiving-code-review` | Acting on review findings; triage by severity | [[receiving-code-review]] |
+| `finishing-a-development-branch` | Final verification before merge; branch wrap-up | [[finishing-a-development-branch]] |
+| `dispatching-parallel-agents` | Fan-out to parallel subagents with worktree isolation | [[dispatching-parallel-agents]] |
+| `systematic-debugging` | Hypothesis-then-verify loop before touching code | [[systematic-debugging]] |
+| `verification-before-completion` | Structured checklist against requirements before declaring done | [[verification-before-completion]] |
+| `writing-skills` | Meta-skill for authoring new coderails skills | [[writing-skills]] |
+| `subagent-driven-development` | Delegation pattern: implementer prompts → subagent → verify loop | [[subagent-driven-development]] |
+| `executing-plans` | Executing a `plan.md` task list with scope discipline | [[executing-plans]] |
+| `brainstorming` | Structured ideation + Decision Ledger before committing to a design | [[brainstorming]] |
 
 ---
 
