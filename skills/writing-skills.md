@@ -1,0 +1,44 @@
+---
+title: "writing-skills"
+type: skill
+created: 2026-06-25
+last_updated: 2026-06-25
+sources: [sources/pr_19-30_self-containment-and-hardening.md]
+tags: [skill, meta, skill-authoring, plugin-development]
+---
+
+# writing-skills
+
+Meta-skill for authoring new coderails skills: frontmatter conventions, trigger-phrase design, phase decomposition, and failure-mode encoding.
+
+## Trigger phrases
+
+When the user wants to create a new skill; "write a skill", "author a skill", "new skill for coderails". Meta — about the plugin itself.
+
+## Relationship to /workflow
+
+Outside the workflow chain. This is a plugin-development skill, not a project-delivery skill.
+
+## Key phases / steps
+
+1. Identify the failure mode the skill exists to prevent (work backwards from the problem).
+2. Draft trigger phrases that Claude would actually encounter.
+3. Define phases — each must have a verifiable output.
+4. Write the `SKILL.md` in `coderails/skills/<name>/SKILL.md`.
+5. Register the skill in the plugin manifest.
+
+## Failure modes encoded
+
+- Writing a skill that describes what to do without encoding what mistake it prevents.
+- Trigger phrases so broad that the skill fires when it shouldn't.
+- Phases with no verifiable exit criteria ("do the thing" is not a phase).
+- Forgetting to register in the manifest (skill exists but is never loaded).
+
+## Source
+
+`coderails/skills/writing-skills/SKILL.md`
+
+## See also
+
+[[self-containment]] — context: these skills were vendored so coderails could grow its own skill library  
+[[wiki-ingest]] — when you write a new skill, ingest it into the wiki
