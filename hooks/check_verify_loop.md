@@ -1,8 +1,8 @@
 ---
 title: "Hook: check_verify_loop"
-type: component
+type: hook
 created: 2026-05-30
-last_updated: 2026-06-01
+last_updated: 2026-06-25
 sources:
   - hooks/scripts/check_verify_loop.sh
   - sources/session_2026-05-31_verify-loop-hardening.md
