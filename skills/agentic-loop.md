@@ -94,9 +94,9 @@ Phase 2.6 forces a disposition decision before replacement work: **clean-break**
 
 `status` ∈ `initialising` | `in-progress` | `complete`. The path is resolved by `agentic_loop_path.sh` — **the model never computes it** (a cwd-slug cannot be reproduced by hand).
 
-## Construction discipline (Spec D)
+## Construction discipline (Spec D + PR #24)
 
-Phase 3 and Phase 3a reference `coderails:test-driven-development` (code-guarded: "if the change adds or alters a function, method, or branch that can carry a test"). Vendored as a coderails-owned skill so the plugin keeps zero cross-plugin dependency (REVERSED from Spec A's "reference, not vendor" note). The reference sits near the TOP of the Phase 3a prompt-contract list (Phase 9's placement lesson: scope-shaping instructions get shortcut when buried low). `subagent-driven-development` was NOT vendored — the agentic-loop already embodies that orchestration pattern. See [[test-driven-development]].
+Phase 3 and Phase 3a reference `coderails:test-driven-development` (code-guarded: "if the change adds or alters a function, method, or branch that can carry a test"). Vendored as a coderails-owned skill so the plugin keeps zero cross-plugin dependency (REVERSED from Spec A's "reference, not vendor" note). The reference sits near the TOP of the Phase 3a prompt-contract list (Phase 9's placement lesson: scope-shaping instructions get shortcut when buried low). PR #24 additive-wired `coderails:subagent-driven-development` into worker-prompt construction (Phase 3), replacing the former superpowers cross-plugin reference. Also fixed dead `/claude-guardrails:assumptions` and `/claude-guardrails:notchecked` references → `coderails:assumptions` and `coderails:notchecked` respectively. The six C1/C2 no-touch regions were kept byte-identical. (verified — PR #24) See [[test-driven-development]] and [[subagent-driven-development]].
 
 ## Delegation rung: single agent vs. TeamCreate
 
