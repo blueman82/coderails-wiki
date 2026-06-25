@@ -85,4 +85,5 @@ This hook is auto-chmod'd by `install.sh`'s hooks.json-derivation (PR #28). No m
 [[push]] — the command this hook requires ran before `gh pr create`  
 [[workflow]] — the full chain this hook enforces  
 [[finishing-a-development-branch]] — the skill whose local-merge option motivated the git-merge gate  
+[[skills-hooks-seam]] — the cross-reference convention this hook participates in; the merge-base regex footgun  
 `coderails/hooks/scripts/enforce_pr_workflow.sh`
