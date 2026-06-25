@@ -99,9 +99,6 @@ Phase 3 and Phase 3a reference `coderails:test-driven-development` (code-guarded
 
 ## Delegation rung: single agent vs. TeamCreate
 
-<<<<<<< HEAD
-(verified: SKILL.md, added 2026-05-31). Use subagents when tasks run in parallel, need isolated context, or are genuinely independent. Work directly on single-file edits, sequential steps, and work needing shared context. TeamCreate is for ≥3 sequential units or cross-step dependency chains — not "any multi-step task." This is the same threshold the Phase 2.7/2.8 complexity guard reuses.
-=======
 Updated 2026-06-01 (verified: SKILL.md Phase 3 and Phase 3a):
 
 **Main context is a pure orchestrator that NEVER implements.** Every code change — even a single-file edit — is delegated to a spawned sonnet agent. The two reasons, stated in the skill: keep main context clean (opus context is scarce), and keep cost down (sonnet does the typing, not opus). A file edit done directly in main context is the exception that needs a justification, not the default.
