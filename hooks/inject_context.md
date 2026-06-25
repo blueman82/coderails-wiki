@@ -1,8 +1,8 @@
 ---
 title: "Hook: inject_context"
-type: component
+type: hook
 created: 2026-05-31
-last_updated: 2026-05-31
+last_updated: 2026-06-25
 sources:
   - hooks/scripts/inject_context.sh
 tags: [hook, userpromptsubmit-hook, context-injection, silent, discipline]
