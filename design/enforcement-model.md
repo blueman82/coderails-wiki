@@ -79,6 +79,12 @@ PreToolUse hooks block by emitting a JSON response with `permissionDecision: "de
 
 If someone asks "can we make the strictcode check mandatory before push?", the answer is: add a `PreToolUse` hook that fires on `Bash(gh pr create*)` and checks for strictcode evidence, not a new instruction in `/push`. The command already runs it; the hook enforces it.
 
+## Scope Assumptions
+
+**GitHub-only.** The enforcement scripts (`enforce_pr_workflow.sh`, `merge.sh`, `push.sh`) use the `gh` CLI, and `scripts/lib/git-common.sh`'s `require::repo` helper validates the remote against `github.com`. GitLab, Bitbucket, and Gitea remotes are unsupported — this is a deliberate scope decision, not an oversight. Surfaced user-facing in README as of PR #43 (df4b372). (verified: git-common.sh `require::repo`, PR #43)
+
+**`enforce_pr_workflow` is opt-in.** The hook no-ops when no `workflow.config.yaml` exists. Without config, `gh pr merge` goes through unguarded. `merge.sh` now surfaces this gap with an informational notice before merge (added PR #43). Run `/coderails:init` to generate the config and activate enforcement. (verified: enforce_pr_workflow.sh NO_CONFIG guard, scripts/merge.sh PR #43 addition)
+
 ## Cross-References
 
 - [[discipline-loop]] — the specific Stop hooks that enforce self-checking discipline
@@ -86,3 +92,4 @@ If someone asks "can we make the strictcode check mandatory before push?", the a
 - [[no_edit_on_main]] — PreToolUse hook that blocks code edits on main/master (added 2026-06-25)
 - [[enforce_pr_workflow]] — PreToolUse hook that gates `gh pr create`/`gh pr merge` (added 2026-06-25)
 - [[inject_bootstrap]] — SessionStart hook that bootstraps coderails context (added 2026-06-25)
+- [[merge]] — enforcement-gap notice added to merge.sh in PR #43
