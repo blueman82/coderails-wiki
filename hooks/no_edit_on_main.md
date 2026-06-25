@@ -47,6 +47,10 @@ Appends to `$CLAUDE_DISCIPLINE_LOG` on block. Format matches the `key=value` con
 
 Uses `permissionDecision: deny` (JSON output to stdout), mirroring `destructive_bash_gate.sh`. This is the PreToolUse block mechanism — distinct from the `exit 2` used by Stop hooks. See [[hook-exit-codes]].
 
+**Why plugin-source markdown is gated (PR #44).** `skills/*/SKILL.md` and `commands/*.md` ARE the plugin's source — editing `agentic-loop/SKILL.md` directly on main is the same class of mistake as committing a `.py` straight to main. The original "docs-only carve-out" let all markdown through, which had let a SKILL.md edit land direct on main earlier the same session. The carve-out is now narrowed to *plain* docs (root `README.md`, `docs/`, non-`SKILL.md` skill references).
+
+**Why `git push` is deliberately NOT gated.** Edit-time (this hook) is the correct seam for the direct-to-main concern. Gating `git push` would be (a) redundant — the edit is already blocked here, and GitHub branch protection covers the server side; (b) breaking — the PR workflow *requires* pushing feature branches (`push.sh`); (c) brittle — "a push targeting main" hides behind implicit upstream, `HEAD`, and refspecs, with no clean token to match (unlike `gh pr create` / `git merge` in [[enforce_pr_workflow]]). Strengthening this edit-time gate is what makes a push-time gate unnecessary. (decision — PR #44 discussion)
+
 ## See also
 
 [[enforcement-model]] — the hook/command distinction  
