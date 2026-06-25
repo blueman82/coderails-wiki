@@ -140,6 +140,7 @@ Ingested PR and change records (`sources/pr_<N>_*.md`; session sources for direc
 - [[pr_41_phase25-brainstorming-xref]] — PR #41 (2026-06-25): Phase 2.5 design-fork resolver now applies brainstorming's design-quality discipline (YAGNI, design-for-isolation) by reference, without brainstorming's human-approval gates
 - [[pr_42_skills-hooks-seam]] — PR #42 (2026-06-25): merge-base regex exclusion bug fix; reordered git-merge hint; skills↔hooks seam convention; finishing-a-development-branch Option 1 hook note
 - [[pr_43_rough-edges]] — PR #43 (2026-06-25): failure_log template cleaned (3 stale dev-history rows removed); GitHub-only constraint made user-facing in README; merge.sh enforcement-gap notice when enforce_pr_workflow is inactive
+- [[pr_44_no-edit-plugin-source]] — PR #44 (merged 2026-06-25): no_edit_on_main now gates plugin-source markdown (`skills/*/SKILL.md`, `commands/*.md`) on main, narrowing the docs carve-out; deliberate decision NOT to gate `git push` (edit-time is the right seam); `docs/superpowers` historical tree removed
 
 ---
 
