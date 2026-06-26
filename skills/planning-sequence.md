@@ -2,8 +2,8 @@
 title: "Skill: planning-sequence"
 type: skill
 created: 2026-06-25
-last_updated: 2026-06-25
-sources: [skills/planning-sequence/SKILL.md]
+last_updated: 2026-06-26
+sources: [skills/planning-sequence/SKILL.md, sources/pr_50_planning-sequence-gate.md]
 tags: [skill, planning, premortem, red-team, pre-parade, anticipatory-analysis]
 ---
 
