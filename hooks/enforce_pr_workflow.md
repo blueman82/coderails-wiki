@@ -77,6 +77,31 @@ The destination anchor is `:(refs/heads/)?(main|master)([[:space:];&|)]|$)`. The
 
 The block message for `git merge` on main now leads with the actual resolution ("Run /pr-review-toolkit:review-pr first") before listing `/coderails:merge` and the settings.json bypass. Matches the adjacent `gh pr merge` hint order.
 
+## Named gate functions (PR #49)
+
+PR #49 replaced positional `# Gate N` comments with named bash functions, making each gate's purpose self-documenting and greppable. The seven functions, in evaluation order:
+
+| Function | Gate | Purpose |
+|---|---|---|
+| `gate_has_command` | 1 | Pass if command string is empty |
+| `gate_safe_passthrough` | 2 | Pass for `--help`, `--dry-run`, conflict-resolution ops |
+| `gate_in_scope` | 3 | Pass if command is not a gated subcommand; sets `$subcommand` |
+| `gate_config_present` | 4 | Pass if `workflow.config.yaml` absent (NO_CONFIG opt-in) |
+| `gate_targets_main` | 4b | Pass if `git merge`/`git push` does not target main/master |
+| `gate_have_transcript` | 5 | Pass if no transcript path in payload |
+| `enforce_required_step` | 6 | Scan transcript; pass if evidence found, deny if not |
+
+`gate_targets_main` is the headline rename: the former label "Gate 4b" conveyed only position; the name now states the decision the gate makes. Mirrors the `require::` / `pr::` naming idiom in `scripts/lib/git-common.sh`. (verified — PR #49)
+
+## Evidence model and known limitation (PR #49 documented, deferred)
+
+The transcript scan in `enforce_required_step` looks for *invocation evidence* — a Skill tool call with the required name appearing anywhere in the session transcript. It does **not** verify completion. Two weaknesses:
+
+1. **Hollow invocation**: a Skill call that errors immediately still satisfies the gate.
+2. **Substring false-positive**: assistant prose that *mentions* `gh pr create` (not a tool call) can trigger a false block.
+
+The real "no unreviewed merge to main" guarantee is server-side GitHub branch protection. This hook is a redirect + audit layer. The fix is deferred; no behaviour changed in PR #49. (inferred — PR #49 body / team-lead briefing)
+
 ## Log output
 
 Appends to `$CLAUDE_DISCIPLINE_LOG` on block. Format matches `key=value` convention.
