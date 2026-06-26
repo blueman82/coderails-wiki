@@ -129,7 +129,7 @@ The **Stop hooks** enforce a *floor* that is intentionally lower than the prose 
 
 **What this means in practice:** following the hook floor is necessary but not sufficient. A response can satisfy both hooks (≥1 label, no file-named DNV bullet) while still falling short of the prose standard (many unlabelled claims, no DNV section at all on a file-editing response). The prose standard is the real target. The hooks are the backstop for clear failures.
 
-## The Stop hook composition (4 Stop hooks; 11 hooks total across all events)
+## The Stop hook composition (4 Stop hooks; 2 SubagentStop hooks; 13 hooks total across all events)
 
 The coderails Stop hook array has four hooks, running in order:
 
@@ -138,7 +138,23 @@ The coderails Stop hook array has four hooks, running in order:
 3. `loop_state_guard` — `progress.json` presence/ownership gate (agentic-loop sessions only)
 4. `loop_stall_guard` — `LOOP-STOP` declaration gate (agentic-loop sessions only)
 
-The two loop-state hooks (C1/C2) pass immediately when no agentic-loop session is active — they add zero overhead to normal single-PR sessions. See [[spec-plan-progress-artifact-chain]] for the two-hook guard architecture.
+The SubagentStop hook array has two hooks (wired PR #57):
+1. `check_confidence_labels` — reads `.last_assistant_message`; same MIN_LEN/label logic as Stop
+2. `check_verify_loop` — reads `.last_assistant_message`; no `file_count` gate; same DNV enforcement as Stop
+
+The two loop-state hooks (C1/C2) remain **Stop-only** — they key off main-agent loop invocation count and session-owned `progress.json`. A subagent has no `progress.json` to validate. The two loop-state hooks pass immediately when no agentic-loop session is active — they add zero overhead to normal single-PR sessions. See [[spec-plan-progress-artifact-chain]] for the two-hook guard architecture.
+
+## Enforcement ceilings (documented PR #62)
+
+These are deliberate limits, not bugs. See `CLAUDE.md` "Enforcement ceilings" section for the canonical list.
+
+- **Bash blocklists are enumerated families, not exhaustive.** `destructive_bash_gate` and the in-Bash source-edit gate catch known patterns; obfuscated forms, variable filenames, quoted paths with spaces, here-docs, process substitution remain uncaught.
+- **`no_edit_on_main` allowlist breadth is intentional (fail-safe).** `.sh` is blocked on main while `.json`/`.yaml` config stays editable — an accepted classification. Legitimate overrides use settings.json `Write`/`Edit` permission rules.
+- **Wiki/workflow sequence past merge is advisory.** The `/workflow` chain (wiki-ingest + wiki-lint) after merge is a slash command — no hook enforces it.
+- **check_verify_loop and the two loop guards short-circuit on `stop_hook_active=true` (at most once per turn).** check_confidence_labels does NOT read `stop_hook_active` and can re-block.
+- **TDD is not enforced test-first.** `test_gate` only checks that tests pass at commit time.
+- **Skill invocation is structurally unenforceable.** A hook cannot observe or mandate internal reasoning steps.
+- **No `SubagentStart` event exists.** `inject_bootstrap.sh` cannot inject `using-coderails` into subagents; orchestrators must include it in subagent prompts explicitly.
 
 ## Shared library: discipline_common.sh (added 2026-06-25, PR #29)
 
