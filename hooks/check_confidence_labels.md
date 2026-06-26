@@ -27,13 +27,24 @@ Before that date it emitted a warning without blocking. After 2026-05-05 it exit
 
 ## Logic
 
+The script detects `hook_event_name` and takes a different path depending on the event:
+
+**SubagentStop path (PR #57):**
+1. Read `.last_assistant_message` directly from the payload — the subagent's actual final output.
+2. Proceed with MIN_LEN check and label grep (same as Stop path below).
+
+Note: `transcript_path` on a SubagentStop payload is the **parent** session transcript, not the subagent's. Reading it would check the wrong content; this was the design motivation for the separate path. (verified: check_confidence_labels.sh)
+
+**Stop path:**
 1. Read transcript path from the hook payload. If absent or file missing, exit 0.
 2. Extract the last assistant text block with retry-backoff (same pattern as [[check_verify_loop]]).
+
+**Shared steps (both paths):**
 3. If the text is shorter than `MIN_LEN` (default 200, overridable via `$CLAUDE_HOOK_MIN_LEN`), exit 0 — short replies are out of scope.
 4. Check for any match of `\((verified|inferred|guess)` via `grep -qE`. If found, exit 0.
 5. Otherwise: log `blocked=1` and exit 2 with the message: `[discipline-block] response made substantive claims without (verified)/(inferred)/(guess) labels. Add them before stopping.`
 
-(verified: check_confidence_labels.sh:44–66)
+(verified: check_confidence_labels.sh)
 
 ## Configurable thresholds
 
