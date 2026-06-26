@@ -60,15 +60,17 @@ PreToolUse hooks block by emitting a JSON response with `permissionDecision: "de
 | `UserPromptSubmit` | `inject_context.sh` | silent — prepends `[ctx]` (cwd, branch, date) |
 | `UserPromptSubmit` | `discipline_catchup.sh` | warn |
 | `Stop` | `check_confidence_labels.sh` | **block** — ≥200-char response with no confidence label |
-| `Stop` | `check_verify_loop.sh` | **block** — any untagged DNV bullet |
+| `Stop` | `check_verify_loop.sh` | **block** — any untagged DNV bullet (file_count gate removed PR #61) |
 | `Stop` | `loop_state_guard.sh` | **block** — agentic-loop active but progress.json absent/mismatched |
 | `Stop` | `loop_stall_guard.sh` | **block** — agentic-loop active + incomplete + no LOOP-STOP declaration |
-| `PreToolUse` (Bash) | `destructive_bash_gate.sh` | **block** |
+| `SubagentStop` | `check_confidence_labels.sh` | **block** — same as Stop; reads `last_assistant_message` (added PR #57) |
+| `SubagentStop` | `check_verify_loop.sh` | **block** — same as Stop; reads `last_assistant_message`, no file_count gate (added PR #57) |
+| `PreToolUse` (Bash) | `destructive_bash_gate.sh` | **block** — permanent blocklist + in-Bash source edits on main (extended PR #59) |
 | `PreToolUse` (Bash) | `test_gate.sh` | **block** on `git commit` if tests fail — opt-in only |
-| `PreToolUse` (Bash) | `enforce_pr_workflow.sh` | **block** — `gh pr create` without prior `/push`, `gh pr merge` without prior `/review-pr` |
-| `PreToolUse` (Write\|Edit\|MultiEdit) | `no_edit_on_main.sh` | **block** — code-file edits on main/master |
+| `PreToolUse` (Bash) | `enforce_pr_workflow.sh` | **block** — `gh pr create` without prior `/push`; `gh pr merge`/`git merge`/`git push` without prior `/review-pr` (per-PR + consume-on-use + positional push, PR #58) |
+| `PreToolUse` (Write\|Edit\|MultiEdit) | `no_edit_on_main.sh` | **block** — source files (allowlist model PR #60): everything except doc/config/special dotfiles on main/master |
 
-`discipline_catchup.sh` is the only surviving warn-mode hook. Everything else that should be enforced has been promoted to block-mode or moved to a PreToolUse gate. See [[discipline-loop]] for the history of why warn-mode was abandoned. (updated 2026-06-25 — added inject_bootstrap, enforce_pr_workflow, no_edit_on_main, loop-state hooks)
+`discipline_catchup.sh` is the only surviving warn-mode hook. Everything else that should be enforced has been promoted to block-mode or moved to a PreToolUse gate. See [[discipline-loop]] for the history of why warn-mode was abandoned and for the enforcement ceilings. (updated 2026-06-26 — added SubagentStop hooks; updated destructive_bash_gate, enforce_pr_workflow, no_edit_on_main descriptions)
 
 ## When to Use Which
 
