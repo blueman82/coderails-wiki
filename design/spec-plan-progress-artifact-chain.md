@@ -56,6 +56,7 @@ Phases 2.7/2.8 fire ONLY at **≥3 work-units or a cross-unit dependency** — t
 `loop_state_common.sh` (Spec C2) is sourced by both guards. It holds:
 - `LOOP_STOP_VOCAB="hard-stop|approval-gate|awaiting-input|complete"` — defined once; C2 builds both its match regex and its block message from it, so the message can never advertise a category the regex rejects.
 - The loop-active detection (structured `jq` over the transcript for a `coderails:agentic-loop` Skill `tool_use`, with the transcript-flush retry) and the `progress.json` state read.
+- Named `als_gate_*` functions for Gates 1–4 shared between C1 and C2 (extracted PR #49; formerly byte-identical in both scripts): `als_gate_no_transcript`, `als_gate_stop_hook_active`, `als_gate_not_a_loop`, and `als_load_progress`. Each guard adds its own Gates 5–6 for guard-specific enforcement.
 
 C1 (#13) was created with its detection inline; C2 (#14) extracted that into the shared lib and refactored C1 to source it — a behaviour-preserving extraction gated by C1's existing 8/8 test suite passing unchanged.
 
