@@ -48,6 +48,22 @@ This is required because:
 - The three reader commands each embed the bash one-liner independently — they share no include mechanism.
 - `workflow-init.md` scaffolds the YAML template and must include any new field so it appears in freshly created configs.
 
+## Config fields
+
+Known fields in `workflow.config.yaml` (as of 2026-06-26):
+
+| Field | Type | Default / NO_CONFIG | Added |
+|---|---|---|---|
+| `project` | string | — | original |
+| `wiki_path` | string \| null | null | original |
+| `worktree_base` | string | git root | original |
+| `worktree_script` | string \| null | null | original |
+| `jira.*` | object \| null | null | original |
+| `strictcode_paths` | list \| null | null | original |
+| `strictcode_skill` | string \| null | `/strictcode-python` | PR #47 |
+
+`strictcode_skill` is the slash-command used for the pre-flight strictcode check in [[push]] and [[workflow]]. Auto-detected during [[init]] setup: `go.mod` → `/strictcode-go`; `package.json` + `.ts` files → `/strictcode-ts`; otherwise `/strictcode-python`. Null disables strictcode entirely. Absent/null falls back to `/strictcode-python` at runtime (backward-compatible). See [[pr_47_strictcode-skill-config]].
+
 ## `NO_CONFIG` as a sentinel
 
 `NO_CONFIG` is the literal string echoed when neither config path resolves. Commands check for it by string match and enter minimal mode — they do not stop. This lets commands degrade gracefully in an uninitialised project while still providing core worktree + push functionality. (verified: workflow.md:11–17, prep.md:11–16)
