@@ -14,7 +14,7 @@ tags: [hook, agentic-loop, anti-stall, stop-hook, loop-stop, loop-state]
 Stop hook that blocks an active, incomplete agentic loop from stopping without a `LOOP-STOP: <category> — <reason>` declaration. The declaration-based anti-stall layer (C2). Sits after `loop_state_guard` (C1) in Stop hook order.
 
 Source: `coderails/hooks/scripts/loop_stall_guard.sh`
-Shared lib: `coderails/hooks/scripts/lib/loop_state_common.sh`
+Shared lib (Gates 1–4): `coderails/hooks/scripts/lib/loop_state_common.sh` (extracted PR #49; `als_gate_*` functions shared with [[loop_state_guard]])
 
 ## Event and mode
 
