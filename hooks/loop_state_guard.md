@@ -14,7 +14,7 @@ tags: [hook, agentic-loop, progress-json, stop-hook, loop-state]
 Stop hook that enforces `progress.json` presence + ownership when an agentic loop is active. Part of the two-hook loop-state guard architecture; the C1 (foundation) layer.
 
 Source: `coderails/hooks/scripts/loop_state_guard.sh`
-Shared lib: `coderails/hooks/scripts/lib/loop_state_common.sh`
+Shared lib (Gates 1–4): `coderails/hooks/scripts/lib/loop_state_common.sh` (extracted PR #49; `als_gate_*` functions shared with [[loop_stall_guard]])
 Path helper: `coderails/hooks/scripts/lib/agentic_loop_path.sh`
 
 ## Event and mode
