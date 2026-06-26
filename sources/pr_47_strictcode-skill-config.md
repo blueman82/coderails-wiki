@@ -25,7 +25,7 @@ tags: [source, init, push, workflow, strictcode, config]
 
 PR #47 promotes `strictcode_skill` from a hardcoded `/strictcode-python` invocation to a configurable field in `workflow.config.yaml`. The `/coderails:init` scaffolder now prompts for the skill with language auto-detection: `go.mod` present → `/strictcode-go`; `package.json` + `.ts` files present → `/strictcode-ts`; otherwise → `/strictcode-python`. Users can override or answer "none" to disable strictcode entirely. Both [[push]] and [[workflow]] now read `config.strictcode_skill` (defaulting to `/strictcode-python` if absent/null) instead of calling `/strictcode-python` directly. `/coderails:workflow`'s `allowed-tools` frontmatter was expanded to pre-authorise `/strictcode-go` and `/strictcode-ts` alongside `/strictcode-python`. The change is fully backward-compatible: existing configs without `strictcode_skill` continue to run `/strictcode-python` as before. (verified: `gh pr diff 47`)
 
-Note: PR #47's squash commit introduced a duplicate `strictcode_skill` bullet in `init.md`. PR #48 removed the duplicate; the canonical `init.md` has a single `strictcode_skill` field. (inferred: brief + diff review)
+Note: PR #47's squash commit introduced a duplicate `strictcode_skill` bullet in `init.md` (verified: `gh pr diff 47`). PR #48 removed the duplicate (inferred); the canonical `init.md` has a single `strictcode_skill` field.
 
 ## Files changed
 
