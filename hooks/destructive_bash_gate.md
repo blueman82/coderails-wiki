@@ -2,10 +2,11 @@
 title: "Hook: destructive_bash_gate"
 type: hook
 created: 2026-05-31
-last_updated: 2026-06-25
+last_updated: 2026-06-26
 sources:
   - hooks/scripts/destructive_bash_gate.sh
   - sources/session_2026-05-31_prompting-doc-alignment.md
+  - sources/pr_57-62_subagent-enforcement-gate-hardening.md
 tags: [hook, pretooluse-hook, enforcement, destructive-bash, block]
 ---
 
