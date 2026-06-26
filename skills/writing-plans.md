@@ -76,6 +76,7 @@ The per-task construction step in this skill references `coderails:test-driven-d
 
 ## See also
 
+- [[planning-sequence]] — required next step after the self-review gate (the mandatory planning-sequence gate)
 - [[test-driven-development]] — referenced in per-task construction step (E→D tie)
 - [[agentic-loop]] — Phase 2.8 invokes this skill; Phase 3 consumes the output
 - [[spec-plan-progress-artifact-chain]] — how `plan.md` fits in the full artifact chain
