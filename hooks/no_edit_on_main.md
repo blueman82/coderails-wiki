@@ -62,6 +62,10 @@ Uses `permissionDecision: deny` (JSON output to stdout), mirroring `destructive_
 
 **Why plugin-source markdown is gated (PR #44).** `skills/*/SKILL.md` and `commands/*.md` ARE the plugin's source — editing `agentic-loop/SKILL.md` directly on main is the same class of mistake as committing a `.py` straight to main. The original "docs-only carve-out" let all markdown through, which had let a SKILL.md edit land direct on main earlier the same session. The carve-out is now narrowed to *plain* docs (root `README.md`, `docs/`, non-`SKILL.md` skill references).
 
+**Why the allowlist inversion (PR #60).** The original blocklist had no principled boundary — `.sh` scripts, `.rb` files, `.rs`, etc. all slipped through because the original author only enumerated the languages they used at the time. An allowlist (doc/config/bare dotfiles) has a principled "these things are safe to edit on main" rationale; everything else is source. A settings.json `Write`/`Edit` permission rule covers any legitimate override.
+
+**`.gitignore` basename tightening (PR #62, TDD-driven).** The original arm was `*.gitignore` which would have allowed `deploy.gitignore` to be edited on main. Fixed to a basename match (`case "$basename" in .gitignore|LICENSE)`). The bug was found by writing failing tests first (deploy.gitignore → DENY, src/.gitignore → ALLOW), then fixing the hook.
+
 **Why `git push` is deliberately NOT gated.** Edit-time (this hook) is the correct seam for the direct-to-main concern. Gating `git push` would be (a) redundant — the edit is already blocked here, and GitHub branch protection covers the server side; (b) breaking — the PR workflow *requires* pushing feature branches (`push.sh`); (c) brittle — "a push targeting main" hides behind implicit upstream, `HEAD`, and refspecs, with no clean token to match (unlike `gh pr create` / `git merge` in [[enforce_pr_workflow]]). Strengthening this edit-time gate is what makes a push-time gate unnecessary. (decision — PR #44 discussion)
 
 ## See also
