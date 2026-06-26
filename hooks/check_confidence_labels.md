@@ -11,7 +11,7 @@ tags: [hook, stop-hook, subagentstop-hook, discipline, confidence-labels, enforc
 
 # Hook: check_confidence_labels
 
-A `Stop` lifecycle hook that blocks Claude Code (exit 2) when a substantive response carries no `(verified)`, `(inferred)`, or `(guess)` confidence label.
+A `Stop` and `SubagentStop` lifecycle hook that blocks Claude Code (exit 2) when a substantive response carries no `(verified)`, `(inferred)`, or `(guess)` confidence label. Wired to both events as of PR #57.
 
 Source: `hooks/scripts/check_confidence_labels.sh`
 
