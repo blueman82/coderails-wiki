@@ -48,10 +48,12 @@ The `complete` ⇒ teardown coupling is load-bearing: a `LOOP-STOP: complete` ta
 
 ## Logic: skip gates (cheap first)
 
-1. **No transcript** — allow.
-2. **`stop_hook_active == true`** — allow (avoid stop-loop).
-3. **No agentic-loop Skill `tool_use` in transcript** — allow (not a loop). Same structured `jq` detection as C1, via `loop_state_common.sh`.
-4. **`status == "complete"` AND not re-armed AND session-owned** — allow (shared off-switch with C1).
+Gates 1–4 are implemented as named `als_gate_*` functions in `loop_state_common.sh` (shared with [[loop_state_guard]] — extracted PR #49, formerly byte-identical between the two guards). Gates 5–6 are local to this script.
+
+1. **`als_gate_no_transcript`** — allow.
+2. **`als_gate_stop_hook_active`** — allow (avoid stop-loop).
+3. **`als_gate_not_a_loop`** — allow (not a loop). Same structured `jq` detection as C1, via `loop_state_common.sh`.
+4. **`als_load_progress` / done-and-not-rearmed check** — allow if `status == "complete"` AND not re-armed AND session-owned (shared off-switch with C1).
 5. **Last assistant message contains a valid `LOOP-STOP` line** — allow (regex built from `LOOP_STOP_VOCAB`; category must be followed by a non-alphanumeric char or end-of-line so "completed" doesn't match "complete").
 6. **BLOCK (exit 2)** — active + incomplete + no valid declaration.
 
