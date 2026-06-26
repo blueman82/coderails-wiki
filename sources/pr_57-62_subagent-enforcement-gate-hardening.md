@@ -65,7 +65,7 @@ Three additions to `destructive_bash_gate.sh`:
 - `truncate -s` / `truncate --size`: blocks content-destructive file truncation.
 - `shred`: blocks secure-overwrite.
 
-**Review-caught Critical (fixed before merge):** the initial `git clean` pattern used `grep -qiE '\bgit +clean.*(-f|--force)\b'` which missed combined short flags like `-fd`. Fixed to extract args after `git clean` and test for force in the arg portion. All 14 test suites green.
+**Review-caught Critical (fixed before merge):** the initial `git clean` pattern used `grep -qiE '\bgit +clean.*(-f|--force)\b'` which missed combined short flags like `-fd`. Fixed to extract args after `git clean` and test for force in the arg portion. All 14 test suites green. (verified: PR #59 body, destructive_bash_gate.sh)
 
 **Branch-aware in-Bash source edits (Change #3):** a best-effort gate blocks the tools `no_edit_on_main.sh` cannot see — `sed -i`, `perl -i`, shell redirects (`>`/`>>`), `tee`, `cp`, `mv`, `dd of=` — when targeting source files (`.py`, `.ts`, `.tsx`, `.js`, `.jsx`, `.go`) or plugin source (`skills/*/SKILL.md`, `commands/*.md`) on `main`/`master`. Branch detection uses target-repo resolution (the file's own repo branch), mirroring `no_edit_on_main.sh`. Best-effort: variable filenames, quoted paths with spaces, here-docs, process substitution, and `python -c open(...)` writes remain uncaught. This is a documented ceiling (see PR #62 ceilings note).
 
