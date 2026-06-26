@@ -2,9 +2,10 @@
 title: "Skill: writing-plans"
 type: skill
 created: 2026-06-25
-last_updated: 2026-06-25
+last_updated: 2026-06-26
 sources:
   - sources/session_2026-06-25_agentic-loop-upgrade-arc.md
+  - sources/pr_50_planning-sequence-gate.md
 tags: [skill, writing-plans, planning, decomposition, artifact-chain]
 ---
 
