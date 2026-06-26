@@ -60,6 +60,19 @@ The fix requires the token after "merge" to be whitespace or end-of-line, exclud
 
 See [[skills-hooks-seam]] for the general pattern and a note on hyphenated-command regex design.
 
+## The `git push` gate: destination-refspec model (PR #46)
+
+PR #46 added `git_push` as a fourth gated subcommand, mirroring the `git merge` gate's review-evidence requirement. The key difference is **what decides whether to gate**:
+
+- `git merge` integrates into the checked-out branch, so the **current branch** is sufficient.
+- `git push`'s effect is decided by its **destination**, so the destination must be parsed. Gate 4b gates when the current branch is `main`/`master` **OR** the command names an explicit main/master destination refspec (`HEAD:main`, `feature:master`, `:refs/heads/main`) from any branch.
+
+The destination anchor is `:(refs/heads/)?(main|master)([[:space:];&|)]|$)`. The trailing class accepts whitespace, EOL, **or** a shell separator (`;& |)`) so that `git push origin HEAD:main;echo` can't abut a metachar onto the ref to evade the gate. (verified — hook source lines 81–84)
+
+**Documented limitation:** bare positional `git push origin main` from an off-main branch is **not** parsed (low risk — it pushes local `main`, which tracks `origin/main`). The colon-refspec form is the realistic direct-to-main bypass, and that is closed. Feature-branch pushes are never gated — the PR flow requires them. (verified — hook source lines 9–10, 70–73)
+
+**Review-caught Critical:** the first implementation checked the current branch only, which let a `HEAD:main` refspec push from a feature branch through — a silent false-allow flagged Critical by the [[pr-review-toolkit]] multi-agent review and fixed by destination-refspec gating + the metachar anchor, each TDD'd. Enforce test suite went 14→27 cases. This does **not** reverse [[pr_44_no-edit-plugin-source]]'s "don't gate git push for [[no_edit_on_main]]" decision — that was edit-seam protection; this is review-evidence enforcement in a different hook. See [[pr_46_gate-git-push-on-main]].
+
 ## Reordered git-merge block-message hint (PR #42)
 
 The block message for `git merge` on main now leads with the actual resolution ("Run /pr-review-toolkit:review-pr first") before listing `/coderails:merge` and the settings.json bypass. Matches the adjacent `gh pr merge` hint order.
