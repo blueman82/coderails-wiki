@@ -71,4 +71,4 @@ Since [[pr_50_planning-sequence-gate]] (2026-06-26), `planning-sequence` is a **
 - [[premortem]] — Stage 2 runs this logic inline; standalone when only backwards-failure analysis is needed
 - [[agentic-loop]] — Phase 2 pre-flight spawns agents that may invoke this
 - [[improve-prompt]] — a prompt often benefits from improvement before running the planning sequence
-- [[writing-plans]] — planning sequence is a natural upstream step before formal plan decomposition
+- [[writing-plans]] — planning sequence is now a required downstream gate in its flow (after self-review, before implementation); also a natural upstream step before decomposition
