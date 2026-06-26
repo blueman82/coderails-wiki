@@ -108,7 +108,7 @@ This is the design intent: nothing is silently deferred. Genuinely unverifiable 
 | Confidence labels on non-trivial claims | `~/.claude/CLAUDE.md` prose | Advisory |
 | ≥200-char response must have one label | `check_confidence_labels.sh` | **Block (Stop hook)** |
 | Did Not Verify section after file-editing responses | `~/.claude/CLAUDE.md` prose | Advisory |
-| DNV bullets must not name unread source files | `check_verify_loop.sh` | **Block (Stop hook)** |
+| DNV bullets must not name unread source files | `check_verify_loop.sh` | **Block (Stop + SubagentStop hook)** |
 | Ask on ambiguity, verify memory before acting | `~/.claude/CLAUDE.md` prose | Advisory |
 
 The prose rules are not redundant. They cover the cases the hooks don't — short responses, conversational turns, runtime claims. The hooks cover the high-value case where Claude might stop with a false claim of completeness.
