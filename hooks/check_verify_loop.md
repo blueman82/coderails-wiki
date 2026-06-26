@@ -13,7 +13,7 @@ tags: [hook, stop-hook, subagentstop-hook, discipline, enforcement, did-not-veri
 
 # Hook: check_verify_loop
 
-A `Stop` lifecycle hook that blocks Claude Code (exit 2) when the last response leaves **any** `## Did Not Verify` bullet untagged. Total enforcement: a bullet that is not explicitly marked uncheckable is treated as something the model could have resolved and chose to defer.
+A `Stop` and `SubagentStop` lifecycle hook that blocks Claude Code (exit 2) when the last response leaves **any** `## Did Not Verify` bullet untagged. Total enforcement: a bullet that is not explicitly marked uncheckable is treated as something the model could have resolved and chose to defer. Wired to both events as of PR #57.
 
 Source: `hooks/scripts/check_verify_loop.sh`
 
