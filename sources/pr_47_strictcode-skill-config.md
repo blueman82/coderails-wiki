@@ -44,7 +44,7 @@ Note: PR #47's squash commit introduced a duplicate `strictcode_skill` bullet in
 
 ## Caveats / gotchas
 
-- **Backward-compatible**: absent or null `strictcode_skill` falls back to `/strictcode-python`. Existing `workflow.config.yaml` files without this field continue to work unchanged. (verified: diff — default clause present in push.md and workflow.md updates)
+- **Backward-compatible**: absent or null `strictcode_skill` defaults to `/strictcode-python` — it does NOT disable strictcode. To disable strictcode entirely, set `strictcode_paths: null`. Note: `init.md`'s inline YAML comment `# nil = skip strictcode entirely` is misleading versus the executing logic in `push.md` and `workflow.md`. Existing `workflow.config.yaml` files without this field continue to run `/strictcode-python` unchanged. (verified: diff — default clause present in push.md and workflow.md updates)
 - **`allowed-tools` expansion**: projects using `/strictcode-go` or `/strictcode-ts` will no longer hit permission prompts during `/coderails:workflow` because the skill is pre-authorised in the frontmatter. This does not affect standalone `/coderails:push` (which reads config at runtime, not via `allowed-tools`).
 - **Auto-detection is a prompt default, not enforcement**: `/coderails:init` detects the likely skill and proposes it; the user can override at the prompt. The skill is recorded in config; nothing validates at runtime that the skill matches the project's language.
 - **Duplicate bullet in PR #47 squash**: the `strictcode_skill` bullet appears twice in the raw `gh pr diff 47` output. PR #48 (`de-duplicate strictcode_skill bullet`) corrected this. The wiki documents the canonical (post-#48) state.
