@@ -32,7 +32,20 @@ The hook has no skip gates beyond the empty-command guard. It is stateless — n
 
 ## Blocked patterns
 
-The full regex (verified: destructive_bash_gate.sh:14):
+The hook runs two tiers of checks:
+
+### Extended blocklist (added PR #59)
+
+Handled with dedicated arg-extraction logic before the main regex:
+
+| Command | What it catches | Notes |
+|---|---|---|
+| `git clean -f`, `git clean --force`, `git clean -fd` etc. | Force-clean working tree | Allows dry-run (`-n`/`--dry-run`) and interactive (`-i`); denies any force flag in combined or separated form |
+| `find ... -delete` / `find ... --delete` | Recursive deletion via find | Cross-separator anchored so the pattern doesn't cross `&&`/`;`/`\|` boundaries |
+| `truncate -s` / `truncate --size` | File-content truncation | Blocks size-destructive truncate |
+| `shred` | Secure file overwrite/deletion | |
+
+### Original permanent blocklist (main regex)
 
 ```
 \brm +(-[rRfF]+|--recursive|--force)
@@ -46,8 +59,6 @@ The full regex (verified: destructive_bash_gate.sh:14):
 |\bgit +commit +.*--no-verify
 ```
 
-Covered command families:
-
 | Pattern | What it catches |
 |---|---|
 | `rm -rf`, `rm -r`, `rm -R`, `rm -f`, `rm --recursive`, `rm --force` | Recursive/force file deletion |
@@ -60,7 +71,7 @@ Covered command families:
 | `chmod -R 777` | World-write permission on a tree |
 | `git commit --no-verify` | Hook bypass — `--no-verify` anywhere in a `git commit` invocation |
 
-The grep is case-insensitive (`-i`), so `DROP table` matches. Word boundaries (`\b`) prevent false positives on substrings. (verified: destructive_bash_gate.sh:14, 16)
+The grep is case-insensitive (`-i`), so `DROP table` matches. Word boundaries (`\b`) prevent false positives on substrings. (verified: destructive_bash_gate.sh)
 
 ### Why `git commit --no-verify` is destructive
 
