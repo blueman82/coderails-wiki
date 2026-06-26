@@ -71,7 +71,7 @@ The destination anchor is `:(refs/heads/)?(main|master)([[:space:];&|)]|$)`. The
 
 **Documented limitation:** bare positional `git push origin main` from an off-main branch is **not** parsed (low risk — it pushes local `main`, which tracks `origin/main`). The colon-refspec form is the realistic direct-to-main bypass, and that is closed. Feature-branch pushes are never gated — the PR flow requires them. (verified — hook source lines 9–10, 70–73)
 
-**Review-caught Critical:** the first implementation checked the current branch only, which let a `HEAD:main` refspec push from a feature branch through — a silent false-allow flagged Critical by the [[pr-review-toolkit]] multi-agent review and fixed by destination-refspec gating + the metachar anchor, each TDD'd. Enforce test suite went 14→27 cases. This does **not** reverse [[pr_44_no-edit-plugin-source]]'s "don't gate git push for [[no_edit_on_main]]" decision — that was edit-seam protection; this is review-evidence enforcement in a different hook. See [[pr_46_gate-git-push-on-main]].
+**Review-caught Critical:** the first implementation checked the current branch only, which let a `HEAD:main` refspec push from a feature branch through — a silent false-allow flagged Critical by the `pr-review-toolkit` multi-agent review and fixed by destination-refspec gating + the metachar anchor, each TDD'd. Enforce test suite went 14→27 cases. This does **not** reverse [[pr_44_no-edit-plugin-source]]'s "don't gate git push for [[no_edit_on_main]]" decision — that was edit-seam protection; this is review-evidence enforcement in a different hook. See [[pr_46_gate-git-push-on-main]].
 
 ## Reordered git-merge block-message hint (PR #42)
 
