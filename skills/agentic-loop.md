@@ -145,6 +145,21 @@ The rationale: brainstorming is human-gated by construction — its approval ste
 
 The non-obvious/durable point: if anyone asks "why doesn't the autonomous loop just invoke brainstorming?" — the answer is that brainstorming blocks on a human at its approval gates. The loop reuses its design *quality criteria* at Phase 2.5 rather than calling the gated skill. See [[pr_41_phase25-brainstorming-xref]] and [[brainstorming]].
 
+## Phase 4b — invoke the review-pr Skill, not hand-rolled agents (PR #64)
+
+Phase 4b previously described hand-rolling six toolkit reviewer agents as parallel `Agent` or `Task` spawns. PR #64 changed this: **Phase 4b now invokes `/pr-review-toolkit:review-pr <PR#>` as a Skill, passing the PR number as the argument.** The Skill itself fans out the six specialised reviewers plus a security pass.
+
+**Why the Skill invocation is required, not optional:** `enforce_pr_workflow.sh` (CHANGE B2) only recognises `/pr-review-toolkit:review-pr` Skill invocations (with the PR number in args) as valid merge-gate evidence. A manually-spawned agent fanout — even one that triggers all six reviewer agents — leaves no evidence the gate can see. The merge will block. (verified — PR #64 diff, SKILL.md and CLAUDE.md; source: [[pr_64_loop-review-via-skill]])
+
+The table of six review dimensions is preserved in the skill as reference, but they are now the Skill's internal implementation, not the orchestrator's responsibility to spawn. The orchestrator's job is:
+1. Invoke `/pr-review-toolkit:review-pr <PR#>` as a Skill.
+2. Collect the returned aggregated findings (Critical / Important / Suggestion).
+3. Feed any MERGE-BLOCKER to a fix agent (Phase 5/10) before merge.
+
+The "do not substitute the generic trio" warning (architect-review + debugger + ai-engineer) still applies — those are design stress-test agents, not the PR-review step.
+
+See [[enforce_pr_workflow]] for how the gate recognises Skill invocations. See [[skills-hooks-seam]] for the general seam convention this change follows.
+
 ## Key architectural decisions encoded
 
 - **Pre-flight + worker agents use `model: sonnet`** — orchestration pattern; cost control. No escalation path; D's TDD and E's planning skills carry no model guidance that could escalate.
