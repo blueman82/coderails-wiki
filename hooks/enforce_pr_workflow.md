@@ -25,13 +25,16 @@ Skip gates (cheap first):
 
 1. Empty command string — pass.
 2. `--help` / `--dry-run` flags — pass. `git merge --abort/--continue/--quit/--skip` (conflict-resolution ops) — pass.
-3. Command does not match `gh pr create`, `gh pr merge`, or `git merge` — pass.
+3. Command does not match `gh pr create`, `gh pr merge`, `git merge`, or `git push` — pass. The `\bgit +push([[:space:]]|$)` anchor mirrors the `git merge` anchor for form consistency (no `git push-*` plumbing exists to exclude). (verified — hook source line 34)
 4. `workflow.config.yaml` absent (NO_CONFIG sentinel) — pass. The hook is opt-in via the full workflow stack. (verified — PR #30)
-4b. For `git merge` only: if not on `main` or `master` — pass. Feature branches are unconditionally allowed. Detached HEAD / empty branch name falls through to allow (same safe-fail default as [[no_edit_on_main]]).
+4b. For `git merge` and `git push` only: pass unless the operation touches `main`/`master`.
+   - `git merge` integrates into the **checked-out** branch → the current branch decides. If not on `main`/`master` — pass.
+   - `git push` is decided by its **destination** → gate when on `main`/`master`, OR when the command names an explicit main/master destination refspec (`HEAD:main`, `feature:master`, `:refs/heads/main`) from any branch. (verified — PR #46, hook source lines 67–86)
+   Feature branches are unconditionally allowed. Detached HEAD / empty branch name falls through to allow (same safe-fail default as [[no_edit_on_main]]).
 5. No transcript path in hook payload — pass (can't enforce).
 6. Transcript scan for required preceding step. If evidence found — pass. If not found — deny.
 
-Subcommand routing after Gate 3: `create` → requires `/coderails:push` evidence; `merge` (gh) or `git_merge` → requires `/pr-review-toolkit:review-pr` evidence.
+Subcommand routing after Gate 3: `create` → requires `/coderails:push` evidence; `merge` (gh), `git_merge`, or `git_push` → requires `/pr-review-toolkit:review-pr` evidence.
 
 ## Block condition
 
