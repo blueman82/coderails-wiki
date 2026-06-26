@@ -2,8 +2,8 @@
 title: "/coderails:push"
 type: command
 created: 2026-06-25
-last_updated: 2026-06-25
-sources: [commands/push.md, scripts/push.sh, scripts/lib/git-common.sh]
+last_updated: 2026-06-26
+sources: [commands/push.md, scripts/push.sh, scripts/lib/git-common.sh, sources/pr_47_strictcode-skill-config.md]
 tags: [command, push, pr, commit, jira, strictcode, github]
 ---
 
@@ -27,7 +27,7 @@ Stages, commits, pushes to origin, and creates or updates a GitHub PR. After PR 
 
 1. Determines the base branch via `git symbolic-ref refs/remotes/origin/HEAD`.
 2. Runs `git diff --name-only $(git merge-base HEAD <base>)..HEAD` and checks for matches against `config.strictcode_paths` patterns.
-3. If matches found, runs `/strictcode-python` on those files.
+3. If matches found, runs `config.strictcode_skill` (default: `/strictcode-python`) on those files. (updated PR #47)
 4. Blocking findings (architectural violations, DI protocol deviations) prompt the user: "Fix before pushing, or push as-is?" Non-blocking findings (style, naming) are logged and execution continues.
 5. In non-interactive contexts (conductor, background agent), logs findings but does not block — always proceeds to push. (verified: push.md:22)
 
@@ -51,6 +51,7 @@ See [[config-resolution]] for how `workflow.config.yaml` is located at runtime.
 | Field | Used for |
 |---|---|
 | `config.strictcode_paths` | Path patterns that trigger the pre-flight check |
+| `config.strictcode_skill` | Slash-command for the strictcode pre-flight (default: `/strictcode-python`; also `/strictcode-go`, `/strictcode-ts`, or null to skip). Added PR #47 |
 | `config.jira.transitions.resolve` | Transition name for Jira auto-resolve after PR creation |
 | `config.jira.mcp_namespace` | Jira MCP tool namespace for the resolve call (default: `jira`) |
 

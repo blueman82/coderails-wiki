@@ -2,8 +2,8 @@
 title: "/coderails:init"
 type: command
 created: 2026-06-25
-last_updated: 2026-06-25
-sources: [commands/init.md]
+last_updated: 2026-06-26
+sources: [commands/init.md, sources/pr_47_strictcode-skill-config.md]
 tags: [command, scaffolding, setup, config, workflow]
 ---
 
@@ -33,6 +33,7 @@ Scaffolds `workflow.config.yaml` for the current project — the config file tha
    - Worktree base path (default: parent directory of git root)
    - Worktree script path
    - Strictcode paths (comma-separated globs)
+   - Strictcode skill (slash-command to run, e.g. `/strictcode-python`, `/strictcode-go`, `/strictcode-ts`) — auto-detected from project files: `go.mod` → `/strictcode-go`; `package.json` + `.ts` files → `/strictcode-ts`; otherwise `/strictcode-python`. Answer "none" to disable strictcode entirely. (added PR #47)
 5. **Writes `workflow.config.yaml`** using `null` for any field answered "none".
 6. **Reports** the path written and reminds the user to commit the file.
 7. **Warns about non-default Jira MCP namespaces**: if `mcp_namespace` is not `jira`, tells the user to add `"mcp__<mcp_namespace>__*"` to `.claude/settings.json` under `permissions.allow`.
@@ -60,7 +61,10 @@ jira:
     resolve: ""         # e.g. "Resolved" or blank
 strictcode_paths:
   - "<glob>"            # or null
+strictcode_skill: "/strictcode-python" # or /strictcode-go, /strictcode-ts, null (disables strictcode)
 ```
+
+`strictcode_skill` was added by PR #47. Absent or null falls back to `/strictcode-python` at runtime (backward-compatible). See [[pr_47_strictcode-skill-config]].
 
 ## File written
 

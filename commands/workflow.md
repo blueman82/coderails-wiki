@@ -2,8 +2,8 @@
 title: "/coderails:workflow"
 type: command
 created: 2026-06-25
-last_updated: 2026-06-25
-sources: [commands/workflow.md]
+last_updated: 2026-06-26
+sources: [commands/workflow.md, sources/pr_47_strictcode-skill-config.md]
 tags: [command, workflow, orchestrator, worktree, pr-review, wiki, jira]
 ---
 
@@ -31,7 +31,7 @@ The command runs five phases, two of which pause for human input:
 
 **Phase 2b — Design adversarial review (conditional)**: If the investigation page meets any trigger (≥40 lines, spans >1 service, new DDB schema, LLM call in the data path), launches 2–3 specialist agents in a single parallel message. Agent selection is driven by what the design touches, not a fixed list. Findings are classified as accept/skip and applied to the investigation page before coding starts. (inferred: agent table in workflow.md:109–116)
 
-**Phase 3 — Code (interactive pause)**: Hands control to the developer. Does not proceed until a ready signal ("push", "ship it", "done coding"). Pre-flight runs `/strictcode-python` on changed files matching `config.strictcode_paths` or any file with ≥20 lines changed.
+**Phase 3 — Code (interactive pause)**: Hands control to the developer. Does not proceed until a ready signal ("push", "ship it", "done coding"). Pre-flight runs `config.strictcode_skill` (default: `/strictcode-python`) on changed files matching `config.strictcode_paths` or any file with ≥20 lines changed. (updated PR #47)
 
 **Phase 4 — Push + adversarial review (auto after ready signal)**: Calls [[push]], then `/pr-review-toolkit:review-pr all` (four specialist agents in parallel). Findings are classified blocking/worthwhile/cosmetic and applied inline without re-asking per finding. A ledger comment is posted to the PR.
 
@@ -49,6 +49,7 @@ See [[config-resolution]] for how `workflow.config.yaml` is located at runtime.
 | `config.worktree_script` | Passed to [[prep]]; if null, plain `git worktree add` |
 | `config.jira.*` | Passed to [[prep]] for ticket creation; used by [[push]] for auto-resolve |
 | `config.strictcode_paths` | Pre-flight path pattern matching before calling [[push]] |
+| `config.strictcode_skill` | Slash-command for the strictcode pre-flight (default: `/strictcode-python`; also `/strictcode-go`, `/strictcode-ts`, or null to skip). Added PR #47 |
 | `config.wiki_path` | Gates Orient, wiki-ingest, and wiki-lint phases |
 
 `NO_CONFIG` collapses the workflow: skip Orient, skip strictcode, skip wiki phases, skip Jira. The chain still runs: prep (worktree only) → code → push → review → merge.
@@ -86,6 +87,10 @@ The [[agentic-loop]] skill sits *above* this command — it uses `/workflow` as 
 The command is **advisory, not enforcement**. Claude has to choose to invoke each phase. Mechanical enforcement (blocking `gh pr create` unless `/push` ran) belongs in `PreToolUse` hooks, not here. See [[enforcement-model]].
 
 Phase 2b (design adversarial review) is distinct from Phase 4's `/pr-review-toolkit:review-pr`: Phase 2b reviews the *design page* before coding; Phase 4 reviews the *code* before merge. Both are required on non-trivial features. (verified: workflow.md:36)
+
+## Design notes — PR #47 strictcode_skill
+
+The `allowed-tools` frontmatter pre-authorises `/strictcode-go` and `/strictcode-ts` alongside `/strictcode-python` (added PR #47). This means projects configured with a non-python strictcode skill will not hit permission prompts during the workflow. (verified: `gh pr diff 47`) See [[pr_47_strictcode-skill-config]].
 
 ## See also
 
