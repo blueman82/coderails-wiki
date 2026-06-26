@@ -44,6 +44,18 @@ Each plan task carries four mandatory elements:
 
 **Self-review gate** (before the plan is final): every spec requirement maps to a task; placeholder scan; type consistency check.
 
+## Mandatory planning-sequence gate
+
+Since [[pr_50_planning-sequence-gate]] (2026-06-26), the skill's flow has a required adversarial step *after* the self-review gate and *before* implementation hand-off:
+
+```
+write plan → self-review gate → /coderails:planning-sequence → fold findings in → hand off to implementation
+```
+
+The `## Stress-test before implementation (required)` section instructs running [[planning-sequence]] (Pre-Parade → Premortem → Red Team) on the written plan, then folding its findings back into the plan inline — add tasks for gaps, tighten weak verify-criteria, record consciously-accepted failure modes — before handing off to `coderails:subagent-driven-development`/`coderails:executing-plans`. In an agentic-loop run, the sequence is delegated to a sub-agent (not main context), per [[agentic-loop]]; only the venue changes, not the gate. (verified — SKILL.md gate section)
+
+This is **advisory, not mechanical** — no hook blocks an implementation that skips it. The complexity guard still applies: the gate rides on the skill, which itself does not fire for single trivial edits. (verified)
+
 ## Relationship to agentic-loop
 
 Phase 2.8 invokes `coderails:writing-plans` to produce `plan.md` in the loop-state dir. Two consumption directions are stated explicitly in Phase 2.8 (not in the `## Context-window persistence` section, which is a no-touch region):
