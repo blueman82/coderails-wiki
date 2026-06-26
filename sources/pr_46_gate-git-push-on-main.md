@@ -43,7 +43,7 @@ Bare positional `git push origin main` from an off-main branch is **not** parsed
 
 ## Review process point worth keeping
 
-The first implementation gated on the **current branch only**. The multi-agent [[pr-review-toolkit]] review caught this as a **Critical silent false-allow**: a `HEAD:main` refspec push from a feature branch passed straight through. The fix was destination-refspec gating, followed by a metachar-anchor hardening so a separator abutting the ref couldn't evade it — each landed TDD-first. The enforce test suite grew 14→27 cases. This is a worked example of a current-state check missing the actual decision variable (destination, not location). (verified — PR #46 body / review trail)
+The first implementation gated on the **current branch only**. The multi-agent `pr-review-toolkit` review caught this as a **Critical silent false-allow**: a `HEAD:main` refspec push from a feature branch passed straight through. The fix was destination-refspec gating, followed by a metachar-anchor hardening so a separator abutting the ref couldn't evade it — each landed TDD-first. The enforce test suite grew 14→27 cases. This is a worked example of a current-state check missing the actual decision variable (destination, not location). (verified — PR #46 body / review trail)
 
 ## Relationship to PR #44's "don't gate git push" decision
 
