@@ -33,7 +33,7 @@ Note: PR #47's squash commit introduced a duplicate `strictcode_skill` bullet in
 |---|---|
 | `commands/init.md` | Step 5: new `strictcode_skill` prompt added with language auto-detection logic; example YAML gained `strictcode_skill: "/strictcode-python"` |
 | `commands/push.md` | Pre-flight: "run `/strictcode-python`" → "run `config.strictcode_skill` (default: `/strictcode-python`)" |
-| `commands/workflow.md` | Phase 3 pre-flight: same wording update; `allowed-tools` frontmatter: added `SlashCommand(/strictcode-go)` and `SlashCommand(/strictcode-ts)` |
+| `commands/workflow.md` | Purpose/rules bullet: strictcode skill reference updated; Phase 3 pre-flight: same wording update; `allowed-tools` frontmatter: added `SlashCommand(/strictcode-go)` and `SlashCommand(/strictcode-ts)` |
 
 ## Wiki pages updated
 
