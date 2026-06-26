@@ -56,8 +56,8 @@ See [[discipline-loop]] for the design rationale across all hooks.
 | `inject_bootstrap.sh` | `SessionStart` | silent — bootstraps session with `coderails:using-coderails` | [[inject_bootstrap]] |
 | `inject_context.sh` | `UserPromptSubmit` | silent — injects `[ctx]` date/cwd/branch | [[inject_context]] |
 | `discipline_catchup.sh` | `UserPromptSubmit` | warn — re-injects discipline nudge if prior response missed labels | [[discipline_catchup]] |
-| `check_confidence_labels.sh` | `Stop` | **block** (exit 2) — ≥200-char response with no label | [[check_confidence_labels]] |
-| `check_verify_loop.sh` | `Stop` | **block** (exit 2) — any untagged `## Did Not Verify` bullet (total enforcement; only `(unverifiable: …)` tag passes) | [[check_verify_loop]] |
+| `check_confidence_labels.sh` | `Stop` + `SubagentStop` | **block** (exit 2) — ≥200-char response with no label; reads `last_assistant_message` on SubagentStop (PR #57) | [[check_confidence_labels]] |
+| `check_verify_loop.sh` | `Stop` + `SubagentStop` | **block** (exit 2) — any untagged `## Did Not Verify` bullet; file_count gate removed on Stop path (PR #61); reads `last_assistant_message` on SubagentStop (PR #57) | [[check_verify_loop]] |
 | `loop_state_guard.sh` | `Stop` | **block** (exit 2) — agentic loop active but `progress.json` absent / session-mismatch (presence + ownership) | [[loop_state_guard]] |
 | `loop_stall_guard.sh` | `Stop` | **block** (exit 2) — agentic loop active + incomplete + no `LOOP-STOP: <category>` declaration | [[loop_stall_guard]] |
 | `destructive_bash_gate.sh` | `PreToolUse (Bash)` | **block** (permissionDecision: deny) | [[destructive_bash_gate]] |
