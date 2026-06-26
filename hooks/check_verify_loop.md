@@ -25,18 +25,23 @@ The only bullet that passes is one whose leading clause is an explicit `(unverif
 
 ## Ordered checks
 
-Checks run top-to-bottom. The first that matches decides. All but the last allow the stop; only an untagged DNV bullet blocks. (verified: check_verify_loop.sh:14–21)
+The script detects `hook_event_name` and takes a different path depending on the event.
+
+**SubagentStop path (PR #57):** reads `.last_assistant_message` directly. The `file_count` gate is NOT applied — the subagent's message is the authoritative output; an untagged DNV bullet in it is proof of deferred work regardless of whether the agent transcript is readable. `transcript_path` on a SubagentStop payload is the parent session transcript, not the subagent's, so reading it would check the wrong content.
+
+**Stop path:** reads the last assistant text block from `transcript_path`. As of PR #61, the `file_count < 1` early-exit gate is **removed** — a `## Did Not Verify` section that exists is policed regardless of whether files were edited this turn. `file_count` is still computed and written to the log line for observability, but no longer short-circuits the check. This makes the Stop path consistent with SubagentStop.
+
+Checks run top-to-bottom after the path branching. The first that matches decides. All but the last allow the stop; only an untagged DNV bullet blocks. (verified: check_verify_loop.sh)
 
 | Check | Condition | Outcome |
 |---|---|---|
-| no transcript | No transcript path in payload, or file does not exist | allow stop |
-| conversation only | No files edited this turn (Write/Edit/MultiEdit targets) | allow stop |
+| no transcript (Stop) | No transcript path in payload, or file does not exist | allow stop |
 | loop-guard | `stop_hook_active == true` (already blocked once this turn) | allow stop |
 | no text | Last assistant response has no text | allow stop |
 | no DNV | No `## Did Not Verify` (or `## Not Verified`) bullets in the response | allow stop |
 | **block** | Any DNV bullet **not** tagged `(unverifiable: …)` | **exit 2** |
 
-File-edit threshold: the hook skips when `file_count -lt 1`, i.e. zero files edited (verified: check_verify_loop.sh:52). A single edited file brings the response in scope. This was lowered from `< 3` so single-file sessions are no longer unguarded (see [[install-cache-trap_2026-05-30]]).
+Note: the previous "conversation only" gate (`file_count < 1`) was removed on the Stop path in PR #61. The SubagentStop path never had such a gate. (verified: check_verify_loop.sh)
 
 ## The escape hatch — the only way past
 
