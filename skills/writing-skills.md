@@ -34,11 +34,18 @@ Outside the workflow chain. This is a plugin-development skill, not a project-de
 - Phases with no verifiable exit criteria ("do the thing" is not a phase).
 - Forgetting to register in the manifest (skill exists but is never loaded).
 
+## Skill testing
+
+The skill ships a `testing-skills-with-subagents.md` reference and an `examples/CLAUDE_MD_TESTING.md` worked campaign (added PR #56): skill testing is TDD applied to prose — RED (run a pressure scenario without the skill, watch the agent rationalize), GREEN (write the skill), REFACTOR (close loopholes). This is **manual** and done at authoring time.
+
+There is **no automated skill testing in coderails** — neither triggering nor behavioural. The only `evals.json` was deleted as a dormant decoy (PR #55). The decision not to build a runner, and the candidate reminder-hook that would grow an eval corpus mechanically, are recorded in [[skill-testing-state_2026-06-26]].
+
 ## Source
 
-`coderails/skills/writing-skills/SKILL.md`
+`coderails/skills/writing-skills/SKILL.md` (+ `testing-skills-with-subagents.md`, `examples/CLAUDE_MD_TESTING.md`)
 
 ## See also
 
+[[skill-testing-state_2026-06-26]] — what skill-testing exists, what's external, why coderails has no runner  
 [[self-containment]] — context: these skills were vendored so coderails could grow its own skill library  
 [[wiki-ingest]] — when you write a new skill, ingest it into the wiki
