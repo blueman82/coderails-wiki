@@ -41,6 +41,7 @@ Subcommand routing after Gate 3: `create` → requires `/coderails:push` evidenc
 - `gh pr create` called without a prior `/coderails:push` in the session transcript.
 - `gh pr merge` called without a prior `/pr-review-toolkit:review-pr` in the session transcript.
 - `git merge` on `main`/`master` called without a prior `/pr-review-toolkit:review-pr` in the session transcript. (added PR #40)
+- `git push` landing on `main`/`master` (current branch OR explicit destination refspec) called without a prior `/pr-review-toolkit:review-pr` in the session transcript. (added PR #46)
 
 All checks are NO_CONFIG-gated (Gate 4).
 
