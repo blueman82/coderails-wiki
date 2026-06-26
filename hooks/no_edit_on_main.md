@@ -9,7 +9,7 @@ tags: [hook, PreToolUse, enforcement, main-branch-protection]
 
 # no_edit_on_main.sh
 
-PreToolUse hook that blocks code-file edits (Write/Edit/MultiEdit) on `main` or `master` branches, enforcing the no-direct-edits-on-main invariant.
+PreToolUse hook that blocks edits (Write/Edit/MultiEdit) to source files on `main` or `master` branches, enforcing the no-direct-edits-on-main invariant. As of PR #60, the code arm uses an **allowlist** (everything not explicitly allowed is blocked) rather than a blocklist of specific extensions.
 
 ## Event and mode
 
@@ -21,17 +21,30 @@ PreToolUse hook that blocks code-file edits (Write/Edit/MultiEdit) on `main` or 
 
 ## Logic summary
 
-Skip gates (cheap first):
+The hook has two arms checked in order:
 
-1. If target file is **not** in the gated set — pass. The gated set is code extensions (`.py`, `.ts`, `.tsx`, `.js`, `.jsx`, `.go`) **plus plugin source carried in markdown**: `skills/*/SKILL.md` and `commands/*.md` (added PR #44). Plain docs/config — `README.md`, `docs/*.md`, non-`SKILL.md` skill markdown, `.json` — still pass.
-2. If not on `main` or `master` branch — pass.
-3. Otherwise — deny with a message indicating the current branch and suggesting the user checkout a feature branch.
+**Plugin-source markdown arm** (checked first): blocks `skills/*/SKILL.md` and `commands/*.md` unconditionally on main/master in a plugin repo. Path arms are `/`-anchored to prevent lookalike directories in other repos (e.g. the wiki's `commands/` pages). Cross-repo correctness: the file's repo must carry `.claude-plugin/plugin.json` to be gated. (PR #44)
 
-(verified — PR #27, 11/11 TDD tests; PR #44 extended to 17/17, plugin-source arms covered relative + absolute)
+**Code arm** (allowlist model, PR #60): on main/master, blocks edits to everything **except** an explicit set:
+
+| Allowed | Extensions / filenames |
+|---|---|
+| Docs | `.md`, `.txt`, `.rst` |
+| Config | `.yaml`, `.yml`, `.json`, `.toml`, `.ini`, `.cfg` |
+| Special dotfiles | Literal `.gitignore` basename only (not `deploy.gitignore`) — tightened PR #62 |
+| Bare filenames | `LICENSE` |
+
+Everything else — `.sh`, `.py`, `.ts`, `.go`, `.rb`, etc. — is blocked on main. Previously (original + PR #44) only 6 specific code extensions were blocked; all others passed. The allowlist inversion makes the default **deny** rather than allow for unrecognised types.
+
+Branch resolution: both arms key off the **file's own repo**, not the session cwd. A relative path is resolved via the cwd only to make it absolute; the branch is then read from the file's own git repo. This is the cross-repo correctness established in PR #52.
+
+(verified — PR #60, no_edit_on_main.sh)
 
 ## Block condition
 
-Tool is Write, Edit, or MultiEdit AND current git branch is `main`/`master` AND the target is a gated source file — a code extension, **or** plugin source in markdown (`skills/*/SKILL.md`, `commands/*.md`). All three conditions must hold for the deny to fire.
+Tool is Write, Edit, or MultiEdit AND the file's git repo is on `main`/`master` AND:
+- the file is plugin source (`skills/*/SKILL.md`, `commands/*.md`) and the repo carries `.claude-plugin/plugin.json`; **OR**
+- the file is NOT in the allowlist (doc/config/special extensions listed above).
 
 The path arms are anchored on a `/` boundary (`*/skills/*/SKILL.md|skills/*/SKILL.md`) so a stray directory like `myskills/` can't match, with a bare relative arm for a path passed without a leading directory. (verified — PR #44, `case`-statement glob)
 
