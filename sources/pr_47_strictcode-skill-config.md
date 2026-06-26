@@ -11,6 +11,8 @@ tags: [source, init, push, workflow, strictcode, config]
 
 <!-- Ingested by /wiki-ingest after merge. This is an immutable record of what changed. -->
 
+> **Superseded by [[pr_54_engineering-principles-vendoring]]** (2026-06-26): the `strictcode_skill` field documented here was renamed to `engineering_principles_skill`, and the skill itself vendored into coderails and renamed to the `engineering-principles` family (default `/engineering-principles-python`). This page records the original PR #47 state; current key/skill names are in [[pr_54_engineering-principles-vendoring]].
+
 ## PR metadata
 
 | Field | Value |
