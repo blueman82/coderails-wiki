@@ -7,6 +7,7 @@ sources: []
 tags: [index, catalog]
 ---
 
+
 # Coderails Wiki — Content Catalog
 
 This is the first file Claude reads when answering queries about the coderails plugin.
