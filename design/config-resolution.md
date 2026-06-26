@@ -62,7 +62,7 @@ Known fields in `workflow.config.yaml` (as of 2026-06-26):
 | `strictcode_paths` | list \| null | null | original |
 | `strictcode_skill` | string \| null | `/strictcode-python` | PR #47 |
 
-`strictcode_skill` is the slash-command used for the pre-flight strictcode check in [[push]] and [[workflow]]. Auto-detected during [[init]] setup: `go.mod` → `/strictcode-go`; `package.json` + `.ts` files → `/strictcode-ts`; otherwise `/strictcode-python`. Null disables strictcode entirely. Absent/null falls back to `/strictcode-python` at runtime (backward-compatible). See [[pr_47_strictcode-skill-config]].
+`strictcode_skill` is the slash-command used for the pre-flight strictcode check in [[push]] and [[workflow]]. Auto-detected during [[init]] setup: `go.mod` → `/strictcode-go`; `package.json` + `.ts` files → `/strictcode-ts`; otherwise `/strictcode-python`. Absent or null `strictcode_skill` defaults to `/strictcode-python` at runtime — it does NOT disable strictcode. To disable strictcode entirely, set `strictcode_paths: null`. Note: `init.md`'s inline YAML comment `# nil = skip strictcode entirely` is misleading versus the executing logic in `push.md` and `workflow.md`. See [[pr_47_strictcode-skill-config]].
 
 ## `NO_CONFIG` as a sentinel
 
