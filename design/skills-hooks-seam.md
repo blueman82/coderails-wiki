@@ -39,6 +39,7 @@ This is documented in `CLAUDE.md` as a permanent working convention, not a one-o
 | `gh pr create` | [[enforce_pr_workflow]] | [[wiki-ingest]], [[wiki-lint]], [[requesting-code-review]] |
 | `gh pr merge` | [[enforce_pr_workflow]] | [[wiki-ingest]], [[wiki-lint]], [[finishing-a-development-branch]] |
 | `git merge` on main/master | [[enforce_pr_workflow]] | [[finishing-a-development-branch]] |
+| `git push` to main/master | [[enforce_pr_workflow]] | [[finishing-a-development-branch]] |
 | code-file edits on main/master | [[no_edit_on_main]] | (any skill instructing direct code edits) |
 
 ## Regex footgun: word boundaries and hyphens
