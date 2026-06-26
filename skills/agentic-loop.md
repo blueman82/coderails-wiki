@@ -183,3 +183,4 @@ See [[enforce_pr_workflow]] for how the gate recognises Skill invocations. See [
 - [[session_2026-06-25_agentic-loop-upgrade-arc]] — the PR #12–#18 source record
 - [[session_2026-05-31_prompting-doc-alignment]] — earlier source for delegate/context guidance
 - [[pr_41_phase25-brainstorming-xref]] — PR #41 source record: Phase 2.5 references brainstorming's design-quality discipline without its gates
+- [[pr_64_loop-review-via-skill]] — PR #64 source record: Phase 4b changed to invoke review-pr Skill (with PR number) instead of hand-rolling agents
