@@ -25,7 +25,7 @@ The self-checking discipline system: what it is, what it enforces mechanically, 
 
 ## The Founding Thesis
 
-`templates/failure_log.md` line 26 (verified) records the empirical failure that motivated block-mode:
+The empirical failure that motivated block-mode (originally recorded in the seeded `templates/failure_log.md`, which was **removed in PR #63** — see [[pr_63_remove-failure-log]]; the record now lives only in the maintainer's live `~/.claude/failure_log.md`, user data rather than a repo artifact):
 
 > Multiple turns this session lacked the DNV section while warn-mode hooks fired silent reminders that I ignored. The user explicitly observed "another claude session just ignored the hooks prompt" — same failure mode. **Warn-mode + memory-only enforcement is mechanically insufficient** — confirms the Shingo prediction quoted during the build.
 
