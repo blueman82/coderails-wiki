@@ -2,7 +2,7 @@
 title: Enforcement Model
 type: design
 created: 2026-05-30
-last_updated: 2026-06-25
+last_updated: 2026-06-26
 sources:
   - commands/workflow.md
   - CLAUDE.md
@@ -78,7 +78,7 @@ PreToolUse hooks block by emitting a JSON response with `permissionDecision: "de
 | Enforce a constraint on every response | `Stop` hook |
 | Share reusable workflow logic across commands | `scripts/lib/git-common.sh` |
 
-If someone asks "can we make the strictcode check mandatory before push?", the answer is: add a `PreToolUse` hook that fires on `Bash(gh pr create*)` and checks for strictcode evidence, not a new instruction in `/push`. The command already runs it; the hook enforces it.
+If someone asks "can we make the engineering-principles check mandatory before push?", the answer is: add a `PreToolUse` hook that fires on `Bash(gh pr create*)` and checks for engineering-principles evidence, not a new instruction in `/push`. The command already runs it; the hook enforces it.
 
 ## Scope Assumptions
 

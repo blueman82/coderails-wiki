@@ -33,7 +33,7 @@ Scaffolds `workflow.config.yaml` for the current project — the config file tha
    - Worktree base path (default: parent directory of git root)
    - Worktree script path
    - Strictcode paths (comma-separated globs)
-   - Strictcode skill (slash-command to run, e.g. `/strictcode-python`, `/strictcode-go`, `/strictcode-ts`) — auto-detected from project files: `go.mod` → `/strictcode-go`; `package.json` + `.ts` files → `/strictcode-ts`; otherwise `/strictcode-python`. Answer "none" to disable strictcode entirely. (added PR #47)
+   - Strictcode skill (slash-command to run, e.g. `/engineering-principles-python`, `/engineering-principles-go`, `/engineering-principles-ts`) — auto-detected from project files: `go.mod` → `/engineering-principles-go`; `package.json` + `.ts` files → `/engineering-principles-ts`; otherwise `/engineering-principles-python`. Answer "none" to disable engineering-principles entirely. (added PR #47)
 5. **Writes `workflow.config.yaml`** using `null` for any field answered "none".
 6. **Reports** the path written and reminds the user to commit the file.
 7. **Warns about non-default Jira MCP namespaces**: if `mcp_namespace` is not `jira`, tells the user to add `"mcp__<mcp_namespace>__*"` to `.claude/settings.json` under `permissions.allow`.
@@ -59,12 +59,12 @@ jira:
   transitions:
     start: ""           # e.g. "In Progress" or blank
     resolve: ""         # e.g. "Resolved" or blank
-strictcode_paths:
+engineering_principles_paths:
   - "<glob>"            # or null
-strictcode_skill: "/strictcode-python" # or /strictcode-go, /strictcode-ts, null (disables strictcode)
+engineering_principles_skill: "/engineering-principles-python" # or /engineering-principles-go, /engineering-principles-ts, null (disables engineering-principles)
 ```
 
-`strictcode_skill` was added by PR #47. Absent or null falls back to `/strictcode-python` at runtime (backward-compatible). See [[pr_47_strictcode-skill-config]].
+`engineering_principles_skill` was added by PR #47. Absent or null falls back to `/engineering-principles-python` at runtime (backward-compatible). See [[pr_47_strictcode-skill-config]].
 
 ## File written
 

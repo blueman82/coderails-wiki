@@ -32,7 +32,7 @@ Priority:
 2. **Standalone repo**: `<git-root>/.claude/workflow.config.yaml`
 3. **Sentinel**: `NO_CONFIG` — the string that signals the project has not been initialised
 
-All three commands run in **minimal mode** when they see `NO_CONFIG` — they do NOT halt or prompt for `/coderails:init`. Minimal mode defaults: `config.jira` = null (skip all Jira steps), `config.wiki_path` = null (skip wiki phases), `config.worktree_base` = git root, `config.worktree_script` = null (use plain `git worktree add`), `config.strictcode_paths` = null (skip strictcode pre-flight). (verified: prep.md:11–16, workflow.md:11–17)
+All three commands run in **minimal mode** when they see `NO_CONFIG` — they do NOT halt or prompt for `/coderails:init`. Minimal mode defaults: `config.jira` = null (skip all Jira steps), `config.wiki_path` = null (skip wiki phases), `config.worktree_base` = git root, `config.worktree_script` = null (use plain `git worktree add`), `config.engineering_principles_paths` = null (skip engineering-principles pre-flight). (verified: prep.md:11–16, workflow.md:11–17)
 
 ## init: the writer, not the reader
 
@@ -59,10 +59,10 @@ Known fields in `workflow.config.yaml` (as of 2026-06-26):
 | `worktree_base` | string | git root | original |
 | `worktree_script` | string \| null | null | original |
 | `jira.*` | object \| null | null | original |
-| `strictcode_paths` | list \| null | null | original |
-| `strictcode_skill` | string \| null | `/strictcode-python` | PR #47 |
+| `engineering_principles_paths` | list \| null | null | original |
+| `engineering_principles_skill` | string \| null | `/engineering-principles-python` | PR #47 |
 
-`strictcode_skill` is the slash-command used for the pre-flight strictcode check in [[push]] and [[workflow]]. Auto-detected during [[init]] setup: `go.mod` → `/strictcode-go`; `package.json` + `.ts` files → `/strictcode-ts`; otherwise `/strictcode-python`. Absent or null `strictcode_skill` defaults to `/strictcode-python` at runtime — it does NOT disable strictcode. To disable strictcode entirely, set `strictcode_paths: null`. Note: `init.md`'s inline YAML comment `# nil = skip strictcode entirely` is misleading versus the executing logic in `push.md` and `workflow.md`. See [[pr_47_strictcode-skill-config]].
+`engineering_principles_skill` is the slash-command used for the pre-flight engineering-principles check in [[push]] and [[workflow]]. Auto-detected during [[init]] setup: `go.mod` → `/engineering-principles-go`; `package.json` + `.ts` files → `/engineering-principles-ts`; otherwise `/engineering-principles-python`. Absent or null `engineering_principles_skill` defaults to `/engineering-principles-python` at runtime — it does NOT disable engineering-principles. To disable engineering-principles entirely, set `engineering_principles_paths: null`. Note: `init.md`'s inline YAML comment `# nil = skip engineering-principles entirely` is misleading versus the executing logic in `push.md` and `workflow.md`. See [[pr_47_strictcode-skill-config]].
 
 ## `NO_CONFIG` as a sentinel
 

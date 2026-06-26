@@ -19,15 +19,15 @@ Stages, commits, pushes to origin, and creates or updates a GitHub PR. After PR 
 /coderails:push --quick
 ```
 
-`--quick` skips the strictcode pre-flight entirely. Stripped from arguments before passing to `push.sh`.
+`--quick` skips the engineering-principles pre-flight entirely. Stripped from arguments before passing to `push.sh`.
 
 ## What it does
 
-**Pre-flight — strictcode check (skipped by `--quick` or if `config.strictcode_paths` is null):**
+**Pre-flight — engineering-principles check (skipped by `--quick` or if `config.engineering_principles_paths` is null):**
 
 1. Determines the base branch via `git symbolic-ref refs/remotes/origin/HEAD`.
-2. Runs `git diff --name-only $(git merge-base HEAD <base>)..HEAD` and checks for matches against `config.strictcode_paths` patterns.
-3. If matches found, runs `config.strictcode_skill` (default: `/strictcode-python`) on those files. (updated PR #47)
+2. Runs `git diff --name-only $(git merge-base HEAD <base>)..HEAD` and checks for matches against `config.engineering_principles_paths` patterns.
+3. If matches found, runs `config.engineering_principles_skill` (default: `/engineering-principles-python`) on those files. (updated PR #47)
 4. Blocking findings (architectural violations, DI protocol deviations) prompt the user: "Fix before pushing, or push as-is?" Non-blocking findings (style, naming) are logged and execution continues.
 5. In non-interactive contexts (conductor, background agent), logs findings but does not block — always proceeds to push. (verified: push.md:22)
 
@@ -50,12 +50,12 @@ See [[config-resolution]] for how `workflow.config.yaml` is located at runtime.
 
 | Field | Used for |
 |---|---|
-| `config.strictcode_paths` | Path patterns that trigger the pre-flight check |
-| `config.strictcode_skill` | Slash-command for the strictcode pre-flight (absent/null → defaults to `/strictcode-python`; also `/strictcode-go` or `/strictcode-ts`). To skip strictcode entirely, set `strictcode_paths: null`. Added PR #47 |
+| `config.engineering_principles_paths` | Path patterns that trigger the pre-flight check |
+| `config.engineering_principles_skill` | Slash-command for the engineering-principles pre-flight (absent/null → defaults to `/engineering-principles-python`; also `/engineering-principles-go` or `/engineering-principles-ts`). To skip engineering-principles entirely, set `engineering_principles_paths: null`. Added PR #47 |
 | `config.jira.transitions.resolve` | Transition name for Jira auto-resolve after PR creation |
 | `config.jira.mcp_namespace` | Jira MCP tool namespace for the resolve call (default: `jira`) |
 
-`NO_CONFIG` or absent `config.strictcode_paths`: skip strictcode entirely, proceed to push.
+`NO_CONFIG` or absent `config.engineering_principles_paths`: skip engineering-principles entirely, proceed to push.
 
 ## Scripts invoked
 
@@ -83,7 +83,7 @@ Third in the chain. Called by [[workflow]] after the code loop, or standalone.
 
 The PR URL output here feeds [[workflow]]'s Phase 4 ledger comment and is the URL reported to the user before the ship-it pause.
 
-The strictcode pre-flight in [[workflow]] Phase 3 and the pre-flight inside this command overlap intentionally: [[workflow]] catches large diffs not covered by `config.strictcode_paths` patterns; `/push` catches path-pattern matches if [[workflow]]'s pre-flight was skipped. (inferred: workflow.md:139–141)
+The engineering-principles pre-flight in [[workflow]] Phase 3 and the pre-flight inside this command overlap intentionally: [[workflow]] catches large diffs not covered by `config.engineering_principles_paths` patterns; `/push` catches path-pattern matches if [[workflow]]'s pre-flight was skipped. (inferred: workflow.md:139–141)
 
 ## See also
 

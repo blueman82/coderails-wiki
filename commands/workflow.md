@@ -31,7 +31,7 @@ The command runs five phases, two of which pause for human input:
 
 **Phase 2b — Design adversarial review (conditional)**: If the investigation page meets any trigger (≥40 lines, spans >1 service, new DDB schema, LLM call in the data path), launches 2–3 specialist agents in a single parallel message. Agent selection is driven by what the design touches, not a fixed list. Findings are classified as accept/skip and applied to the investigation page before coding starts. (inferred: agent table in workflow.md:109–116)
 
-**Phase 3 — Code (interactive pause)**: Hands control to the developer. Does not proceed until a ready signal ("push", "ship it", "done coding"). Pre-flight runs `config.strictcode_skill` (default: `/strictcode-python`) on changed files matching `config.strictcode_paths` or any file with ≥20 lines changed. (updated PR #47)
+**Phase 3 — Code (interactive pause)**: Hands control to the developer. Does not proceed until a ready signal ("push", "ship it", "done coding"). Pre-flight runs `config.engineering_principles_skill` (default: `/engineering-principles-python`) on changed files matching `config.engineering_principles_paths` or any file with ≥20 lines changed. (updated PR #47)
 
 **Phase 4 — Push + adversarial review (auto after ready signal)**: Calls [[push]], then `/pr-review-toolkit:review-pr all` (four specialist agents in parallel). Findings are classified blocking/worthwhile/cosmetic and applied inline without re-asking per finding. A ledger comment is posted to the PR.
 
@@ -48,11 +48,11 @@ See [[config-resolution]] for how `workflow.config.yaml` is located at runtime.
 | `config.worktree_base` | Passed to [[prep]] for worktree path derivation |
 | `config.worktree_script` | Passed to [[prep]]; if null, plain `git worktree add` |
 | `config.jira.*` | Passed to [[prep]] for ticket creation; used by [[push]] for auto-resolve |
-| `config.strictcode_paths` | Pre-flight path pattern matching before calling [[push]] |
-| `config.strictcode_skill` | Slash-command for the strictcode pre-flight (absent/null → defaults to `/strictcode-python`; also `/strictcode-go` or `/strictcode-ts`). To skip strictcode entirely, set `strictcode_paths: null`. Added PR #47 |
+| `config.engineering_principles_paths` | Pre-flight path pattern matching before calling [[push]] |
+| `config.engineering_principles_skill` | Slash-command for the engineering-principles pre-flight (absent/null → defaults to `/engineering-principles-python`; also `/engineering-principles-go` or `/engineering-principles-ts`). To skip engineering-principles entirely, set `engineering_principles_paths: null`. Added PR #47 |
 | `config.wiki_path` | Gates Orient, wiki-ingest, and wiki-lint phases |
 
-`NO_CONFIG` collapses the workflow: skip Orient, skip strictcode, skip wiki phases, skip Jira. The chain still runs: prep (worktree only) → code → push → review → merge.
+`NO_CONFIG` collapses the workflow: skip Orient, skip engineering-principles, skip wiki phases, skip Jira. The chain still runs: prep (worktree only) → code → push → review → merge.
 
 ## Scripts invoked
 
@@ -88,9 +88,9 @@ The command is **advisory, not enforcement**. Claude has to choose to invoke eac
 
 Phase 2b (design adversarial review) is distinct from Phase 4's `/pr-review-toolkit:review-pr`: Phase 2b reviews the *design page* before coding; Phase 4 reviews the *code* before merge. Both are required on non-trivial features. (verified: workflow.md:36)
 
-## Design notes — PR #47 strictcode_skill
+## Design notes — PR #47 engineering_principles_skill
 
-The `allowed-tools` frontmatter pre-authorises `/strictcode-go` and `/strictcode-ts` alongside `/strictcode-python` (added PR #47). This means projects configured with a non-python strictcode skill will not hit permission prompts during the workflow. (verified: `gh pr diff 47`) See [[pr_47_strictcode-skill-config]].
+The `allowed-tools` frontmatter pre-authorises `/engineering-principles-go` and `/engineering-principles-ts` alongside `/engineering-principles-python` (added PR #47). This means projects configured with a non-python engineering-principles skill will not hit permission prompts during the workflow. (verified: `gh pr diff 47`) See [[pr_47_strictcode-skill-config]].
 
 ## See also
 
