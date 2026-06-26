@@ -2,8 +2,8 @@
 title: "writing-skills"
 type: skill
 created: 2026-06-25
-last_updated: 2026-06-25
-sources: [sources/pr_19-30_self-containment-and-hardening.md]
+last_updated: 2026-06-26
+sources: [sources/pr_19-30_self-containment-and-hardening.md, sources/pr_56_writing-skills-using-coderails-example.md]
 tags: [skill, meta, skill-authoring, plugin-development]
 ---
 
