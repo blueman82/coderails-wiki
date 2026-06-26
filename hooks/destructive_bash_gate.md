@@ -12,7 +12,7 @@ tags: [hook, pretooluse-hook, enforcement, destructive-bash, block]
 
 # Hook: destructive_bash_gate
 
-A `PreToolUse (Bash)` lifecycle hook that permanently blocks a fixed set of destructive shell commands before they run, with no approval path.
+A `PreToolUse (Bash)` lifecycle hook that permanently blocks a fixed set of destructive shell commands before they run, with no approval path. Extended in PR #59 to cover additional force-clean, truncate, shred commands plus a best-effort branch-aware gate on in-Bash source file edits.
 
 Source: `hooks/scripts/destructive_bash_gate.sh`
 
