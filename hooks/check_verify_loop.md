@@ -79,7 +79,7 @@ Appends a structured key=value line to `$CLAUDE_DISCIPLINE_LOG` (default `~/.cla
 
 ## History
 
-The hook went through three generations:
+The hook went through four generations:
 
 1. **"Ran a tool" check** (original): asked whether any Read/Grep/Bash tool call appeared after the DNV section. It carried a jq operator-precedence bug that made the branch evaluate incorrectly. Both the weak check and the buggy expression were deleted. (inferred: prior session knowledge — absent from the current file, repo carries no git history)
 2. **Source-token regex + meta-bullet exclusion** (2026-05-31): blocked only bullets naming a `file.ext` or `file:line` token, with a `meta_pattern` allowlist of leading-clause phrases ("nothing outstanding", "scoped out", etc.) to drop false positives. This left prose claims that named no file completely unpoliced. See [[session_2026-05-31_verify-loop-hardening]].
