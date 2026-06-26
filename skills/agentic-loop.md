@@ -2,7 +2,7 @@
 title: "Skill: agentic-loop"
 type: skill
 created: 2026-05-31
-last_updated: 2026-06-25
+last_updated: 2026-06-26
 sources:
   - skills/agentic-loop/SKILL.md
   - sources/session_2026-05-31_prompting-doc-alignment.md
@@ -11,6 +11,7 @@ sources:
   - sources/pr_19-30_self-containment-and-hardening.md
   - sources/pr_39_agentic-loop-slim-v2.md
   - sources/pr_41_phase25-brainstorming-xref.md
+  - sources/pr_64_loop-review-via-skill.md
 tags: [skill, agentic-loop, multi-agent, orchestration, context-window, delegation, artifact-chain, loop-state]
 ---
 
