@@ -9,7 +9,7 @@ tags: [hook, PreToolUse, enforcement, pr-workflow, workflow-chain]
 
 # enforce_pr_workflow.sh
 
-PreToolUse(Bash) hook that mechanically guards the PR workflow chain: blocks `gh pr create` unless `/coderails:push` ran this session; blocks `gh pr merge` unless `/pr-review-toolkit:review-pr` ran this session; (since PR #40) blocks `git merge` on `main`/`master` unless `/pr-review-toolkit:review-pr` ran this session; and (since PR #46) blocks `git push` that lands on `main`/`master` unless `/pr-review-toolkit:review-pr` ran this session.
+PreToolUse(Bash) hook that mechanically guards the PR workflow chain: blocks `gh pr create` unless `/coderails:push` ran this session; blocks `gh pr merge` unless `/pr-review-toolkit:review-pr` ran this session referencing the same PR number (PR #58); (since PR #40) blocks `git merge` on `main`/`master` unless `/pr-review-toolkit:review-pr` ran since the last `git merge` (consume-on-use, PR #58); and (since PR #46) blocks `git push` that lands on `main`/`master` unless `/pr-review-toolkit:review-pr` ran this session, including bare positional `git push origin main` from any branch (PR #58).
 
 ## Event and mode
 
