@@ -106,6 +106,20 @@ The real "no unreviewed merge to main" guarantee is server-side GitHub branch pr
 
 Appends to `$CLAUDE_DISCIPLINE_LOG` on block. Format matches `key=value` convention.
 
+## PR #58 hardening summary
+
+Four changes in a single PR, each closing a specific bypass:
+
+**Change A — subagent transcript support:** `gate_have_transcript` and `enforce_required_step` now also scan `.agent_transcript_path` when present, so subagent-run `/push` or `/review-pr` invocations are recognised as valid evidence by the parent session.
+
+**Change B — per-PR / consume-on-use review evidence:** `gh pr merge <N>` now requires a review-pr whose `args` starts with the same PR number (leading-token match, not substring). `git merge` consumes evidence: review-pr must have run SINCE the last `git merge`, preventing a single review from satisfying multiple merges.
+
+**Change C — positional git push origin main gated:** `gate_targets_main` detects `git push origin main` form from any branch as a destination target. Previously only colon-refspec forms were caught.
+
+**Change D — flag-boundary tightening:** `gate_safe_passthrough` uses word-boundary anchors on `--dry-run` and `--help` so `--dry-run-data` or `--helpfulness` don't accidentally bypass the gate.
+
+**Review-caught Critical (fixed before merge):** the initial Change-C implementation missed bare positional targets; flagged Critical by the multi-agent review and fixed before merge.
+
 ## Why it exists
 
 Before this hook, the workflow chain (`/push → /review-pr → /merge`) was advisory: Claude could invoke `gh pr create` or `gh pr merge` directly, bypassing the mandated push and review steps. This hook converts those two checkpoints from advisory to mechanical. Closes review finding #C. (verified — PR #30)
