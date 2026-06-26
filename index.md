@@ -60,7 +60,7 @@ See [[discipline-loop]] for the design rationale across all hooks.
 | `check_verify_loop.sh` | `Stop` + `SubagentStop` | **block** (exit 2) — any untagged `## Did Not Verify` bullet; file_count gate removed on Stop path (PR #61); reads `last_assistant_message` on SubagentStop (PR #57) | [[check_verify_loop]] |
 | `loop_state_guard.sh` | `Stop` | **block** (exit 2) — agentic loop active but `progress.json` absent / session-mismatch (presence + ownership) | [[loop_state_guard]] |
 | `loop_stall_guard.sh` | `Stop` | **block** (exit 2) — agentic loop active + incomplete + no `LOOP-STOP: <category>` declaration | [[loop_stall_guard]] |
-| `destructive_bash_gate.sh` | `PreToolUse (Bash)` | **block** (permissionDecision: deny) | [[destructive_bash_gate]] |
+| `destructive_bash_gate.sh` | `PreToolUse (Bash)` | **block** (permissionDecision: deny) — extended blocklist (git clean -f, find -delete, truncate, shred) + in-Bash source edits on main (PR #59) | [[destructive_bash_gate]] |
 | `test_gate.sh` | `PreToolUse (Bash)` | **block** on `git commit` if tests fail — opt-in via `.claude/test_command` | [[test_gate]] |
 | `enforce_pr_workflow.sh` | `PreToolUse (Bash)` | **block** — `gh pr create` without prior `/push`; `gh pr merge`, `git merge`, or `git push` (on/targeting main/master) without prior `/review-pr` (NO_CONFIG opt-in) | [[enforce_pr_workflow]] |
 | `no_edit_on_main.sh` | `PreToolUse (Write\|Edit\|MultiEdit)` | **block** — code-file + plugin-source (`skills/*/SKILL.md`, `commands/*.md`) edits on `main`/`master` | [[no_edit_on_main]] |
