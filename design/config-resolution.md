@@ -2,7 +2,7 @@
 title: "Config Resolution: workflow.config.yaml"
 type: design
 created: 2026-05-30
-last_updated: 2026-06-25
+last_updated: 2026-06-26
 sources:
   - commands/workflow.md
   - commands/prep.md
