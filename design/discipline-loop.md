@@ -60,13 +60,14 @@ Logic at lines 44–66 (verified):
 
 **`check_verify_loop.sh`** — **total enforcement** (as of 2026-06-01): blocks when *any* `## Did Not Verify` bullet is left untagged. The sole escape is an explicit `(unverifiable: <reason>)` tag on the bullet's leading clause.
 
+As of PR #61, the `file_count < 1` gate on the Stop path was removed — a DNV section is policed regardless of whether files were edited. As of PR #57, the hook also fires on SubagentStop, reading `.last_assistant_message` directly.
+
 Gate chain (verified: [[check_verify_loop]]):
-1. No transcript file — allow stop.
-2. No files edited this turn (file_count < 1) — allow stop (pure conversation turns are exempt).
-3. `stop_hook_active == true` — allow stop (loop-guard: already blocked once this turn).
-4. Last response has no text — allow stop.
-5. No `## Did Not Verify` bullets — allow stop.
-6. Any DNV bullet **not** tagged `(unverifiable: …)` — **block** with `exit 2`.
+1. No transcript file (Stop path only) — allow stop.
+2. `stop_hook_active == true` — allow stop (loop-guard: already blocked once this turn).
+3. Last response has no text — allow stop.
+4. No `## Did Not Verify` bullets — allow stop.
+5. Any DNV bullet **not** tagged `(unverifiable: …)` — **block** with `exit 2`.
 
 The earlier source-token regex (matching `.md`, `.sh`, etc. extensions) and the `meta_pattern` allowlist were both removed in the 2026-06-01 escalation. Now prose claims block exactly as filename claims do — any untagged bullet is treated as something the model could have confirmed. See [[check_verify_loop]] for the full history. (inferred: [[session_2026-06-01_verify-loop-total-enforcement]])
 
