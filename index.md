@@ -122,6 +122,7 @@ Point-in-time filed investigations (`<topic>_<YYYY-MM-DD>.md` naming).
 
 - [[install-cache-trap_2026-05-30]] — initial investigation filed at wiki bootstrap
 - [[install-bash32-bad-substitution_2026-06-01]] — `${answer,,}` (bash 4) broke install.sh on macOS bash 3.2; fixed with `tr` lowercase
+- [[skill-testing-state_2026-06-26]] — coderails has ZERO automated skill testing; the lone planning-sequence evals.json was a dormant skill-creator quality-eval artifact (deleted, PR #55); skill-creator (external) has two eval systems (trigger `run_eval.py` + agent-graded quality); decision NOT to build a runner (corpus=1); candidate reminder-hook deferred
 
 ---
 
