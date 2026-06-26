@@ -84,6 +84,7 @@ The hook went through four generations:
 1. **"Ran a tool" check** (original): asked whether any Read/Grep/Bash tool call appeared after the DNV section. It carried a jq operator-precedence bug that made the branch evaluate incorrectly. Both the weak check and the buggy expression were deleted. (inferred: prior session knowledge — absent from the current file, repo carries no git history)
 2. **Source-token regex + meta-bullet exclusion** (2026-05-31): blocked only bullets naming a `file.ext` or `file:line` token, with a `meta_pattern` allowlist of leading-clause phrases ("nothing outstanding", "scoped out", etc.) to drop false positives. This left prose claims that named no file completely unpoliced. See [[session_2026-05-31_verify-loop-hardening]].
 3. **Total enforcement** (2026-06-01): the source-token regex and the `meta_pattern` allowlist were both removed. Now *any* untagged bullet blocks, prose or filename, and the single `(unverifiable: …)` tag is the only escape. This closed the gap where a checkable prose claim slipped through because it named no file. See [[session_2026-06-01_verify-loop-total-enforcement]].
+4. **SubagentStop + file_count removal** (2026-06-26): wired to SubagentStop (PR #57) with `last_assistant_message` as the text source, and the `file_count < 1` gate removed on the Stop path (PR #61) so pure-conversation turns with a DNV section are also policed. See [[pr_57-62_subagent-enforcement-gate-hardening]].
 
 ## Related
 
