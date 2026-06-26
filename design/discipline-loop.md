@@ -2,7 +2,7 @@
 title: Discipline Loop
 type: design
 created: 2026-05-30
-last_updated: 2026-06-25
+last_updated: 2026-06-26
 sources:
   - templates/failure_log.md
   - hooks/scripts/check_confidence_labels.sh
@@ -10,6 +10,7 @@ sources:
   - CLAUDE.md
   - instructions/self-checking-discipline.md
   - sources/session_2026-05-31_prompting-doc-alignment.md
+  - sources/pr_57-62_subagent-enforcement-gate-hardening.md
 tags:
   - discipline
   - hooks
