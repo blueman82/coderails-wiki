@@ -2,8 +2,8 @@
 title: "enforce_pr_workflow.sh"
 type: hook
 created: 2026-06-25
-last_updated: 2026-06-25
-sources: [sources/pr_19-30_self-containment-and-hardening.md, sources/pr_40_hook-hardening.md, sources/pr_42_skills-hooks-seam.md]
+last_updated: 2026-06-26
+sources: [sources/pr_19-30_self-containment-and-hardening.md, sources/pr_40_hook-hardening.md, sources/pr_42_skills-hooks-seam.md, sources/pr_46_gate-git-push-on-main.md]
 tags: [hook, PreToolUse, enforcement, pr-workflow, workflow-chain]
 ---
 
