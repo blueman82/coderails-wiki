@@ -120,6 +120,17 @@ Four changes in a single PR, each closing a specific bypass:
 
 **Review-caught Critical (fixed before merge):** the initial Change-C implementation missed bare positional targets; flagged Critical by the multi-agent review and fixed before merge.
 
+## Accepted PR-review evidence: the review-pr Skill with PR number (PR #64)
+
+The `enforce_required_step` function (Gate 6) scans the transcript for `/pr-review-toolkit:review-pr` Skill invocations as the accepted form of review evidence. The accepted form has two requirements:
+
+1. **Tool type is Skill** — a Skill tool call with name `pr-review-toolkit:review-pr`. A manually-spawned set of reviewer agents (via `Agent` or `Task` tool calls) does NOT satisfy this gate.
+2. **PR number in args** — for `gh pr merge <N>`, the review-pr Skill invocation must carry the same PR number as a leading token in its args (per-PR evidence model, PR #58).
+
+**Why Skill-only, not agent fanout:** The transcript scanner looks for specific Skill invocation records. An orchestrator that hand-rolls the six reviewer agents as parallel `Agent` blocks produces no `/pr-review-toolkit:review-pr` Skill record in the transcript — so the gate sees no evidence and blocks merge. This is the root cause documented in PR #64: the agentic-loop's Phase 4b was hand-rolling agents, which cleared the review conceptually but not mechanically.
+
+**Resolution path:** Invoke `/pr-review-toolkit:review-pr <PR#>` as a Skill, passing the PR number. The Skill itself orchestrates the six reviewers and security pass internally. See [[agentic-loop]] Phase 4b section for the orchestrator-side obligation.
+
 ## Why it exists
 
 Before this hook, the workflow chain (`/push → /review-pr → /merge`) was advisory: Claude could invoke `gh pr create` or `gh pr merge` directly, bypassing the mandated push and review steps. This hook converts those two checkpoints from advisory to mechanical. Closes review finding #C. (verified — PR #30)
