@@ -50,9 +50,13 @@ Running all three as variations of the same critique is the primary failure mode
 
 [[premortem]] is the standalone skill for backwards-reasoning from an assumed bad outcome. `planning-sequence` embeds its logic inline as Stage 2, extending it with Pre-Parade (Stage 1, which premortem omits) and Red Team (Stage 3, which premortem omits). The distinguishing signal for [[premortem]] alone: backwards reasoning from an assumed failure is explicitly requested. The distinguishing signal for `planning-sequence`: the user wants all three passes.
 
+## Relationship to writing-plans
+
+Since [[pr_50_planning-sequence-gate]] (2026-06-26), `planning-sequence` is a **required downstream gate** in the [[writing-plans]] flow: after a plan passes its self-review gate and before implementation hand-off, the plan is run through this skill, and the findings fold back into the plan inline. This complements — does not replace — its older framing as an *optional upstream* step before plan decomposition. The distinction: stress-testing an *idea* before planning is optional; stress-testing the *written plan* before building is now the mandatory instance. (verified — writing-plans SKILL.md gate section)
+
 ## Relationship to agentic-loop
 
-[[agentic-loop]] Phase 2 delegates planning and premortem work to spawned sonnet agents during pre-flight. `planning-sequence` is one of the natural skills those agents would invoke for high-stakes decisions within a loop run.
+[[agentic-loop]] Phase 2 delegates planning and premortem work to spawned sonnet agents during pre-flight. `planning-sequence` is one of the natural skills those agents would invoke for high-stakes decisions within a loop run. When the writing-plans gate fires inside a loop, the sequence runs in a delegated agent, not main context.
 
 ## Failure modes encoded
 
