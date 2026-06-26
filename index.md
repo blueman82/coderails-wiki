@@ -63,7 +63,7 @@ See [[discipline-loop]] for the design rationale across all hooks.
 | `destructive_bash_gate.sh` | `PreToolUse (Bash)` | **block** (permissionDecision: deny) — extended blocklist (git clean -f, find -delete, truncate, shred) + in-Bash source edits on main (PR #59) | [[destructive_bash_gate]] |
 | `test_gate.sh` | `PreToolUse (Bash)` | **block** on `git commit` if tests fail — opt-in via `.claude/test_command` | [[test_gate]] |
 | `enforce_pr_workflow.sh` | `PreToolUse (Bash)` | **block** — `gh pr create` without prior `/push`; `gh pr merge`/`git merge`/`git push` on/targeting main without prior `/review-pr` (per-PR + consume-on-use + positional push, PR #58; NO_CONFIG opt-in) | [[enforce_pr_workflow]] |
-| `no_edit_on_main.sh` | `PreToolUse (Write\|Edit\|MultiEdit)` | **block** — code-file + plugin-source (`skills/*/SKILL.md`, `commands/*.md`) edits on `main`/`master` | [[no_edit_on_main]] |
+| `no_edit_on_main.sh` | `PreToolUse (Write\|Edit\|MultiEdit)` | **block** — allowlist model (PR #60): everything except doc/config/special dotfiles on main/master; plugin-source markdown still blocked | [[no_edit_on_main]] |
 
 Stop hook order: `check_confidence_labels` → `check_verify_loop` → `loop_state_guard` (C1) → `loop_stall_guard` (C2). The two loop-state hooks share `hooks/scripts/lib/loop_state_common.sh` (vocab, active-loop detection, and named `als_gate_*` functions for Gates 1–4; extracted PR #49) and `hooks/scripts/lib/agentic_loop_path.sh` (sole path authority). The three discipline hooks share `hooks/scripts/lib/discipline_common.sh` (transcript extraction + retry loop, added PR #29). See [[spec-plan-progress-artifact-chain]].
 
