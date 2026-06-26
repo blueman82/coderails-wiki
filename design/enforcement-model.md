@@ -8,6 +8,7 @@ sources:
   - CLAUDE.md
   - hooks/hooks.json
   - sources/pr_43_rough-edges.md
+  - sources/pr_57-62_subagent-enforcement-gate-hardening.md
 tags:
   - hooks
   - enforcement
