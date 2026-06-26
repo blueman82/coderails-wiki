@@ -26,7 +26,7 @@ tags: [source, hooks, subagent, enforcement, hardening, discipline]
 
 `check_confidence_labels.sh` and `check_verify_loop.sh` are now also wired to the `SubagentStop` hook event in `hooks.json`. Both scripts detect `hook_event_name` and take a separate path on SubagentStop.
 
-**Critical distinction:** `transcript_path` on a SubagentStop payload is the **parent** session transcript, not the subagent's. Reading it would check the wrong content. Both scripts instead read `.last_assistant_message` directly — the subagent's actual final output — on `SubagentStop`.
+**Critical distinction:** `transcript_path` on a SubagentStop payload is the **parent** session transcript, not the subagent's. Reading it would check the wrong content. Both scripts instead read `.last_assistant_message` directly — the subagent's actual final output — on `SubagentStop`. (verified: check_confidence_labels.sh, check_verify_loop.sh)
 
 For `check_verify_loop`, `file_count` is not used as a skip gate on the SubagentStop path: the subagent's message IS the authoritative output, and an untagged DNV bullet in it is proof of deferred work regardless of whether the agent transcript is readable. (On Stop, `file_count` is retained in the log line but no longer gates the check either — see PR #61.)
 
