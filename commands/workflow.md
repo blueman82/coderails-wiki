@@ -49,7 +49,7 @@ See [[config-resolution]] for how `workflow.config.yaml` is located at runtime.
 | `config.worktree_script` | Passed to [[prep]]; if null, plain `git worktree add` |
 | `config.jira.*` | Passed to [[prep]] for ticket creation; used by [[push]] for auto-resolve |
 | `config.strictcode_paths` | Pre-flight path pattern matching before calling [[push]] |
-| `config.strictcode_skill` | Slash-command for the strictcode pre-flight (default: `/strictcode-python`; also `/strictcode-go`, `/strictcode-ts`, or null to skip). Added PR #47 |
+| `config.strictcode_skill` | Slash-command for the strictcode pre-flight (absent/null → defaults to `/strictcode-python`; also `/strictcode-go` or `/strictcode-ts`). To skip strictcode entirely, set `strictcode_paths: null`. Added PR #47 |
 | `config.wiki_path` | Gates Orient, wiki-ingest, and wiki-lint phases |
 
 `NO_CONFIG` collapses the workflow: skip Orient, skip strictcode, skip wiki phases, skip Jira. The chain still runs: prep (worktree only) → code → push → review → merge.

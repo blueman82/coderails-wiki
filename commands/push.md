@@ -51,7 +51,7 @@ See [[config-resolution]] for how `workflow.config.yaml` is located at runtime.
 | Field | Used for |
 |---|---|
 | `config.strictcode_paths` | Path patterns that trigger the pre-flight check |
-| `config.strictcode_skill` | Slash-command for the strictcode pre-flight (default: `/strictcode-python`; also `/strictcode-go`, `/strictcode-ts`, or null to skip). Added PR #47 |
+| `config.strictcode_skill` | Slash-command for the strictcode pre-flight (absent/null → defaults to `/strictcode-python`; also `/strictcode-go` or `/strictcode-ts`). To skip strictcode entirely, set `strictcode_paths: null`. Added PR #47 |
 | `config.jira.transitions.resolve` | Transition name for Jira auto-resolve after PR creation |
 | `config.jira.mcp_namespace` | Jira MCP tool namespace for the resolve call (default: `jira`) |
 
