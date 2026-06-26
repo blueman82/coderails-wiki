@@ -32,10 +32,12 @@ Path helper: `coderails/hooks/scripts/lib/agentic_loop_path.sh`
 
 ## Logic: skip gates (cheap first)
 
-1. **No transcript** — allow (nothing to inspect).
-2. **`stop_hook_active == true`** — allow (already blocked this turn; avoid stop-loop).
-3. **No agentic-loop Skill `tool_use` in transcript** — allow (not a loop). Detection is a structured `jq` match on `name == "Skill"` and `input.skill` matching `(^|:)agentic-loop$`. Text grep for "agentic-loop" is explicitly forbidden (would trip sessions that edit/discuss the skill).
-4. **`status == "complete"` AND not re-armed AND session-owned** — allow (loop is done). Re-armed = `invocation_count > completed_marker`.
+Gates 1–4 are implemented as named `als_gate_*` functions in `loop_state_common.sh` (shared with [[loop_stall_guard]] — extracted PR #49, formerly byte-identical between the two guards). Gates 5–6 are local to this script.
+
+1. **`als_gate_no_transcript`** — allow (nothing to inspect).
+2. **`als_gate_stop_hook_active`** — allow (`stop_hook_active == true`; already blocked this turn; avoid stop-loop).
+3. **`als_gate_not_a_loop`** — allow if no agentic-loop Skill `tool_use` in transcript. Detection is a structured `jq` match on `name == "Skill"` and `input.skill` matching `(^|:)agentic-loop$`. Text grep for "agentic-loop" is explicitly forbidden (would trip sessions that edit/discuss the skill).
+4. **`als_load_progress` / done-and-not-rearmed check** — allow if `status == "complete"` AND not re-armed AND session-owned (loop is done). Re-armed = `invocation_count > completed_marker`.
 5. **File present AND session-owned AND `status != "complete"`** — allow (presence satisfied).
 6. **BLOCK (exit 2)** — three failure shapes: absent, session mismatch, stale-complete-after-rearm.
 
