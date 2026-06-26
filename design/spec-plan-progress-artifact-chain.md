@@ -2,7 +2,7 @@
 title: "Spec→Plan→Progress artifact chain + two-hook loop-state guard"
 type: design
 created: 2026-06-25
-last_updated: 2026-06-25
+last_updated: 2026-06-26
 sources:
   - sources/session_2026-06-25_agentic-loop-upgrade-arc.md
 tags: [design, agentic-loop, artifact-chain, loop-state, hooks, progress-json]
