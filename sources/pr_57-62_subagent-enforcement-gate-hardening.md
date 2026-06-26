@@ -51,7 +51,7 @@ Four hardening changes to `enforce_pr_workflow.sh`:
 
 **Change D — flag-boundary tightening:** `--dry-run` / `--help` passthrough in `gate_safe_passthrough` now uses word-boundary anchors `(^|[^-[:alnum:]])(--dry-run|--help)([^-[:alnum:]]|$)` so that flags like `--dry-run-data` or `--helpfulness` don't accidentally bypass the gate.
 
-**Review-caught Critical (fixed before merge):** the Change-C implementation initially checked only colon-refspec forms; a `git push origin main` from a feature branch was a silent false-allow. Fixed by the positional-target gate in Change C. TDD: enforce suite went to 27+ cases.
+**Review-caught Critical (fixed before merge):** the Change-C implementation initially checked only colon-refspec forms; a `git push origin main` from a feature branch was a silent false-allow. Fixed by the positional-target gate in Change C. TDD: enforce suite went to 27+ cases. (verified: PR #58 body, enforce_pr_workflow.sh)
 
 ## PR #59 — destructive_bash_gate extended
 
