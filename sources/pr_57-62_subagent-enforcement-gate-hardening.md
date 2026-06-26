@@ -17,8 +17,8 @@ tags: [source, hooks, subagent, enforcement, hardening, discipline]
 |---|---|
 | PR numbers | #57, #58, #59, #60, #61, #62 |
 | Theme | Subagent enforcement + gate hardening |
-| Merged | 2026-06-26 |
-| Merge SHAs | #57 `06a2bf94`, #58 `73a4c69f`, #59 `02f8a908`, #60 `502f7508`, #61 `e4274fe1`, #62 `6b7d058d` |
+| Merged | 2026-06-26 (verified: gh pr list --state merged) |
+| Merge SHAs | #57 `06a2bf94`, #58 `73a4c69f`, #59 `02f8a908`, #60 `502f7508`, #61 `e4274fe1`, #62 `6b7d058d` (verified: gh pr view) |
 
 ## PR #57 — SubagentStop discipline
 
