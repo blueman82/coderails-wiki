@@ -105,13 +105,23 @@ There is no approval path built into the hook. The reason field tells Claude to 
 
 **Why JSON deny and not exit 2:** For `PreToolUse`, both mechanisms block the tool call, but the JSON form carries `permissionDecisionReason`, delivering a useful explanation rather than a bare stderr string. JSON output is only processed at exit 0, so the hook exits 0 after emitting JSON. See [[hook-exit-codes]] for the full rationale.
 
+## Branch-aware in-Bash source-edit gate (added PR #59)
+
+A best-effort gate blocks in-Bash edits to source files (`.py`, `.ts`, `.tsx`, `.js`, `.jsx`, `.go`) and plugin source (`skills/*/SKILL.md`, `commands/*.md`) on `main`/`master`. This closes the gap that `no_edit_on_main.sh` misses — `no_edit_on_main` only intercepts `Write`/`Edit`/`MultiEdit` tool calls, not bash shell commands that write to files.
+
+Blocked forms: `sed -i`, `perl -i`, shell redirects (`>`/`>>`), `tee`, `cp <src> FILE`, `mv <src> FILE`, `dd of=FILE`.
+
+Branch detection uses target-repo resolution (the file's own git repo's branch), mirroring [[no_edit_on_main]]. Falls back to cwd-branch when the target path is not resolvable.
+
+**Enforcement ceiling:** this gate is **best-effort**. Variable filenames, quoted paths with spaces, here-docs, process substitution, and `python -c open(...)` writes remain uncaught. This is documented as a deliberate ceiling, not a bug. See [[pr_57-62_subagent-enforcement-gate-hardening]].
+
 ## No logging
 
 This hook does not append to `$CLAUDE_DISCIPLINE_LOG`. (verified: destructive_bash_gate.sh — no reference to `$CLAUDE_DISCIPLINE_LOG` or `discipline.log`)
 
 ## Environment variables
 
-None. This hook has no configurable env vars. (verified: destructive_bash_gate.sh — no env var reads beyond the implicit PATH)
+None for the original blocklist. The in-Bash source-edit gate reads `.cwd` from the hook payload and falls back to `$PWD`. (verified: destructive_bash_gate.sh)
 
 ## Related
 
