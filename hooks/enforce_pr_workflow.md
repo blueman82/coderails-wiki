@@ -129,7 +129,7 @@ The `enforce_required_step` function (Gate 6) scans the transcript for `/pr-revi
 
 **Why Skill-only, not agent fanout:** The transcript scanner looks for specific Skill invocation records. An orchestrator that hand-rolls the six reviewer agents as parallel `Agent` blocks produces no `/pr-review-toolkit:review-pr` Skill record in the transcript — so the gate sees no evidence and blocks merge. This is the root cause documented in PR #64: the agentic-loop's Phase 4b was hand-rolling agents, which cleared the review conceptually but not mechanically.
 
-**Resolution path:** Invoke `/pr-review-toolkit:review-pr <PR#>` as a Skill, passing the PR number. The Skill itself orchestrates the six reviewers and security pass internally. See [[agentic-loop]] Phase 4b section for the orchestrator-side obligation.
+**Resolution path:** Invoke `/pr-review-toolkit:review-pr <PR#>` as a Skill, passing the PR number. The Skill itself orchestrates the six reviewers and security pass internally. See [[agentic-loop]] Phase 4b section for the orchestrator-side obligation. See [[pr_64_loop-review-via-skill]] for the source record.
 
 ## Why it exists
 
