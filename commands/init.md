@@ -67,7 +67,7 @@ engineering_principles_skill: "/engineering-principles-python" # or /engineering
 
 `.claude/workflow.config.yaml` (path depends on repo layout — see step 2 above).
 
-This is the single file the dual-path config lookup reads. All four workflow commands (`workflow`, `prep`, `push`, `merge`) locate it via the same lookup pattern. See [[config-resolution]].
+This is the single file the walk-up config resolver reads. All workflow commands (`workflow`, `prep`, `push`) and the [[enforce_pr_workflow]] hook locate it via the shared `scripts/lib/config.sh` resolver. See [[config-resolution]].
 
 ## Scripts invoked
 
