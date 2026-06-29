@@ -67,6 +67,10 @@ Appends a `key=value` line to `$CLAUDE_DISCIPLINE_LOG`:
 - Concurrent same-cwd sessions share a path; the second sees a session mismatch and is told to adopt/reinitialise (could thrash in rare parallel-sessions-same-repo scenarios).
 - Forgotten within-session teardown leaves a benign `present+owned+in-progress` file (C1 does not block); over-fire risk from stale `in-progress` is C2's concern.
 
+## Stdin read convention (PR #76)
+
+This hook reads its payload via `IFS= read -r -d '' -t 5 input || true`. See [[pr_76_harden-hook-stdin-read]] for the full convention and the fail-open rationale.
+
 ## See also
 
 - [[loop_stall_guard]] — C2: requires a `LOOP-STOP` declaration when active+incomplete; shares loop-active detection via `loop_state_common.sh`
