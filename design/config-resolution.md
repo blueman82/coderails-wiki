@@ -2,37 +2,40 @@
 title: "Config Resolution: workflow.config.yaml"
 type: design
 created: 2026-05-30
-last_updated: 2026-06-26
+last_updated: 2026-06-29
 sources:
   - commands/workflow.md
   - commands/prep.md
   - commands/push.md
   - commands/init.md
-tags: [commands, config, workflow, monorepo]
+  - sources/pr_72_config-walkup-symlink-hang.md
+tags: [commands, config, workflow, monorepo, config.sh, walk-up]
 ---
 
 # Config Resolution: workflow.config.yaml
 
-Every workflow command resolves `workflow.config.yaml` at runtime using a dual-path lookup. The same resolution pattern is used in three commands; the fourth writes the file using equivalent prose logic.
+Every workflow command — and the [[enforce_pr_workflow]] hook's opt-in check — resolves `workflow.config.yaml` at runtime through a **shared resolver**, `scripts/lib/config.sh`. `init.md` writes the file using equivalent prose logic.
 
-## The lookup pattern
+## The lookup pattern (walk-up resolver)
 
-Three commands — `workflow.md`, `prep.md`, and `push.md` — carry the identical inline `!`-bash substitution in their YAML frontmatter: (verified: workflow.md:9, prep.md:9, push.md:9)
+> ⚠️ This page previously documented an inline dual-path `projects/<name>/` bash
+> one-liner. That was replaced by PR #67 (directory walk-up) and extracted into a
+> shared library by PR #71. The old hardcoded `projects/` layout is gone.
 
-```bash
-GIT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null) && {
-  cat "$GIT_ROOT/projects/$(basename $(pwd))/.claude/workflow.config.yaml" 2>/dev/null \
-  || cat "$GIT_ROOT/.claude/workflow.config.yaml" 2>/dev/null \
-  || echo "NO_CONFIG"
-}
-```
+`scripts/lib/config.sh::coderails::config_path()` walks **up** from a start dir to the git root and returns the first `.claude/workflow.config.yaml` found; nearest wins (replacement, not inheritance). This is **layout-agnostic** — standalone repos, classic `projects/<name>/` monorepos, and arbitrary layouts (`apps/web`, `services/api`, …) all resolve from any subdir. (verified: config.sh, PR #67/#71)
 
-Priority:
-1. **Monorepo layout**: `<git-root>/projects/<project-name>/.claude/workflow.config.yaml`
-2. **Standalone repo**: `<git-root>/.claude/workflow.config.yaml`
-3. **Sentinel**: `NO_CONFIG` — the string that signals the project has not been initialised
+`coderails::resolve_config()` wraps it: emit the file contents, or the literal `NO_CONFIG` sentinel if none found.
 
-All three commands run in **minimal mode** when they see `NO_CONFIG` — they do NOT halt or prompt for `/coderails:init`. Minimal mode defaults: `config.jira` = null (skip all Jira steps), `config.wiki_path` = null (skip wiki phases), `config.worktree_base` = git root, `config.worktree_script` = null (use plain `git worktree add`), `config.engineering_principles_paths` = null (skip engineering-principles pre-flight). (verified: prep.md:11–16, workflow.md:11–17)
+Three consumers source this one resolver so their answers agree:
+- `commands/{workflow,prep,push}.md` frontmatter (via `${CLAUDE_PLUGIN_ROOT}/scripts/lib/config.sh`)
+- `scripts/merge.sh`
+- `hooks/scripts/enforce_pr_workflow.sh` — **critically**, the merge gate's "is enforcement active?" must use the *same* resolver as the commands, or the gate and the commands would disagree on whether a project is initialised. (verified: config.sh header)
+
+### The symlink hang (PR #72) — a fixed invariant worth remembering
+
+The walk-up terminated only on `d == git_root` *string equality*. `git rev-parse` returns a **symlink-resolved** path (macOS `/tmp` → `/private/tmp`), so a start dir in the unresolved namespace never matched, `dirname` bottomed out at `/`, and the loop spun forever — but **only on the NO_CONFIG path** (a found config short-circuits first). Fix: canonicalise `start` with `pwd -P` + a hard `/` floor. The resolver is now guard-script-safe (no `set -euo pipefail`, always `return 0`, empty-on-miss) AND termination-safe. See [[pr_72_config-walkup-symlink-hang]]. (verified: config.sh:39,45)
+
+All consumers run in **minimal mode** on `NO_CONFIG` — they do NOT halt or prompt for `/coderails:init`. Minimal mode defaults: `config.jira` = null (skip all Jira steps), `config.wiki_path` = null (skip wiki phases), `config.worktree_base` = git root, `config.worktree_script` = null (use plain `git worktree add`), `config.engineering_principles_paths` = null (skip engineering-principles pre-flight). (verified: prep.md, workflow.md)
 
 ## init: the writer, not the reader
 
