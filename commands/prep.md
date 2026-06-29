@@ -86,5 +86,5 @@ The git branch config key set here (`branch.<name>.jira-ticket`) is the handoff 
 
 - [[workflow]] — calls /prep as Phase 1
 - [[push]] — reads the jira-ticket branch config set here
-- [[config-resolution]] — dual-path config lookup
+- [[config-resolution]] — walk-up config resolver
 - [[repo-hosting]] — git remote requirements
