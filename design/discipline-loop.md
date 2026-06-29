@@ -156,6 +156,10 @@ These are deliberate limits, not bugs. See `CLAUDE.md` "Enforcement ceilings" se
 - **Skill invocation is structurally unenforceable.** A hook cannot observe or mandate internal reasoning steps.
 - **No `SubagentStart` event exists.** `inject_bootstrap.sh` cannot inject `using-coderails` into subagents; orchestrators must include it in subagent prompts explicitly.
 
+## Stdin read convention (all hooks, PR #76)
+
+All 10 hook scripts read their payload via `IFS= read -r -d '' -t 5 input || true` (replacing the old `input=$(cat)`). The 5-second timeout is an in-process backstop for the orphaned-hook scenario: if the parent process dies without closing stdin, the read times out, `input` is empty, and the hook exits 0 (fail-open). Fail-open is safe in this scenario — a dead parent means no live tool call to gate. The `|| true` is mandatory because `read -d ''` returns exit 1 on normal (non-timeout) EOF. See [[pr_76_harden-hook-stdin-read]] for details, the test coverage, and the known gap (no automated `min(hooks.json timeout) >= 5` guard).
+
 ## Shared library: discipline_common.sh (added 2026-06-25, PR #29)
 
 The three discipline hooks (`check_confidence_labels.sh`, `check_verify_loop.sh`, `discipline_catchup.sh`) previously duplicated the transcript text-extraction jq expression and retry loop. PR #29 extracted this into `hooks/scripts/lib/discipline_common.sh`, mirroring the pattern of `lib/loop_state_common.sh`. Behaviour-preserving (proven against origin/main pre-refactor). A TDD test was added. (verified — PR #29)
