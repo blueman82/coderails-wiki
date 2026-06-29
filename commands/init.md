@@ -21,11 +21,8 @@ Scaffolds `workflow.config.yaml` for the current project — the config file tha
 
 ## What it does
 
-1. **Resolves the git root** via `git rev-parse --show-toplevel`.
-2. **Determines the config path** using the dual-path layout rule (inferred from source):
-   - If `<git-root>/projects/<project-name>/` exists → monorepo layout → writes to `<git-root>/projects/<project-name>/.claude/workflow.config.yaml`
-   - Otherwise → standalone repo → writes to `<git-root>/.claude/workflow.config.yaml`
-   - Creates `.claude/` if it doesn't exist.
+1. **Determines the config path** as `$(pwd)/.claude/workflow.config.yaml` (creates `.claude/` if needed). Run `/init` from the directory whose config you want to set — a project subdir in a monorepo, or the git root for a standalone repo. (verified: init.md:15, post-#67)
+   - The *readers* then locate it by **walking up** from their cwd to the git root, first `.claude/workflow.config.yaml` found wins — so writing it at any level works for any layout. This replaced the old hardcoded `projects/<name>/` dual-path rule (PR #67). See [[config-resolution]] and [[pr_72_config-walkup-symlink-hang]].
 3. **Guards against overwrite** — if the file already exists, asks the user to confirm before proceeding.
 4. **Collects config values** interactively (one prompt listing all fields):
    - Jira project key, epic key, component name + ID, epic field ID, story-points field ID, fix version, start/resolve transition names, MCP namespace
