@@ -2,10 +2,11 @@
 title: "Hook: loop_stall_guard.sh"
 type: hook
 created: 2026-06-25
-last_updated: 2026-06-26
+last_updated: 2026-06-29
 sources:
   - sources/session_2026-06-25_agentic-loop-upgrade-arc.md
   - sources/pr_49_gate-function-rename.md
+  - sources/pr_76_harden-hook-stdin-read.md
 tags: [hook, agentic-loop, anti-stall, stop-hook, loop-stop, loop-state]
 ---
 
