@@ -2,12 +2,13 @@
 title: "Hook: check_verify_loop"
 type: hook
 created: 2026-05-30
-last_updated: 2026-06-26
+last_updated: 2026-06-29
 sources:
   - hooks/scripts/check_verify_loop.sh
   - sources/session_2026-05-31_verify-loop-hardening.md
   - sources/session_2026-06-01_verify-loop-total-enforcement.md
   - sources/pr_57-62_subagent-enforcement-gate-hardening.md
+  - sources/pr_76_harden-hook-stdin-read.md
 tags: [hook, stop-hook, subagentstop-hook, discipline, enforcement, did-not-verify]
 ---
 
