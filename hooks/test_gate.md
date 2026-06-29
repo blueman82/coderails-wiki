@@ -88,6 +88,10 @@ None configurable. The hook uses `CLAUDE_DISCIPLINE_LOG` only implicitly (it doe
 
 This hook reads its payload via `IFS= read -r -d '' -t 5 input || true`. One of the two scripts used in the guard test in `stdin_bounded_read.test.sh` (the test asserts it exits within 8 seconds against a never-EOF pipe). See [[pr_76_harden-hook-stdin-read]].
 
+## Gate-pattern convention (PR #79)
+
+`test_gate.sh` uses inline `if`-blocks (not named gate functions). It is one of the **five core gate scripts** that use this pattern: `check_verify_loop.sh`, `check_confidence_labels.sh`, `no_edit_on_main.sh`, `destructive_bash_gate.sh`, and `test_gate.sh`. This was confirmed and documented in `AGENTS.md` by PR #79 (fixing a doc-drift finding from `/sync-docs`). Support/context scripts (`inject_context.sh`, `inject_bootstrap.sh`, `discipline_catchup.sh`) also use inline blocks but are not part of the gate-pattern convention — they have no deny-path. New hook scripts should prefer named gate functions (like `enforce_pr_workflow.sh`). (verified: PR #79 body + AGENTS.md hook conventions)
+
 ## Related
 
 - [[hook-exit-codes]] — why PreToolUse hooks use `permissionDecision: "deny"` + exit 0
