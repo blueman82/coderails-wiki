@@ -66,6 +66,15 @@ Uses `permissionDecision: deny` (JSON output to stdout), mirroring `destructive_
 
 **`.gitignore` basename tightening (PR #62, TDD-driven).** The original arm was `*.gitignore` which would have allowed `deploy.gitignore` to be edited on main. Fixed to a basename match (`case "$basename" in .gitignore|LICENSE)`). The bug was found by writing failing tests first (deploy.gitignore → DENY, src/.gitignore → ALLOW), then fixing the hook.
 
+**Why the block message recommends worktree + branch (PR #69).** The deny `reason` string
+steers the blocked user toward the resolution path, so its wording is part of the hook's UX.
+It now leads with "create an isolated worktree + branch first" (`/coderails:prep` or
+`git worktree add <path> -b <name>`) rather than the older "create a feature branch first".
+The reword matches the isolation discipline [[prep]] enforces — a bare `git checkout -b` in
+place leaves you in the same working tree, whereas a worktree + branch genuinely isolates the
+work. The message also names the `settings.json` Write/Edit permission rule as the one-line-hotfix
+escape. This is message text only; the block conditions above are unchanged. (decision — PR #69)
+
 **Why `git push` is deliberately NOT gated.** Edit-time (this hook) is the correct seam for the direct-to-main concern. Gating `git push` would be (a) redundant — the edit is already blocked here, and GitHub branch protection covers the server side; (b) breaking — the PR workflow *requires* pushing feature branches (`push.sh`); (c) brittle — "a push targeting main" hides behind implicit upstream, `HEAD`, and refspecs, with no clean token to match (unlike `gh pr create` / `git merge` in [[enforce_pr_workflow]]). Strengthening this edit-time gate is what makes a push-time gate unnecessary. (decision — PR #44 discussion)
 
 ## See also
