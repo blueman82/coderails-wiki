@@ -83,6 +83,10 @@ This hook does not append to `$CLAUDE_DISCIPLINE_LOG`. (verified: test_gate.sh â
 
 None configurable. The hook uses `CLAUDE_DISCIPLINE_LOG` only implicitly (it doesn't log). The 120-second timeout set in `hooks.json` is the practical bound for test suites.
 
+## Stdin read convention (PR #76)
+
+This hook reads its payload via `IFS= read -r -d '' -t 5 input || true`. One of the two scripts used in the guard test in `stdin_bounded_read.test.sh` (the test asserts it exits within 8 seconds against a never-EOF pipe). See [[pr_76_harden-hook-stdin-read]].
+
 ## Related
 
 - [[hook-exit-codes]] â€” why PreToolUse hooks use `permissionDecision: "deny"` + exit 0
