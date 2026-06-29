@@ -83,6 +83,10 @@ escape. This is message text only; the block conditions above are unchanged. (de
 
 **Why `git push` is deliberately NOT gated.** Edit-time (this hook) is the correct seam for the direct-to-main concern. Gating `git push` would be (a) redundant — the edit is already blocked here, and GitHub branch protection covers the server side; (b) breaking — the PR workflow *requires* pushing feature branches (`push.sh`); (c) brittle — "a push targeting main" hides behind implicit upstream, `HEAD`, and refspecs, with no clean token to match (unlike `gh pr create` / `git merge` in [[enforce_pr_workflow]]). Strengthening this edit-time gate is what makes a push-time gate unnecessary. (decision — PR #44 discussion)
 
+## Stdin read convention (PR #76)
+
+This hook reads its payload via `IFS= read -r -d '' -t 5 input || true`. See [[pr_76_harden-hook-stdin-read]] for the full convention.
+
 ## See also
 
 [[enforcement-model]] — the hook/command distinction  
