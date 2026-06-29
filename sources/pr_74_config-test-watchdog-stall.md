@@ -52,7 +52,7 @@ it (a narrower `{ wait; } 2>/dev/null` does not). (verified — review + direct 
 
 ## Review caught the false comment
 
-The [[review-pr]] comment-analyzer flagged the original comment's causal claim as false
+The [[pr_64_loop-review-via-skill]] comment-analyzer flagged the original comment's causal claim as false
 (the load-bearing finding); code-reviewer independently proposed a narrower redirect and
 then **self-retracted** it after testing (the whole-block wrap is the correct mechanism,
 not over-broad); code-simplifier confirmed ship-as-is. The comment was rewritten to the
@@ -83,5 +83,5 @@ next maintainer. (decision/lesson — this session)
 
 ## See also
 
-[[pr_72_config-walkup-symlink-hang]] · [[config-resolution]] · [[review-pr]]
+[[pr_72_config-walkup-symlink-hang]] · [[config-resolution]] · [[pr_64_loop-review-via-skill]]
 `coderails/hooks/scripts/tests/config.test.sh`
