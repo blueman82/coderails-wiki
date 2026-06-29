@@ -30,7 +30,8 @@ resolve the marker. The fallback never fired. `main()` returned a **blank string
 `refs/remotes/origin/HEAD` was unset.
 
 Root cause is a **pipeline-exit-status** bug — the same class as [[pr_74_config-test-watchdog-stall]]'s
-mis-mechanism, here in its purest form:
+mis-mechanism, here in its purest form. (`sync::main_branch`, the consumer this bug starved,
+was added by PR #73 — which was never ingested, so it has no source page.)
 
 ```bash
 # before — || binds to the PIPELINE's exit status, which is sed's
