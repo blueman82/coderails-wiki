@@ -48,8 +48,10 @@ The scaffolder checks whether `<git-root>/projects/<project-name>/` exists to de
 The CLAUDE.md for this repo states explicitly: "If you add a config field, update **all four** of `workflow.md`, `prep.md`, `push.md`, and `init.md`." (verified: CLAUDE.md — project instructions)
 
 This is required because:
-- The three reader commands each embed the bash one-liner independently — they share no include mechanism.
-- `workflow-init.md` scaffolds the YAML template and must include any new field so it appears in freshly created configs.
+- The reader commands and the hook now share **one resolver** (`scripts/lib/config.sh`), so *resolution* logic lives in a single place — but each command still independently *reads* the fields it needs and applies its own minimal-mode defaults, so a new field must be wired into each consumer that uses it.
+- `init.md` scaffolds the YAML template and must include any new field so it appears in freshly created configs.
+
+(Historical note: before PR #71 the three reader commands each embedded an identical inline bash one-liner with no include mechanism — the "update all four" rule originally guarded against those copies drifting. PR #71 collapsed the *resolution* duplication into `config.sh`; the field-wiring discipline remains.)
 
 ## Config fields
 
