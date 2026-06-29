@@ -87,6 +87,10 @@ The hook went through four generations:
 3. **Total enforcement** (2026-06-01): the source-token regex and the `meta_pattern` allowlist were both removed. Now *any* untagged bullet blocks, prose or filename, and the single `(unverifiable: …)` tag is the only escape. This closed the gap where a checkable prose claim slipped through because it named no file. See [[session_2026-06-01_verify-loop-total-enforcement]].
 4. **SubagentStop + file_count removal** (2026-06-26): wired to SubagentStop (PR #57) with `last_assistant_message` as the text source, and the `file_count < 1` gate removed on the Stop path (PR #61) so pure-conversation turns with a DNV section are also policed. See [[pr_57-62_subagent-enforcement-gate-hardening]].
 
+## Stdin read convention (PR #76)
+
+This hook reads its payload via `IFS= read -r -d '' -t 5 input || true`. The 5-second timeout is an in-process backstop for the orphaned-hook scenario (parent dead, stdin never closed). On timeout, `input` is empty → the hook exits 0. The `|| true` is mandatory: `read -d ''` returns exit 1 on normal EOF. See [[pr_76_harden-hook-stdin-read]].
+
 ## Related
 
 - [[enforcement-model]]
