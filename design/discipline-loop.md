@@ -11,6 +11,7 @@ sources:
   - instructions/self-checking-discipline.md
   - sources/session_2026-05-31_prompting-doc-alignment.md
   - sources/pr_57-62_subagent-enforcement-gate-hardening.md
+  - sources/pr_78_hooks-json-timeout-floor.md
 tags:
   - discipline
   - hooks
