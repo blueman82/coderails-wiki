@@ -64,7 +64,7 @@ across the whole sourced lib, whose other functions deliberately swallow pipelin
 ## When the marker is missing (why it stayed latent)
 
 `refs/remotes/origin/HEAD` is set by `git clone` / `gh repo clone`. Normal everyday clones
-have it, so `main()` worked in real use — the [[pr_73]]-era #73 merge resolved the branch
+have it, so `main()` worked in real use — the #73 merge resolved the branch
 correctly. The blank only appeared in **bare `git init` test scaffolding** (no remote → no
 marker). A broken safety net that hadn't fallen yet.
 
