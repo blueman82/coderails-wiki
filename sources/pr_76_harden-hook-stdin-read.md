@@ -125,4 +125,4 @@ Do NOT conflate the fan incident root cause with PR #76. They share the surface 
 
 - The `|| true` is mandatory, not a style choice. `read -d ''` exits 1 on normal (non-timeout) EOF. Without it, a script running with `set -e` would abort on every successful read.
 - The 5-second bound is an in-process backstop, not the primary defence. The primary defence against an orphaned hook causing harm is that a dead parent means there's nothing to gate.
-- **Known gap**: no automated test guards `min(hooks.json timeout) >= 5`. The invariant holds by equality today. A failing test on this invariant would be a good addition to `stdin_bounded_read.test.sh`.
+- **Invariant guard closed (PR #78)**: the known gap (no automated `min(hooks.json timeout) >= 5` guard) was closed by [[pr_78_hooks-json-timeout-floor]] (PR #78). The guard lives in a dedicated test file (`hooks_json_timeout_floor.test.sh`), not in `stdin_bounded_read.test.sh`, as it tests the hooks.json configuration rather than the read idiom itself.
