@@ -6,6 +6,7 @@ last_updated: 2026-06-29
 sources:
   - hooks/scripts/inject_context.sh
   - sources/pr_76_harden-hook-stdin-read.md
+  - sources/pr_79_sync-docs-drift.md
 tags: [hook, userpromptsubmit-hook, context-injection, silent, discipline]
 ---
 
