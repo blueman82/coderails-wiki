@@ -107,7 +107,7 @@ Architectural decisions and invariants.
 
 - [[enforcement-model]] — hooks vs. commands; the central design distinction
 - [[discipline-loop]] — how the six discipline hooks compose into a coherent loop
-- [[config-resolution]] — dual-path `workflow.config.yaml` lookup used by all workflow commands
+- [[config-resolution]] — walk-up `workflow.config.yaml` resolver (`scripts/lib/config.sh`) shared by all workflow commands + the merge-gate hook
 - [[install-and-cache-trap]] — idempotency contracts for `install.sh`/`uninstall.sh` and the reload-plugins caveat
 - [[hook-exit-codes]] — which hook events block on exit 2; why coderails uses two block mechanisms
 - [[repo-hosting]] — where the plugin + wiki repos live (private, `blueman82`), clone locations, `.gitignore` rules
