@@ -3,8 +3,8 @@ title: "no_edit_on_main.sh"
 type: hook
 created: 2026-06-25
 last_updated: 2026-06-29
-sources: [sources/pr_19-30_self-containment-and-hardening.md, sources/pr_44_no-edit-plugin-source.md, sources/pr_57-62_subagent-enforcement-gate-hardening.md, sources/pr_69_no-edit-message-worktree.md]
-tags: [hook, PreToolUse, enforcement, main-branch-protection]
+sources: [sources/pr_19-30_self-containment-and-hardening.md, sources/pr_44_no-edit-plugin-source.md, sources/pr_57-62_subagent-enforcement-gate-hardening.md, sources/pr_69_no-edit-message-worktree.md, sources/pr_70_gate-settings-json-edits.md]
+tags: [hook, PreToolUse, enforcement, main-branch-protection, settings-json]
 ---
 
 # no_edit_on_main.sh
