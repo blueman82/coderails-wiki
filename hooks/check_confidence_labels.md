@@ -62,6 +62,10 @@ Note: `transcript_path` on a SubagentStop payload is the **parent** session tran
 
 Logs a structured key=value line to `$CLAUDE_DISCIPLINE_LOG` (default `~/.claude/discipline.log`) on every run, including `text_len`, `attempts`, `matched`, and `would_block`. A second line is written on actual block with `blocked=1`. (verified: check_confidence_labels.sh:47–51, 60–64)
 
+## Stdin read convention (PR #76)
+
+This hook reads its payload via `IFS= read -r -d '' -t 5 input || true` instead of the old `input=$(cat)`. The 5-second timeout is an in-process backstop: if the parent process dies without closing stdin (orphaning the hook), the read times out, `input` is empty, jq yields empty, and the hook exits 0 (allow). This fail-open is deliberate — a dead parent means no live tool call to gate. See [[pr_76_harden-hook-stdin-read]] for the full rationale and the 5 ≤ `hooks.json timeout` invariant.
+
 ## Related
 
 - [[discipline-loop]]
