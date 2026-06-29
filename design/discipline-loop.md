@@ -158,7 +158,9 @@ These are deliberate limits, not bugs. See `CLAUDE.md` "Enforcement ceilings" se
 
 ## Stdin read convention (all hooks, PR #76)
 
-All 10 hook scripts read their payload via `IFS= read -r -d '' -t 5 input || true` (replacing the old `input=$(cat)`). The 5-second timeout is an in-process backstop for the orphaned-hook scenario: if the parent process dies without closing stdin, the read times out, `input` is empty, and the hook exits 0 (fail-open). Fail-open is safe in this scenario — a dead parent means no live tool call to gate. The `|| true` is mandatory because `read -d ''` returns exit 1 on normal (non-timeout) EOF. See [[pr_76_harden-hook-stdin-read]] for details, the test coverage, and the known gap (no automated `min(hooks.json timeout) >= 5` guard).
+All 10 hook scripts read their payload via `IFS= read -r -d '' -t 5 input || true` (replacing the old `input=$(cat)`). The 5-second timeout is an in-process backstop for the orphaned-hook scenario: if the parent process dies without closing stdin, the read times out, `input` is empty, and the hook exits 0 (fail-open). Fail-open is safe in this scenario — a dead parent means no live tool call to gate. The `|| true` is mandatory because `read -d ''` returns exit 1 on normal (non-timeout) EOF. See [[pr_76_harden-hook-stdin-read]] for details and test coverage.
+
+**Timeout-floor invariant guard (PR #78):** Every hooks.json `timeout` for `hooks/scripts/` entries must be >= 5 (the `read -t` floor). If a timeout were declared below 5, the harness would kill the hook before the in-process backstop could fire. The invariant now has a machine check: `hooks/scripts/tests/hooks_json_timeout_floor.test.sh` parses `hooks.json` via jq and fails if `min(declared timeouts) < 5`. Also guards against the fractional-timeout silent-skip bug (jq comparison, not bash `-lt`) and empty-result vacuous-pass (explicit FAIL on zero extracted timeouts). See [[pr_78_hooks-json-timeout-floor]]. (verified: PR #78 body + script)
 
 ## Shared library: discipline_common.sh (added 2026-06-25, PR #29)
 
