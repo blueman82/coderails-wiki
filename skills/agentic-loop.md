@@ -161,10 +161,28 @@ The "do not substitute the generic trio" warning (architect-review + debugger + 
 
 See [[enforce_pr_workflow]] for how the gate recognises Skill invocations. See [[skills-hooks-seam]] for the general seam convention this change follows.
 
+## Phase 9 — cluster wiki ingest + in-tree docs-drift check (PR #77)
+
+Phase 9 now has two steps at the loop boundary:
+
+1. **Wiki ingest + lint** (the existing cluster step) — updates the external knowledge base ([[wiki-ingest]] + [[wiki-lint]]). Runs once per loop, not per PR.
+2. **`/sync-docs` docs-drift check** (added PR #77) — audits the repo's own in-tree docs (README.md, AGENTS.md, docs/REFERENCE.md, etc.) for drift against the just-merged code.
+
+**The critical distinction:** wiki ingest is external-KB maintenance; `/sync-docs` is in-tree-docs maintenance. These are complementary, not redundant. Both run once at the loop boundary; wiki ingest runs first.
+
+**Serena (`--semantic`) is optional.** Run `/sync-docs` even without Serena — omit `--semantic` for the traditional file-comparison audit, which still catches real drift (stale command names, removed flags, changed config keys). Do not skip `/sync-docs` because Serena is absent.
+
+**Both steps are delegated to spawned agents** — same as Phase 3/3a implementation delegation. Keeps orchestrator context clean.
+
+**Findings triage for `/sync-docs`:** Fix only drift the loop's own PRs introduced. Pre-existing drift is surfaced to the user, not silently absorbed. Folding unrelated doc fixes into the loop is scope creep. (This is the same triage discipline as Phase 5's finding-triage for code.) (verified: PR #77 diff)
+
+This step is advisory — no hook enforces it. See [[enforcement-model]].
+
 ## Key architectural decisions encoded
 
 - **Pre-flight + worker agents use `model: sonnet`** — orchestration pattern; cost control. No escalation path; D's TDD and E's planning skills carry no model guidance that could escalate.
 - **Wiki ingest clusters, not per-PR** — Phase 9; fragmented ingests produce fragmented wiki context.
+- **`/sync-docs` is the in-tree complement to wiki ingest** — Phase 9 (PR #77); the two were previously conflated as "docs", now separated at the loop boundary.
 - **Scope-shaping instructions go high in worker prompts** — Phase 9 lesson, reused by D's TDD placement.
 - **Artifact verification not idle pings** — Phase 4/12.
 - **The model never computes a hook-derived value** — path (C1) and LOOP-STOP tag format (C2) both come from the hook's block message.
