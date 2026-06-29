@@ -88,5 +88,13 @@ PASS post-fix — the gold standard for a regression test. Full suite now **15/1
 
 ## See also
 
-[[config-resolution]] · [[enforce_pr_workflow]] · [[discipline-loop]]
+[[config-resolution]] · [[enforce_pr_workflow]] · [[discipline-loop]] · [[pr_74_config-test-watchdog-stall]]
 `coderails/scripts/lib/config.sh` · `coderails/hooks/scripts/tests/config.test.sh`
+
+## Follow-up
+
+The watchdog this PR introduced (background job + sleeper, exit 137 → `TIMEOUT`) was
+**correct but slow** — every call paid the full 5 s `sleep`. [[pr_74_config-test-watchdog-stall|PR #74]]
+fixed that (`pkill -P $w` to close the orphaned-sleep pipe fd), taking the suite from
+~45 s to ~21 s, and corrected a comment that misexplained the stall. The watchdog
+mechanism and the FAIL/TIMEOUT-on-regression guarantee are unchanged. (verified)
