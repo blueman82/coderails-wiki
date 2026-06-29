@@ -2,7 +2,7 @@
 title: Discipline Loop
 type: design
 created: 2026-05-30
-last_updated: 2026-06-26
+last_updated: 2026-06-29
 sources:
   - sources/pr_63_remove-failure-log.md
   - hooks/scripts/check_confidence_labels.sh
