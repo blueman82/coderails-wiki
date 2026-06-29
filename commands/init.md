@@ -89,7 +89,7 @@ Everything in the workflow chain reads this file. Without it, `NO_CONFIG` is ret
 
 ## See also
 
-- [[config-resolution]] — the dual-path lookup that reads the file this command creates
+- [[config-resolution]] — the walk-up resolver that reads the file this command creates
 - [[workflow]] — umbrella command that consumes the config
 - [[prep]] — first workflow phase; reads `jira.*` fields
 - [[push]] — reads `jira.*`, `worktree_*`, and `wiki_path`
