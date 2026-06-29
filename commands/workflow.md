@@ -97,7 +97,7 @@ The `allowed-tools` frontmatter pre-authorises `/engineering-principles-go` and 
 - [[prep]] — Phase 1 delegate
 - [[push]] — Phase 4 delegate
 - [[merge]] — Phase 6 delegate
-- [[config-resolution]] — dual-path config lookup
+- [[config-resolution]] — walk-up config resolver
 - [[agentic-loop]] — uses /workflow as a subroutine
 - [[enforcement-model]] — why commands are advisory, not enforcing
 - [[enforce_pr_workflow]] — the PreToolUse hook that mechanically enforces the push→review→merge sequence
