@@ -2,10 +2,11 @@
 title: "Hook: check_confidence_labels"
 type: hook
 created: 2026-05-30
-last_updated: 2026-06-26
+last_updated: 2026-06-29
 sources:
   - hooks/scripts/check_confidence_labels.sh
   - sources/pr_57-62_subagent-enforcement-gate-hardening.md
+  - sources/pr_76_harden-hook-stdin-read.md
 tags: [hook, stop-hook, subagentstop-hook, discipline, confidence-labels, enforcement]
 ---
 
