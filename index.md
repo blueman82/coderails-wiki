@@ -3,7 +3,6 @@ title: Coderails Wiki Index
 type: index
 created: 2026-05-30
 last_updated: 2026-06-29
-
 sources: []
 tags: [index, catalog]
 ---
