@@ -3,7 +3,8 @@ title: "PR #76 — harden hook stdin read"
 type: source
 created: 2026-06-29
 last_updated: 2026-06-29
-sources: []
+sources:
+  - sources/pr_78_hooks-json-timeout-floor.md
 tags: [hook, stdin, defence-in-depth, orphan-process, resilience, bash]
 ---
 
