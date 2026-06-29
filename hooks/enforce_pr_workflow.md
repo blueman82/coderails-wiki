@@ -131,6 +131,10 @@ The `enforce_required_step` function (Gate 6) scans the transcript for `/pr-revi
 
 **Resolution path:** Invoke `/pr-review-toolkit:review-pr <PR#>` as a Skill, passing the PR number. The Skill itself orchestrates the six reviewers and security pass internally. See [[agentic-loop]] Phase 4b section for the orchestrator-side obligation. See [[pr_64_loop-review-via-skill]] for the source record.
 
+## Stdin read convention (PR #76)
+
+This hook reads its payload via `IFS= read -r -d '' -t 5 input || true`. Context: this hook's processes were the visible symptom of the fan incident that motivated PR #76 investigation — 21 orphaned instances at 8–10% CPU for 3+ hours. However, their root cause was the config.sh walk-up infinite loop (PR #72), not `input=$(cat)`. PR #76 is defence-in-depth for the separate stdin-block risk. See [[pr_76_harden-hook-stdin-read]] and [[pr_72_config-walkup-symlink-hang]].
+
 ## Why it exists
 
 Before this hook, the workflow chain (`/push → /review-pr → /merge`) was advisory: Claude could invoke `gh pr create` or `gh pr merge` directly, bypassing the mandated push and review steps. This hook converts those two checkpoints from advisory to mechanical. Closes review finding #C. (verified — PR #30)
