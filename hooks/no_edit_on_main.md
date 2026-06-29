@@ -44,9 +44,11 @@ Branch resolution: both arms key off the **file's own repo**, not the session cw
 
 ## Block condition
 
-Tool is Write, Edit, or MultiEdit AND the file's git repo is on `main`/`master` AND:
-- the file is plugin source (`skills/*/SKILL.md`, `commands/*.md`) and the repo carries `.claude-plugin/plugin.json`; **OR**
-- the file is NOT in the allowlist (doc/config/special extensions listed above).
+Tool is Write, Edit, or MultiEdit AND either:
+- the file is `.claude/settings.json` / `.claude/settings.local.json` (matched on the `.claude/` parent) — blocked on **any** branch, in any repo (PR #70); **OR**
+- the file's git repo is on `main`/`master` AND:
+  - the file is plugin source (`skills/*/SKILL.md`, `commands/*.md`) and the repo carries `.claude-plugin/plugin.json`; **OR**
+  - the file is NOT in the allowlist (doc/config/special extensions listed above).
 
 The path arms are anchored on a `/` boundary (`*/skills/*/SKILL.md|skills/*/SKILL.md`) so a stray directory like `myskills/` can't match, with a bare relative arm for a path passed without a leading directory. (verified — PR #44, `case`-statement glob)
 
