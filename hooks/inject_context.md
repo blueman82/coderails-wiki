@@ -64,6 +64,10 @@ None. This hook reads no configurable env vars. (verified: inject_context.sh)
 
 `inject_context.sh` re-injects the discipline rules once, at session start. [[discipline_catchup]] covers the ongoing case: if a later response misses the rules, it injects a catch-up nudge on the next prompt. The two hooks work in sequence — inject once up front, catch up when needed.
 
+## Stdin read convention (PR #76)
+
+This hook reads its payload via `IFS= read -r -d '' -t 5 input || true`. See [[pr_76_harden-hook-stdin-read]] for the full convention.
+
 ## Related
 
 - [[hook-exit-codes]] — explains why UserPromptSubmit hooks must use additionalContext, not exit 2
