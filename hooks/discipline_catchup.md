@@ -85,6 +85,10 @@ check_verify_loop.sh   — blocks at Stop if DNV bullet names unresolved file to
 
 See [[discipline-loop]] for the full design rationale.
 
+## Stdin read convention (PR #76)
+
+This hook reads its payload via `IFS= read -r -d '' -t 5 input || true`. See [[pr_76_harden-hook-stdin-read]] for the full convention.
+
 ## Related
 
 - [[hook-exit-codes]] — why UserPromptSubmit hooks must use additionalContext, not exit 2
