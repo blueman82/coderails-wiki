@@ -80,6 +80,10 @@ Appends a `key=value` line to `$CLAUDE_DISCIPLINE_LOG`:
 - Cannot force the declared reason or category to be truthful; a model can rubber-stamp `awaiting-input`. The Phase 13 KPI is the auditable counter-pressure.
 - Four Stop hooks (confidence, verify, C1, C2) is the highest ceremony cost in the system; the main thing to watch in Phase 13 is avoidable-stall counts from stop-ceremony thrash.
 
+## Stdin read convention (PR #76)
+
+This hook reads its payload via `IFS= read -r -d '' -t 5 input || true`. See [[pr_76_harden-hook-stdin-read]] for the full convention and the fail-open rationale.
+
 ## See also
 
 - [[loop_state_guard]] — C1: presence/ownership guard; shares loop-active detection and the active-window off-switch
