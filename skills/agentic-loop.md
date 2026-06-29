@@ -58,7 +58,7 @@ The skill defines a sequence of decimal-numbered phases (decimals are the establ
 | 5 | Disprove the premise before each fix | Reproduce via SOT before spawning | (pre-arc) |
 | 6 | Match confirmation to envelope | Don't ask inside authorised scope | (pre-arc) |
 | 7&8 | Stack-specific deploy/push tactics | Collapsed to a generic stub | B |
-| 9 | Cluster wiki ingest | Run ingest+lint once at loop end | (pre-arc) |
+| 9 | Cluster wiki ingest + docs-drift check | Run wiki ingest+lint once at loop end; then run `/sync-docs` (delegated agent) to audit in-tree docs drift | (pre-arc) + PR #77 |
 | 10 | v2/v3 names when respawning | Versioned names identify the live agent | (pre-arc) |
 | 11 | Agent prompts include confidence labels | Propagate the labelling standard | (pre-arc) |
 | 12 | Status reports are claims, not evidence | Re-check artifact at moment of action | (pre-arc) |
