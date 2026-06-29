@@ -6,6 +6,7 @@ last_updated: 2026-06-29
 sources:
   - hooks/scripts/test_gate.sh
   - sources/pr_76_harden-hook-stdin-read.md
+  - sources/pr_79_sync-docs-drift.md
 tags: [hook, pretooluse-hook, enforcement, test-gate, opt-in, block]
 ---
 
