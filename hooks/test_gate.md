@@ -2,9 +2,10 @@
 title: "Hook: test_gate"
 type: hook
 created: 2026-05-31
-last_updated: 2026-06-25
+last_updated: 2026-06-29
 sources:
   - hooks/scripts/test_gate.sh
+  - sources/pr_76_harden-hook-stdin-read.md
 tags: [hook, pretooluse-hook, enforcement, test-gate, opt-in, block]
 ---
 
