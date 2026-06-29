@@ -203,3 +203,4 @@ This step is advisory — no hook enforces it. See [[enforcement-model]].
 - [[session_2026-05-31_prompting-doc-alignment]] — earlier source for delegate/context guidance
 - [[pr_41_phase25-brainstorming-xref]] — PR #41 source record: Phase 2.5 references brainstorming's design-quality discipline without its gates
 - [[pr_64_loop-review-via-skill]] — PR #64 source record: Phase 4b changed to invoke review-pr Skill (with PR number) instead of hand-rolling agents
+- [[pr_77_agentic-loop-sync-docs-step]] — PR #77 source record: Phase 9 gains `/sync-docs` in-tree docs-drift check at the loop boundary (distinct from wiki ingest)
