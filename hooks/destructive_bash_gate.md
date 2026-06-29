@@ -126,6 +126,10 @@ None for the original blocklist. The in-Bash source-edit gate reads `.cwd` from 
 
 ## Related
 
+## Stdin read convention (PR #76)
+
+This hook reads its payload via `IFS= read -r -d '' -t 5 input || true`. See [[pr_76_harden-hook-stdin-read]] for the full convention.
+
 - [[hook-exit-codes]] — why PreToolUse hooks use `permissionDecision: "deny"` + exit 0 rather than exit 2
 - [[enforcement-model]] — hooks vs. commands; this is the clearest example of mechanical enforcement
 - [[discipline-loop]] — the full set of coderails hooks
