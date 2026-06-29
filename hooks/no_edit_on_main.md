@@ -21,9 +21,11 @@ PreToolUse hook that blocks edits (Write/Edit/MultiEdit) to source files on `mai
 
 ## Logic summary
 
-The hook has two arms checked in order:
+The hook has three arms checked in order.
 
-**Plugin-source markdown arm** (checked first): blocks `skills/*/SKILL.md` and `commands/*.md` unconditionally on main/master in a plugin repo. Path arms are `/`-anchored to prevent lookalike directories in other repos (e.g. the wiki's `commands/` pages). Cross-repo correctness: the file's repo must carry `.claude-plugin/plugin.json` to be gated. (PR #44)
+**Permission-file arm** (checked first, PR #70): blocks `.claude/settings.json` and `.claude/settings.local.json` on **any** branch, in any repo, regardless of the plugin marker. Matched on the `.claude/` parent (`case` glob `*/.claude/settings.json|.claude/settings.json|...`) so an unrelated `settings.json` elsewhere passes. This is the **only any-branch arm** — it fires before the allowlist (these are `.json`, otherwise allowlisted) and before the branch check. Rationale: the `permissions.allow` rules in these files pre-approve commands upstream of every PreToolUse gate, so editing them is the one move that can dismantle the discipline layer. See [[pr_70_gate-settings-json-edits]] and [[enforcement-model]]. (verified — PR #70)
+
+**Plugin-source markdown arm** (checked second): blocks `skills/*/SKILL.md` and `commands/*.md` unconditionally on main/master in a plugin repo. Path arms are `/`-anchored to prevent lookalike directories in other repos (e.g. the wiki's `commands/` pages). Cross-repo correctness: the file's repo must carry `.claude-plugin/plugin.json` to be gated. (PR #44)
 
 **Code arm** (allowlist model, PR #60): on main/master, blocks edits to everything **except** an explicit set:
 
