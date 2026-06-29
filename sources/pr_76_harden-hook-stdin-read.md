@@ -66,7 +66,7 @@ This fail-open-on-stall is the correct posture for a PreToolUse enforcement hook
 
 The 5-second timeout is deliberately `<=` the smallest `hooks.json` `timeout` value (also 5 seconds). This ensures the in-process backstop and the harness timeout never disagree — the process backstop always fires first or simultaneously. (verified: PR #76 body)
 
-**Known gap (deferred):** A guard test asserting `min(hooks.json timeout) >= 5` does not exist. The 5 ≤ 5 invariant currently holds only by equality and is unguarded. This is a known gap, not a blocking issue. A future PR should add a test that reads `hooks.json` and asserts the minimum timeout value.
+**Invariant guard:** A guard test asserting `min(hooks.json timeout) >= 5` was identified as a known gap by the PR #76 review (comment-analyzer S1, silent-failure-hunter I2). **This gap was closed by [[pr_78_hooks-json-timeout-floor]] (PR #78, merged 2026-06-29)**, which added `hooks/scripts/tests/hooks_json_timeout_floor.test.sh`. The invariant is now machine-checked on every test run.
 
 ## Security review
 
