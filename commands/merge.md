@@ -86,8 +86,11 @@ The `protected` check uses the GitHub API directly rather than relying on `gh pr
 
 ## See also
 
+- [[post-review]] — the command that creates the review artifact this gate checks
+- [[review-artifact-seam]] — design page for the full truth-seam architecture
 - [[push]] — creates the PR that this command merges
 - [[workflow]] — calls /merge in Phase 6, then wiki-ingest/lint
 - [[config-resolution]] — merge is the only workflow command that does NOT read workflow.config.yaml
 - [[repo-hosting]] — github.com remote requirement
-- [[enforce_pr_workflow]] — PreToolUse hook that blocks `gh pr merge` unless `/pr-review-toolkit:review-pr` ran this session (NO_CONFIG opt-in)
+- [[enforce_pr_workflow]] — PreToolUse hook that blocks `gh pr merge` unless `/pr-review-toolkit:review-pr` ran this session (NO_CONFIG opt-in; separate from the artifact gate)
+- [[enforcement-model]] — the honest-ceiling framework both gates sit within
