@@ -192,6 +192,7 @@ This step is advisory — no hook enforces it. See [[enforcement-model]].
 - **Scope-shaping instructions go high in worker prompts** — Phase 9 lesson, reused by D's TDD placement.
 - **Artifact verification not idle pings** — Phase 4/12.
 - **The model never computes a hook-derived value** — path (C1) and LOOP-STOP tag format (C2) both come from the hook's block message.
+- **Phase 4b requires BOTH review-pr AND post-review** — PR #83: `enforce_pr_workflow` gates on the review-pr Skill event; `/merge` gates on the SHA-bound artifact from post-review. Missing either one blocks the merge. (verified: PR #64 + PR #83)
 
 ## Cross-references
 
