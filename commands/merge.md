@@ -60,6 +60,7 @@ Default argument is `auto`: resolves the PR from the current branch name.
 - Remote must be a `github.com` repository — `require::repo` gate (verified: merge.sh:12)
 - PR must exist for the target branch
 - If branch protection is enabled: PR must have `APPROVED` review decision
+- A coderails review artifact must exist on the PR matching the **current** head SHA (added PR #82 — see [[review-artifact-seam]])
 - PR must not be already closed (without merge)
 
 ## Chain position
