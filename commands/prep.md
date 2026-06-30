@@ -32,6 +32,8 @@ Branch name is required and must start with `feature/`, `bug/`, or `bugfix/`. Th
 
 This enforces the "worktree before code" rule: feature work is always isolated from main. (inferred: consistent with /workflow Phase 1 and the no-edit-on-main hook design)
 
+**Part 1b — Optional progress.json stub (non-blocking, added PR #83)**: Writes a minimal `progress.json` stub at the cwd-derived path (resolved by `agentic_loop_path.sh`). Failure here does NOT abort `/prep` — the stub is best-effort. This is the deferred universal-trace for non-loop runs. On a loop run, Phase -2 of `agentic-loop` also writes this file (same path, same schema) — the two are compatible. See [[review-artifact-seam]] for why this is optional/non-blocking. (verified: `commands/prep.md` @ 23194b3)
+
 **Part 2 — Jira ticket creation (skipped if `config.jira` is null):**
 
 1. Creates a ticket in `config.jira.project` with the parsed issue type, summary, and description. Always includes `Branch: <branch>` in the description body.
