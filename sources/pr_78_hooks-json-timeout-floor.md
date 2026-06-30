@@ -88,6 +88,10 @@ PR #80 (merged 2026-06-30) adds Half B: asserting every hook's in-process `read 
 - [[pr_76_harden-hook-stdin-read]] — "Known gap" note updated: gap now CLOSED by PR #78
 - [[discipline-loop]] — timeout-floor invariant guard noted in Stdin read convention section
 
+## Follow-on: PR #80
+
+PR #78 covered only **Half A** of the invariant. The PR #78 review (test-analyzer S1) identified that the actual in-process `read -t` value was not checked — someone could lower the `read -t` constant in the scripts without touching hooks.json and the test would still pass. [[pr_80_guard-read-t-floor]] (merged 2026-06-30) closes that gap with Half B.
+
 ## Caveats / gotchas
 
 - The test only checks **declared** timeouts. Hooks with no `timeout` field in hooks.json use the Claude Code harness default (60 s) — these are safe and deliberately excluded.
