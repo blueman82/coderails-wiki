@@ -147,20 +147,25 @@ The rationale: brainstorming is human-gated by construction — its approval ste
 
 The non-obvious/durable point: if anyone asks "why doesn't the autonomous loop just invoke brainstorming?" — the answer is that brainstorming blocks on a human at its approval gates. The loop reuses its design *quality criteria* at Phase 2.5 rather than calling the gated skill. See [[pr_41_phase25-brainstorming-xref]] and [[brainstorming]].
 
-## Phase 4b — invoke the review-pr Skill, not hand-rolled agents (PR #64)
+## Phase 4b — review-pr Skill + post-review artifact (PR #64 + PR #83)
 
-Phase 4b previously described hand-rolling six toolkit reviewer agents as parallel `Agent` or `Task` spawns. PR #64 changed this: **Phase 4b now invokes `/pr-review-toolkit:review-pr <PR#>` as a Skill, passing the PR number as the argument.** The Skill itself fans out the six specialised reviewers plus a security pass.
+Phase 4b previously described hand-rolling six toolkit reviewer agents as parallel `Agent` or `Task` spawns. PR #64 changed this: **Phase 4b now invokes `/pr-review-toolkit:review-pr <PR#>` as a Skill, passing the PR number as the argument.** PR #83 extended Phase 4b with a second step: **`/coderails:post-review <PR#>` runs after `review-pr`** to create the durable SHA-bound artifact.
 
-**Why the Skill invocation is required, not optional:** `enforce_pr_workflow.sh` (CHANGE B2) only recognises `/pr-review-toolkit:review-pr` Skill invocations (with the PR number in args) as valid merge-gate evidence. A manually-spawned agent fanout — even one that triggers all six reviewer agents — leaves no evidence the gate can see. The merge will block. (verified — PR #64 diff, SKILL.md and CLAUDE.md; source: [[pr_64_loop-review-via-skill]])
+**Why both steps are required:**
 
-The table of six review dimensions is preserved in the skill as reference, but they are now the Skill's internal implementation, not the orchestrator's responsibility to spawn. The orchestrator's job is:
+1. **`/pr-review-toolkit:review-pr` as a Skill** — `enforce_pr_workflow.sh` only recognises Skill invocations (with the PR number in args) as valid merge-gate evidence. A manually-spawned agent fanout leaves no evidence the gate can see. The merge will block. (verified: PR #64; source: [[pr_64_loop-review-via-skill]])
+
+2. **`/coderails:post-review <PR#>`** — `merge.sh` gate-checks for a coderails review comment on the PR matching the current head SHA. Without this artifact, `/merge` blocks regardless of whether `review-pr` ran. This is the new fail-closed SHA-bound gate. (verified: PR #83; source: [[pr_81-83_review-artifact-seam]])
+
+The orchestrator's job at Phase 4b:
 1. Invoke `/pr-review-toolkit:review-pr <PR#>` as a Skill.
 2. Collect the returned aggregated findings (Critical / Important / Suggestion).
-3. Feed any MERGE-BLOCKER to a fix agent (Phase 5/10) before merge.
+3. Feed any MERGE-BLOCKER to a fix agent (Phase 5/10) before proceeding.
+4. Invoke `/coderails:post-review <PR#>` — posts the SHA-bound review artifact to GitHub.
 
 The "do not substitute the generic trio" warning (architect-review + debugger + ai-engineer) still applies — those are design stress-test agents, not the PR-review step.
 
-See [[enforce_pr_workflow]] for how the gate recognises Skill invocations. See [[skills-hooks-seam]] for the general seam convention this change follows.
+See [[enforce_pr_workflow]] for how it recognises Skill invocations. See [[review-artifact-seam]] for the artifact gate design. See [[skills-hooks-seam]] for the general seam convention.
 
 ## Phase 9 — cluster wiki ingest + in-tree docs-drift check (PR #77)
 
