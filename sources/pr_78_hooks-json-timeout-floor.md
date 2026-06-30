@@ -75,12 +75,13 @@ Deferred follow-up from PR #76 review (comment-analyzer S1, silent-failure-hunte
 
 PR #78 closes that gap. See [[pr_76_harden-hook-stdin-read]] for the full context of the `read -t 5` backstop design.
 
-## Relationship to PR #76
+## Relationship to PR #76 and PR #80
 
 PR #76 added the `read -t 5` in-process backstop across all 10 hook scripts.
-PR #78 adds a guard test ensuring the hooks.json harness-level timeouts cannot be lowered below 5 without a test failure.
+PR #78 adds Half A of the invariant guard: asserting `min(hooks.json declared timeout) >= 5` so the harness-level timeouts cannot be lowered below the backstop without a test failure.
+PR #80 (merged 2026-06-30) adds Half B: asserting every hook's in-process `read -t N` value equals the floor (5), and exactly 10 hook scripts carry the backstop idiom.
 
-Together they form a complete defence: the runtime mechanism (PR #76) + the invariant guard (PR #78).
+**Both halves are now fully guarded (PR #80)**: the full `read -t 5 <= min(hooks.json timeout)` invariant is tamper-evident end-to-end. A future PR that lowers the in-process `read -t` value alone (without touching hooks.json) OR a hook that silently gains/loses the backstop now fails the test suite. See [[pr_80_guard-read-t-floor]] for the Half B implementation details.
 
 ## Wiki pages updated
 
