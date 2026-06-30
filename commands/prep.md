@@ -2,9 +2,9 @@
 title: "/coderails:prep"
 type: command
 created: 2026-06-25
-last_updated: 2026-06-25
-sources: [commands/prep.md]
-tags: [command, prep, worktree, jira, branch, git]
+last_updated: 2026-06-30
+sources: [commands/prep.md, sources/pr_81-83_review-artifact-seam.md]
+tags: [command, prep, worktree, jira, branch, git, progress-json]
 ---
 
 # /coderails:prep
