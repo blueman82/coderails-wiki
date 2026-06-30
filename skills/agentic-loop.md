@@ -197,6 +197,7 @@ This step is advisory — no hook enforces it. See [[enforcement-model]].
 ## Cross-references
 
 - [[spec-plan-progress-artifact-chain]] — the design page for the artifact chain + two-hook guard
+- [[review-artifact-seam]] — design page for the SHA-bound PR comment gate (PR #82/83)
 - [[loop_state_guard]] — C1 hook: presence/ownership of `progress.json`
 - [[loop_stall_guard]] — C2 hook: the `LOOP-STOP` declaration enforcement
 - [[test-driven-development]] — vendored construction skill (Phase 3/3a)
@@ -211,3 +212,4 @@ This step is advisory — no hook enforces it. See [[enforcement-model]].
 - [[pr_41_phase25-brainstorming-xref]] — PR #41 source record: Phase 2.5 references brainstorming's design-quality discipline without its gates
 - [[pr_64_loop-review-via-skill]] — PR #64 source record: Phase 4b changed to invoke review-pr Skill (with PR number) instead of hand-rolling agents
 - [[pr_77_agentic-loop-sync-docs-step]] — PR #77 source record: Phase 9 gains `/sync-docs` in-tree docs-drift check at the loop boundary (distinct from wiki ingest)
+- [[pr_81-83_review-artifact-seam]] — PR #83 source record: Phase 4b extended with `/coderails:post-review` for loop symmetry
