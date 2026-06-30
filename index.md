@@ -34,6 +34,7 @@ See [[enforcement-model]] for why hooks enforce and commands do not.
 | `/coderails:workflow` | `commands/workflow.md` | [[workflow]] |
 | `/coderails:prep` | `commands/prep.md` | [[prep]] |
 | `/coderails:push` | `commands/push.md` | [[push]] |
+| `/coderails:post-review` | `commands/post-review.md` | [[post-review]] |
 | `/coderails:merge` | `commands/merge.md` | [[merge]] |
 | `/coderails:init` | `commands/init.md` | [[init]] |
 | `/coderails:test-gate-setup` | `commands/test-gate-setup.md` | [[test-gate-setup]] |
