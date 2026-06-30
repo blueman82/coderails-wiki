@@ -2,8 +2,9 @@
 title: "PR #78 — guard hooks.json timeout floor >= read -t 5 backstop"
 type: source
 created: 2026-06-29
-last_updated: 2026-06-29
-sources: []
+last_updated: 2026-06-30
+sources:
+  - sources/pr_80_guard-read-t-floor.md
 tags: [test, hook, stdin, timeout, invariant, guard, pr76-followup]
 ---
 
