@@ -49,7 +49,10 @@ Default argument is `auto`: resolves the PR from the current branch name.
   - `require::repo` — blocks if remote is not a GitHub repository
   - `protected` — queries GitHub API for branch protection status
   - `pr::num` / `pr::state` / `pr::title` / `pr::review` / `pr::url` — PR introspection via `gh`
+  - `pr::head_sha` — fetches current head SHA for the PR (added PR #82)
+  - `pr::has_coderails_review_for_head` — exact marker match against PR comments (added PR #82; exit codes 0/1/2)
   - `branch` / `main` — current and default branch detection
+- `scripts/lib/review-artifact.sh` — marker SSOT, sourced transitively by `git-common.sh` (added PR #82)
 
 ## Preconditions
 
