@@ -28,12 +28,16 @@ Default argument is `auto`: resolves the PR from the current branch name.
 
 1. **PR resolution**: Maps the argument to a PR number. `auto` calls `pr::num` against the current branch; a numeric arg is used directly; a branch name calls `pr::num` against that branch.
 2. **Approval check (conditional)**: If the repository has branch protection requiring PR reviews (`protected` check via GitHub API), the script reads `pr::review` and errors if the decision is not `APPROVED`. (verified: merge.sh:37–40)
-3. **Merge**: `gh pr merge <num> --merge`. This is a remote merge only — its failure aborts the script via `set -euo pipefail`. Branch cleanup is explicitly separate and non-fatal so a worktree collision never causes a merged PR to report as failed. (verified: merge.sh:42, merge.sh comment at line 52–56)
-4. **Sync**: Checks out `main` and pulls `origin/main`.
-5. **Branch cleanup (best-effort)**:
+3. **Review artifact gate** (added PR #82): Fetches the current PR head SHA via `pr::head_sha`. Then calls `pr::has_coderails_review_for_head <num> <sha>` which scans all PR comment bodies for an exact coderails marker matching the current head SHA. Two distinct failure modes, each with a distinct error message:
+   - Exit 2 (GitHub fetch failed) → "GitHub fetch failed — could not fetch PR comments."
+   - Exit 1 (no artifact) → "No coderails review artifact for current head — run /coderails:post-review."
+   No local-file fallback. No progress.json fallback. (verified: `merge.sh` @ 503f6fa)
+4. **Merge**: `gh pr merge <num> --merge`. This is a remote merge only — its failure aborts the script via `set -euo pipefail`. Branch cleanup is explicitly separate and non-fatal so a worktree collision never causes a merged PR to report as failed.
+5. **Sync**: Checks out `main` and pulls `origin/main`.
+6. **Branch cleanup (best-effort)**:
    - Deletes the remote branch via `git push origin --delete <head>`. Warns but continues if already gone.
-   - Attempts `git branch -D <head>` locally. If this fails (because another worktree has the branch checked out), warns with the worktree path rather than erroring. (verified: merge.sh:58–68)
-6. Shows the last 5 commits on main.
+   - Attempts `git branch -D <head>` locally. If this fails (because another worktree has the branch checked out), warns with the worktree path rather than erroring.
+7. Shows the last 5 commits on main.
 
 ## Config fields read
 
