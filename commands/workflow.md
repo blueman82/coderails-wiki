@@ -78,6 +78,8 @@ This is the top-level orchestrator. All sub-commands remain callable standalone 
   └─ [code/iterate loop]  (Phase 3, interactive)
   └─ /coderails:push      (Phase 4)
   └─ /pr-review-toolkit:review-pr  (Phase 4)
+  └─ /coderails:post-review        (Phase 3 end — added PR #83)
+  └─ [ship-it pause]      (Phase 5, interactive)
   └─ /coderails:merge     (Phase 6)
   └─ /wiki-ingest + /wiki-lint     (Phase 6, if wiki)
 ```
