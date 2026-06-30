@@ -55,7 +55,7 @@ The skill defines a sequence of decimal-numbered phases (decimals are the establ
 | 3 | Delegate all impl to sonnet agents | TeamCreate at ≥3 sequential units / dependency chain | (pre-arc) + A + D |
 | 3a | Single sonnet agent for impl + verify | The TeamCreate-is-overkill case | (pre-arc) + A + D |
 | 4 | Spawn workers in waves | Check artifacts, never idle pings | (pre-arc) |
-| 4b | PR review = invoke `/pr-review-toolkit:review-pr <PR#>` Skill | Skill required for merge gate evidence; clean-break compat hunt is a MERGE-BLOCKER | A + PR #64 |
+| 4b | PR review = invoke `/pr-review-toolkit:review-pr <PR#>` Skill; then invoke `/coderails:post-review <PR#>` | Skill required for enforce_pr_workflow gate evidence; post-review creates the SHA-bound artifact `/merge` gate-checks; clean-break compat hunt is a MERGE-BLOCKER | A + PR #64 + PR #83 |
 | 5 | Disprove the premise before each fix | Reproduce via SOT before spawning | (pre-arc) |
 | 6 | Match confirmation to envelope | Don't ask inside authorised scope | (pre-arc) |
 | 7&8 | Stack-specific deploy/push tactics | Collapsed to a generic stub | B |
