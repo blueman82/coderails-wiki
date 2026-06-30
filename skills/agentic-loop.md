@@ -198,6 +198,7 @@ This step is advisory — no hook enforces it. See [[enforcement-model]].
 
 - [[spec-plan-progress-artifact-chain]] — the design page for the artifact chain + two-hook guard
 - [[review-artifact-seam]] — design page for the SHA-bound PR comment gate (PR #82/83)
+- [[post-review]] — the `/coderails:post-review` command Phase 4b now invokes after review-pr
 - [[loop_state_guard]] — C1 hook: presence/ownership of `progress.json`
 - [[loop_stall_guard]] — C2 hook: the `LOOP-STOP` declaration enforcement
 - [[test-driven-development]] — vendored construction skill (Phase 3/3a)
