@@ -100,7 +100,9 @@ The `allowed-tools` frontmatter pre-authorises `/engineering-principles-go` and 
 
 - [[prep]] — Phase 1 delegate
 - [[push]] — Phase 4 delegate
-- [[merge]] — Phase 6 delegate
+- [[post-review]] — Phase 3 end: the review artifact command (added PR #83)
+- [[merge]] — Phase 6 delegate (now gate-checks the artifact)
+- [[review-artifact-seam]] — design page for the full truth-seam architecture
 - [[config-resolution]] — walk-up config resolver
 - [[agentic-loop]] — uses /workflow as a subroutine
 - [[enforcement-model]] — why commands are advisory, not enforcing
