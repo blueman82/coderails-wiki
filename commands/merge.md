@@ -2,9 +2,9 @@
 title: "/coderails:merge"
 type: command
 created: 2026-06-25
-last_updated: 2026-06-25
-sources: [commands/merge.md, scripts/merge.sh, scripts/lib/git-common.sh, sources/pr_43_rough-edges.md]
-tags: [command, merge, pr, github, branch-cleanup, sync]
+last_updated: 2026-06-30
+sources: [commands/merge.md, scripts/merge.sh, scripts/lib/git-common.sh, sources/pr_43_rough-edges.md, sources/pr_81-83_review-artifact-seam.md]
+tags: [command, merge, pr, github, branch-cleanup, sync, review-artifact, sha-bound]
 ---
 
 # /coderails:merge
