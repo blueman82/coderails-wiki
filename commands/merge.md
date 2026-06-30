@@ -80,7 +80,9 @@ The deliberate decoupling of branch cleanup from the merge step is a key design 
 
 The `protected` check uses the GitHub API directly rather than relying on `gh pr merge` to reject unapproved merges — this provides an explicit, user-readable error before the merge attempt. (inferred: merge.sh:37–40)
 
-**Enforcement-gap notice (added PR #43):** When no `workflow.config.yaml` is present, `merge.sh` emits an informational `info` line before `gh pr merge`: "review enforcement (enforce_pr_workflow) is inactive. Run /coderails:init to enable." This makes the opt-in nature of enforcement visible. Without the config, `enforce_pr_workflow` no-ops and the merge goes through unguarded. This is intentional — enforcement is opt-in, not default. The notice closes the visibility gap without blocking. (verified: scripts/merge.sh, PR #43 / df4b372)
+**Enforcement-gap notice (added PR #43):** When no `workflow.config.yaml` is present, `merge.sh` emits an informational `info` line before the artifact gate: "No workflow.config.yaml — enforce_pr_workflow hook is inactive, but the review artifact gate still applies." This confirms that the review artifact gate is unconditional — it does not require a config file. `enforce_pr_workflow` remains opt-in; the review artifact gate does not. (verified: `merge.sh` @ 503f6fa)
+
+**Review artifact gate is unconditional (added PR #82):** Unlike `enforce_pr_workflow` (which no-ops without `workflow.config.yaml`), the review artifact gate runs on every merge regardless of config. It is built into `merge.sh` directly, not into the hook. The enforcement ceiling note from [[enforcement-model]] still applies: the gate checks that the artifact exists and matches the SHA; it does not verify the review was substantive. (verified: `merge.sh`, [[review-artifact-seam]])
 
 ## See also
 
