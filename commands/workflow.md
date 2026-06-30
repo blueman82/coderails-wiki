@@ -33,6 +33,8 @@ The command runs five phases, two of which pause for human input:
 
 **Phase 3 — Code (interactive pause)**: Hands control to the developer. Does not proceed until a ready signal ("push", "ship it", "done coding"). Pre-flight runs `config.engineering_principles_skill` (default: `/engineering-principles-python`) on changed files matching `config.engineering_principles_paths` or any file with ≥20 lines changed. (updated PR #47)
 
+**Phase 3 (end) — Post-review artifact (auto, added PR #83)**: After `review-pr` and simplify complete, runs `/coderails:post-review <PR#>`. Posts a machine-marked, SHA-bound review summary to the PR. This creates the artifact that [[merge]] gate-checks before `gh pr merge`. See [[post-review]] and [[review-artifact-seam]].
+
 **Phase 4 — Push + adversarial review (auto after ready signal)**: Calls [[push]], then `/pr-review-toolkit:review-pr all` (four specialist agents in parallel). Findings are classified blocking/worthwhile/cosmetic and applied inline without re-asking per finding. A ledger comment is posted to the PR.
 
 **Phase 5 — Ship-it (interactive pause)**: Waits for merge authorisation ("ship it", "merge", "ok to merge").
