@@ -115,6 +115,7 @@ Architectural decisions and invariants.
 - [[spec-plan-progress-artifact-chain]] — the agentic-loop's full spec→plan→progress durable-artifact chain + the two-hook (C1 presence/ownership, C2 anti-stall) loop-state guard architecture
 - [[self-containment]] — the 2026-06-25 decision to vendor 12 superpowers skills into coderails; superpowers now uninstallable
 - [[skills-hooks-seam]] — the cross-reference obligation between skills (advisory) and hooks (mechanical); the merge-base regex footgun; added PR #42
+- [[review-artifact-seam]] — the 2026-06-30 decision to move review truth from ephemeral chat to a SHA-bound GitHub PR comment; `/merge` fail-closed artifact gate; honest ceiling (structure not provenance)
 
 ---
 
