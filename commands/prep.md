@@ -90,3 +90,4 @@ The git branch config key set here (`branch.<name>.jira-ticket`) is the handoff 
 - [[push]] — reads the jira-ticket branch config set here
 - [[config-resolution]] — walk-up config resolver
 - [[repo-hosting]] — git remote requirements
+- [[review-artifact-seam]] — context for the Part 1b progress.json stub (deferred universal-trace)
