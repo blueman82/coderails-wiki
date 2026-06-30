@@ -1,0 +1,99 @@
+---
+title: "Review-artifact truth seam — SHA-bound PR comment + fail-closed merge gate"
+type: design
+created: 2026-06-30
+last_updated: 2026-06-30
+sources:
+  - sources/pr_81-83_review-artifact-seam.md
+  - docs/coderails/specs/2026-06-30-progress-record-design.md
+tags: [design, review-artifact, merge-gate, truth-seam, sha-bound, enforcement, post-review]
+---
+
+# Review-artifact truth seam
+
+Introduced by [[pr_81-83_review-artifact-seam]] (merged 2026-06-30). Moves review truth from ephemeral chat output to a GitHub-visible, SHA-bound PR comment that `/merge` verifies fail-closed.
+
+## The core problem
+
+Before this design, `/pr-review-toolkit:review-pr` wrote its findings to the chat window only. `enforce_pr_workflow` gated merge on the *transcript event* that `review-pr` ran — not on any durable artifact. Two failure modes:
+
+1. **No external record.** A review could produce blocking findings that the agent ignores before pushing again. The transcript disappears on compaction.
+2. **No SHA binding.** A review run against an earlier push would satisfy the transcript gate even if a subsequent push changed the code under review.
+
+The deeper insight from the design process: a self-authored local record (`review.ran = true`) cannot be review-truth. The agent both writes it and is judged on it, with no privilege boundary between writer and judge. This is the same enforcement ceiling documented for every other gate in [[enforcement-model]].
+
+## The decision
+
+Move truth out of the doer's writable file and onto a GitHub artifact that `/merge` verifies against live PR state.
+
+**Three components:**
+
+1. **`/coderails:post-review`** runs after `review-pr` and posts a machine-marked, SHA-bound comment to the PR. See [[post-review]].
+2. **`scripts/lib/review-artifact.sh`** — the marker SSOT (25 lines). Both writer and reader source this file; one constructor, no drift.
+3. **`scripts/merge.sh` gate** — before `gh pr merge`, fetches PR comments from GitHub and requires an exact marker match for the current head SHA. No local-file fallback. No progress.json fallback.
+
+## Marker format
+
+```
+<!-- coderails-review-summary v1 pr=<N> head_sha=<sha> -->
+```
+
+Matching uses **exact string equality**, not substring grep. A line with any junk prefix or suffix fails. An unknown/future version never matches (fail-closed). (verified: `review-artifact.sh:17–19`)
+
+## Fail-closed semantics
+
+| Condition | Outcome |
+|---|---|
+| GitHub fetch fails (gh error) | Block with "GitHub fetch failed" |
+| Fetch OK, no matching marker | Block with "run /coderails:post-review" |
+| Fetch OK, exact marker found for current SHA | Allow merge |
+
+Exit codes from `pr::has_coderails_review_for_head`: 0=match, 1=no-match, 2=fetch-failed. The distinct codes produce distinct, actionable error messages in `merge.sh`. (verified: `git-common.sh`, `merge.sh`)
+
+## The honest ceiling
+
+The gate proves a durable, SHA-bound, auditable artifact **exists**. It validates the summary's structure (grammar: `## No findings` OR all three headings with bullets/None) but cannot assess whether the review was substantive. A cooperating-but-shallow reviewer can post a structurally-valid summary with no real findings. The gate is an **audit layer, not a tamper-proof barrier** — the same honest boundary as every other local gate. (verified: `AGENTS.md` enforcement-ceiling section)
+
+## `progress.json.review` is cache, not authority
+
+After posting the artifact, `/coderails:post-review` writes `progress.json.review` (URL, comment ID, head SHA) as an **index/cache** for observability and idempotency. The `/merge` gate reads from GitHub, never from `progress.json`. (verified: `post_review.sh`, `merge.sh`)
+
+## Deferred scope
+
+Two items from the design spec were deferred by the planning-sequence stress-test:
+
+- **Universal Stop guard** (`progress_record_guard.sh`) — would add ceremony tax to every non-loop run. Not implemented.
+- **Universal-ledger enforcement** — same reason. The `/prep` Part 1b stub is present but optional/non-blocking.
+
+These may be revisited once the gate is verified in production.
+
+## Follow-up ordering constraint
+
+`enforce_pr_workflow`'s review-pr transcript arm is expected to demote from block to nudge once this gate is live and verified — the durable artifact provides a stronger guarantee. This demotion MUST NOT happen before verification. A no-enforcement window between demotion and verification would allow unreviewed PRs to merge. (verified: `AGENTS.md` follow-up section)
+
+## Architecture position
+
+```
+review-pr (external, chat only)
+    ↓
+/coderails:post-review         ← new: posts SHA-bound GitHub comment
+    ↓                                  validates grammar before posting
+progress.json.review (cache)           writes URL/id/sha as cache
+    ↓
+/merge gate                    ← new: fetches GitHub comments, exact SHA match
+    ↓
+gh pr merge
+```
+
+The chain is linear and fail-closed at each step. No local escape path.
+
+## See also
+
+- [[post-review]] — the `/coderails:post-review` command page
+- [[merge]] — the updated `/coderails:merge` command with the artifact gate
+- [[workflow]] — Phase 3 update (post-review before ship-it pause)
+- [[agentic-loop]] — Phase 4b update (loop symmetry)
+- [[enforce_pr_workflow]] — the predecessor transcript-based gate
+- [[enforcement-model]] — the honest-ceiling framework this design sits within
+- [[spec-plan-progress-artifact-chain]] — the predecessor artifact chain
+- [[pr_81-83_review-artifact-seam]] — the cluster source page
