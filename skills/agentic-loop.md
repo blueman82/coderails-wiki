@@ -83,15 +83,15 @@ citations (see the caveat below) made the churn disproportionate to the benefit.
 (they fire unconditionally, and each has 6 inbound cross-references that a merge risked breaking
 for no corresponding duplication removed — see [[pr_86_agentic-loop-hardening]]).
 
-## The spec → plan → progress artifact chain (Spec E)
+## The spec → plan → progress artifact chain (Spec E, merged PR #86)
 
 The loop now writes three durable artifacts, all in the loop-state dir `~/.claude/agentic-loop/<cwd-slug>/` (resolved by `agentic_loop_path.sh`, outside the repo, uncommitted):
 
-- `spec.md` (Phase 2.7) — the *already-resolved* design: envelope, design fork + flip-condition, disposition + named blockers, success criteria. A loop cannot brainstorm with itself, so this commits resolved design, it does not re-open it.
-- `plan.md` (Phase 2.8, via `coderails:writing-plans`) — the durable decomposition. **The static SSOT** Phase 3 builds its task list from, and re-reads for *scope* after a compaction.
+- `spec.md` (Phase 2.7, sub-step **2.7a** since PR #86) — the *already-resolved* design: envelope, design fork + flip-condition, disposition + named blockers, success criteria. A loop cannot brainstorm with itself, so this commits resolved design, it does not re-open it.
+- `plan.md` (Phase 2.7, sub-step **2.7b** since PR #86, via `coderails:writing-plans`) — the durable decomposition. **The static SSOT** Phase 3 builds its task list from, and re-reads for *scope* after a compaction.
 - `progress.json` (Phase -2 onward) — **the dynamic cursor** against `plan.md`.
 
-Both `spec.md`/`plan.md` fire ONLY at the complexity guard: ≥3 work-units or a cross-unit dependency (Phase 3's own TeamCreate threshold, pulled one phase earlier). Sub-threshold loops skip them — ceremony on trivial work trains the loop to skip it on real work. See [[spec-plan-progress-artifact-chain]] and [[writing-plans]].
+Both sub-steps fire ONLY at the complexity guard: ≥3 work-units or a cross-unit dependency (Phase 3's own TeamCreate threshold, pulled one phase earlier). Sub-threshold loops skip both entirely — ceremony on trivial work trains the loop to skip it on real work. **PR #86 merged what was Phase 2.7 and Phase 2.8 into one Phase 2.7** with the two sub-steps above, because both phases independently restated the identical complexity guard as their opening sentence — a verified duplication (same condition, gating two adjacent phases that were really one logical step: commit the resolved design to durable state, across two files). See [[spec-plan-progress-artifact-chain]], [[writing-plans]], and [[pr_86_agentic-loop-hardening]].
 
 ## The LOOP-STOP stop-ceremony contract (Spec C2)
 
