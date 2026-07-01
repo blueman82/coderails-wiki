@@ -15,7 +15,8 @@ sources:
   - sources/pr_77_agentic-loop-sync-docs-step.md
   - sources/pr_81-83_review-artifact-seam.md
   - sources/pr_86_agentic-loop-hardening.md
-tags: [skill, agentic-loop, multi-agent, orchestration, context-window, delegation, artifact-chain, loop-state, post-review, review-artifact, self-attestation, enforcement-ceiling]
+  - sources/pr_87_agentic-loop-path-session-keying.md
+tags: [skill, agentic-loop, multi-agent, orchestration, context-window, delegation, artifact-chain, loop-state, post-review, review-artifact, self-attestation, enforcement-ceiling, session-keying]
 ---
 
 # Skill: agentic-loop
