@@ -50,7 +50,7 @@ Gates 1–4 are implemented as named `als_gate_*` functions in `loop_state_commo
 
 ## Path authority design
 
-`agentic_loop_path.sh` is the sole path authority. Both this hook (reader) and the orchestrator (writer, via `Bash` call) resolve the path through it. The model never computes the path — it reads the resolved path from a block message or from a direct `bash "$CLAUDE_PLUGIN_ROOT/hooks/scripts/lib/agentic_loop_path.sh"` call. Path: `$HOME/.claude/agentic-loop/<cwd-slug>/progress.json` where slug replaces `/` with `-` (mirrors Claude Code's own convention).
+`agentic_loop_path.sh` is the sole path authority. Both this hook (reader) and the orchestrator (writer, via `Bash` call) resolve the path through it. The model never computes the path — it reads the resolved path from a block message or from a direct `bash "$CLAUDE_PLUGIN_ROOT/hooks/scripts/lib/agentic_loop_path.sh"` call. Path (updated PR #87): `$HOME/.claude/agentic-loop/<cwd-slug>/<session_id>/progress.json` where slug replaces `/` with `-` (mirrors Claude Code's own convention) and `session_id` comes from the Stop-hook payload (this hook) or `$CLAUDE_CODE_SESSION_ID` (the orchestrator's own resolution). Was cwd-only before PR #87 — see [[pr_87_agentic-loop-path-session-keying]].
 
 ## progress.json schema fields (C1 adds)
 
