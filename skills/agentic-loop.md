@@ -36,27 +36,39 @@ Load immediately — before `/workflow`, `/prep`, `/push` — when the user auth
 
 Do NOT load for standard single-PR `/workflow` runs where the user is present at each gate.
 
-## Phase structure (post-arc)
+## Phase structure (post-arc, post-hardening)
 
-The skill defines a sequence of decimal-numbered phases (decimals are the established insertion pattern: -2, -1, 0, 0.5, 2.5, 2.6, 2.7, 2.8, 3a). Phases 4–6 repeat per work-unit inside the loop. Full ordering (verified: SKILL.md headings):
-`-2, -1, 0, 0.5, 1, 2, 2.5, 2.6, 2.7, 2.8, 3, 3a, 4, 4b, 5, 6, 7&8, 9, 10, 11, 12, 13`.
+The skill defines a sequence of decimal-numbered phases (decimals are the established insertion pattern: -2, -1, 0, 0.5, 2.5, 2.6, 2.7, 3a). Phases 4–6 repeat per work-unit inside the loop. Full ordering (verified: SKILL.md headings, post PR #86):
+`-2, -1, 0, 0.5, 1, 2, 2.5, 2.6, 2.7 (2.7a/2.7b), 3, 3a, 4, 4b, 5, 6, 7&8, 9, 10, 11, 12, 13`.
+
+**Stage-map (added PR #86, §3.1 of [[pr_86_agentic-loop-hardening|the hardening spec]]).** A cold reader hit 19+ ungrouped phases with no shape to hold in mind. `SKILL.md` now opens `## The phases` with a 5-row grouping table before the phase-by-phase detail (verified: SKILL.md):
+
+| Stage | Phases |
+|---|---|
+| Setup | -2, -1, 0, 0.5 |
+| Pre-flight | 1, 2, 2.5, 2.6, 2.7 |
+| Build | 3, 3a, 4 |
+| Review & Ship | 4b, 5, 6, 7&8 |
+| Wrap-up | 9, 10, 11, 12, 13 |
+
+Full renumbering was rejected — a 9-reference audit plus `docs/coderails-review.md`'s line-number
+citations (see the caveat below) made the churn disproportionate to the benefit.
 
 | Phase | Name | Core action | Added by |
 |---|---|---|---|
 | -2 | Stub `progress.json` first | Literal first action; write the stub at the helper-resolved path | C1 |
 | -1 | Sharpen the authorising prompt | Run `/coderails:improve-prompt`, ask once | (pre-arc) |
-| 0 | Read the authorisation envelope | `<thinking>`: verbatim quote, envelope class, in/out-of-scope | (pre-arc) |
+| 0 | Read the authorisation envelope | `<thinking>`: verbatim quote, envelope class, in/out-of-scope, **+ explicit yes/no on clean-break auto-demote authority (quoted, not inferred) — PR #86** | (pre-arc) + PR #86 |
 | 0.5 | Orchestrator operating rules | Stop-ceremony: labels + DNV + `LOOP-STOP` together | C2 |
 | 1 | State the plan in bullets | Ask once to confirm | (pre-arc) |
 | 2 | Pre-flight via spawned agents | Delegate planning/premortem/wiki-query to sonnet agents | (pre-arc) |
 | 2.5 | Resolve design forks up front | Ask once; record decision + flip-condition. Design agent applies [[brainstorming]]'s quality discipline (YAGNI, design-for-isolation, weigh viable approaches) **without** brainstorming's human-approval gates — see PR #41 note below. | (pre-arc) + PR #41 |
 | 2.6 | Resolve disposition before replacement | clean-break vs preserve-compat; named blocker required | A |
-| 2.7 | Commit resolved design to `spec.md` | In-line write; ≥3-unit guard | E |
-| 2.8 | Write `plan.md` via `coderails:writing-plans` | ≥3-unit guard; the static SSOT Phase 3 consumes | E |
+| 2.7 | Commit resolved design to `spec.md` **and** `plan.md` (merged sub-steps 2.7a/2.7b) | ≥3-unit guard stated once; 2.7a = `spec.md` write, 2.7b = `plan.md` via `coderails:writing-plans` | E, merged PR #86 |
 | 3 | Delegate all impl to sonnet agents | TeamCreate at ≥3 sequential units / dependency chain | (pre-arc) + A + D |
 | 3a | Single sonnet agent for impl + verify | The TeamCreate-is-overkill case | (pre-arc) + A + D |
 | 4 | Spawn workers in waves | Check artifacts, never idle pings | (pre-arc) |
-| 4b | PR review = invoke `/pr-review-toolkit:review-pr <PR#>` Skill; then invoke `/coderails:post-review <PR#>` | Skill required for enforce_pr_workflow gate evidence; post-review creates the SHA-bound artifact `/merge` gate-checks; clean-break compat hunt is a MERGE-BLOCKER | A + PR #64 + PR #83 |
+| 4b | PR review = invoke `/pr-review-toolkit:review-pr <PR#>` Skill; then invoke `/coderails:post-review <PR#>` | Skill required for enforce_pr_workflow gate evidence; post-review creates the SHA-bound artifact `/merge` gate-checks; clean-break compat hunt is a MERGE-BLOCKER the orchestrator **cannot self-demote** (PR #86) | A + PR #64 + PR #83 + PR #86 |
 | 5 | Disprove the premise before each fix | Reproduce via SOT before spawning | (pre-arc) |
 | 6 | Match confirmation to envelope | Don't ask inside authorised scope | (pre-arc) |
 | 7&8 | Stack-specific deploy/push tactics | Collapsed to a generic stub | B |
@@ -64,7 +76,12 @@ The skill defines a sequence of decimal-numbered phases (decimals are the establ
 | 10 | v2/v3 names when respawning | Versioned names identify the live agent | (pre-arc) |
 | 11 | Agent prompts include confidence labels | Propagate the labelling standard | (pre-arc) |
 | 12 | Status reports are claims, not evidence | Re-check artifact at moment of action | (pre-arc) |
-| 13 | Confirm the factory ran (terminal self-audit) | Disposition + `loop_stop_counts` KPIs | A + C2 |
+| 13 | Confirm the factory ran (terminal self-audit) | Raw `loop_stop_counts` + unscored "decisions absorbed" list — **no numeric scorecard** (PR #86 dropped it) | A + C2, rewritten PR #86 |
+
+**2.7/2.8 merge note:** Phase 2.8 no longer exists as a separate phase — its content (writing
+`plan.md`) is now sub-step 2.7b under Phase 2.7. Phase 2.5 and 2.6 were deliberately left unmerged
+(they fire unconditionally, and each has 6 inbound cross-references that a merge risked breaking
+for no corresponding duplication removed — see [[pr_86_agentic-loop-hardening]]).
 
 ## The spec → plan → progress artifact chain (Spec E)
 
