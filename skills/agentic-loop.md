@@ -324,7 +324,8 @@ See [[enforcement-model]] for the general hooks-vs-advisory distinction this dec
 - [[loop_state_guard]] — C1 hook: presence/ownership of `progress.json`
 - [[loop_stall_guard]] — C2 hook: the `LOOP-STOP` declaration enforcement
 - [[test-driven-development]] — vendored construction skill (Phase 3/3a)
-- [[writing-plans]] — vendored plan skill (Phase 2.8)
+- [[writing-plans]] — vendored plan skill (Phase 2.7b, formerly Phase 2.8)
+- [[using-git-worktrees]] — the resolution mechanism for the single-loop-per-directory invariant (PR #86)
 - [[subagent-driven-development]] — vendored execution skill (Phase 3 worker-prompt, PR #24)
 - [[enforcement-model]] — hooks (mechanical) vs. skill prose (advisory)
 - [[discipline-loop]] — how the discipline hooks compose
