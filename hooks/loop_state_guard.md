@@ -64,7 +64,7 @@ Appends a `key=value` line to `$CLAUDE_DISCIPLINE_LOG`:
 ## Known limitations
 
 - Cannot force the file's content to be accurate or current; a model can write a stub and never enrich it.
-- Concurrent same-cwd sessions share a path; the second sees a session mismatch and is told to adopt/reinitialise (could thrash in rare parallel-sessions-same-repo scenarios).
+- ~~Concurrent same-cwd sessions share a path; the second sees a session mismatch~~ — **fixed by PR #87**: the path is now keyed on cwd + session_id, so concurrent sessions in the same directory no longer share a path or collide. The session-mismatch check is retained but now only fires on a rarer case: a file's content disagreeing with its own session-scoped path (corruption — copied or hand-edited content), not the routine cross-session case it used to catch. See [[pr_87_agentic-loop-path-session-keying]].
 - Forgotten within-session teardown leaves a benign `present+owned+in-progress` file (C1 does not block); over-fire risk from stale `in-progress` is C2's concern.
 
 ## Stdin read convention (PR #76)
