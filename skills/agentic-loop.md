@@ -145,7 +145,7 @@ full decision record and the 2 post-merge Critical stale-cross-reference fixes t
 |---|---|---|
 | `disposition`, `named_blocker`, `removal_ticket` | A | per-work-unit clean-break record |
 | `schema_version`, `session_id`, `status`, `created`, `last_updated`, `completed_marker` | C1 | lifecycle + presence/ownership |
-| `loop_stop_counts` (`{hard-stop, approval-gate, awaiting-input, complete}`) | C2 | per-category stall metric |
+| `loop_stop_counts` (`{hard-stop, approval-gate, awaiting-input, complete}`) | C2 | per-category counts; Phase 13 reports these raw since PR #86 (no scorecard — see below) |
 
 `status` ∈ `initialising` | `in-progress` | `complete`. The path is resolved by `agentic_loop_path.sh` — **the model never computes it** (a cwd-slug cannot be reproduced by hand).
 
