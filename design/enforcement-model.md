@@ -2,18 +2,20 @@
 title: Enforcement Model
 type: design
 created: 2026-05-30
-last_updated: 2026-06-26
+last_updated: 2026-07-01
 sources:
   - commands/workflow.md
   - CLAUDE.md
   - hooks/hooks.json
   - sources/pr_43_rough-edges.md
   - sources/pr_57-62_subagent-enforcement-gate-hardening.md
+  - sources/pr_86_agentic-loop-hardening.md
 tags:
   - hooks
   - enforcement
   - design-law
   - slash-commands
+  - self-attestation
 ---
 
 # Enforcement Model
