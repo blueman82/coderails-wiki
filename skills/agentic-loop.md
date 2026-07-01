@@ -175,7 +175,20 @@ The old guidance "work directly when: single-file edits / sequential steps" was 
 
 ## Context-window persistence
 
-(verified: SKILL.md). Do not stop work early because the context window is filling — context compacts and the session continues. Before compaction, checkpoint: commit in-progress work to git, update `progress.json`, record the loop's phase position. Git is the authoritative checkpoint. (Post-arc: the orchestrator also re-reads `plan.md` for *scope* after compaction — stated in Phase 2.8, deliberately NOT in this section, which is a Stop-hook no-touch region describing `progress.json` alone.)
+(verified: SKILL.md). Do not stop work early because the context window is filling — context compacts and the session continues. Before compaction, checkpoint: commit in-progress work to git, update `progress.json`, record the loop's phase position. Git is the authoritative checkpoint. (Post-arc: the orchestrator also re-reads `plan.md` for *scope* after compaction — stated in Phase 2.7b (formerly 2.8), deliberately NOT in this section, which is a Stop-hook no-touch region describing `progress.json` alone.)
+
+**Single-loop-per-directory invariant (added PR #86, §3.6).** `progress.json` is keyed only by
+project working directory (Phase -2), not by session — two `agentic-loop` sessions running
+concurrently in the same checkout race for last-writer-wins ownership of the same file.
+`loop_state_guard.sh` already fails closed and visibly on a session mismatch (the dangerous
+silent-data-loss case is handled), but it does not prevent the race itself. No locking machinery was
+built — rejected as disproportionate cross-platform complexity for a rare, unsupported-configuration
+failure mode (two loops in one checkout). Resolution: isolate concurrent loops via separate git
+worktrees ([[using-git-worktrees]]) — one loop per working directory. The same sentence was added to
+the header comment of `hooks/scripts/lib/agentic_loop_path.sh`, at the source of the path-keying
+logic. Verified live during the design session: a leftover `completed` `progress.json` from an
+earlier finished loop blocked a new session's Stop hook until manually re-stubbed — the trigger case
+for this decision.
 
 ## Stop conditions
 
