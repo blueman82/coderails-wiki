@@ -25,7 +25,7 @@ The multi-agent orchestration discipline skill. Sits *above* `/workflow` — it 
 
 Source: `skills/agentic-loop/SKILL.md`
 
-> Substantially upgraded by the 2026-06-24 spec arc (PRs #12–#18), then hardened again by PR #86 (2026-07-01, 7 review-driven decisions). See [[session_2026-06-25_agentic-loop-upgrade-arc]], the [[spec-plan-progress-artifact-chain]] design page, and [[pr_86_agentic-loop-hardening]]. This page reflects the post-arc, post-hardening skill.
+> Substantially upgraded by the 2026-06-24 spec arc (PRs #12–#18), then hardened again by PR #86 (2026-07-01, 7 review-driven decisions), then had its single remaining documented-but-unfixed limitation closed by PR #87 (2026-07-01, same day). See [[session_2026-06-25_agentic-loop-upgrade-arc]], the [[spec-plan-progress-artifact-chain]] design page, [[pr_86_agentic-loop-hardening]], and [[pr_87_agentic-loop-path-session-keying]]. This page reflects the post-arc, post-hardening, post-session-keying-fix skill.
 
 ## When to load
 
