@@ -79,3 +79,4 @@ This hook reads its payload via `IFS= read -r -d '' -t 5 input || true`. See [[p
 - [[spec-plan-progress-artifact-chain]] — how `progress.json` relates to `spec.md` / `plan.md`
 - [[discipline-loop]] — how the four (now six) discipline hooks compose
 - [[enforcement-model]] — hooks vs. commands
+- [[pr_87_agentic-loop-path-session-keying]] — PR #87: path keyed on cwd+session_id, closing the cross-session race this page previously described as unfixed
