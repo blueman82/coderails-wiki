@@ -177,18 +177,13 @@ The old guidance "work directly when: single-file edits / sequential steps" was 
 
 (verified: SKILL.md). Do not stop work early because the context window is filling — context compacts and the session continues. Before compaction, checkpoint: commit in-progress work to git, update `progress.json`, record the loop's phase position. Git is the authoritative checkpoint. (Post-arc: the orchestrator also re-reads `plan.md` for *scope* after compaction — stated in Phase 2.7b (formerly 2.8), deliberately NOT in this section, which is a Stop-hook no-touch region describing `progress.json` alone.)
 
-**Single-loop-per-directory invariant (added PR #86, §3.6).** `progress.json` is keyed only by
-project working directory (Phase -2), not by session — two `agentic-loop` sessions running
-concurrently in the same checkout race for last-writer-wins ownership of the same file.
-`loop_state_guard.sh` already fails closed and visibly on a session mismatch (the dangerous
-silent-data-loss case is handled), but it does not prevent the race itself. No locking machinery was
-built — rejected as disproportionate cross-platform complexity for a rare, unsupported-configuration
-failure mode (two loops in one checkout). Resolution: isolate concurrent loops via separate git
-worktrees ([[using-git-worktrees]]) — one loop per working directory. The same sentence was added to
-the header comment of `hooks/scripts/lib/agentic_loop_path.sh`, at the source of the path-keying
-logic. Verified live during the design session: a leftover `completed` `progress.json` from an
-earlier finished loop blocked a new session's Stop hook until manually re-stubbed — the trigger case
-for this decision.
+**Concurrent loops in one directory — fixed by PR #87 (was: single-loop-per-directory invariant, PR #86).** `progress.json` is now keyed on project working directory **and session_id** (Phase -2), not cwd alone — two `agentic-loop` sessions running concurrently in the same checkout each get their own file automatically; no race, no last-writer-wins (verified: [[pr_87_agentic-loop-path-session-keying]], `hooks/scripts/lib/agentic_loop_path.sh`). This relies on a platform guarantee that can't be verified from repo source alone: Claude Code's `session_id` stays stable for the life of one continuous conversation — including across that conversation's own compaction/restart — while differing between genuinely separate conversations. `loop_state_guard.sh`'s session-mismatch check is retained but now narrower: it no longer catches the routine cross-session race (that no longer happens by construction), only a rarer case where a file's content disagrees with its own session-scoped path — a corruption signal (copied, hand-edited, or otherwise tampered content), not the routine race it used to catch.
+
+Git worktrees ([[using-git-worktrees]]) are **no longer required** to avoid this specific collision, but remain the right tool when concurrent loops must not see each other's working-tree changes — a different concern (working-tree isolation) than progress.json ownership.
+
+**The PR #87 fix itself shipped a residual bug, caught by review in the same PR.** The initial commit fixed only `agentic_loop_path.sh`'s own session_id fallback; the two guard scripts' `jq` extraction still fell back to a shared `"?"` sentinel on a missing/null session_id, which would make multiple sessions hitting that edge case collide again. A follow-up commit in the same PR (`8cc9d63`) closed this with a `als_sanitise_session_id()` helper generating a unique PID+timestamp fallback, applied consistently across all three call sites. See [[pr_87_agentic-loop-path-session-keying]] for the full account — instructive because a fix for a race condition itself had a residual race-like edge case, found by independent review rather than the original author.
+
+Historical note: the original PR #86 design session verified live that a leftover `completed` `progress.json` from an earlier finished loop blocked a new session's Stop hook until manually re-stubbed — the trigger case that led to documenting (not yet fixing) the invariant at the time.
 
 ## Stop conditions
 
