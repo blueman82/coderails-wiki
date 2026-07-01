@@ -91,6 +91,41 @@ If someone asks "can we make the engineering-principles check mandatory before p
 
 **`enforce_pr_workflow` is opt-in.** The hook no-ops when no `workflow.config.yaml` exists. Without config, `gh pr merge` goes through unguarded. `merge.sh` now surfaces this gap with an informational notice before merge (added PR #43). Run `/coderails:init` to generate the config and activate enforcement. (verified: enforce_pr_workflow.sh NO_CONFIG guard, scripts/merge.sh PR #43 addition)
 
+## Prose-level enforcement inside a skill: the Phase 4b self-attestation case (PR #86)
+
+Not every enforcement gap is hook-shaped. `skills/agentic-loop/SKILL.md`'s Phase 4b let the
+orchestrator unilaterally demote an independent reviewer's clean-break compat `MERGE-BLOCKER` to a
+logged note, by writing free-text "reviewed, not compat — `<reason>`". This is the same self-grading
+problem the Law addresses (a check performed by the party with motive to pass it is not a check),
+but the gate lived in skill prose, not a hook — so no `PreToolUse`/`Stop` mechanism could catch it;
+the only lever available was rewriting the prose contract itself.
+
+PR #86 removed the orchestrator's self-demote power entirely: the only two moves left are (a) fix
+the finding, or (b) hard-stop to a human, logged who/when/SHA/reason. The one exception — a
+fully-unattended envelope that cannot tolerate ever hard-stopping here — must be granted **at Phase 0
+envelope-authorisation time**, quoted verbatim, never something the orchestrator grants itself
+mid-run. See [[agentic-loop]] "Phase 4b self-attestation loophole closed" and
+[[pr_86_agentic-loop-hardening]].
+
+**Why this belongs in the enforcement-model lens even without a hook change:** the same design law
+(hooks vs. advisory, self-grading vs. independent-grading) applies whether the mechanism is a
+`PreToolUse` script or a skill's own control-flow contract. A skill can encode a "may not self-grade"
+rule in prose; it just can't *mechanically enforce* it the way a hook can — Claude still has to
+choose to follow the Phase 4b contract. That's an advisory ceiling, same category as the
+`enforce_pr_workflow` "evidence not completion" ceiling documented above.
+
+## The `model: sonnet` advisory ceiling (PR #86)
+
+`agentic-loop` asserts `model: sonnet` for spawned workers roughly 6 times, but no hook gates
+`Agent`/`Task` spawn calls on requested model — `hooks/hooks.json` and `hooks/scripts/*.sh` only
+match `Bash` and `Write`/`Edit`/`MultiEdit` events, nothing for agent spawns. PR #86 documented this
+explicitly in `AGENTS.md`'s "Enforcement ceilings" list as a **deliberate** choice, not a gap:
+the rule is cost control, not correctness (an opus worker still produces a valid, fully-gated PR),
+and a blunt model-gate hook couldn't distinguish Phase 2.5's sanctioned opus-escalation exception
+from a disallowed spawn without trusting a self-reported flag — reintroducing the same
+trust-the-agent problem the hook would exist to remove, one level down. See [[agentic-loop]] and
+[[pr_86_agentic-loop-hardening]].
+
 ## Cross-References
 
 - [[discipline-loop]] — the specific Stop hooks that enforce self-checking discipline
@@ -99,3 +134,5 @@ If someone asks "can we make the engineering-principles check mandatory before p
 - [[enforce_pr_workflow]] — PreToolUse hook that gates `gh pr create`/`gh pr merge` (added 2026-06-25)
 - [[inject_bootstrap]] — SessionStart hook that bootstraps coderails context (added 2026-06-25)
 - [[merge]] — enforcement-gap notice added to merge.sh in PR #43
+- [[agentic-loop]] — Phase 4b self-attestation removal and the `model: sonnet` advisory ceiling (PR #86)
+- [[pr_86_agentic-loop-hardening]] — source record for both PR #86 decisions above
