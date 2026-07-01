@@ -107,6 +107,38 @@ Phase 0.5 bundles this with the confidence-label and DNV requirements into one s
 
 Phase 2.6 forces a disposition decision before replacement work: **clean-break** (remove the old path; no shims) vs **preserve-compat** (keep it behind a shim, with a named blocker and a mandatory removal ticket). clean-break is the stated default; preserve-compat requires a *specific named blocker* (anti-laundering — a generic "safer" is rejected). The decision is propagated verbatim into the worker prompt (Phase 3), and the **independent code-simplifier reviewer is the load-bearing gate** (Phase 4b) — it hunts relabelled compat (fallback/adapter/guard/bridge) and whether an old path still executes; findings are MERGE-BLOCKERS. The worker's own assertion (Phase 3a) is a smell test, not the gate. Phase 13 counts `disposition-violations`, distinguishing "0 violations" from "no record found" (the latter = audit failure).
 
+## Phase 4b self-attestation loophole closed (PR #86)
+
+Before PR #86, the orchestrator could unilaterally demote a clean-break compat `MERGE-BLOCKER` —
+raised by the independent `code-simplifier` reviewer — to a logged note, by writing free-text
+"reviewed, not compat — `<reason>`". **The party doing the demoting was the same party whose worker
+had just shipped the compat path and had the motive to keep the shortcut.** No counter-check existed
+on the override text (verified: [[pr_86_agentic-loop-hardening]] §3.3 of the design spec).
+
+An alternative that kept self-demotion but required the override to cite a re-checkable file:line
+fact, logged for a later independent auditor, was rejected: a fabricated-but-plausible citation
+costs the same effort as a true one, and nothing re-runs the check at override time — that only
+makes bad overrides auditable *after the fact*, not prevented, when outright prevention was
+available at small cost (an occasional hard-stop).
+
+**Decision:** the orchestrator's self-demote power is removed entirely. On a clean-break unit, an
+independent reviewer's compat finding is a `MERGE-BLOCKER` the orchestrator **cannot** downgrade
+unilaterally. Its only two moves:
+- (a) actually fix it — remove the compat path, or
+- (b) declare a hard-stop and hand it to a human, logged with who/when/SHA/reason.
+
+**The one carve-out:** a fully-unattended envelope that genuinely cannot tolerate ever hard-stopping
+at this gate must have auto-demote authority granted explicitly **at Phase 0 envelope-authorisation
+time** — never something the orchestrator grants itself mid-run. Phase 0's `<thinking>` template now
+has a dedicated line forcing an explicit yes/no answer with a verbatim quote of the authorising
+clause (added by a post-merge Important-severity review finding — quoting prevents the orchestrator
+from inferring the carve-out from a general "fully autonomous" classification instead of an actual
+grant).
+
+This is the same enforcement-boundary pattern documented in [[enforcement-model]]: a check performed
+by the party with motive to pass it is not a check. See [[pr_86_agentic-loop-hardening]] for the
+full decision record and the 2 post-merge Critical stale-cross-reference fixes this change required.
+
 ## progress.json schema growth across the arc
 
 | Field | Added by | Purpose |
