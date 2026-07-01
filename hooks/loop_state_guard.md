@@ -7,7 +7,7 @@ sources:
   - sources/session_2026-06-25_agentic-loop-upgrade-arc.md
   - sources/pr_49_gate-function-rename.md
   - sources/pr_76_harden-hook-stdin-read.md
-tags: [hook, agentic-loop, progress-json, stop-hook, loop-state]
+tags: [hook, agentic-loop, progress-json, stop-hook, loop-state, session-keying]
 ---
 
 # loop_state_guard.sh (C1)
