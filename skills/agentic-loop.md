@@ -320,7 +320,8 @@ See [[enforcement-model]] for the general hooks-vs-advisory distinction this dec
 - [[loop_stall_guard]] — C2 hook: the `LOOP-STOP` declaration enforcement
 - [[test-driven-development]] — vendored construction skill (Phase 3/3a)
 - [[writing-plans]] — vendored plan skill (Phase 2.7b, formerly Phase 2.8)
-- [[using-git-worktrees]] — the resolution mechanism for the single-loop-per-directory invariant (PR #86)
+- [[using-git-worktrees]] — working-tree isolation between concurrent loops; no longer required to avoid the progress.json collision (fixed by PR #87), still useful for its original purpose
+- [[pr_87_agentic-loop-path-session-keying]] — PR #87 source record: progress.json keyed on cwd+session_id, fixing the race PR #86 had only documented; includes the same-PR Critical fix for a residual fixed-sentinel fallback collision
 - [[subagent-driven-development]] — vendored execution skill (Phase 3 worker-prompt, PR #24)
 - [[enforcement-model]] — hooks (mechanical) vs. skill prose (advisory)
 - [[discipline-loop]] — how the discipline hooks compose
