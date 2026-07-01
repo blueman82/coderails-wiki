@@ -253,15 +253,68 @@ Phase 9 now has two steps at the loop boundary:
 
 This step is advisory — no hook enforces it. See [[enforcement-model]].
 
+## Phase 13 — terminal self-audit rewritten to drop the gameable scorecard (PR #86)
+
+Before PR #86, Phase 13 reported "human turns approaching zero" as a target metric. The problem
+(§3.4 of [[pr_86_agentic-loop-hardening|the hardening spec]]): that reading is identical whether the
+orchestrator was well-calibrated (correctly absorbing every in-scope decision) or silently suppressed
+asks it should have made — the metric can't tell the two apart.
+
+An alternative — spawn a fresh independent agent to audit the same `progress.json` fields and issue
+a "calibrated zero" vs "suppressed zero" verdict — was rejected: that auditor's only inputs are still
+orchestrator-authored records, so it grades homework against homework. Worse, a clean automated
+verdict can look *more* trustworthy than an honest raw list while being equally gameable — the safe
+strategy under that scheme becomes padding the record with trivial non-decisions to look thorough
+(a Goodhart's-law failure mode).
+
+**Decision:** drop the numeric pass/fail scorecard entirely. Phase 13 now reports two raw, unscored
+facts:
+- **`LOOP-STOP` category counts** — already artifact-backed from `progress.json`'s `loop_stop_counts`,
+  hard to fake. Reported with no verdict attached.
+- **"Decisions absorbed"** — a flat, unscored list of in-scope decisions the loop made autonomously
+  without asking. No self-justification text, no automated "this looks calibrated" stamp.
+
+The human is the only party positioned to judge "should I have been asked about that?" — hand them
+the raw list rather than have the process pre-grade itself. A clean-looking scorecard is more
+dangerous than an honest unscored list because it's more likely to be trusted uncritically; the two
+raw facts can only be gamed by omission, which a human spots more easily in a flat list than in a
+fabricated scorecard pass.
+
+Phase 13 still separately reports **artifacts produced** (verified, not claimed) and **disposition
+violations** (unchanged from Spec A) — only the human-turns scorecard was removed.
+
+**Post-merge fix:** the initial hardening pass left two stale cross-references (`SKILL.md:435` and
+`:480`) that still described the pre-rewrite scorecard shape after the rest of Phase 13 changed —
+caught and fixed by the post-merge review, inside the same merge commit. See
+[[pr_86_agentic-loop-hardening]].
+
+## `model: sonnet` is advisory, not hook-enforced (PR #86, documentation only)
+
+`AGENTS.md`'s "Enforcement ceilings" list gained a new bullet (no code change — a documentation
+decision, §3.5 of the hardening spec): no hook gates `Agent`/`Task` spawn calls on the requested
+model, even though `SKILL.md` asserts `model: sonnet` for workers roughly 6 times (Phases 2, 2.5, 3,
+3a, 10). This is deliberate, not a gap to close:
+
+- The rule's purpose is **cost control, not correctness** — an opus worker still produces a valid,
+  fully-gated PR; nothing load-bearing breaks if a worker runs on the wrong model.
+- Phase 2.5 sanctions a **legitimate opus-escalation exception** ("escalate the synthesis to opus
+  only if the tradeoff is genuinely close") that a blunt model-gate hook cannot distinguish from a
+  disallowed worker spawn without a self-reported carve-out flag — which reintroduces the same
+  trust-the-agent problem the hook was meant to remove, just one level down.
+
+See [[enforcement-model]] for the general hooks-vs-advisory distinction this decision extends.
+
 ## Key architectural decisions encoded
 
-- **Pre-flight + worker agents use `model: sonnet`** — orchestration pattern; cost control. No escalation path; D's TDD and E's planning skills carry no model guidance that could escalate.
+- **Pre-flight + worker agents use `model: sonnet`** — orchestration pattern; cost control. No escalation path except Phase 2.5's sanctioned opus-escalation exception; documented as a deliberate advisory (not hook-enforced) ceiling as of PR #86.
 - **Wiki ingest clusters, not per-PR** — Phase 9; fragmented ingests produce fragmented wiki context.
 - **`/sync-docs` is the in-tree complement to wiki ingest** — Phase 9 (PR #77); the two were previously conflated as "docs", now separated at the loop boundary.
 - **Scope-shaping instructions go high in worker prompts** — Phase 9 lesson, reused by D's TDD placement.
 - **Artifact verification not idle pings** — Phase 4/12.
 - **The model never computes a hook-derived value** — path (C1) and LOOP-STOP tag format (C2) both come from the hook's block message.
 - **Phase 4b requires BOTH review-pr AND post-review** — PR #83: `enforce_pr_workflow` gates on the review-pr Skill event; `/merge` gates on the SHA-bound artifact from post-review. Missing either one blocks the merge. (verified: PR #64 + PR #83)
+- **The orchestrator cannot self-demote an independent reviewer's finding** — PR #86 Phase 4b: the party with motive to keep a shortcut must never be the party grading whether the shortcut is acceptable. Fix-it or hard-stop; the only override path is a pre-granted, quoted Phase 0 carve-out.
+- **Self-audits report raw facts, not self-issued verdicts** — PR #86 Phase 13: a scorecard graded by the graded party (or an auditor reading only that party's own records) is gameable and a clean-looking verdict is more dangerous than an honest unscored list.
 
 ## Cross-references
 
