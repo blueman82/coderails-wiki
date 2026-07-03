@@ -59,6 +59,15 @@ The gate proves a durable, SHA-bound, auditable artifact **exists**. It validate
 
 After posting the artifact, `/coderails:post-review` writes `progress.json.review` (URL, comment ID, head SHA) as an **index/cache** for observability and idempotency. The `/merge` gate reads from GitHub, never from `progress.json`. (verified: `post_review.sh`, `merge.sh`)
 
+## Executability is now a codified invariant
+
+[[pr_92_exec-bit-sweep]] (merged 2026-07-03) fixed a real permission-denied bug:
+`scripts/post_review.sh` had mode `100644` in the git index despite being invoked
+as a direct executable path (`./scripts/post_review.sh validate ...`) rather than
+sourced or `bash`-wrapped — this had silently broken step 2 of [[post-review]]
+(the validate-before-post abort gate). No test currently asserts the mode bit
+stays `100755`; a future regression would fail silently until a live run hit it.
+
 ## Deferred scope
 
 Two items from the design spec were deferred by the planning-sequence stress-test:
