@@ -118,3 +118,4 @@ The chain is linear and fail-closed at each step. No local escape path.
 - [[enforcement-model]] — the honest-ceiling framework this design sits within
 - [[spec-plan-progress-artifact-chain]] — the predecessor artifact chain
 - [[pr_81-83_review-artifact-seam]] — the cluster source page
+- [[pr_93-94_post-review-injection-and-exec-bit-invariant]] — closes the exec-bit test gap; ships the post-review.md injection
