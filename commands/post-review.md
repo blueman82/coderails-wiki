@@ -2,12 +2,13 @@
 title: "/coderails:post-review"
 type: command
 created: 2026-06-30
-last_updated: 2026-06-30
+last_updated: 2026-07-03
 sources:
   - commands/post-review.md
   - scripts/lib/review-artifact.sh
   - scripts/post_review.sh
   - sources/pr_81-83_review-artifact-seam.md
+  - sources/pr_92_exec-bit-sweep.md
 tags: [command, post-review, review-artifact, sha-bound, merge-gate, workflow]
 ---
 
