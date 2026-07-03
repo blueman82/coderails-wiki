@@ -76,6 +76,10 @@ Both hooks treat a loop as over only when `progress.json status == "complete"` A
 - **Mechanical (hooks):** `loop_state_guard.sh` (presence/ownership), `loop_stall_guard.sh` (declaration). Registered in `hooks/hooks.json` Stop array; armed by `install.sh`'s explicit chmod list (both new scripts AND both new lib scripts must be in it — it is a hardcoded list, not a glob).
 - **Advisory (skill prose):** the artifact chain itself (Phases 2.7/2.8) and the construction seam (Phase 3/3a → `coderails:test-driven-development`) are skill references — advisory by design. A mechanical "no dispatch without a plan" gate is PreToolUse territory, explicitly deferred.
 
+### Rejected: migrating these two guards into skill-frontmatter hooks
+
+Considered (2026-07-03) and rejected: moving `loop_state_guard`/`loop_stall_guard` out of `hooks/hooks.json` and into `skills/agentic-loop/SKILL.md` frontmatter hooks instead. Feasible mechanically, but there is no documented or observed guarantee that skill-frontmatter (`PostToolUse`) hooks survive a post-compaction session restart — empirical probing that same session found such hooks are session-scoped (persist across turn boundaries within a session, but a separate session's calls trigger nothing). These two guards are safety-critical and need deterministic scope, so they stay as `hooks.json`-wired Stop hooks. See [[session_2026-07-03_ai-docs-refresh-and-cc-mechanics-probes]].
+
 ## See also
 
 - [[agentic-loop]] — the skill that produces and consumes the chain
