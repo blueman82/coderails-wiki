@@ -65,8 +65,18 @@ After posting the artifact, `/coderails:post-review` writes `progress.json.revie
 `scripts/post_review.sh` had mode `100644` in the git index despite being invoked
 as a direct executable path (`./scripts/post_review.sh validate ...`) rather than
 sourced or `bash`-wrapped — this had silently broken step 2 of [[post-review]]
-(the validate-before-post abort gate). No test currently asserts the mode bit
-stays `100755`; a future regression would fail silently until a live run hit it.
+(the validate-before-post abort gate). That PR flagged the gap that no test
+asserted the mode bit stays `100755`.
+
+**Gap closed same day by [[pr_93-94_post-review-injection-and-exec-bit-invariant|PR #94]]**:
+`hooks/scripts/tests/exec_bit_invariant.test.sh` now asserts an expected-modes
+manifest against the live git index for every tracked script under `scripts/` and
+`hooks/scripts/`, plus a completeness scan that fails if a new script isn't
+covered. Suite 23→24. The same PR normalised two more source-only libs
+(`scripts/lib/git-common.sh`, `hooks/scripts/lib/agentic_loop_path.sh`) from
+`100755`→`100644` that #92 didn't reach. A regression to `scripts/post_review.sh`'s
+mode bit now fails the suite instead of silently reintroducing the
+permission-denied bug.
 
 ## Deferred scope
 
