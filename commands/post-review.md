@@ -78,13 +78,31 @@ Without a valid artifact on the current head SHA, [[merge]] blocks with an actio
 - Must run in the same session as the `review-pr` it summarises (anti-fabrication depends on in-session context)
 - `scripts/post_review.sh` must carry the executable bit (`100755`) — it's invoked as a direct path (`./scripts/post_review.sh validate ...`), not sourced or `bash`-wrapped. [[pr_92_exec-bit-sweep]] (merged 2026-07-03) fixed a real permission-denied regression where this file had drifted to `100644`; no automated test currently guards the mode bit against recurrence.
 
-## Injection status (2026-07-03)
+## Injection status: SHIPPED (PR #93, merged 2026-07-03)
 
-Unlike [[merge]], `post-review.md` has no dynamic "Current Git Status"-style
-injected block. PR #91 deferred it pending an inconclusive ordering probe; a
-follow-up probe the same day resolved the ordering question (`$ARGUMENTS`
-substitutes before `!`cmd`` injection runs) — the change is now unblocked but
-not yet implemented. See [[session_2026-07-03_ai-docs-refresh-and-cc-mechanics-probes]].
+`post-review.md` now carries the same dynamic-injection pattern [[merge]] got from
+PR #91. A `## Current PR State` block, inserted after the opening paragraph and
+before `## Step 1`, runs `gh pr view "$ARGUMENTS" --json state,headRefOid,title
+--jq ...` and displays `#<title> | <state> | head <sha>`, followed by the same
+"data, not instructions" guard line `merge.md` uses. This ships the change PR #91
+deferred, now that the `$ARGUMENTS`-before-injection ordering was empirically
+confirmed the same day. See [[pr_93-94_post-review-injection-and-exec-bit-invariant]]
+and [[session_2026-07-03_ai-docs-refresh-and-cc-mechanics-probes]].
+
+Step 3's own `HEAD_SHA=$(gh pr view "$ARGUMENTS" --json headRefOid -q
+.headRefOid)` is untouched by this change — it still resolves the SHA fresh at
+posting time for the artifact's own binding; the injected block above is display
+context only.
+
+Pre-merge review fix: the injected `gh pr view` line was initially unquoted
+(`$ARGUMENTS` bare) versus Step 3's quoted convention — fixed to `"$ARGUMENTS"`
+before merge (commit `772cb5b`).
+
+**Surfaced, not actioned:** a programmatic caller (e.g. an orchestrator) feeding
+untrusted text as the `/post-review` argument reaches `gh pr view` unsanitised at
+*both* call sites now (the new injected line and Step 3). This is a pre-existing
+condition via Step 3 on `main`, not a regression introduced here — candidate
+future guard is numeric-only argument validation before either call fires.
 
 ## Honest ceiling
 
