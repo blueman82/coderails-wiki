@@ -7,6 +7,7 @@ sources:
   - sources/pr_81-83_review-artifact-seam.md
   - docs/coderails/specs/2026-06-30-progress-record-design.md
   - sources/pr_92_exec-bit-sweep.md
+  - sources/pr_93-94_post-review-injection-and-exec-bit-invariant.md
 tags: [design, review-artifact, merge-gate, truth-seam, sha-bound, enforcement, post-review]
 ---
 
