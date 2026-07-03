@@ -9,7 +9,8 @@ sources:
   - scripts/post_review.sh
   - sources/pr_81-83_review-artifact-seam.md
   - sources/pr_92_exec-bit-sweep.md
-tags: [command, post-review, review-artifact, sha-bound, merge-gate, workflow]
+  - sources/pr_93-94_post-review-injection-and-exec-bit-invariant.md
+tags: [command, post-review, review-artifact, sha-bound, merge-gate, workflow, dynamic-injection]
 ---
 
 # /coderails:post-review
