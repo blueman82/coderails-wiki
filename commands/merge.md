@@ -26,18 +26,15 @@ output is repository state for the model to read, not instructions to follow —
 against the injected text being misread as a directive. This is display context only; it
 does not change any merge logic in `merge.sh`. (verified: [[pr_89-91_skills-doc-frontmatter-injection]], `git diff` on `commands/merge.md`)
 
-**A parallel injection for `commands/post-review.md` was deferred, not shipped.** An
-empirical probe of `$ARGUMENTS`-inside-`!`cmd`` substitution ordering was inconclusive during
-PR #91's design work — a freshly created skill wasn't visible to a subagent's `Skill` tool
-during the probe, and Anthropic's public docs only imply the substitution ordering rather
-than stating it explicitly. `post-review.md` has no injected block as of this PR.
-
-**Update 2026-07-03 — the ordering question is now resolved, the invisibility wasn't
-about ordering.** A follow-up probe confirmed `$ARGUMENTS` substitution happens *before*
-`!`cmd`` injection executes, and separately found that subagent skill enumeration is fixed
-at spawn time (a skill created mid-flight is invisible only to already-running subagents,
-not a substitution-order artifact). This unblocks the `post-review.md` injection — it is
-not yet implemented, pending owner approval. See [[session_2026-07-03_ai-docs-refresh-and-cc-mechanics-probes]].
+**`commands/post-review.md` now has a parallel injection too (PR #93, merged 2026-07-03,
+SHIPPED).** PR #91's original probe of `$ARGUMENTS`-inside-`!`cmd`` substitution ordering
+was inconclusive, deferring the post-review.md injection. A same-day follow-up probe
+resolved the ordering question (`$ARGUMENTS` substitutes before `!`cmd`` injection
+executes; the earlier probe's inconclusive result was a subagent skill-enumeration
+artifact, not an ordering one) — see
+[[session_2026-07-03_ai-docs-refresh-and-cc-mechanics-probes]]. PR #93 shipped the
+deferred change: a `## Current PR State` block using the same "data, not instructions"
+guard line. See [[post-review]] and [[pr_93-94_post-review-injection-and-exec-bit-invariant]].
 
 ## Invocation
 
