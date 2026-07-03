@@ -2,10 +2,11 @@
 title: "Skill: wiki-query"
 type: skill
 created: 2026-06-25
-last_updated: 2026-06-25
+last_updated: 2026-07-03
 sources:
   - skills/wiki-query/SKILL.md
-tags: [skill, wiki, query, search, knowledge-base, obsidian, marp, matplotlib]
+  - sources/pr_89-91_skills-doc-frontmatter-injection.md
+tags: [skill, wiki, query, search, knowledge-base, obsidian, marp, matplotlib, context-fork]
 ---
 
 # Skill: wiki-query
