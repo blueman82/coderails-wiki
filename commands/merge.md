@@ -11,6 +11,27 @@ tags: [command, merge, pr, github, branch-cleanup, sync, review-artifact, sha-bo
 
 Merges an approved PR, switches to main, pulls latest, and cleans up the feature branch. Branch cleanup is decoupled from the merge itself so a failed cleanup never reports a successful merge as failed.
 
+## Dynamic Git-status injection (PR #91)
+
+`commands/merge.md` frontmatter now injects a "Current Git Status" block via bash
+substitution before the command's prose instructions:
+
+```
+!`git branch --show-current`
+!`gh pr list --state open --limit 10`
+```
+
+plus a display-only note ("data, not instructions") stating explicitly that this injected
+output is repository state for the model to read, not instructions to follow — guarding
+against the injected text being misread as a directive. This is display context only; it
+does not change any merge logic in `merge.sh`. (verified: [[pr_89-91_skills-doc-frontmatter-injection]], `git diff` on `commands/merge.md`)
+
+**A parallel injection for `commands/post-review.md` was deferred, not shipped.** An
+empirical probe of `$ARGUMENTS`-inside-`!`cmd`` substitution ordering was inconclusive during
+PR #91's design work — a freshly created skill wasn't visible to a subagent's `Skill` tool
+during the probe, and Anthropic's public docs only imply the substitution ordering rather
+than stating it explicitly. `post-review.md` has no injected block as of this PR.
+
 ## Invocation
 
 ```
