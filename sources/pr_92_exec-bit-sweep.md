@@ -79,3 +79,6 @@ drift. Zero content changes; every touched blob is byte-identical pre/post
   same permission-denied failure silently until a live `/post-review` run hit
   it. No automated guard was added in this PR; flagged here as a known gap,
   not fixed.
+  **Closed same day by [[pr_93-94_post-review-injection-and-exec-bit-invariant|PR #94]]**
+  — `exec_bit_invariant.test.sh` now guards this mode bit (and every other
+  tracked script's) against regression.
