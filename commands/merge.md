@@ -32,6 +32,13 @@ PR #91's design work — a freshly created skill wasn't visible to a subagent's 
 during the probe, and Anthropic's public docs only imply the substitution ordering rather
 than stating it explicitly. `post-review.md` has no injected block as of this PR.
 
+**Update 2026-07-03 — the ordering question is now resolved, the invisibility wasn't
+about ordering.** A follow-up probe confirmed `$ARGUMENTS` substitution happens *before*
+`!`cmd`` injection executes, and separately found that subagent skill enumeration is fixed
+at spawn time (a skill created mid-flight is invisible only to already-running subagents,
+not a substitution-order artifact). This unblocks the `post-review.md` injection — it is
+not yet implemented, pending owner approval. See [[session_2026-07-03_ai-docs-refresh-and-cc-mechanics-probes]].
+
 ## Invocation
 
 ```
