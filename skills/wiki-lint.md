@@ -2,10 +2,11 @@
 title: "Skill: wiki-lint"
 type: skill
 created: 2026-06-25
-last_updated: 2026-06-25
+last_updated: 2026-07-03
 sources:
   - skills/wiki-lint/SKILL.md
-tags: [skill, wiki, lint, health-check, quality, audit]
+  - sources/pr_89-91_skills-doc-frontmatter-injection.md
+tags: [skill, wiki, lint, health-check, quality, audit, context-fork]
 ---
 
 # Skill: wiki-lint
