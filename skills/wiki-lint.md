@@ -90,3 +90,4 @@ finding against itself. (verified: [[pr_89-91_skills-doc-frontmatter-injection]]
 - [[wiki-query]] — reads the same vault pages lint audits
 - [[wiki-init]] — established the page-type structure lint checks against
 - `/coderails:workflow` — lint runs as part of the workflow's post-merge wiki phase
+- [[pr_89-91_skills-doc-frontmatter-injection]] — PR #90 source record: `context: fork` added, Explore withheld, visibility tradeoff accepted
