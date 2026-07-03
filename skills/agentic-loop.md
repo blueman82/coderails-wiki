@@ -313,6 +313,23 @@ See [[enforcement-model]] for the general hooks-vs-advisory distinction this dec
 - **The orchestrator cannot self-demote an independent reviewer's finding** — PR #86 Phase 4b: the party with motive to keep a shortcut must never be the party grading whether the shortcut is acceptable. Fix-it or hard-stop; the only override path is a pre-granted, quoted Phase 0 carve-out.
 - **Self-audits report raw facts, not self-issued verdicts** — PR #86 Phase 13: a scorecard graded by the graded party (or an auditor reading only that party's own records) is gameable and a clean-looking verdict is more dangerous than an honest unscored list.
 
+## Description trimmed to the skill-listing truncation cap (PR #89)
+
+`SKILL.md`'s frontmatter `description` was trimmed from 1533 to 1134 characters (PR #89,
+merged 2026-07-03). Claude Code truncates skill-listing descriptions at 1,536 characters —
+the original text sat close enough to that cap that a review round flagged it. The trim
+preserved every trigger phrase verbatim ("TeamCreate", "spawn a team", "no human gates",
+"self-merge", "crack on", "without the human", "no per-PR confirmation", "agentic loop",
+"multi-PR") and the 3+ PRs / autonomous-chain triggers; only the explanatory prose describing
+*how* the phased method works was compressed. One clause was cut and then **restored** after
+review: the "sonnet" delegation rule ("every code change ... goes to a sonnet agent that does
+the implementation AND verifies its own artifact") — an initial trim draft dropped it, and
+review caught that this is load-bearing trigger-adjacent content (it's the rule Phase 3/3a
+enforce), not prose padding. (verified: [[pr_89-91_skills-doc-frontmatter-injection]], `git diff` on `skills/agentic-loop/SKILL.md`)
+
+No phase content, trigger phrase, or behavioural rule changed — this is a frontmatter-only
+edit to the listing description Claude Code shows before the skill body loads.
+
 ## Cross-references
 
 - [[spec-plan-progress-artifact-chain]] — the design page for the artifact chain + two-hook guard
