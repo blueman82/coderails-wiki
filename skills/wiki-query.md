@@ -89,3 +89,4 @@ visibility into its autonomous file-back writes to the vault. Reviewed and accep
 - [[wiki-lint]] — audits structural integrity of the vault; query relies on lint having kept links valid
 - [[wiki-init]] — created the vault, installed Marp, registered with qmd
 - `/coderails:workflow` — query is not a formal step in workflow, but investigation pages created by file-back often inform the next prep cycle
+- [[pr_89-91_skills-doc-frontmatter-injection]] — PR #90 source record: `context: fork` added, Explore withheld, visibility tradeoff accepted
