@@ -2,9 +2,9 @@
 title: "Skills↔Hooks Seam Convention"
 type: design
 created: 2026-06-25
-last_updated: 2026-06-26
-sources: [sources/pr_42_skills-hooks-seam.md, sources/pr_46_gate-git-push-on-main.md]
-tags: [design, hooks, skills, convention, cross-reference]
+last_updated: 2026-07-03
+sources: [sources/pr_42_skills-hooks-seam.md, sources/pr_46_gate-git-push-on-main.md, sources/pr_89-91_skills-doc-frontmatter-injection.md]
+tags: [design, hooks, skills, convention, cross-reference, frontmatter]
 ---
 
 # Skills↔Hooks Seam Convention
