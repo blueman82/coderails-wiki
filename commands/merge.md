@@ -115,3 +115,4 @@ The `protected` check uses the GitHub API directly rather than relying on `gh pr
 - [[repo-hosting]] — github.com remote requirement
 - [[enforce_pr_workflow]] — PreToolUse hook that blocks `gh pr merge` unless `/pr-review-toolkit:review-pr` ran this session (NO_CONFIG opt-in; separate from the artifact gate)
 - [[enforcement-model]] — the honest-ceiling framework both gates sit within
+- [[pr_89-91_skills-doc-frontmatter-injection]] — PR #91 source record: Current Git Status injection added; post-review.md injection deferred pending an inconclusive substitution-ordering probe
