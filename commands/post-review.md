@@ -78,6 +78,14 @@ Without a valid artifact on the current head SHA, [[merge]] blocks with an actio
 - Must run in the same session as the `review-pr` it summarises (anti-fabrication depends on in-session context)
 - `scripts/post_review.sh` must carry the executable bit (`100755`) — it's invoked as a direct path (`./scripts/post_review.sh validate ...`), not sourced or `bash`-wrapped. [[pr_92_exec-bit-sweep]] (merged 2026-07-03) fixed a real permission-denied regression where this file had drifted to `100644`; no automated test currently guards the mode bit against recurrence.
 
+## Injection status (2026-07-03)
+
+Unlike [[merge]], `post-review.md` has no dynamic "Current Git Status"-style
+injected block. PR #91 deferred it pending an inconclusive ordering probe; a
+follow-up probe the same day resolved the ordering question (`$ARGUMENTS`
+substitutes before `!`cmd`` injection runs) — the change is now unblocked but
+not yet implemented. See [[session_2026-07-03_ai-docs-refresh-and-cc-mechanics-probes]].
+
 ## Honest ceiling
 
 This command validates structure, not provenance. A cooperating-but-shallow reviewer can write a structurally-valid summary that passes validation without substantive findings. The grammar check is a floor against completely hollow artifacts, not a proof of review quality. See [[review-artifact-seam]] and [[enforcement-model]].
