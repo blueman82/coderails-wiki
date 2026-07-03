@@ -62,6 +62,20 @@ Step 2 reads `index.md` before any content page. This is a deliberate forcing fu
 - **Skipping file-back**: the step makes no-file-back the exception, not the rule. If an answer required real effort, it should be written back so the next query is faster.
 - **Falling back to code before wiki**: Step 2 mandates reading wiki pages before falling back to the raw codebase. The wiki should be the first source, not a supplement.
 
+## Isolated subagent execution: `context: fork` (PR #90)
+
+`SKILL.md` frontmatter gained `context: fork` (PR #90, merged 2026-07-03): wiki-query now runs
+in an isolated forked subagent context, keeping bulky wiki reads (Step 2's index.md + drill-down
+pass) out of the calling session's context window.
+
+**`agent: Explore` was deliberately withheld**, same rationale as [[wiki-lint]]: this skill's
+Step 4 file-back writes investigation pages and commits them — a read-only `Explore` agent
+could not perform that write.
+
+**Accepted tradeoff, not a bug:** forking this skill reduces the parent session's incidental
+visibility into its autonomous file-back writes to the vault. Reviewed and accepted in PR #90
+— record here so it isn't re-opened as a lint finding. (verified: [[pr_89-91_skills-doc-frontmatter-injection]], `git diff` on `skills/wiki-query/SKILL.md`)
+
 ## Relationship to the wiki family
 
 - Reads what [[wiki-ingest]] wrote and what [[wiki-lint]] kept healthy.
