@@ -61,6 +61,23 @@ The trigger explicitly excludes query intent — lint is about wiki health, not 
 
 Step 4 (Suggest) comes after the report, not before. The pattern is: find what's broken, fix it, then surface what should exist next. This prevents lint from becoming a passive report card — it should always produce actionable next steps for ingest or investigation.
 
+## Isolated subagent execution: `context: fork` (PR #90)
+
+`SKILL.md` frontmatter gained `context: fork` (PR #90, merged 2026-07-03): wiki-lint now runs
+in an isolated forked subagent context rather than inline in the main conversation. This keeps
+the bulky wiki crawl this skill performs (Step 2, reading every markdown file in the vault) out
+of the calling session's context window.
+
+**`agent: Explore` was deliberately withheld** even though it might look like a natural fit for
+a read-heavy audit skill — wiki-lint writes (log entries, potential fixes, commits per Step 7),
+and `Explore`'s tool restriction is read-only, which would break the skill's own commit step.
+
+**Accepted tradeoff, not a bug:** forking reduces the parent session's incidental visibility
+into this skill's autonomous wiki writes. A reviewer or orchestrator watching the main
+transcript sees less of what wiki-lint actually changed than they would if it ran inline. This
+was reviewed and accepted during PR #90 — record it here so it is not re-opened as a wiki-lint
+finding against itself. (verified: [[pr_89-91_skills-doc-frontmatter-injection]], `git diff` on `skills/wiki-lint/SKILL.md`)
+
 ## Relationship to the wiki family
 
 - Audits what [[wiki-ingest]] writes. AGENTS.md (ingest workflow, step 5) explicitly says "then run `/wiki-lint`" — lint is the mandatory post-ingest step.
