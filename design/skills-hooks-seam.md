@@ -54,6 +54,24 @@ The safe pattern when guarding a command that has hyphenated variants is:
 
 This requires the matched token to be followed by whitespace or end-of-line — excluding any hyphenated suffix. Applied at both Gate 3 (command classification) and the subcommand-detection block in `enforce_pr_workflow.sh`. (verified — hook source lines 28 and 37)
 
+## Adjacent but distinct: skill-frontmatter metadata is not a hook seam (PR #89–91)
+
+PR #89–91 (merged 2026-07-03) adopted several Claude Code skill-frontmatter features
+documented at https://code.claude.com/docs/en/skills — `paths` glob hints, `user-invocable`,
+`context: fork`, and dynamic bash-substitution injection in command frontmatter. None of
+these interact with `hooks.json` or any `hooks/scripts/*.sh` gate, so they are **not** an
+instance of this seam convention — recorded here only to draw the boundary explicitly:
+this convention governs the skill↔**hook** gap; skill-frontmatter metadata (how a skill
+presents itself to the model, not what a hook blocks) is a separate concern.
+
+One design call from that same PR cluster *does* touch hook-adjacent territory and was
+rejected for exactly a seam-shaped reason: `disable-model-invocation` was considered for
+workflow commands (to stop a user from typing them directly) and rejected because it would
+also block `agentic-loop`'s own subroutine invocation of those commands — the frontmatter
+field can't distinguish "typed by a user" from "invoked as a subroutine by another skill,"
+the same class of problem this seam convention exists to catch early. See
+[[pr_89-91_skills-doc-frontmatter-injection]].
+
 ## See also
 
 [[enforce_pr_workflow]] — the hook most directly governed by this convention  
