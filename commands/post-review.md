@@ -76,6 +76,7 @@ Without a valid artifact on the current head SHA, [[merge]] blocks with an actio
 - `gh` on PATH and authenticated
 - Remote must be a `github.com` repository
 - Must run in the same session as the `review-pr` it summarises (anti-fabrication depends on in-session context)
+- `scripts/post_review.sh` must carry the executable bit (`100755`) — it's invoked as a direct path (`./scripts/post_review.sh validate ...`), not sourced or `bash`-wrapped. [[pr_92_exec-bit-sweep]] (merged 2026-07-03) fixed a real permission-denied regression where this file had drifted to `100644`; no automated test currently guards the mode bit against recurrence.
 
 ## Honest ceiling
 
