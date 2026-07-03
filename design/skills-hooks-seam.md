@@ -79,3 +79,4 @@ the same class of problem this seam convention exists to catch early. See
 [[enforcement-model]] — the foundational hooks-vs-commands distinction  
 `coderails/CLAUDE.md` — the "Skills↔hooks seam convention" subsection  
 [[pr_42_skills-hooks-seam]] — the source record for this change
+[[pr_89-91_skills-doc-frontmatter-injection]] — records the boundary between this seam and skill-frontmatter metadata; the disable-model-invocation rejection
