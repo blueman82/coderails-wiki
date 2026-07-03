@@ -2,7 +2,7 @@
 title: "/coderails:post-review"
 type: command
 created: 2026-06-30
-last_updated: 2026-07-03
+last_updated: 2026-07-03T19:20:00Z
 sources:
   - commands/post-review.md
   - scripts/lib/review-artifact.sh
