@@ -82,3 +82,12 @@ drift. Zero content changes; every touched blob is byte-identical pre/post
   **Closed same day by [[pr_93-94_post-review-injection-and-exec-bit-invariant|PR #94]]**
   — `exec_bit_invariant.test.sh` now guards this mode bit (and every other
   tracked script's) against regression.
+- PR #94's own source page separately flagged a second, distinct gap:
+  `install.sh`'s unconditional post-install chmod sweep re-adds `+x` on disk at
+  install time regardless of git index mode — a drift between the invariant
+  test (checks the index) and the installer (ignores it).
+  **Closed by [[pr_96-98_mode-aware-install-argument-injection-guard-hook-owned-counter|PR #96]]**
+  (merged 2026-07-03, 127a149) — the sweep is now index-mode-aware
+  (`100755`→`+x`, `100644`→`-x`, untracked→legacy `+x`), with a fix round
+  closing a Critical the mode-read introduced (installer died silently on
+  non-git checkouts under `set -euo pipefail`).
