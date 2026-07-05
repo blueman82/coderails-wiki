@@ -115,3 +115,5 @@ branch.
 - [[enforcement-model]] — hooks only enforce what the cache contains
 - [[discipline-loop]] — if a hook fix is in the repo but not the cache, the discipline enforcement is running the old version
 - [[install-bash32-bad-substitution_2026-06-01]] — the bash 3.2 syntax bug and fix
+- [[pr_96-98_mode-aware-install-argument-injection-guard-hook-owned-counter]] — PR #96: the exec-bit sweep becomes git-index-mode-aware
+- [[pr_92_exec-bit-sweep]] — the git-index-mode invariant PR #96's sweep now respects
