@@ -2,19 +2,21 @@
 title: Install and Cache Trap
 type: design
 created: 2026-05-30
-last_updated: 2026-06-01
+last_updated: 2026-07-05
 sources:
   - .claude-plugin/plugin.json
   - ~/.claude/settings.json
   - ~/.claude/plugins/known_marketplaces.json
   - ~/.claude/plugins/cache/coderails/coderails/1.0.0/
   - CLAUDE.md
+  - sources/pr_96-98_mode-aware-install-argument-injection-guard-hook-owned-counter.md
 tags:
   - installation
   - cache
   - plugin
   - trap
   - operational
+  - exec-bit
 ---
 
 # Install and Cache Trap
