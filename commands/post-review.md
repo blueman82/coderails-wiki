@@ -2,7 +2,7 @@
 title: "/coderails:post-review"
 type: command
 created: 2026-06-30
-last_updated: 2026-07-03
+last_updated: 2026-07-05
 sources:
   - commands/post-review.md
   - scripts/lib/review-artifact.sh
@@ -10,7 +10,8 @@ sources:
   - sources/pr_81-83_review-artifact-seam.md
   - sources/pr_92_exec-bit-sweep.md
   - sources/pr_93-94_post-review-injection-and-exec-bit-invariant.md
-tags: [command, post-review, review-artifact, sha-bound, merge-gate, workflow, dynamic-injection]
+  - sources/pr_96-98_mode-aware-install-argument-injection-guard-hook-owned-counter.md
+tags: [command, post-review, review-artifact, sha-bound, merge-gate, workflow, dynamic-injection, command-substitution, security]
 ---
 
 # /coderails:post-review
