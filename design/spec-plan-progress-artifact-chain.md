@@ -2,12 +2,13 @@
 title: "Spec→Plan→Progress artifact chain + two-hook loop-state guard"
 type: design
 created: 2026-06-25
-last_updated: 2026-07-03
+last_updated: 2026-07-05
 sources:
   - sources/session_2026-06-25_agentic-loop-upgrade-arc.md
   - sources/pr_49_gate-function-rename.md
   - sources/session_2026-07-03_ai-docs-refresh-and-cc-mechanics-probes.md
-tags: [design, agentic-loop, artifact-chain, loop-state, hooks, progress-json]
+  - sources/pr_96-98_mode-aware-install-argument-injection-guard-hook-owned-counter.md
+tags: [design, agentic-loop, artifact-chain, loop-state, hooks, progress-json, hook-owned-counter]
 ---
 
 # Spec→Plan→Progress artifact chain + two-hook loop-state guard
