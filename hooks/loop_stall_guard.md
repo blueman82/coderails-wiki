@@ -69,7 +69,25 @@ A stopping turn inside an active loop now carries three co-requirements: confide
 
 ## Phase 13 stall metric
 
-`progress.json` gains a `loop_stop_counts` object (`{hard-stop, approval-gate, awaiting-input, complete}`) the orchestrator increments per declaration. Phase 13 surfaces it. The `awaiting-input` count is the primary **avoidable-stall** signal — if a model rubber-stamps `awaiting-input` to escape the gate, it shows up in its own audit rather than hiding behind a technically-valid tag.
+`progress.json` gains a `loop_stop_counts` object (`{hard-stop, approval-gate, awaiting-input, complete}`). Phase 13 surfaces it. The `awaiting-input` count is the primary **avoidable-stall** signal — if a model rubber-stamps `awaiting-input` to escape the gate, it shows up in its own audit rather than hiding behind a technically-valid tag.
+
+**Counter is now hook-owned, sole-writer (PR #98, merged 2026-07-05).** This
+hook — not the orchestrator — increments `loop_stop_counts.<category>` after
+validating the declared category, via a tmp-file `jq` read-modify-write (same
+pattern as `scripts/post_review.sh`'s `write_cache`). Previously the counter had
+**two writers** (this hook's presence check plus orchestrator prose asking the
+agent to self-maintain the field) that raced under concurrent Stop-hook
+invocations, undercounting 2 loops in a recorded session. `SKILL.md` now states
+the field is HOOK-OWNED in 5 places — the orchestrator reads it as-is and
+carries it forward verbatim on any progress.json rewrite, same treatment as
+`completed_marker`. The write is best-effort and never fatal: a missing
+`progress.json`, malformed JSON, absent `jq`, or a failed `mv` is logged and
+swallowed, and the hook still exits 0 to let the declared stop through. See
+[[spec-plan-progress-artifact-chain]] for the full race analysis and
+[[pr_96-98_mode-aware-install-argument-injection-guard-hook-owned-counter]] for
+the fix detail (including four standing-invariant tests added in a post-review
+round: no-clobber, jq-absence fail-open, last-declaration-wins tie-break,
+degraded-filesystem safety).
 
 ## Log output
 
