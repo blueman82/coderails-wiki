@@ -94,6 +94,22 @@ arrays, no `mapfile`. A `${answer,,}` slipped in and broke the overwrite prompt 
 3.2 machine with "bad substitution"; fixed by `tr` lowercase.
 See [[install-bash32-bad-substitution_2026-06-01]]. (verified: 2026-06-01)
 
+## Exec-bit sweep is now git-index-mode-aware (PR #96)
+
+Separate from the cache trap above, `install.sh`'s "ARMING SCRIPTS" sweep (a
+distinct mechanism — it sets file *modes* at install time, unrelated to
+repo-vs-cache file *content* sync) used to unconditionally `chmod +x` every
+swept script, fighting the git-index-mode invariant [[pr_92_exec-bit-sweep|PR
+#92]]/#94 established (some libs are deliberately `100644`/sourced-only). As of
+[[pr_96-98_mode-aware-install-argument-injection-guard-hook-owned-counter|PR
+#96]] (merged 2026-07-03), the sweep reads each file's git index mode and
+branches: `100755`→ensure `+x`, `100644`→ensure `-x` (new), not-in-index→legacy
+unconditional `+x`. A fix round closed a Critical the mode-read introduced: the
+`git ls-files | awk` pipe under `set -euo pipefail` died with exit 128 on
+non-git checkouts (release tarballs), silently skipping everything after the
+sweep — fixed with `|| _index_mode=""` falling through to the existing fallback
+branch.
+
 ## Cross-References
 
 - [[enforcement-model]] — hooks only enforce what the cache contains
