@@ -2,9 +2,9 @@
 title: "/coderails:merge"
 type: command
 created: 2026-06-25
-last_updated: 2026-07-03
-sources: [commands/merge.md, scripts/merge.sh, scripts/lib/git-common.sh, sources/pr_43_rough-edges.md, sources/pr_81-83_review-artifact-seam.md, sources/pr_89-91_skills-doc-frontmatter-injection.md, sources/session_2026-07-03_ai-docs-refresh-and-cc-mechanics-probes.md, sources/pr_93-94_post-review-injection-and-exec-bit-invariant.md]
-tags: [command, merge, pr, github, branch-cleanup, sync, review-artifact, sha-bound, dynamic-injection]
+last_updated: 2026-07-05
+sources: [commands/merge.md, scripts/merge.sh, scripts/lib/git-common.sh, sources/pr_43_rough-edges.md, sources/pr_81-83_review-artifact-seam.md, sources/pr_89-91_skills-doc-frontmatter-injection.md, sources/session_2026-07-03_ai-docs-refresh-and-cc-mechanics-probes.md, sources/pr_93-94_post-review-injection-and-exec-bit-invariant.md, sources/pr_96-98_mode-aware-install-argument-injection-guard-hook-owned-counter.md]
+tags: [command, merge, pr, github, branch-cleanup, sync, review-artifact, sha-bound, dynamic-injection, command-substitution, security]
 ---
 
 # /coderails:merge
