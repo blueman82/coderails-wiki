@@ -116,6 +116,7 @@ Architectural decisions and invariants.
 - [[self-containment]] — the 2026-06-25 decision to vendor 12 superpowers skills into coderails; superpowers now uninstallable
 - [[skills-hooks-seam]] — the cross-reference obligation between skills (advisory) and hooks (mechanical); the merge-base regex footgun; added PR #42
 - [[review-artifact-seam]] — the 2026-06-30 decision to move review truth from ephemeral chat to a SHA-bound GitHub PR comment; `/merge` fail-closed artifact gate; honest ceiling (structure not provenance)
+- [[history-identity-scrub]] — how to erase a stale commit-author identity from a GitHub repo's history so no clone method (normal or `--mirror`) recovers it; the `refs/pull/*` trap that makes a `filter-repo` rewrite alone insufficient; delete-and-recreate is the only complete fix; the three purity invariants; post-rewrite branch-pruning caveat
 
 ---
 
