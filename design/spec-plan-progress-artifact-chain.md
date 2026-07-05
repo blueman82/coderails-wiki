@@ -67,6 +67,48 @@ C1 (#13) was created with its detection inline; C2 (#14) extracted that into the
 
 Both hooks treat a loop as over only when `progress.json status == "complete"` AND not re-armed (re-armed = `invocation_count > completed_marker`). This is why **declaring `LOOP-STOP: complete` MUST atomically set `status: complete`** — a text-only `complete` satisfies one turn's gate but leaves both hooks treating the loop as active forever, a hang that looks like a stuck hook.
 
+## loop_stop_counts: hook-owned, sole writer (PR #98)
+
+`progress.json.loop_stop_counts` — the per-category tally of `LOOP-STOP`
+declarations described in [[loop_stall_guard]] — was originally maintained by
+**two writers**: [[loop_stall_guard]]'s own presence check, and orchestrator
+prose in `skills/agentic-loop/SKILL.md` asking the agent to self-maintain the
+same field at Phase 13. Two writers on one key, uncoordinated, raced under
+concurrent Stop-hook invocations and **undercounted 2 loops in a recorded
+session** — a lost-update race (the classic read-modify-write-without-locking
+failure), not a bug in either writer's logic alone.
+
+**Fix ([[pr_96-98_mode-aware-install-argument-injection-guard-hook-owned-counter|PR #98]],
+merged 2026-07-05T21:29:56Z):** `loop_stall_guard.sh` becomes the **sole
+writer**. It already validates every `LOOP-STOP` declaration against
+`LOOP_STOP_VOCAB` before allowing the stop — the natural place to own the
+counter too. It now increments `loop_stop_counts.<category>` via a tmp-file
+`jq` read-modify-write (same pattern as `scripts/post_review.sh`'s
+`write_cache`), auto-vivifying the key on first write. `SKILL.md` is updated in
+5 places (Phase -2 stub, Phase 0.5 orchestrator rules, Phase 13 self-audit, and
+both halves of the Context-window persistence section) to state the field is
+now **HOOK-OWNED**: the orchestrator reads it as-is, never computes or writes
+it, and carries it forward verbatim on any wholesale `progress.json` rewrite —
+the same treatment `completed_marker` already had.
+
+**Design: best-effort, never fatal.** The counter write is strictly
+best-effort — a missing `progress.json`, malformed JSON, a `jq`-absent
+environment, or a failed `mv` is logged and swallowed; the hook still exits 0
+and lets the declared stop through. This is the same honest-boundary posture
+[[loop_state_guard]] and [[loop_stall_guard]] already apply to declaration
+content: force the mechanical fact (a category was declared; the count
+reflects it), never let the bookkeeping become a reason to block a stop.
+
+A post-review fix round encoded four invariants as standing regression tests:
+a no-clobber guarantee (other `progress.json` keys survive byte-identical), a
+`jq`-absence fail-open guard, a last-declaration-wins tie-break for messages
+with multiple `LOOP-STOP` lines (matches `SKILL.md`'s definition of the
+declaration as the turn's *ending* line), and degraded-filesystem safety
+(unwritable directory, never-created directory). This closes the counter as a
+third example of the "artifact chain" pattern this page describes: a value
+that must have exactly one writer, with every other consumer treating it as
+read-only.
+
 ## Two recurring design lessons across the arc
 
 1. **The model must never derive a value the hook will re-derive.** C1's path-deadlock (a model can't reproduce a cwd-slug) → the hook is the sole path authority and puts the resolved path in its block message. C2 applies the same lesson to the `LOOP-STOP` tag format (copy-paste template in the block message). The model copies; it never computes.
