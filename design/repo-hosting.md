@@ -2,27 +2,42 @@
 title: Repo Hosting
 type: design
 created: 2026-06-01
-last_updated: 2026-06-01
+last_updated: 2026-07-05
 sources:
   - .claude-plugin/plugin.json
   - AGENTS.md
+  - sources/repo-consolidation_2026-07-05.md
 tags: [infrastructure, git, github, repo, operational]
 ---
 
 # Repo Hosting
 
-Where the two coderails repos live and how to clone them. Both are **private** repos
-under the github.com **`blueman82`** account (a separate gh-authed account from
-`harrison_adobe`; switch with `gh auth switch -h github.com -u blueman82`).
+Where the coderails repos live and how to clone them. Both are **private** repos
+under the github.com **`blueman82`** account (switch with `gh auth switch -h
+github.com -u blueman82`). The plugin repo's history was scrubbed clean of a
+legacy commit-author identity on 2026-07-05 — it is now flippable to public at
+any time. See [[repo-consolidation_2026-07-05]] and [[history-identity-scrub]].
 
-## The two repos
+## The repos
 
 | Repo | Remote | What it is | Clone to |
 |---|---|---|---|
-| Plugin | `github.com/blueman82/coderails` (private) | The plugin source — commands, hooks, scripts, skills, install/uninstall. Ships via `install.sh` + `/plugin install`. | `~/Documents/Github/coderails` |
+| Plugin | `github.com/blueman82/coderails` (private) | The plugin source — commands, hooks, scripts, skills, install/uninstall. Ships via `install.sh` + `/plugin install`. Full dev history (349 commits), clean identity. | `~/Documents/Github/coderails` |
 | Wiki | `github.com/blueman82/coderails-wiki` (private) | This knowledge base. Obsidian vault; maintained by `/wiki-ingest` + `/wiki-lint`. | `~/Documents/Github/coderails-wiki` |
 
-Both were initialised and pushed on 2026-06-01. (verified: `gh repo create` this session)
+The plugin repo was initialised 2026-06-01. (verified: `gh repo create`)
+
+## Consolidation — there was briefly a third repo (now gone)
+
+Between 2026-07-03 and 2026-07-05 the plugin ran a **two-repo split**: the private
+development repo plus a separate scrubbed single-commit *public export* repo, to
+avoid exposing a legacy author identity in old history. On 2026-07-05 the history
+was rewritten clean, the export repo was deleted, and the dev repo was renamed to
+the canonical `coderails` — collapsing back to **one repo**. The name
+`coderails-dev` (the dev repo's temporary name during the split) is now only a
+stale GitHub rename redirect that resolves to `coderails`; it is **not** a
+separate repo — never push to it. Full method: [[history-identity-scrub]].
+(verified 2026-07-05 via `gh repo view` + `--mirror` clone)
 
 ## History note — the "not a git repository" claim is now stale
 
