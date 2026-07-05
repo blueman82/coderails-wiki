@@ -134,3 +134,4 @@ The `protected` check uses the GitHub API directly rather than relying on `gh pr
 - [[enforcement-model]] — the honest-ceiling framework both gates sit within
 - [[pr_89-91_skills-doc-frontmatter-injection]] — PR #91 source record: Current Git Status injection added; post-review.md injection deferred pending an inconclusive substitution-ordering probe
 - [[pr_93-94_post-review-injection-and-exec-bit-invariant]] — PR #93 ships the deferred post-review.md injection
+- [[pr_96-98_mode-aware-install-argument-injection-guard-hook-owned-counter]] — PR #97 removes that injection for a command-substitution vulnerability; PR #96 makes install.sh's chmod sweep git-index-mode-aware
