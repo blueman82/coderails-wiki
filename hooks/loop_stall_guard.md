@@ -110,3 +110,4 @@ This hook reads its payload via `IFS= read -r -d '' -t 5 input || true`. See [[p
 - [[spec-plan-progress-artifact-chain]] — the two-hook loop-state guard architecture; why C1 speaks before C2
 - [[discipline-loop]] — full hook composition (all six Stop hooks)
 - [[enforcement-model]] — hooks vs. commands
+- [[pr_96-98_mode-aware-install-argument-injection-guard-hook-owned-counter]] — PR #98: this hook becomes the sole writer of loop_stop_counts
