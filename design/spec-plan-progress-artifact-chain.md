@@ -130,3 +130,4 @@ Considered (2026-07-03) and rejected: moving `loop_state_guard`/`loop_stall_guar
 - [[writing-plans]] · [[test-driven-development]] — the two vendored skills (E→D tie)
 - [[enforcement-model]] — hooks (mechanical) vs. commands/skills (advisory)
 - [[discipline-loop]] — the broader hook composition
+- [[pr_96-98_mode-aware-install-argument-injection-guard-hook-owned-counter]] — PR #98: makes loop_stop_counts hook-owned with a sole writer, closing the two-writer race this page now documents
