@@ -2,11 +2,12 @@
 title: "PR 92 — executable-bit sweep (scripts/post_review.sh permission-denied fix)"
 type: source
 created: 2026-07-03
-last_updated: 2026-07-03
+last_updated: 2026-07-05
 sources:
   - scripts/post_review.sh
   - commands/post-review.md
   - hooks/scripts/tests/run_all.sh
+  - sources/pr_96-98_mode-aware-install-argument-injection-guard-hook-owned-counter.md
 tags: [source, exec-bit, file-mode, post-review, hardening]
 ---
 
