@@ -135,4 +135,5 @@ This command validates structure, not provenance. A cooperating-but-shallow revi
 - [[merge]] — the command that gate-checks the artifact before merging
 - [[workflow]] — the orchestrator that chains review-pr → post-review → merge
 - [[agentic-loop]] — Phase 4b, which adds post-review for loop symmetry
+- [[pr_96-98_mode-aware-install-argument-injection-guard-hook-owned-counter]] — PR #97: closes the command-substitution injection class this page's render-time line carried
 - [[enforce_pr_workflow]] — the predecessor transcript-based gate
