@@ -60,7 +60,7 @@ See [[discipline-loop]] for the design rationale across all hooks.
 | `check_confidence_labels.sh` | `Stop` + `SubagentStop` | **block** (exit 2) — ≥200-char response with no label; reads `last_assistant_message` on SubagentStop (PR #57) | [[check_confidence_labels]] |
 | `check_verify_loop.sh` | `Stop` + `SubagentStop` | **block** (exit 2) — any untagged `## Did Not Verify` bullet; file_count gate removed on Stop path (PR #61); reads `last_assistant_message` on SubagentStop (PR #57) | [[check_verify_loop]] |
 | `loop_state_guard.sh` | `Stop` | **block** (exit 2) — agentic loop active but `progress.json` absent / session-mismatch (presence + ownership) | [[loop_state_guard]] |
-| `loop_stall_guard.sh` | `Stop` | **block** (exit 2) — agentic loop active + incomplete + no `LOOP-STOP: <category>` declaration | [[loop_stall_guard]] |
+| `loop_stall_guard.sh` | `Stop` | **block** (exit 2) — agentic loop active + incomplete + no `LOOP-STOP: <category>` declaration; sole writer of `progress.json.loop_stop_counts` (PR #98) | [[loop_stall_guard]] |
 | `destructive_bash_gate.sh` | `PreToolUse (Bash)` | **block** (permissionDecision: deny) — extended blocklist (git clean -f, find -delete, truncate, shred) + in-Bash source edits on main (PR #59) | [[destructive_bash_gate]] |
 | `test_gate.sh` | `PreToolUse (Bash)` | **block** on `git commit` if tests fail — opt-in via `.claude/test_command` | [[test_gate]] |
 | `enforce_pr_workflow.sh` | `PreToolUse (Bash)` | **block** — `gh pr create` without prior `/push`; `gh pr merge`/`git merge`/`git push` on/targeting main without prior `/review-pr` (per-PR + consume-on-use + positional push, PR #58; NO_CONFIG opt-in) | [[enforce_pr_workflow]] |
