@@ -58,7 +58,7 @@ This is **advisory, not mechanical** — no hook blocks an implementation that s
 
 ## Relationship to agentic-loop
 
-Phase 2.8 invokes `coderails:writing-plans` to produce `plan.md` in the loop-state dir. Two consumption directions are stated explicitly in Phase 2.8 (not in the `## Context-window persistence` section, which is a no-touch region):
+Phase 2.7b (formerly 2.8, merged by PR #86) invokes `coderails:writing-plans` to produce `plan.md` in the loop-state dir. Two consumption directions are stated explicitly in Phase 2.7b (not in the `## Context-window persistence` section, which is a no-touch region):
 - Phase 3 builds its task list directly from `plan.md` (not from conversation state).
 - After any compaction, the orchestrator re-reads `plan.md` to recover *scope* the same way it re-reads `progress.json` to recover *position*. `plan.md` is the static SSOT; `progress.json` is the dynamic cursor against it.
 
