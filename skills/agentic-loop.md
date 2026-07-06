@@ -27,7 +27,7 @@ The multi-agent orchestration discipline skill. Sits *above* `/workflow` — it 
 
 Source: `skills/agentic-loop/SKILL.md`
 
-> Substantially upgraded by the 2026-06-24 spec arc (PRs #12–#18), then hardened again by PR #86 (2026-07-01, 7 review-driven decisions), then had its single remaining documented-but-unfixed limitation closed by PR #87 (2026-07-01, same day). See [[session_2026-06-25_agentic-loop-upgrade-arc]], the [[spec-plan-progress-artifact-chain]] design page, [[pr_86_agentic-loop-hardening]], and [[pr_87_agentic-loop-path-session-keying]]. This page reflects the post-arc, post-hardening, post-session-keying-fix skill.
+> Substantially upgraded by the 2026-06-24 spec arc (PRs #12–#18), then hardened again by PR #86 (2026-07-01, 7 review-driven decisions), then had its single remaining documented-but-unfixed limitation closed by PR #87 (2026-07-01, same day), then gained a loop-scope eval gate (Phase 2.7c) and a TeamCreate→spawned-team terminology purge via [[pr_1-4_task-evals-feature]] (2026-07-06). See [[session_2026-06-25_agentic-loop-upgrade-arc]], the [[spec-plan-progress-artifact-chain]] design page, [[pr_86_agentic-loop-hardening]], [[pr_87_agentic-loop-path-session-keying]], and [[task-evals-gate]]. This page reflects the post-arc, post-hardening, post-session-keying-fix, post-task-evals skill.
 
 ## When to load
 
@@ -38,6 +38,8 @@ Load immediately — before `/workflow`, `/prep`, `/push` — when the user auth
 - Autonomous merge + deploy + verify chains (even single-PR) when the user has waived per-step confirmation
 
 Do NOT load for standard single-PR `/workflow` runs where the user is present at each gate.
+
+**"TeamCreate" survives here only as a quoted user-phrasing trigger** (PR #4 of [[pr_1-4_task-evals-feature]]). The actual `TeamCreate`/`TeamDelete` tools no longer exist (removed in Claude Code v2.1.178) — the mechanism the skill now instructs elsewhere is named-teammate `Agent` spawns coordinated through a shared task list (`TaskCreate`/`TaskUpdate` with `blockedBy` dependencies) and `SendMessage`. The trigger line is retained verbatim here specifically because it describes what a *user might still type*, not what the orchestrator invokes — every other reference to the old tool name across the skill body was rewritten to describe the real mechanism.
 
 ## Phase structure (post-arc, post-hardening)
 
