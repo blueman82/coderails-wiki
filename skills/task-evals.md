@@ -111,3 +111,4 @@ Not itself part of the `/workflow` chain directly — invoked as writing-plans' 
 - [[review-artifact-seam]] — the predecessor truth-seam this design largely mirrors (marker SSOT, SHA-bound artifact, fail-closed gate)
 - [[pr_1-4_task-evals-feature]] — the original cluster source record (PRs #1–4)
 - [[pr_7-10_task-evals-followups]] — the follow-up cluster: wiki-first prerequisite, comment-spoofing/pagination closure, tier_justification everywhere (PRs #7–10)
+- [[pr_15-17_loop-hardening-registration-eval-freeze-ledger-dry]] — PR #15: fixes the invocation-point wording that let freeze-before-build collapse into the final task
