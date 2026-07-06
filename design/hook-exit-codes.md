@@ -62,3 +62,6 @@ field earns its keep.
 - [[enforcement-model]] — the hooks-vs-commands distinction this refines
 - [[discipline-loop]] — the Stop hooks that use exit 2
 - [[check_verify_loop]] — a Stop hook using plain exit 2
+- [[loop_state_guard]] — a Stop hook using plain exit 2 (C1)
+- [[loop_stall_guard]] — a Stop hook using plain exit 2 (C2)
+- [[unregistered_loop_guard]] — a Stop hook that deliberately does NOT use exit 2, nudging via exit-0 `additionalContext` instead
