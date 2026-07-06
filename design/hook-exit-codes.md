@@ -2,7 +2,7 @@
 title: "Hook exit codes: which events block on exit 2"
 type: design
 created: 2026-05-31
-last_updated: 2026-05-31
+last_updated: 2026-07-06
 sources:
   - sources/session_2026-05-31_verify-loop-hardening.md
 tags: [design, hooks, exit-codes, blocking, enforcement]
