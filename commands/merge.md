@@ -106,6 +106,7 @@ Default argument is `auto`: resolves the PR from the current branch name.
 - PR must exist for the target branch
 - If branch protection is enabled: PR must have `APPROVED` review decision
 - A coderails review artifact must exist on the PR matching the **current** head SHA (added PR #82 — see [[review-artifact-seam]])
+- A coderails eval artifact must exist on the PR matching the **current** head SHA, with `result: GO` (or a justified tier-0 exemption) — added PR #3 of the task-evals cluster (see [[task-evals-gate]])
 - PR must not be already closed (without merge)
 
 ## Chain position
