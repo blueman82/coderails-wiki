@@ -2,13 +2,14 @@
 title: "Review-artifact truth seam — SHA-bound PR comment + fail-closed merge gate"
 type: design
 created: 2026-06-30
-last_updated: 2026-07-03
+last_updated: 2026-07-06
 sources:
   - sources/pr_81-83_review-artifact-seam.md
   - docs/coderails/specs/2026-06-30-progress-record-design.md
   - sources/pr_92_exec-bit-sweep.md
   - sources/pr_93-94_post-review-injection-and-exec-bit-invariant.md
-tags: [design, review-artifact, merge-gate, truth-seam, sha-bound, enforcement, post-review]
+  - sources/pr_7-10_task-evals-followups.md
+tags: [design, review-artifact, merge-gate, truth-seam, sha-bound, enforcement, post-review, comment-spoofing]
 ---
 
 # Review-artifact truth seam
