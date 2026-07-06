@@ -135,7 +135,10 @@ The `protected` check uses the GitHub API directly rather than relying on `gh pr
 ## See also
 
 - [[post-review]] — the command that creates the review artifact this gate checks
-- [[review-artifact-seam]] — design page for the full truth-seam architecture
+- [[post-evals]] — the command that creates the eval artifact the second gate checks
+- [[review-artifact-seam]] — design page for the full truth-seam architecture (review artifact)
+- [[task-evals-gate]] — design page for the dual-scope eval-gate architecture (pr + loop)
+- [[task-evals]] — the skill that generates the evals.json posted as the eval artifact
 - [[push]] — creates the PR that this command merges
 - [[workflow]] — calls /merge in Phase 6, then wiki-ingest/lint
 - [[config-resolution]] — merge is the only workflow command that does NOT read workflow.config.yaml
