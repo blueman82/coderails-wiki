@@ -74,7 +74,7 @@ The log tail is truncated at 1500 characters to keep the reason readable in the 
 
 ## Setup command
 
-`/coderails:test-gate-setup` is the companion slash command that writes `.claude/test_command` interactively, so users do not have to create the file manually. (inferred: by convention with the command name `test-gate-setup` visible in the plugin)
+[[test-gate-setup]] (`/coderails:test-gate-setup`) is the companion slash command that writes `.claude/test_command` interactively, so users do not have to create the file manually. (inferred: by convention with the command name `test-gate-setup` visible in the plugin)
 
 ## No logging
 
