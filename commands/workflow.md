@@ -81,6 +81,7 @@ This is the top-level orchestrator. All sub-commands remain callable standalone 
   └─ /coderails:push      (Phase 4)
   └─ /pr-review-toolkit:review-pr  (Phase 4)
   └─ /coderails:post-review        (Phase 3 end — added PR #83)
+  └─ /coderails:task-evals + /coderails:post-evals  (Phase 3 end — added 2026-07-06)
   └─ [ship-it pause]      (Phase 5, interactive)
   └─ /coderails:merge     (Phase 6)
   └─ /wiki-ingest + /wiki-lint     (Phase 6, if wiki)
