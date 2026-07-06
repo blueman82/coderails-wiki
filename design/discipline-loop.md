@@ -178,6 +178,7 @@ This means: edits to transcript-extraction logic now go in `discipline_common.sh
 - [[check_verify_loop]] — the verify loop hook in detail (total enforcement as of 2026-06-01)
 - [[loop_state_guard]] — `progress.json` presence/ownership Stop hook (C1, added 2026-06-24)
 - [[loop_stall_guard]] — `LOOP-STOP` declaration Stop hook (C2, added 2026-06-24)
+- [[unregistered_loop_guard]] — unregistered-loop nudge Stop hook (added 2026-07-06, PR #17)
 - [[spec-plan-progress-artifact-chain]] — the two-hook loop-state guard design
 - [[hook-exit-codes]] — which hook events block on exit 2 vs. permissionDecision: deny
 - [[install-and-cache-trap]] — hook edits in the repo do not take effect until cache is re-synced
