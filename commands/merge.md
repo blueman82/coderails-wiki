@@ -49,6 +49,14 @@ containing `$ARGUMENTS` — this file's own injected block (`git branch
 since it never interpolates `$ARGUMENTS`, but the class-wide test also covers
 this file going forward. See [[post-review]] for the full fix detail.
 
+## Trust floor for artifact gates: repo permission, not OWNER-badge (PR #14)
+
+Both artifact gates (review and eval) read comments through a trust filter in `scripts/lib/git-common.sh`, not directly. [[pr_11-14_gate-hardening-followups|PR #14]] (`7c1dd19`, 2026-07-06, owner directive) removed the prior `author_association == "OWNER"` requirement — which failed closed on org-owned repos, since the merging identity's own comments there carry `MEMBER`/`COLLABORATOR` instead — and replaced it with a repo-permission check: the comment author's login must match the authenticated identity (unchanged anti-spoof property) **and** that identity must hold write access or better (`ADMIN`/`MAINTAIN`/`WRITE`, via `gh repo view --json viewerPermission`) on the current repo. Works identically on personal and org-owned repos now. See [[review-artifact-seam]] and [[task-evals-gate]] for the full mechanism (both gates share this trust filter).
+
+## Error-message split for fetch failures (PR #14)
+
+Both gates' exit-2 ("GitHub fetch failed") branches used to emit one generic message regardless of which underlying `gh` call failed. `merge.sh` now inspects `PR_TRUST_FETCH_FAIL_REASON` (set by the trust-filter wrapper) and produces a distinct message for an identity-lookup failure, a permission-lookup failure, or a comments-fetch failure — applied to both the review-artifact gate and the eval-artifact gate. The reader's public exit-code contract (0/1/2) is unchanged; this is purely a diagnostic refinement on the existing exit-2 path.
+
 ## Invocation
 
 ```
