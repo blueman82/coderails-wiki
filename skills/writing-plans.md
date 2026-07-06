@@ -57,6 +57,24 @@ The `## Stress-test before implementation (required)` section instructs running 
 
 This is **advisory, not mechanical** — no hook blocks an implementation that skips it. The complexity guard still applies: the gate rides on the skill, which itself does not fire for single trivial edits. (verified)
 
+## Eval freeze happens once, at plan completion — not as the plan's final task ([[pr_15-17_loop-hardening-registration-eval-freeze-ledger-dry|PR #15]], F2)
+
+The skill previously had one section — "Final eval-gate task" — that said both (a) every plan ends with a task invoking `/coderails:task-evals`, and (b) freeze-before-build means the evals are frozen before implementation starts. In practice (a) swallowed (b): a 2026-07-06 17-unit plan encoded freeze-and-grade as a single end-stage task, and the execution ran 8 tasks deep with no frozen `evals.json` at all — [[task-evals]]'s own freeze-before-build anti-gaming rule went structurally unenforced by the plan's own wording.
+
+PR #15 splits this into two explicit sections:
+
+1. **"Freeze evals after stress-test, before implementation"** — placed immediately after the `## Stress-test before implementation (required)` section above, as its explicit final step. This is where `/coderails:task-evals` is actually invoked and the `evals.json` frozen (`frozen_at`/`frozen_sha` populated) — before Task 1 is ever dispatched to a worker.
+2. **"Final task: grade and post only"** — the plan's actual last task now only runs `/coderails:post-evals` against the already-frozen artifact. It never generates or (re-)freezes anything.
+
+The corrected flow:
+
+```
+write plan → self-review gate → /coderails:planning-sequence → fold findings in
+  → freeze evals (task-evals) → hand off to implementation → … → grade + post (final task)
+```
+
+Four cross-referencing docs were fixed in lockstep so none still describes freezing as happening "as the final task": [[task-evals]]'s invocation-point bullet, [[subagent-driven-development]]'s new Pre-Flight Plan Review bullet (a belt-and-braces pre-flight assertion that `evals.json` already has a non-empty `frozen_at`/`frozen_sha` before Task 1 is dispatched — stop and freeze first if not), `commands/workflow.md:157`, and `docs/REFERENCE.md:83`.
+
 ## Relationship to agentic-loop
 
 Phase 2.7b (formerly 2.8, merged by PR #86) invokes `coderails:writing-plans` to produce `plan.md` in the loop-state dir. Two consumption directions are stated explicitly in Phase 2.7b (not in the `## Context-window persistence` section, which is a no-touch region):
