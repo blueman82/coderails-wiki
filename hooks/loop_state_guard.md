@@ -2,18 +2,19 @@
 title: "Hook: loop_state_guard.sh"
 type: hook
 created: 2026-06-25
-last_updated: 2026-07-01
+last_updated: 2026-07-06
 sources:
   - sources/session_2026-06-25_agentic-loop-upgrade-arc.md
   - sources/pr_49_gate-function-rename.md
   - sources/pr_76_harden-hook-stdin-read.md
   - sources/pr_87_agentic-loop-path-session-keying.md
-tags: [hook, agentic-loop, progress-json, stop-hook, loop-state, session-keying]
+  - sources/pr_1-4_task-evals-feature.md
+tags: [hook, agentic-loop, progress-json, stop-hook, loop-state, session-keying, task-evals, work-units]
 ---
 
 # loop_state_guard.sh (C1)
 
-Stop hook that enforces `progress.json` presence + ownership when an agentic loop is active. Part of the two-hook loop-state guard architecture; the C1 (foundation) layer.
+Stop hook that enforces `progress.json` presence + ownership when an agentic loop is active, AND (since PR #2 of [[pr_1-4_task-evals-feature]]) blocks loop completion at ≥3 work-units without a passing loop-scope `evals.json`. Part of the two-hook loop-state guard architecture; the C1 (foundation) layer.
 
 Source: `coderails/hooks/scripts/loop_state_guard.sh`
 Shared lib (Gates 1–4): `coderails/hooks/scripts/lib/loop_state_common.sh` (extracted PR #49; `als_gate_*` functions shared with [[loop_stall_guard]])
