@@ -57,6 +57,10 @@ See [[config-resolution]] for how `workflow.config.yaml` is located at runtime.
 
 `NO_CONFIG` or absent `config.engineering_principles_paths`: skip engineering-principles entirely, proceed to push.
 
+## Staging safety (PR #13)
+
+Before [[pr_11-14_gate-hardening-followups|PR #13]] (`321bca3`, 2026-07-06), `push.sh` staged everything unconditionally (`git add -A`), silently including any untracked file present in the working tree at commit time — a gap for a command that's supposed to commit only the branch's own work. Fixed to `git add -u` plus an explicit named warning for any untracked files, so a new-file PR requires deliberate staging. A same-day review-round fix (`865cab0`) added a `|| true` guard on the untracked-file detection pipe — `git status --porcelain | grep '^??'` exits 1 under `pipefail` when there are zero untracked files, which without the guard crashed the script on the common tracked-only-change case. New test coverage: `hooks/scripts/tests/push_staging.test.sh` (first-ever dedicated staging test for this script) — asserts tracked changes stage and commit, untracked files are warned-about and not staged, and the tracked-only-no-untracked path doesn't crash. `docs/REFERENCE.md`'s `scripts/push.sh` row updated to match.
+
 ## Scripts invoked
 
 - `scripts/push.sh` — core commit/push/PR logic. Sourced helpers from `scripts/lib/git-common.sh`:
