@@ -83,15 +83,21 @@ The eval-gate check logs its own line shape: `hook=loop_state_guard session=<id>
 
 This hook reads its payload via `IFS= read -r -d '' -t 5 input || true`. See [[pr_76_harden-hook-stdin-read]] for the full convention and the fail-open rationale.
 
+## Relationship to unregistered_loop_guard.sh (new sibling, PR #17)
+
+This hook only ever sees a loop **after** it has registered a `progress.json` — that is its entire enforcement surface (presence + ownership). It has no visibility into a loop that never registered one at all. [[unregistered_loop_guard]] (new sibling Stop hook, F1) closes that blind spot with a heuristic nudge rather than an extension of this hook's own gates — a deliberate choice, since detecting "no registration happened" is a different evidence class (heuristic, not ground truth) from what this hook enforces. See [[pr_15-17_loop-hardening-registration-eval-freeze-ledger-dry]] for the incident that motivated it.
+
 ## See also
 
 - [[loop_stall_guard]] — C2: requires a `LOOP-STOP` declaration when active+incomplete; shares loop-active detection via `loop_state_common.sh`; untouched by the task-evals gate addition
+- [[unregistered_loop_guard]] — new sibling Stop hook (PR #17): nudges when a loop looks unregistered (no `progress.json` this hook could otherwise gate on)
 - [[agentic-loop]] — the skill that creates and maintains `progress.json`; Phase -2 is the stub-first contract this hook enforces; Phase 2.7c freezes the loop-scope `evals.json` this hook reads
 - [[task-evals]] — the skill that generates the `evals.json` this hook's gate consumes
 - [[task-evals-gate]] — design page for the full dual-scope (pr + loop) eval-gate architecture
 - [[spec-plan-progress-artifact-chain]] — how `progress.json` relates to `spec.md` / `plan.md`
-- [[discipline-loop]] — how the four (now six) discipline hooks compose
+- [[discipline-loop]] — how the discipline hooks compose (5 Stop hooks as of PR #17)
 - [[enforcement-model]] — hooks vs. commands
 - [[pr_87_agentic-loop-path-session-keying]] — PR #87: path keyed on cwd+session_id, closing the cross-session race this page previously described as unfixed
 - [[pr_1-4_task-evals-feature]] — PR #2 source record: the loop-scope eval gate added to this hook
 - [[pr_11-14_gate-hardening-followups]] — PR #11 source record: explicit NO-GO now wins over the tier-0 exemption
+- [[pr_15-17_loop-hardening-registration-eval-freeze-ledger-dry]] — PR #17 source record: the sibling unregistered-loop nudge hook this blind spot motivated
