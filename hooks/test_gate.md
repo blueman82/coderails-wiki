@@ -97,3 +97,4 @@ This hook reads its payload via `IFS= read -r -d '' -t 5 input || true`. One of 
 - [[hook-exit-codes]] — why PreToolUse hooks use `permissionDecision: "deny"` + exit 0
 - [[enforcement-model]] — hooks vs. commands; test_gate is the opt-in variant
 - [[discipline-loop]] — full hook set
+- [[sync-docs]] — the `/sync-docs` skill (PR #79) that surfaced the gate-pattern doc-drift finding this page documents
