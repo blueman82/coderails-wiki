@@ -6,8 +6,9 @@ last_updated: 2026-07-06
 sources:
   - sources/pr_1-4_task-evals-feature.md
   - sources/pr_7-10_task-evals-followups.md
+  - sources/pr_11-14_gate-hardening-followups.md
   - docs/coderails/specs/2026-07-03-task-evals-design.md
-tags: [design, task-evals, evals-json, merge-gate, loop-gate, truth-seam, sha-bound, work-units, oracle-independence, comment-spoofing, tier-justification]
+tags: [design, task-evals, evals-json, merge-gate, loop-gate, truth-seam, sha-bound, work-units, oracle-independence, comment-spoofing, tier-justification, trust-floor, viewerPermission]
 ---
 
 # Task-evals gate
