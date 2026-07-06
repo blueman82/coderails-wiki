@@ -33,7 +33,7 @@ Stages, commits, pushes to origin, and creates or updates a GitHub PR. After PR 
 
 **Push (via `push.sh`):**
 
-1. If the working tree is dirty, stages all changes (`git add -A`) and commits with the provided message or an auto-generated "Update N files" message.
+1. If the working tree is dirty, stages **tracked changes only** (`git add -u`, changed [[pr_11-14_gate-hardening-followups|PR #13]] from the prior `git add -A`) and commits with the provided message or an auto-generated "Update N files" message. Any untracked files present are named in a warning ("Untracked files not staged — run 'git add' explicitly to include them") rather than being silently swept into the commit; a new-file PR now needs an explicit `git add`. The commit itself only runs if `git diff --cached --name-only` is non-empty after staging — a tracked-only push with nothing actually staged (e.g. only untracked files present, none force-added) no longer attempts an empty commit. (verified: `scripts/push.sh`, PR #13)
 2. If a Jira key is present in branch config, prefixes both the commit message and PR title with it — JIRA's GitHub integration uses this prefix to link commits to tickets even after squash merge. (verified: push.sh:29, push.sh:54)
 3. Pushes the branch to `origin` with `-u` to set upstream.
 4. If a PR already exists for the branch, posts a comment and reports the URL. If not, creates a PR with `gh pr create`, using the humanised branch name as title and the last 10 commits as body.
