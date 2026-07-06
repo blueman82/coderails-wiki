@@ -2,7 +2,7 @@
 title: "PR 86 — agentic-loop: harden per 7 resolved design decisions"
 type: source
 created: 2026-07-01
-last_updated: 2026-07-01
+last_updated: 2026-07-06
 sources: []
 tags: [skill, agentic-loop, enforcement-model, self-attestation, hardening]
 ---
