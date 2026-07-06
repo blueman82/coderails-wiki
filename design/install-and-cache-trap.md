@@ -113,6 +113,16 @@ non-git checkouts (release tarballs), silently skipping everything after the
 sweep — fixed with `|| _index_mode=""` falling through to the existing fallback
 branch.
 
+## install_mode_sweep.test.sh must sandbox $HOME, not just MEMORY_TARGET (PR #12)
+
+A real, recurring corruption bug found and fixed during [[pr_11-14_gate-hardening-followups|PR #12]] (`fdd29fd`, 2026-07-06), distinct from the exec-bit-sweep logic above but in the same test file (`hooks/scripts/tests/install_mode_sweep.test.sh`). The test invokes the real `install.sh` non-interactively to verify the exec-bit sweep, and had been redirecting `MEMORY_TARGET` to keep memory-seeding writes inside the temp tree — but `install.sh` **also writes unconditionally under `$HOME`**: the `installed_plugins.json` scan, the `~/.claude/commands` conflict scan, `settings.json`/`known_marketplaces.json` marketplace registration, and the `~/.claude/CLAUDE.md` discipline-rules append. None of that is redirected by `MEMORY_TARGET` alone.
+
+Because this repo's own `test_gate` `PreToolUse` hook runs the full test suite on every `git commit`, every worker commit made inside a worktree carrying the unfixed test rewrote the **real developer machine's actual `~/.claude/settings.json`** — 10 recorded events during the loop that produced PRs #11–14, all auto-repaired, but a genuine and repeatable corruption, not a one-off. Telling workers not to touch that file was unenforceable, because the corruption happened inside a test the hook itself ran, outside worker awareness — the only real fix was sandboxing the test's own environment.
+
+Fix: `HOME` is redirected to a freshly-`mktemp`'d sandbox directory for the duration of both `install.sh` invocations the test makes (the git-tracked-tree run and the no-git-tree run), with before/after `cksum` guards on the real `settings.json`, `known_marketplaces.json`, and `CLAUDE.md` proving they're byte-identical across the test run. The sandbox is pre-seeded with a stale marketplace key so the test still exercises `install.sh`'s real `jq` mutation logic against the sandbox rather than merely proving the sandbox inert.
+
+**General lesson**: a test that shells out to a real installer/setup script needs every environment variable that script writes through sandboxed, not just the first one identified — `MEMORY_TARGET` alone looked sufficient until `$HOME` itself turned out to be the actual leak path.
+
 ## Cross-References
 
 - [[enforcement-model]] — hooks only enforce what the cache contains
