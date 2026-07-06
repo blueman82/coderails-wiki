@@ -128,3 +128,4 @@ The chain is linear and fail-closed at each step. No local escape path.
 - [[pr_7-10_task-evals-followups]] — closes the comment-spoofing hole and `gh` pagination cap shared by this seam's reader
 - [[pr_11-14_gate-hardening-followups]] — widens the trust floor to a repo-permission check (closing the org-repo limitation) and splits merge.sh's fetch-failure error messages
 - [[task-evals-gate]] — the sibling seam sharing the same fixed comment-fetch helper
+- [[trust-floor]] — consolidating concept page for the trust-floor/OWNER-permission model this section describes; points back here as SSOT for the mechanism itself
