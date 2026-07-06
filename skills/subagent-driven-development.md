@@ -67,4 +67,5 @@ The progress ledger moved from a repo-root-keyed `$root/.coderails/sdd` director
 [[self-containment]] — why this was vendored: agentic-loop needed a coderails-native reference  
 [[writing-plans]] — the freeze-timing fix (PR #15) this skill's pre-flight bullet backstops  
 [[task-evals]] — the skill invoked if the pre-flight assertion finds no frozen evals  
+[[loop-progress-fields]] — consolidating page for `work_units` (orchestrator-owned, unit-level truth) vs. this skill's own ledger (task-level, controller-owned) fact-ownership split  
 [[pr_15-17_loop-hardening-registration-eval-freeze-ledger-dry]] — PR #15 (pre-flight bullet) and PR #16 (ledger relocation) source record
