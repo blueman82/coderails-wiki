@@ -131,9 +131,11 @@ Below the 3-unit threshold: allow unconditionally, logged `evals=skipped-below-t
 | loop-scope Stop gate | `jq` missing | Allow (fail-open, distinct log reason) |
 | loop-scope Stop gate | `work_units >= 3`, no/malformed/non-loop-scope `evals.json` | Block (`ABSENT`) |
 | loop-scope Stop gate | `work_units >= 3`, `evals.json` result `NO-GO` | Block |
+| loop-scope Stop gate | `work_units >= 3`, `tier_justification` blank/whitespace-only (any tier) | Block (`UNJUSTIFIED`, PR #10) |
+| loop-scope Stop gate | `work_units >= 3`, `evals.json` result unrecognised value | Block (`reason=unrecognised_evals_result`, PR #10, fail-closed catch-all) |
 | loop-scope Stop gate | `work_units >= 3`, `evals.json` result `GO` or justified `TIER0` | Allow |
 
-The pr-scope gate is uniformly fail-closed (matching the review-artifact gate's posture: a missing dependency — `gh`, the artifact — always blocks). The loop-scope gate is deliberately **fail-open on absence** (missing `work_units` field, missing `jq`) but **fail-closed on presence-with-failure** (an `evals.json` that exists and says `NO-GO` still blocks) — the asymmetry exists because `work_units` is a newly-added `progress.json` field that older, already-in-flight loops won't carry, and a hard requirement on a field that didn't exist when a loop started would wrongly punish legacy loops rather than catch a genuine gap.
+The pr-scope gate is uniformly fail-closed (matching the review-artifact gate's posture: a missing dependency — `gh`, the artifact — always blocks). The loop-scope gate is deliberately **fail-open on absence** (missing `work_units` field, missing `jq`) but **fail-closed on presence-with-failure** (an `evals.json` that exists and says `NO-GO`, or is missing its justification, still blocks) — the asymmetry exists because `work_units` is a newly-added `progress.json` field that older, already-in-flight loops won't carry, and a hard requirement on a field that didn't exist when a loop started would wrongly punish legacy loops rather than catch a genuine gap. The `tier_justification` check (PR #10) is an exception to that leniency by owner directive — it fires retroactively even against pre-existing GO artifacts.
 
 ## Verifier agent contract (agent-run evals)
 
