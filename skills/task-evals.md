@@ -5,7 +5,8 @@ created: 2026-07-06
 last_updated: 2026-07-06
 sources:
   - sources/pr_1-4_task-evals-feature.md
-tags: [skill, task-evals, anti-gaming, evals-json, tiering, verify-criteria, oracle-independence]
+  - sources/pr_7-10_task-evals-followups.md
+tags: [skill, task-evals, anti-gaming, evals-json, tiering, verify-criteria, oracle-independence, tier-justification]
 ---
 
 # Skill: task-evals
