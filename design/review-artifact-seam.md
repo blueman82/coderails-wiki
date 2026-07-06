@@ -126,4 +126,5 @@ The chain is linear and fail-closed at each step. No local escape path.
 - [[pr_81-83_review-artifact-seam]] — the cluster source page
 - [[pr_93-94_post-review-injection-and-exec-bit-invariant]] — closes the exec-bit test gap; ships the post-review.md injection
 - [[pr_7-10_task-evals-followups]] — closes the comment-spoofing hole and `gh` pagination cap shared by this seam's reader
+- [[pr_11-14_gate-hardening-followups]] — widens the trust floor to a repo-permission check (closing the org-repo limitation) and splits merge.sh's fetch-failure error messages
 - [[task-evals-gate]] — the sibling seam sharing the same fixed comment-fetch helper
