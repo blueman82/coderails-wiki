@@ -5,8 +5,9 @@ created: 2026-07-06
 last_updated: 2026-07-06
 sources:
   - sources/pr_1-4_task-evals-feature.md
+  - sources/pr_7-10_task-evals-followups.md
   - docs/coderails/specs/2026-07-03-task-evals-design.md
-tags: [design, task-evals, evals-json, merge-gate, loop-gate, truth-seam, sha-bound, work-units, oracle-independence]
+tags: [design, task-evals, evals-json, merge-gate, loop-gate, truth-seam, sha-bound, work-units, oracle-independence, comment-spoofing, tier-justification]
 ---
 
 # Task-evals gate
