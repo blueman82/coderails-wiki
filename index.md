@@ -101,7 +101,7 @@ Skills in `coderails/skills/*/SKILL.md`.
 | `executing-plans` | Executing a `plan.md` task list with scope discipline | [[executing-plans]] |
 | `brainstorming` | Structured ideation + Decision Ledger before committing to a design | [[brainstorming]] |
 | `task-evals` | Generates and freezes a tiered `evals.json` (pr or loop scope) for the task-evals merge gate | [[task-evals]] |
-| `engineering-principles` (+3 language sub-skills: go/python/ts) | Enforces YAGNI/KISS/DRY/Fail-Fast/SSOT/Law-of-Demeter; per-language dispatch | **no wiki page yet** (shipped PR #54, flagged by 2026-07-06 wiki-lint) |
+| `engineering-principles` (+3 language sub-skills: go/python/ts) | Enforces YAGNI/KISS/DRY/Fail-Fast/SSOT/Law-of-Demeter; per-language dispatch | [[engineering-principles]] (+ [[engineering-principles-python]] / [[engineering-principles-go]] / [[engineering-principles-ts]]) |
 
 ---
 
