@@ -105,7 +105,7 @@ Not itself part of the `/workflow` chain directly — invoked as writing-plans' 
 - [[post-evals]] — the `/coderails:post-evals` command that posts the pr-scope artifact
 - [[merge]] — the pr-scope gate consumer
 - [[loop_state_guard]] — the loop-scope gate consumer
-- [[writing-plans]] — invokes this skill as the plan's mandatory final task
+- [[writing-plans]] — invokes this skill at the freeze-after-stress-test step (corrected from "final task" wording by [[pr_15-17_loop-hardening-registration-eval-freeze-ledger-dry|PR #15]]); the plan's actual final task only grades and posts
 - [[agentic-loop]] — invokes this skill at Phase 2.7c (loop scope)
 - [[review-artifact-seam]] — the predecessor truth-seam this design largely mirrors (marker SSOT, SHA-bound artifact, fail-closed gate)
 - [[pr_1-4_task-evals-feature]] — the original cluster source record (PRs #1–4)
