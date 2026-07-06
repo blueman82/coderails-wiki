@@ -81,7 +81,7 @@ citations (see the caveat below) made the churn disproportionate to the benefit.
 | 10 | v2/v3 names when respawning | Versioned names identify the live agent | (pre-arc) |
 | 11 | Agent prompts include confidence labels | Propagate the labelling standard | (pre-arc) |
 | 12 | Status reports are claims, not evidence | Re-check artifact at moment of action | (pre-arc) |
-| 13 | Confirm the factory ran (terminal self-audit) | Raw `loop_stop_counts` + unscored "decisions absorbed" list — **no numeric scorecard** (PR #86 dropped it) | A + C2, rewritten PR #86 |
+| 13 | Confirm the factory ran (terminal self-audit) | Raw `loop_stop_counts` + unscored "decisions absorbed" list — **no numeric scorecard** (PR #86 dropped it); + unscored loop-scope eval result (task-evals cluster) | A + C2, rewritten PR #86, +eval bullet task-evals cluster |
 
 **2.7/2.8 merge note:** Phase 2.8 no longer exists as a separate phase — its content (writing
 `plan.md`) is now sub-step 2.7b under Phase 2.7. Phase 2.5 and 2.6 were deliberately left unmerged
