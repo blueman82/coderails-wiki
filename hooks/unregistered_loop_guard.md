@@ -1,0 +1,68 @@
+---
+title: "Hook: unregistered_loop_guard.sh"
+type: hook
+created: 2026-07-06
+last_updated: 2026-07-06
+sources:
+  - sources/pr_15-17_loop-hardening-registration-eval-freeze-ledger-dry.md
+tags: [hook, agentic-loop, unregistered-loop, stop-hook, loop-state, nudge, heuristic]
+---
+
+# unregistered_loop_guard.sh
+
+Stop hook that nudges — never blocks — when a session looks like an unregistered agentic loop: many sequential agent dispatches, no `progress.json`, and no `agentic-loop` Skill invocation anywhere in the transcript. New **sibling** hook, not an extension of [[loop_state_guard]] — a different question (heuristic detection of a loop that never registered) with a different evidence class (no ground truth to enforce against).
+
+Source: `coderails/hooks/scripts/unregistered_loop_guard.sh`
+Shared lib: none — this hook does not extend `loop_state_common.sh`; its detection logic is local (see "Design" below)
+Path helper: `coderails/hooks/scripts/lib/agentic_loop_path.sh` (used to check whether a `progress.json` exists)
+
+## Why this hook exists
+
+[[loop_state_guard]] enforces presence + ownership of `progress.json` — but only for loops that already registered one. On 2026-07-06 a 17-work-unit `subagent-driven-development` execution ran 9 units with zero hook signal, because the orchestrator never invoked `coderails:agentic-loop` and never registered anything — an unregistered loop is structurally invisible to every existing loop-state hook, all of which key off a file that was never created. This hook closes that blind spot with a heuristic nudge, since — unlike registered-loop hooks — it has no ground truth to enforce a block against. Full incident record: [[pr_15-17_loop-hardening-registration-eval-freeze-ledger-dry]] (F1).
+
+## Event and mode
+
+| Field | Value |
+|---|---|
+| Event | `Stop` |
+| Mode | **nudge only** (`hookSpecificOutput.additionalContext` on stdout, exit 0) — never blocks |
+| Timeout | 5s floor (per the repo's stdin-read convention) |
+
+## Trip condition
+
+All three must hold:
+
+1. **≥3 distinct dispatch turns.** Counts DISTINCT `message.id` values carrying an `Agent` tool_use, via structured `jq` — never a text grep. Parallel fan-outs (several `Agent` calls in one turn) share a single `message.id` and count as 1, so they never trip the nudge. Sequential dispatches — the incident's actual shape, an orchestrator dispatching one implementer after another across separate turns — each carry a distinct `message.id` and count as N. Threshold of 3 mirrors the existing tier-2 work-unit calibration used elsewhere (task-evals, agentic-loop's own complexity guard).
+2. **No `progress.json`** at the path `agentic_loop_path.sh` resolves for this session.
+3. **No `agentic-loop` Skill invocation** anywhere in the transcript — same structured `jq` match on `name == "Skill"` / `input.skill` matching the agentic-loop pattern that [[loop_state_guard]]'s `als_gate_not_a_loop` uses, applied here as a positive detection rather than a skip-gate.
+
+## Design decisions
+
+- **Nudge, not block — a deliberate deviation from every sibling loop-state hook.** [[loop_state_guard]] and [[loop_stall_guard]] both block on ground truth: a `progress.json` either exists with the right session stamp, or it doesn't. This hook has only a heuristic — dispatch-count-shaped evidence that a loop *might* be running unregistered — and heuristics that block risk nagging legitimate non-loop sessions (research fan-outs, single reviews) that also happen to dispatch several subagents. The flip condition is recorded explicitly in the source: a nudge that gets delivered but ignored in practice is the trigger to escalate this hook to a block in a future PR, not a silent design drift.
+- **Sibling hook, not an extension of `loop_state_common.sh`.** Reuses the pattern (structured jq on tool_use, never a text grep) but does not touch the shared lib — this hook's detection question (heuristic unregistered-loop shape) is different in kind from the shared lib's job (ground-truth state of an already-registered loop).
+- **`message.id`-based counting, not tool_use-call counting.** This is the specific design choice that keeps parallel fan-outs (a legitimate, common pattern — see [[dispatching-parallel-agents]]) from ever tripping the nudge: they share one message.id regardless of how many `Agent` calls they contain.
+- **YAGNI cuts, explicit in the source:** no `subagent_type` classification (doesn't distinguish implementer dispatches from research/review dispatches), no dispatch-review-cycle state machine, no block-once marker, no changes to `lib/loop_state_common.sh`.
+- **`jq` failures are logged with distinct reasons**, not silently folded into the below-threshold outcome: `jq_missing`, `jq_parse_error`, `payload_parse_error` are each a separate logged reason, keeping "jq isn't installed" auditably distinct from "the transcript didn't parse" or "the hook payload itself was malformed."
+
+## Stdin read convention
+
+Reads its payload via `IFS= read -r -d '' -t 5 input || true`, the repo's bounded-read floor. See [[pr_76_harden-hook-stdin-read]] for the general convention this hook follows.
+
+## Test coverage
+
+`hooks/scripts/tests/unregistered_loop_guard.test.sh` — 27 checks, mirroring [[loop_state_guard]]'s test-file conventions. Landed alongside updates to `stdin_bounded_read.test.sh`, the timeout-floor test (backstop count bumped for the new hook entry), and the exec-bit invariant test (new file added at mode `100755`).
+
+## Known limitations
+
+- **Heuristic, not ground truth** — can miss unregistered-loop shapes outside its 3-distinct-dispatch-turn / no-progress.json / no-skill-invocation triple. A loop that dispatches exactly 2 sequential implementers, or one that briefly touches the `agentic-loop` Skill without properly registering `progress.json`, will not trip this hook.
+- **Nudge can be ignored** — same honest boundary every hook in this repo has: it can force a signal to appear (`additionalContext`), not force the model to act on it. This is the explicit reason the flip condition to "block" is pre-recorded rather than left as an open question.
+- **No `subagent_type` awareness** — treats every `Agent` tool_use identically; a session dispatching 3 sequential research or review agents (not implementers) can trip the same nudge as a genuine unregistered implementation loop. Accepted as a YAGNI cut, not a bug.
+
+## See also
+
+- [[loop_state_guard]] — the ground-truth sibling: blocks a *registered* loop missing/mismatching `progress.json`; this hook covers the case where registration never happened at all
+- [[loop_stall_guard]] — C2, requires a `LOOP-STOP` declaration; also Stop-only, also ground-truth-based
+- [[agentic-loop]] — the skill this hook detects the *absence* of being invoked
+- [[discipline-loop]] — full Stop hook composition (now 5 Stop hooks with this addition)
+- [[dispatching-parallel-agents]] — the legitimate parallel-fan-out pattern this hook's `message.id` counting is designed not to trip on
+- [[pr_15-17_loop-hardening-registration-eval-freeze-ledger-dry]] — PR #17 source record (F1)
