@@ -133,6 +133,7 @@ trust-the-agent problem the hook would exist to remove, one level down. See [[ag
 - [[install-and-cache-trap]] — editing hooks in the repo does not update the running cache without reinstall
 - [[no_edit_on_main]] — PreToolUse hook that blocks code edits on main/master (added 2026-06-25)
 - [[enforce_pr_workflow]] — PreToolUse hook that gates `gh pr create`/`gh pr merge` (added 2026-06-25)
+- [[unregistered_loop_guard]] — Stop hook that nudges on the unregistered-loop shape (added PR #17)
 - [[inject_bootstrap]] — SessionStart hook that bootstraps coderails context (added 2026-06-25)
 - [[merge]] — enforcement-gap notice added to merge.sh in PR #43
 - [[agentic-loop]] — Phase 4b self-attestation removal and the `model: sonnet` advisory ceiling (PR #86)
