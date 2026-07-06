@@ -46,7 +46,7 @@ Report step: prints the posted comment URL and the computed result/tier.
 Seven checks, first-failure-wins:
 
 1. File exists and is valid JSON.
-2. Tier 0 requires non-empty `tier_justification`.
+2. Every tier requires a non-blank `tier_justification` (owner directive, [[pr_7-10_task-evals-followups]]: tightened from tier-0-only to all tiers) — tier 0 justifies the exemption itself; tier ≥1 justifies which tier predicate fired.
 3. Tier ≥1 scripted eval must have non-empty `negative_control`.
 4. `negative_control` must not be vacuous relative to `cmd` — whitespace-normalised equality, plus a word-bounded containment check (catches `"true; cmd"`/`"echo x && cmd"` wrapper tricks without false-flagging a genuinely distinct control that happens to share a text prefix).
 5. Any P0 eval must carry non-empty `evidence`.
