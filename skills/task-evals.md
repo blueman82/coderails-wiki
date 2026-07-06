@@ -21,6 +21,10 @@ Invoked as: `coderails:task-evals`
 
 Every other verification loop in coderails is self-verification, stacked with conflicts of interest: `writing-plans` verify-criteria are written by the same process that then implements against them; agentic-loop workers verify their own artifact; Phase 4b reviews code quality, not goal attainment; Phase 13 self-audits are explicitly unscored; `/merge`'s review-artifact gate proves review *happened*, not that the goal state was reached. The one exception was the hand-written public-readiness suite (E0–E10): negative controls, end-state assertions against fresh surfaces, independent GO/NO-GO gating. This skill generalises that pattern into a reusable discipline. (verified: SKILL.md "Why this skill exists")
 
+## Prerequisite: gather context before generating evals
+
+Before drafting a single eval: wiki first, codebase only where the wiki doesn't cover it — a wiki read is cheaper and already states the invariants and constraints the goal state must respect, prior decisions, and known gotchas that a codebase read would otherwise have to re-derive. If the project has no wiki (`config.wiki_path` is null), the context read is codebase-only. Dispatched to a sonnet agent rather than done inline, the same delegation pattern `agentic-loop` Phase 2 uses for its own pre-flight checks — keeps the orchestrator's context clean and makes the read a discrete, reportable step. The agent returns distilled findings, not raw file dumps. Inside an agentic loop, the orchestrator's Phase 2 pre-flight wiki read already satisfies this prerequisite — reuse its findings rather than re-reading per invocation. This is a context-gathering step, not a verification step — never conflate it with the gameability self-check or the five anti-gaming rules below. Tightened to this wording by [[pr_7-10_task-evals-followups|PR #7]] (originally added by [[pr_1-4_task-evals-feature|PR #1]]).
+
 ## Trigger
 
 ```
