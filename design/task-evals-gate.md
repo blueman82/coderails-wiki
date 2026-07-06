@@ -189,3 +189,4 @@ gh pr merge
 - [[enforcement-model]] — the honest-ceiling framework this design sits within
 - [[pr_1-4_task-evals-feature]] — the original cluster source page (PRs #1–4)
 - [[pr_7-10_task-evals-followups]] — the follow-up cluster closing comment-spoofing/pagination and adding tier_justification-everywhere (PRs #7–10)
+- [[pr_11-14_gate-hardening-followups]] — the gate-hardening cluster: explicit NO-GO wins at tier 0 (#11), HOME-sandboxed install test (#12), push.sh staging fix (#13), trust-floor widened to a permission check + merge.sh error-message split (#14)
