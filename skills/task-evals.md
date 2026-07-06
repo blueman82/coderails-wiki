@@ -34,7 +34,7 @@ an agentic loop or not. Trigger at loop scope (per-loop and per-work-unit), when
 a plan is written, or directly on user request.'
 ```
 
-Three invocation points (verified: SKILL.md "Invocation contract"): **agentic-loop Phase 2.7c** (loop scope), **writing-plans' final task** (pr scope), or **directly by the user**.
+Three invocation points (verified: SKILL.md "Invocation contract"): **agentic-loop Phase 2.7c** (loop scope), **writing-plans' freeze-after-stress-test step** (pr scope — corrected wording, [[pr_15-17_loop-hardening-registration-eval-freeze-ledger-dry|PR #15]]; previously miswritten as "writing-plans' final task," which let freeze-before-build and grade-and-post flatten into one end-stage task and produced an unfrozen 17-unit execution — see [[writing-plans]] for the fix), or **directly by the user**.
 
 ## The five anti-gaming rules
 
