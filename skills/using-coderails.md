@@ -24,7 +24,7 @@ Above the workflow chain. This skill runs before any other command to orient the
 1. Reads the coderails plugin structure (commands, skills, hooks).
 2. Establishes awareness of the full workflow chain (`prep → push → review → merge → wiki`).
 3. Surfaces the key enforcement model distinction (hooks block, commands advise).
-4. Notes the discipline loop and its hooks.
+4. Notes the [[discipline-loop]] and its hooks.
 
 ## Failure modes encoded
 
