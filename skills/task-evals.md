@@ -108,4 +108,5 @@ Not itself part of the `/workflow` chain directly — invoked as writing-plans' 
 - [[writing-plans]] — invokes this skill as the plan's mandatory final task
 - [[agentic-loop]] — invokes this skill at Phase 2.7c (loop scope)
 - [[review-artifact-seam]] — the predecessor truth-seam this design largely mirrors (marker SSOT, SHA-bound artifact, fail-closed gate)
-- [[pr_1-4_task-evals-feature]] — the cluster source record
+- [[pr_1-4_task-evals-feature]] — the original cluster source record (PRs #1–4)
+- [[pr_7-10_task-evals-followups]] — the follow-up cluster: wiki-first prerequisite, comment-spoofing/pagination closure, tier_justification everywhere (PRs #7–10)
