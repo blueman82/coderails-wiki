@@ -100,11 +100,8 @@ Skills in `coderails/skills/*/SKILL.md`.
 | `subagent-driven-development` | Delegation pattern: implementer prompts → subagent → verify loop | [[subagent-driven-development]] |
 | `executing-plans` | Executing a `plan.md` task list with scope discipline | [[executing-plans]] |
 | `brainstorming` | Structured ideation + Decision Ledger before committing to a design | [[brainstorming]] |
-| `engineering-principles` | Coordinator: enforces YAGNI/KISS/DRY/Fail-Fast/SSOT/Law-of-Demeter; dispatches per-language sub-skills | [[engineering-principles]] |
-| `engineering-principles-go` | Go-specific coding standards sub-skill | [[engineering-principles-go]] |
-| `engineering-principles-python` | Python-specific coding standards sub-skill | [[engineering-principles-python]] |
-| `engineering-principles-ts` | TypeScript-specific coding standards sub-skill | [[engineering-principles-ts]] |
 | `task-evals` | Generates and freezes a tiered `evals.json` (pr or loop scope) for the task-evals merge gate | [[task-evals]] |
+| `engineering-principles` (+3 language sub-skills) | Enforces YAGNI/KISS/DRY/Fail-Fast/SSOT/Law-of-Demeter; dispatches to go/python/ts sub-skills | **no wiki page yet** — see [[skill-testing-state_2026-06-26]] gap note |
 
 ---
 
