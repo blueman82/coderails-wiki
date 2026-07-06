@@ -93,3 +93,4 @@ This hook reads its payload via `IFS= read -r -d '' -t 5 input || true`. See [[p
 - [[enforcement-model]] — hooks vs. commands
 - [[pr_87_agentic-loop-path-session-keying]] — PR #87: path keyed on cwd+session_id, closing the cross-session race this page previously described as unfixed
 - [[pr_1-4_task-evals-feature]] — PR #2 source record: the loop-scope eval gate added to this hook
+- [[pr_11-14_gate-hardening-followups]] — PR #11 source record: explicit NO-GO now wins over the tier-0 exemption
