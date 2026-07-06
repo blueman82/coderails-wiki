@@ -133,7 +133,7 @@ Every one of the four PRs required both a review artifact (`/pr-review-toolkit:r
 
 ## Caveats / gotchas
 
-- **Comment-spoofing closure is scoped to personally-owned repos.** `OWNER` association fails closed on an org-owned repo — this is documented as a known limitation in the code itself, not a bug. Widening it (e.g. an allowlist for CI/service-account posters) is a distinct, not-yet-made owner decision.
+- **Comment-spoofing closure is scoped to personally-owned repos.** `OWNER` association fails closed on an org-owned repo — this is documented as a known limitation in the code itself, not a bug. Widening it (e.g. an allowlist for CI/service-account posters) is a distinct, not-yet-made owner decision. (This limitation was later closed by PR #14 — see [[trust-floor]] for the consolidating concept page; SSOT for the mechanism is [[merge]].)
 - **`install.sh`'s chmod sweep still has no `scripts/lib/*.sh` glob.** PR #9 closed the immediate gap for `review-artifact.sh`/`config.sh` by adding them to the literal list; any future `scripts/lib/*.sh` addition needs the same manual step repeated, not a structural fix.
 - **The tier_justification flip is retroactive for already-graded artifacts.** A GO-result loop artifact written before PR #10, without a `tier_justification`, will now block at the loop gate — this was a deliberate owner choice recorded directly in the source, not an oversight.
 - **PR #7's no-wiki fallback and loop-reuse clauses are prose-only.** Neither is independently hook-enforced; both rely on the invoking agent reading and following the updated SKILL.md text, same structural-unenforceability class AGENTS.md already documents for skill-level instructions in general.
