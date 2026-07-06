@@ -12,7 +12,6 @@ sources:
   - sources/pr_11-14_gate-hardening-followups.md
   - sources/pr_15-17_loop-hardening-registration-eval-freeze-ledger-dry.md
 tags: [hook, agentic-loop, progress-json, stop-hook, loop-state, session-keying, task-evals, work-units, tier-0-nogo, unregistered-loop]
-last_updated: 2026-07-06
 ---
 
 # loop_state_guard.sh (C1)
