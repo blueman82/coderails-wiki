@@ -125,6 +125,7 @@ Architectural decisions and invariants.
 - [[task-evals-gate]] — dual-scope (pr + loop) merge gate over frozen, oracle-independent success evals; second independent enforcement axis alongside [[review-artifact-seam]]
 - [[loop-progress-fields]] — consolidating page for `progress.json`'s `work_units` (orchestrator-owned) and `loop_stop_counts` (hook-owned) fields
 - [[trust-floor]] — consolidating page for the trust-floor/OWNER-permission model (PR #14, extended with the `tempfile` reason by PR #21); SSOT for the mechanism remains [[merge]]
+- [[agentic-loop-path-keying]] — repo-keyed (not cwd-keyed) `progress.json` slug via `git --git-common-dir`; closes a mid-loop `EnterWorktree` orphaning bug; supersedes [[pr_86_agentic-loop-hardening|PR #86]] point 6's rejected locking machinery; PR #24
 
 ---
 
