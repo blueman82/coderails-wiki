@@ -26,7 +26,7 @@ with exact files, interfaces, bite-sized steps, and verify-criteria. Not for
 single trivial edits, which need no separate plan.'
 ```
 
-**Complexity guard is load-bearing.** "Not for single trivial edits" mirrors the agentic-loop Phase 2.8 guard (≥3 work-units or a cross-unit dependency). A plan on trivial work is ceremony that trains the loop to skip it on real work.
+**Complexity guard is load-bearing.** "Not for single trivial edits" mirrors the agentic-loop Phase 2.7b guard (≥3 work-units or a cross-unit dependency). A plan on trivial work is ceremony that trains the loop to skip it on real work.
 
 ## When this skill was added
 
