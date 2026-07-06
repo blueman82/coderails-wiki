@@ -2,7 +2,7 @@
 title: "using-coderails"
 type: skill
 created: 2026-06-25
-last_updated: 2026-06-25
+last_updated: 2026-07-06
 sources: [sources/pr_19-30_self-containment-and-hardening.md]
 tags: [skill, bootstrap, orientation, self-containment]
 ---
