@@ -10,6 +10,7 @@ sources:
   - ~/.claude/plugins/cache/coderails/coderails/1.0.0/
   - CLAUDE.md
   - sources/pr_96-98_mode-aware-install-argument-injection-guard-hook-owned-counter.md
+  - sources/pr_11-14_gate-hardening-followups.md
 tags:
   - installation
   - cache
@@ -17,6 +18,8 @@ tags:
   - trap
   - operational
   - exec-bit
+  - test-sandboxing
+  - home-sandbox
 ---
 
 # Install and Cache Trap
