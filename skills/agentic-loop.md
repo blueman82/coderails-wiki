@@ -18,7 +18,8 @@ sources:
   - sources/pr_87_agentic-loop-path-session-keying.md
   - sources/pr_89-91_skills-doc-frontmatter-injection.md
   - sources/pr_1-4_task-evals-feature.md
-tags: [skill, agentic-loop, multi-agent, orchestration, context-window, delegation, artifact-chain, loop-state, post-review, review-artifact, self-attestation, enforcement-ceiling, session-keying, frontmatter, description-cap, task-evals, work-units, teamcreate-purge]
+  - sources/pr_15-17_loop-hardening-registration-eval-freeze-ledger-dry.md
+tags: [skill, agentic-loop, multi-agent, orchestration, context-window, delegation, artifact-chain, loop-state, post-review, review-artifact, self-attestation, enforcement-ceiling, session-keying, frontmatter, description-cap, task-evals, work-units, teamcreate-purge, sdd-ledger]
 ---
 
 # Skill: agentic-loop
