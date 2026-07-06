@@ -8,6 +8,7 @@ sources:
   - scripts/lib/eval-artifact.sh
   - scripts/post_evals.sh
   - sources/pr_1-4_task-evals-feature.md
+  - sources/pr_7-10_task-evals-followups.md
 tags: [command, post-evals, eval-artifact, sha-bound, merge-gate, task-evals]
 ---
 
