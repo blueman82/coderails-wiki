@@ -52,6 +52,8 @@ Concrete predicates, same design rationale as agentic-loop Phase 2.6's "what nam
 - **Tier 1 (standard)** — 3–5 end-state evals, ≥1 negative control, P0/P1 split.
 - **Tier 2 (full suite)** — ≥3 work-units (the line agentic-loop Phase 2.7/3 already draw) OR any irreversible/outward surface (publish, deploy, migration, data deletion, external send).
 
+**`tier_justification` is required at every tier, not just tier 0** (owner directive, [[pr_7-10_task-evals-followups|PR #10]]) — tier 0 justifies the exemption itself; tier 1/2 must state which tier predicate fired. Both the writer (`post_evals::validate_structure` check 2, pr scope) and the loop-scope reader (`als_read_loop_evals_result`, which gained a distinct `UNJUSTIFIED` result) enforce this; a blank or whitespace-only justification blocks regardless of grading outcome, including retroactively against pre-existing GO artifacts written before the check existed. See [[task-evals-gate]] for the mechanism.
+
 ## Schema (schema_version 1)
 
 Scope is `pr` or `loop`. Each eval carries an ID, `priority` (`P0` blocks the gate, `P1` doesn't), `mode` (`scripted` or `agent-run`), `surface`, an `assert` one-liner, a `cmd` or verifier instruction, a `negative_control` (required for scripted), `status`, and `evidence`. GO requires **all P0 evals pass**; P1 failures don't block but must be listed unresolved. See [[task-evals-gate]] for the full JSON shape and how the two enforcement seams consume it.
