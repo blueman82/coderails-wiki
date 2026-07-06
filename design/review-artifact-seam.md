@@ -52,6 +52,8 @@ Matching uses **exact string equality**, not substring grep. A line with any jun
 
 Exit codes from `pr::has_coderails_review_for_head`: 0=match, 1=no-match, 2=fetch-failed. The distinct codes produce distinct, actionable error messages in `merge.sh`. (verified: `git-common.sh`, `merge.sh`)
 
+**Comment-spoofing closed, `gh` pagination cap removed** ([[pr_7-10_task-evals-followups|PR #8]], 2026-07-06): `pr::has_coderails_review_for_head` now sources comment bodies from `pr::_trusted_comment_bodies`, which filters to the `gh`-authenticated login with `author_association == "OWNER"` before any marker matching, and fetches via a paginated `gh api .../issues/<n>/comments --paginate` call rather than the old `gh pr view --json comments` GraphQL fetch (previously hard-capped at 100 comments). This PR's primary target was the eval-artifact reader (`pr::has_coderails_eval_for_head`, see [[task-evals-gate]]) but both readers share the fetch helper, so this seam inherits the same fix. Scoped limitation: `OWNER` association assumes a personally-owned repo; an org-owned repo's comments would fail closed instead.
+
 ## The honest ceiling
 
 The gate proves a durable, SHA-bound, auditable artifact **exists**. It validates the summary's structure (grammar: `## No findings` OR all three headings with bullets/None) but cannot assess whether the review was substantive. A cooperating-but-shallow reviewer can post a structurally-valid summary with no real findings. The gate is an **audit layer, not a tamper-proof barrier** — the same honest boundary as every other local gate. (verified: `AGENTS.md` enforcement-ceiling section)
