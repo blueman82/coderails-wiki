@@ -157,6 +157,7 @@ full decision record and the 2 post-merge Critical stale-cross-reference fixes t
 | `disposition`, `named_blocker`, `removal_ticket` | A | per-work-unit clean-break record |
 | `schema_version`, `session_id`, `status`, `created`, `last_updated`, `completed_marker` | C1 | lifecycle + presence/ownership |
 | `loop_stop_counts` (`{hard-stop, approval-gate, awaiting-input, complete}`) | C2 | per-category counts; Phase 13 reports these raw since PR #86 (no scorecard — see below) |
+| `work_units` (JSON object keyed by unit id, each carrying at least a `status`) | task-evals cluster | [[loop_state_guard]]'s eval gate reads `.work_units \| length` off this field to decide whether the ≥3-unit eval threshold applies; fails open (no block) when the field is absent — so it must stay populated whenever the loop tracks ≥1 work-unit |
 
 `status` ∈ `initialising` | `in-progress` | `complete`. The path is resolved by `agentic_loop_path.sh` — **the model never computes it** (a cwd-slug cannot be reproduced by hand).
 
