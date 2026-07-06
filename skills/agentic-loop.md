@@ -290,6 +290,8 @@ fabricated scorecard pass.
 Phase 13 still separately reports **artifacts produced** (verified, not claimed) and **disposition
 violations** (unchanged from Spec A) — only the human-turns scorecard was removed.
 
+**Loop-scope eval result bullet (added by [[pr_1-4_task-evals-feature]], 2026-07-06).** Phase 13 gains a fourth raw fact, reported unscored alongside the three above: the loop's final `evals.json` `result` (`GO` / `NO-GO` / a justified tier-0 exemption), plus any `amendments` (post-freeze eval edits with recorded reasons). Same framing as the disposition-violation bullet: **"no `evals.json` record found" for a ≥3-work-unit loop is an audit failure, not a pass** — explicitly distinguished from a genuine `GO`, mirroring how this section already distinguishes "0 disposition violations" from "no disposition record found." No self-issued verdict is layered on top of the raw result.
+
 **Post-merge fix:** the initial hardening pass left two stale cross-references (`SKILL.md:435` and
 `:480`) that still described the pre-rewrite scorecard shape after the rest of Phase 13 changed —
 caught and fixed by the post-merge review, inside the same merge commit. See
