@@ -70,12 +70,17 @@ Default argument is `auto`: resolves the PR from the current branch name.
    - Exit 2 (GitHub fetch failed) → "GitHub fetch failed — could not fetch PR comments."
    - Exit 1 (no artifact) → "No coderails review artifact for current head — run /coderails:post-review."
    No local-file fallback. No progress.json fallback. (verified: `merge.sh` @ 503f6fa)
-4. **Merge**: `gh pr merge <num> --merge`. This is a remote merge only — its failure aborts the script via `set -euo pipefail`. Branch cleanup is explicitly separate and non-fatal so a worktree collision never causes a merged PR to report as failed.
-5. **Sync**: Checks out `main` and pulls `origin/main`.
-6. **Branch cleanup (best-effort)**:
+4. **Eval artifact gate** (added PR #3 of [[pr_1-4_task-evals-feature]], directly after the review-artifact gate, same `OPEN` branch, same head SHA already resolved in step 3): calls `pr::has_coderails_eval_for_head <num> <sha>`. Same rc-contract shape as the review gate, with a tier-aware NO-GO message:
+   - Exit 2 (GitHub fetch failed) → "GitHub fetch failed — could not fetch PR comments for eval artifact."
+   - Exit 1, `PR_EVAL_TIER` set (artifact found but NO-GO) → "Eval artifact for current head is NO-GO (tier N) — resolve failing P0 evals and re-run /coderails:post-evals."
+   - Exit 1, no artifact found at all → "No coderails eval artifact for current head — run /coderails:task-evals then /coderails:post-evals after /pr-review-toolkit:review-pr."
+   Fail-closed, no local fallback, no config opt-out — identical posture to the review gate. This is **additive**, not a replacement: both gates must pass. See [[task-evals-gate]].
+5. **Merge**: `gh pr merge <num> --merge`. This is a remote merge only — its failure aborts the script via `set -euo pipefail`. Branch cleanup is explicitly separate and non-fatal so a worktree collision never causes a merged PR to report as failed.
+6. **Sync**: Checks out `main` and pulls `origin/main`.
+7. **Branch cleanup (best-effort)**:
    - Deletes the remote branch via `git push origin --delete <head>`. Warns but continues if already gone.
    - Attempts `git branch -D <head>` locally. If this fails (because another worktree has the branch checked out), warns with the worktree path rather than erroring.
-7. Shows the last 5 commits on main.
+8. Shows the last 5 commits on main.
 
 ## Config fields read
 
