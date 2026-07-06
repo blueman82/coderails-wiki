@@ -68,3 +68,4 @@ Reads its payload via `IFS= read -r -d '' -t 5 input || true`, the repo's bounde
 - [[discipline-loop]] — full Stop hook composition (now 5 Stop hooks with this addition)
 - [[dispatching-parallel-agents]] — the legitimate parallel-fan-out pattern this hook's `message.id` counting is designed not to trip on
 - [[pr_15-17_loop-hardening-registration-eval-freeze-ledger-dry]] — PR #17 source record (F1)
+- [[pr_23-24_hook-lib-observability-and-repo-keyed-loop-state]] — PR #23 source record: the hook-lib jq-failure-signalling rework this hook's stderr-discard carve-out responds to
