@@ -10,7 +10,9 @@ sources:
   - sources/pr_87_agentic-loop-path-session-keying.md
   - sources/pr_1-4_task-evals-feature.md
   - sources/pr_11-14_gate-hardening-followups.md
-tags: [hook, agentic-loop, progress-json, stop-hook, loop-state, session-keying, task-evals, work-units, tier-0-nogo]
+  - sources/pr_15-17_loop-hardening-registration-eval-freeze-ledger-dry.md
+tags: [hook, agentic-loop, progress-json, stop-hook, loop-state, session-keying, task-evals, work-units, tier-0-nogo, unregistered-loop]
+last_updated: 2026-07-06
 ---
 
 # loop_state_guard.sh (C1)
