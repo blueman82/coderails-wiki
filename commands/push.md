@@ -97,3 +97,4 @@ The engineering-principles pre-flight in [[workflow]] Phase 3 and the pre-flight
 - [[config-resolution]] — walk-up config resolver
 - [[repo-hosting]] — github.com remote requirement enforced by `require::repo`
 - [[enforce_pr_workflow]] — PreToolUse hook that blocks `gh pr create` unless this command ran first (NO_CONFIG opt-in)
+- [[pr_11-14_gate-hardening-followups]] — PR #13 changes staging from `git add -A` to `git add -u` + untracked-file warning
