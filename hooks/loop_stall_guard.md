@@ -97,7 +97,7 @@ Appends a `key=value` line to `$CLAUDE_DISCIPLINE_LOG`:
 ## Known limitations
 
 - Cannot force the declared reason or category to be truthful; a model can rubber-stamp `awaiting-input`. The Phase 13 KPI is the auditable counter-pressure.
-- Four Stop hooks (confidence, verify, C1, C2) is the highest ceremony cost in the system; the main thing to watch in Phase 13 is avoidable-stall counts from stop-ceremony thrash.
+- Four Stop hooks (confidence, verify, C1, C2) firing on the same stopping turn is the highest ceremony cost in the system; the main thing to watch in Phase 13 is avoidable-stall counts from stop-ceremony thrash. (A fifth Stop hook, [[unregistered_loop_guard]], was added PR #17 — it only fires on *unregistered* loops and is a nudge, not a co-requirement of this ceremony, so it does not add to this specific thrash risk.)
 
 ## Stdin read convention (PR #76)
 
