@@ -31,18 +31,24 @@ Path helper: `coderails/hooks/scripts/lib/agentic_loop_path.sh`
 
 ## What it enforces
 
-**Presence + ownership only.** When an agentic loop is active in this session, `progress.json` must exist at the helper-resolved path and be stamped with the current `session_id`. It does NOT police whether the file's content is accurate or current — that is an honest boundary the same as `check_verify_loop.sh` documents ("forces the file to exist and be mine; cannot force content to be accurate").
+**Presence + ownership**, plus (since PR #2 of [[pr_1-4_task-evals-feature]]) a **loop-scope eval requirement**. When an agentic loop is active in this session, `progress.json` must exist at the helper-resolved path and be stamped with the current `session_id`. It does NOT police whether the file's content is accurate or current — that is an honest boundary the same as `check_verify_loop.sh` documents ("forces the file to exist and be mine; cannot force content to be accurate"). The eval-gate addition is narrower and more targeted: it only fires exactly when the loop is trying to declare `complete` with ≥3 recorded work-units, and only checks for a *passing* sibling `evals.json` — it does not itself judge quality, only presence-of-a-GO.
 
 ## Logic: skip gates (cheap first)
 
-Gates 1–4 are implemented as named `als_gate_*` functions in `loop_state_common.sh` (shared with [[loop_stall_guard]] — extracted PR #49, formerly byte-identical between the two guards). Gates 5–6 are local to this script.
+Gates 1–4 are implemented as named `als_gate_*` functions in `loop_state_common.sh` (shared with [[loop_stall_guard]] — extracted PR #49, formerly byte-identical between the two guards). Gates 5–6 are local to this script. The new eval-gate check (`gate_loop_evals_required`, added PR #2 of the task-evals cluster) is inserted **between** gate 4 and gate 5 — see below.
 
 1. **`als_gate_no_transcript`** — allow (nothing to inspect).
 2. **`als_gate_stop_hook_active`** — allow (`stop_hook_active == true`; already blocked this turn; avoid stop-loop).
 3. **`als_gate_not_a_loop`** — allow if no agentic-loop Skill `tool_use` in transcript. Detection is a structured `jq` match on `name == "Skill"` and `input.skill` matching `(^|:)agentic-loop$`. Text grep for "agentic-loop" is explicitly forbidden (would trip sessions that edit/discuss the skill).
-4. **`als_load_progress` / done-and-not-rearmed check** — allow if `status == "complete"` AND not re-armed AND session-owned (loop is done). Re-armed = `invocation_count > completed_marker`.
+4. **`als_load_progress`** — reads `progress.json` state into globals (status, session, re-armed marker).
+4a. **`gate_loop_evals_required`** (new, local, task-evals cluster) — if the loop is otherwise ready to be treated as complete (same three conditions gate 4b below checks) AND `progress.json`'s `work_units` field reports ≥3 units: reads a sibling `evals.json` beside `progress.json`. `GO`/`TIER0` → allow (logged). `NO-GO`/`ABSENT` (no file, malformed, or wrong scope) → **BLOCK** (exit 2), pointing at `/coderails:task-evals`. Below 3 units, or `work_units` absent (legacy loop), or `jq` missing: allow, logged with a distinct reason each time (`skipped-below-threshold` / field-absent fail-open / `jq_missing`). **Must run before gate 4b** — see "Gate ordering" below.
+4b. **`als_gate_loop_complete` / done-and-not-rearmed check** — allow if `status == "complete"` AND not re-armed AND session-owned (loop is done). Re-armed = `invocation_count > completed_marker`.
 5. **File present AND session-owned AND `status != "complete"`** — allow (presence satisfied).
 6. **BLOCK (exit 2)** — three failure shapes: absent, session mismatch, stale-complete-after-rearm.
+
+## Gate ordering: why the eval check runs before the shared "loop complete" gate
+
+`als_gate_loop_complete` exits 0 **directly** — not just "returns" — the instant `status == "complete"` AND not re-armed AND session-owned; it has no way to signal "checked, still active" back to a caller placed after it. So `gate_loop_evals_required` re-checks those same three conditions **locally**, rather than restructuring the shared function to support an insertion point after it. This is a reviewed, intentional exact deviation from the guard's usual "compose named gates top-to-bottom" pattern — documented inline in the source with the rationale. (verified: `hooks/scripts/loop_state_guard.sh`; see [[task-evals-gate]] for the full architecture)
 
 ## Block messages
 
