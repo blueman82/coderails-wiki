@@ -6,7 +6,8 @@ last_updated: 2026-07-06
 sources:
   - sources/session_2026-06-25_agentic-loop-upgrade-arc.md
   - sources/pr_50_planning-sequence-gate.md
-tags: [skill, writing-plans, planning, decomposition, artifact-chain]
+  - sources/pr_15-17_loop-hardening-registration-eval-freeze-ledger-dry.md
+tags: [skill, writing-plans, planning, decomposition, artifact-chain, eval-freeze, task-evals]
 ---
 
 # Skill: writing-plans
