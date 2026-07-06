@@ -86,8 +86,9 @@ A fresh sonnet subagent grades judgement evals. Its prompt contains ONLY the `ev
 - A scripted check with no negative control — passes trivially, proves nothing.
 - Working-tree self-reports standing in for merged/deployed-state assertions.
 - The implementer grading its own judgement evals instead of a fresh, context-blind verifier.
-- A tier-0 exemption with no written justification — silence is never an acceptable substitute for the artifact.
+- A tier-justification-free artifact at **any** tier, not only tier 0 — silence is never an acceptable substitute for the artifact (extended from tier-0-only by [[pr_7-10_task-evals-followups|PR #10]]).
 - Post-freeze eval edits made silently instead of recorded as `amendments`.
+- Comment-spoofing: a marker-shaped artifact posted by an untrusted author — closed for both PR-gate readers by [[pr_7-10_task-evals-followups|PR #8]] (author-identity + association filter, fail-closed).
 
 ## Relationship to /workflow and agentic-loop
 
