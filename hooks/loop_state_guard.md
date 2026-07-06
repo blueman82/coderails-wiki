@@ -83,9 +83,12 @@ This hook reads its payload via `IFS= read -r -d '' -t 5 input || true`. See [[p
 
 ## See also
 
-- [[loop_stall_guard]] — C2: requires a `LOOP-STOP` declaration when active+incomplete; shares loop-active detection via `loop_state_common.sh`
-- [[agentic-loop]] — the skill that creates and maintains `progress.json`; Phase -2 is the stub-first contract this hook enforces
+- [[loop_stall_guard]] — C2: requires a `LOOP-STOP` declaration when active+incomplete; shares loop-active detection via `loop_state_common.sh`; untouched by the task-evals gate addition
+- [[agentic-loop]] — the skill that creates and maintains `progress.json`; Phase -2 is the stub-first contract this hook enforces; Phase 2.7c freezes the loop-scope `evals.json` this hook reads
+- [[task-evals]] — the skill that generates the `evals.json` this hook's gate consumes
+- [[task-evals-gate]] — design page for the full dual-scope (pr + loop) eval-gate architecture
 - [[spec-plan-progress-artifact-chain]] — how `progress.json` relates to `spec.md` / `plan.md`
 - [[discipline-loop]] — how the four (now six) discipline hooks compose
 - [[enforcement-model]] — hooks vs. commands
 - [[pr_87_agentic-loop-path-session-keying]] — PR #87: path keyed on cwd+session_id, closing the cross-session race this page previously described as unfixed
+- [[pr_1-4_task-evals-feature]] — PR #2 source record: the loop-scope eval gate added to this hook
