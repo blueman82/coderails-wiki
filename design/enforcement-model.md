@@ -59,19 +59,19 @@ PreToolUse hooks block by emitting a JSON response with `permissionDecision: "de
 
 | Event | Script | Mode |
 |---|---|---|
-| `SessionStart` | `inject_bootstrap.sh` | silent — bootstraps session with `coderails:using-coderails` context |
-| `UserPromptSubmit` | `inject_context.sh` | silent — prepends `[ctx]` (cwd, branch, date) |
-| `UserPromptSubmit` | `discipline_catchup.sh` | warn |
-| `Stop` | `check_confidence_labels.sh` | **block** — ≥200-char response with no confidence label |
-| `Stop` | `check_verify_loop.sh` | **block** — any untagged DNV bullet (file_count gate removed PR #61) |
-| `Stop` | `loop_state_guard.sh` | **block** — agentic-loop active but progress.json absent/mismatched |
-| `Stop` | `loop_stall_guard.sh` | **block** — agentic-loop active + incomplete + no LOOP-STOP declaration |
-| `Stop` | `unregistered_loop_guard.sh` | **nudge, not block** — ≥3 distinct sequential `Agent` tool_use `message.id`s + no `progress.json` + no `agentic-loop` skill invocation; delivers via `additionalContext` with exit 0 (added PR #17) |
-| `SubagentStop` | `check_confidence_labels.sh` | **block** — same as Stop; reads `last_assistant_message` (added PR #57) |
-| `SubagentStop` | `check_verify_loop.sh` | **block** — same as Stop; reads `last_assistant_message`, no file_count gate (added PR #57) |
-| `PreToolUse` (Bash) | `destructive_bash_gate.sh` | **block** — permanent blocklist + in-Bash source edits on main (extended PR #59) |
-| `PreToolUse` (Bash) | `test_gate.sh` | **block** on `git commit` if tests fail — opt-in only |
-| `PreToolUse` (Bash) | `enforce_pr_workflow.sh` | **block** — `gh pr create` without prior `/push`; `gh pr merge`/`git merge`/`git push` without prior `/review-pr` (per-PR + consume-on-use + positional push, PR #58) |
+| `SessionStart` | [[inject_bootstrap]] (`inject_bootstrap.sh`) | silent — bootstraps session with `coderails:using-coderails` context |
+| `UserPromptSubmit` | [[inject_context]] (`inject_context.sh`) | silent — prepends `[ctx]` (cwd, branch, date) |
+| `UserPromptSubmit` | [[discipline_catchup]] (`discipline_catchup.sh`) | warn |
+| `Stop` | [[check_confidence_labels]] (`check_confidence_labels.sh`) | **block** — ≥200-char response with no confidence label |
+| `Stop` | [[check_verify_loop]] (`check_verify_loop.sh`) | **block** — any untagged DNV bullet (file_count gate removed PR #61) |
+| `Stop` | [[loop_state_guard]] (`loop_state_guard.sh`) | **block** — agentic-loop active but progress.json absent/mismatched |
+| `Stop` | [[loop_stall_guard]] (`loop_stall_guard.sh`) | **block** — agentic-loop active + incomplete + no LOOP-STOP declaration |
+| `Stop` | [[unregistered_loop_guard]] (`unregistered_loop_guard.sh`) | **nudge, not block** — ≥3 distinct sequential `Agent` tool_use `message.id`s + no `progress.json` + no `agentic-loop` skill invocation; delivers via `additionalContext` with exit 0 (added PR #17) |
+| `SubagentStop` | [[check_confidence_labels]] (`check_confidence_labels.sh`) | **block** — same as Stop; reads `last_assistant_message` (added PR #57) |
+| `SubagentStop` | [[check_verify_loop]] (`check_verify_loop.sh`) | **block** — same as Stop; reads `last_assistant_message`, no file_count gate (added PR #57) |
+| `PreToolUse` (Bash) | [[destructive_bash_gate]] (`destructive_bash_gate.sh`) | **block** — permanent blocklist + in-Bash source edits on main (extended PR #59) |
+| `PreToolUse` (Bash) | [[test_gate]] (`test_gate.sh`) | **block** on `git commit` if tests fail — opt-in only |
+| `PreToolUse` (Bash) | [[enforce_pr_workflow]] (`enforce_pr_workflow.sh`) | **block** — `gh pr create` without prior `/push`; `gh pr merge`/`git merge`/`git push` without prior `/review-pr` (per-PR + consume-on-use + positional push, PR #58) |
 | `PreToolUse` (Write\|Edit\|MultiEdit) | `no_edit_on_main.sh` | **block** — source files (allowlist model PR #60): everything except doc/config/special dotfiles on main/master |
 
 `discipline_catchup.sh` is the only surviving warn-mode hook. `unregistered_loop_guard.sh` is the only nudge-mode Stop hook — a deliberate deviation from every sibling loop-state hook (which all block on ground truth): it has only a heuristic, not ground truth, so nudge is the honest posture; a nudge delivered but ignored is the recorded trigger to upgrade it to a block in a future PR. Everything else that should be enforced has been promoted to block-mode or moved to a PreToolUse gate. See [[discipline-loop]] for the history of why warn-mode was abandoned and for the enforcement ceilings. (updated 2026-07-06 — added `unregistered_loop_guard.sh`, PR #17; previously updated 2026-06-26 — added SubagentStop hooks; updated destructive_bash_gate, enforce_pr_workflow, no_edit_on_main descriptions)
