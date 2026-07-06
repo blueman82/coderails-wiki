@@ -164,9 +164,9 @@ full decision record and the 2 post-merge Critical stale-cross-reference fixes t
 
 Phase 3 and Phase 3a reference `coderails:test-driven-development` (code-guarded: "if the change adds or alters a function, method, or branch that can carry a test"). Vendored as a coderails-owned skill so the plugin keeps zero cross-plugin dependency (REVERSED from Spec A's "reference, not vendor" note). The reference sits near the TOP of the Phase 3a prompt-contract list (Phase 9's placement lesson: scope-shaping instructions get shortcut when buried low). PR #24 additive-wired `coderails:subagent-driven-development` into worker-prompt construction (Phase 3), replacing the former superpowers cross-plugin reference. Also fixed dead `/claude-guardrails:assumptions` and `/claude-guardrails:notchecked` references → `coderails:assumptions` and `coderails:notchecked` respectively. The six C1/C2 no-touch regions were kept byte-identical. (verified — PR #24) See [[test-driven-development]] and [[subagent-driven-development]].
 
-## Delegation rung: single agent vs. TeamCreate
+## Delegation rung: single agent vs. spawned team
 
-Updated 2026-06-01 (verified: SKILL.md Phase 3 and Phase 3a):
+Updated 2026-06-01 (verified: SKILL.md Phase 3 and Phase 3a); terminology updated by [[pr_1-4_task-evals-feature]] (PR #4, 2026-07-06) — the `TeamCreate`/`TeamDelete` tools this section used to name no longer exist (removed in Claude Code v2.1.178).
 
 **Main context is a pure orchestrator that NEVER implements.** Every code change — even a single-file edit — is delegated to a spawned sonnet agent. The two reasons, stated in the skill: keep main context clean (opus context is scarce), and keep cost down (sonnet does the typing, not opus). A file edit done directly in main context is the exception that needs a justification, not the default.
 
@@ -178,9 +178,9 @@ The delegation decision is a two-rung ladder:
 - Why one agent does both: verification output is the dense kind you delegated to keep out of main context; if main context re-verified every small change, it refills. Agent self-verifies; main context spot-checks only at dependency boundaries (Phase 12)
 - See Phase 3a for the prompt contract
 
-**Rung 2 — `TeamCreate` (for ≥3 PRs or cross-step dependency chains):**
-- Explicitly invoke the `TeamCreate` tool; build a task list with `blockedBy` dependencies via `TaskUpdate`
-- If the user has named `TeamCreate` in their prompt, it is non-negotiable
+**Rung 2 — Spawn a team (for ≥3 PRs or cross-step dependency chains):**
+- Spawn each worker as a **named teammate** via the `Agent` tool; build a shared task list with explicit `blockedBy` dependencies via `TaskCreate`/`TaskUpdate`; coordinate between teammates with `SendMessage`
+- If the user has explicitly asked for a spawned team in their prompt, it is non-negotiable — spawn named teammates even if a flat sequence of solo `Agent` calls would technically work
 
 The old guidance "work directly when: single-file edits / sequential steps" was removed in plugin commit `3c33f99` because it contradicted the main-context-is-pure-orchestrator rule. The correct frame is which rung, not whether to delegate. (This is the same two-rung threshold the Phase 2.7/2.8 complexity guard reuses for the spec/plan artifacts.)
 
