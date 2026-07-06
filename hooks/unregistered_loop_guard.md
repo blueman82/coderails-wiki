@@ -65,6 +65,7 @@ Reads its payload via `IFS= read -r -d '' -t 5 input || true`, the repo's bounde
 - [[loop_state_guard]] — the ground-truth sibling: blocks a *registered* loop missing/mismatching `progress.json`; this hook covers the case where registration never happened at all
 - [[loop_stall_guard]] — C2, requires a `LOOP-STOP` declaration; also Stop-only, also ground-truth-based
 - [[agentic-loop]] — the skill this hook detects the *absence* of being invoked
+- [[hook-exit-codes]] — this hook nudges via exit-0 `additionalContext` rather than `exit 2`, the deliberate non-blocking choice this page's mechanism table explains
 - [[discipline-loop]] — full Stop hook composition (now 5 Stop hooks with this addition)
 - [[dispatching-parallel-agents]] — the legitimate parallel-fan-out pattern this hook's `message.id` counting is designed not to trip on
 - [[pr_15-17_loop-hardening-registration-eval-freeze-ledger-dry]] — PR #17 source record (F1)
