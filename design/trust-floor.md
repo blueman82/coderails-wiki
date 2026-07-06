@@ -6,7 +6,8 @@ last_updated: 2026-07-06
 sources:
   - sources/pr_7-10_task-evals-followups.md
   - sources/pr_11-14_gate-hardening-followups.md
-tags: [design, trust-floor, viewerPermission, comment-spoofing, artifact-gates]
+  - sources/pr_21-22_loop2-suggestion-tier-followups.md
+tags: [design, trust-floor, viewerPermission, comment-spoofing, artifact-gates, tempfile]
 ---
 
 # Trust floor for artifact gates: repo permission, not OWNER-badge
