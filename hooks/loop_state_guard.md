@@ -9,7 +9,8 @@ sources:
   - sources/pr_76_harden-hook-stdin-read.md
   - sources/pr_87_agentic-loop-path-session-keying.md
   - sources/pr_1-4_task-evals-feature.md
-tags: [hook, agentic-loop, progress-json, stop-hook, loop-state, session-keying, task-evals, work-units]
+  - sources/pr_11-14_gate-hardening-followups.md
+tags: [hook, agentic-loop, progress-json, stop-hook, loop-state, session-keying, task-evals, work-units, tier-0-nogo]
 ---
 
 # loop_state_guard.sh (C1)
