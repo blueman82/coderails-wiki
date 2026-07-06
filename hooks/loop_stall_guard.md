@@ -108,6 +108,6 @@ This hook reads its payload via `IFS= read -r -d '' -t 5 input || true`. See [[p
 - [[loop_state_guard]] — C1: presence/ownership guard; shares loop-active detection and the active-window off-switch
 - [[agentic-loop]] — the skill that must emit `LOOP-STOP` declarations; Phase 0.5 is the stop-ceremony note
 - [[spec-plan-progress-artifact-chain]] — the two-hook loop-state guard architecture; why C1 speaks before C2
-- [[discipline-loop]] — full hook composition (all six Stop hooks)
+- [[discipline-loop]] — full hook composition (4 Stop hooks + 2 SubagentStop hooks, 13 hooks total across all events)
 - [[enforcement-model]] — hooks vs. commands
 - [[pr_96-98_mode-aware-install-argument-injection-guard-hook-owned-counter]] — PR #98: this hook becomes the sole writer of loop_stop_counts
