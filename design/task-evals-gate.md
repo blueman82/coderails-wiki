@@ -183,6 +183,7 @@ gh pr merge
 - [[post-evals]] — the command that validates and posts the pr-scope artifact
 - [[merge]] — the updated command with the additive eval-artifact gate
 - [[loop_state_guard]] — the extended C1 hook carrying the loop-scope gate
+- [[loop-progress-fields]] — consolidating page for `work_units`, the field the loop-scope `>=3`-work-unit threshold this gate applies is keyed off
 - [[review-artifact-seam]] — the predecessor design this pattern is largely mirrored from (marker SSOT, SHA-bound artifact, fail-closed gate, honest-ceiling framing)
 - [[agentic-loop]] — Phase 2.7c (freeze loop-scope evals) and Phase 13 (unscored result reporting)
 - [[writing-plans]] — mandatory final eval-gate task (pr scope)
