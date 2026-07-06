@@ -367,6 +367,7 @@ edit to the listing description Claude Code shows before the skill body loads.
 - [[pr_41_phase25-brainstorming-xref]] — PR #41 source record: Phase 2.5 references brainstorming's design-quality discipline without its gates
 - [[pr_64_loop-review-via-skill]] — PR #64 source record: Phase 4b changed to invoke review-pr Skill (with PR number) instead of hand-rolling agents
 - [[pr_77_agentic-loop-sync-docs-step]] — PR #77 source record: Phase 9 gains `/sync-docs` in-tree docs-drift check at the loop boundary (distinct from wiki ingest)
+- [[sync-docs]] — the skill's own home page (what it does, its location outside the coderails repo)
 - [[pr_81-83_review-artifact-seam]] — PR #83 source record: Phase 4b extended with `/coderails:post-review` for loop symmetry
 - [[pr_86_agentic-loop-hardening]] — PR #86 source record: 7 hardening decisions (stage-map, Phase 2.7/2.8 merge, Phase 4b self-demote removal, Phase 13 scorecard drop, `model: sonnet` advisory doc, single-loop invariant **documented not fixed — see PR #87 for the fix**, stale memory-citation cleanup) + 2 post-merge Critical stale-cross-reference fixes + 1 Important Phase 0 carve-out fix
 - [[unregistered_loop_guard]] — new sibling Stop hook (PR #17): nudges when a session looks like an unregistered instance of this skill (dispatch-shaped, no `progress.json`, no Skill invocation)
