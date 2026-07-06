@@ -131,20 +131,21 @@ The **Stop hooks** enforce a *floor* that is intentionally lower than the prose 
 
 **What this means in practice:** following the hook floor is necessary but not sufficient. A response can satisfy both hooks (≥1 label, no file-named DNV bullet) while still falling short of the prose standard (many unlabelled claims, no DNV section at all on a file-editing response). The prose standard is the real target. The hooks are the backstop for clear failures.
 
-## The Stop hook composition (4 Stop hooks; 2 SubagentStop hooks; 13 hooks total across all events)
+## The Stop hook composition (5 Stop hooks; 2 SubagentStop hooks; 14 hooks total across all events)
 
-The coderails Stop hook array has four hooks, running in order:
+The coderails Stop hook array has five hooks, running in order:
 
 1. `check_confidence_labels` — confidence labels gate
 2. `check_verify_loop` — DNV resolution gate
 3. `loop_state_guard` — `progress.json` presence/ownership gate (agentic-loop sessions only)
 4. `loop_stall_guard` — `LOOP-STOP` declaration gate (agentic-loop sessions only)
+5. `unregistered_loop_guard` — nudge (never blocks) when a loop looks unregistered: ≥3 distinct agent-dispatch turns, no `progress.json`, no `agentic-loop` Skill invocation (added PR #17, [[pr_15-17_loop-hardening-registration-eval-freeze-ledger-dry]])
 
 The SubagentStop hook array has two hooks (wired PR #57):
 1. `check_confidence_labels` — reads `.last_assistant_message`; same MIN_LEN/label logic as Stop
 2. `check_verify_loop` — reads `.last_assistant_message`; no `file_count` gate; same DNV enforcement as Stop
 
-The two loop-state hooks (C1/C2) remain **Stop-only** — they key off main-agent loop invocation count and session-owned `progress.json`. A subagent has no `progress.json` to validate. The two loop-state hooks pass immediately when no agentic-loop session is active — they add zero overhead to normal single-PR sessions. See [[spec-plan-progress-artifact-chain]] for the two-hook guard architecture.
+The three loop-state hooks (C1/C2 plus the new unregistered-loop nudge) remain **Stop-only** — they key off main-agent loop invocation count, session-owned `progress.json`, or (the new hook) the *absence* of one. A subagent has no `progress.json` to validate. `loop_state_guard` and `loop_stall_guard` pass immediately when no agentic-loop session is active, adding zero overhead to normal single-PR sessions; `unregistered_loop_guard` is the one loop-state hook designed to fire specifically when a loop-shaped session has NOT registered — see [[unregistered_loop_guard]] for why that's a nudge, not a block, unlike its two Stop-only siblings. See [[spec-plan-progress-artifact-chain]] for the two-hook (C1/C2) guard architecture that predates it.
 
 ## Enforcement ceilings (documented PR #62)
 
