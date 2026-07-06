@@ -35,6 +35,8 @@ The command runs five phases, two of which pause for human input:
 
 **Phase 3 (end) — Post-review artifact (auto, added PR #83)**: After `review-pr` and simplify complete, runs `/coderails:post-review <PR#>`. Posts a machine-marked, SHA-bound review summary to the PR. This creates the artifact that [[merge]] gate-checks before `gh pr merge`. See [[post-review]] and [[review-artifact-seam]].
 
+**Phase 3 (end, continued) — Eval artifact (auto, added by the task-evals cluster, 2026-07-06)**: Also runs `/coderails:task-evals` (if not already generated earlier, per [[writing-plans]]'s mandatory final task) then `/coderails:post-evals <PR#>` to post the eval artifact [[merge]] additionally requires. This is **additional to**, and does not satisfy, `enforce_pr_workflow`'s `review-pr` requirement — the eval gate lives entirely in `merge.sh`, a separate enforcement seam from the `PreToolUse` hook. See [[task-evals]] and [[task-evals-gate]].
+
 **Phase 4 — Push + adversarial review (auto after ready signal)**: Calls [[push]], then `/pr-review-toolkit:review-pr all` (four specialist agents in parallel). Findings are classified blocking/worthwhile/cosmetic and applied inline without re-asking per finding. A ledger comment is posted to the PR.
 
 **Phase 5 — Ship-it (interactive pause)**: Waits for merge authorisation ("ship it", "merge", "ok to merge").
