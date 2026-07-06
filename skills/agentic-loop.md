@@ -69,9 +69,9 @@ citations (see the caveat below) made the churn disproportionate to the benefit.
 | 2 | Pre-flight via spawned agents | Delegate planning/premortem/wiki-query to sonnet agents | (pre-arc) |
 | 2.5 | Resolve design forks up front | Ask once; record decision + flip-condition. Design agent applies [[brainstorming]]'s quality discipline (YAGNI, design-for-isolation, weigh viable approaches) **without** brainstorming's human-approval gates — see PR #41 note below. | (pre-arc) + PR #41 |
 | 2.6 | Resolve disposition before replacement | clean-break vs preserve-compat; named blocker required | A |
-| 2.7 | Commit resolved design to `spec.md` **and** `plan.md` (merged sub-steps 2.7a/2.7b) | ≥3-unit guard stated once; 2.7a = `spec.md` write, 2.7b = `plan.md` via `coderails:writing-plans` | E, merged PR #86 |
-| 3 | Delegate all impl to sonnet agents | TeamCreate at ≥3 sequential units / dependency chain | (pre-arc) + A + D |
-| 3a | Single sonnet agent for impl + verify | The TeamCreate-is-overkill case | (pre-arc) + A + D |
+| 2.7 | Commit resolved design to `spec.md` **and** `plan.md` **and** loop-scope `evals.json` (sub-steps 2.7a/2.7b/2.7c) | ≥3-unit guard stated once; 2.7a = `spec.md` write, 2.7b = `plan.md` via `coderails:writing-plans`, 2.7c = freeze loop-scope evals via `coderails:task-evals` | E, merged PR #86, +2.7c task-evals cluster |
+| 3 | Delegate all impl to sonnet agents | Spawn a named team at ≥3 sequential units / dependency chain | (pre-arc) + A + D |
+| 3a | Single sonnet agent for impl + verify | The spawned-team-is-overkill case | (pre-arc) + A + D |
 | 4 | Spawn workers in waves | Check artifacts, never idle pings | (pre-arc) |
 | 4b | PR review = invoke `/pr-review-toolkit:review-pr <PR#>` Skill; then invoke `/coderails:post-review <PR#>` | Skill required for enforce_pr_workflow gate evidence; post-review creates the SHA-bound artifact `/merge` gate-checks; clean-break compat hunt is a MERGE-BLOCKER the orchestrator **cannot self-demote** (PR #86) | A + PR #64 + PR #83 + PR #86 |
 | 5 | Disprove the premise before each fix | Reproduce via SOT before spawning | (pre-arc) |
