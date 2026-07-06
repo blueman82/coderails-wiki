@@ -73,7 +73,7 @@ PreToolUse hooks block by emitting a JSON response with `permissionDecision: "de
 | `PreToolUse` (Bash) | `enforce_pr_workflow.sh` | **block** — `gh pr create` without prior `/push`; `gh pr merge`/`git merge`/`git push` without prior `/review-pr` (per-PR + consume-on-use + positional push, PR #58) |
 | `PreToolUse` (Write\|Edit\|MultiEdit) | `no_edit_on_main.sh` | **block** — source files (allowlist model PR #60): everything except doc/config/special dotfiles on main/master |
 
-`discipline_catchup.sh` is the only surviving warn-mode hook. Everything else that should be enforced has been promoted to block-mode or moved to a PreToolUse gate. See [[discipline-loop]] for the history of why warn-mode was abandoned and for the enforcement ceilings. (updated 2026-06-26 — added SubagentStop hooks; updated destructive_bash_gate, enforce_pr_workflow, no_edit_on_main descriptions)
+`discipline_catchup.sh` is the only surviving warn-mode hook. `unregistered_loop_guard.sh` is the only nudge-mode Stop hook — a deliberate deviation from every sibling loop-state hook (which all block on ground truth): it has only a heuristic, not ground truth, so nudge is the honest posture; a nudge delivered but ignored is the recorded trigger to upgrade it to a block in a future PR. Everything else that should be enforced has been promoted to block-mode or moved to a PreToolUse gate. See [[discipline-loop]] for the history of why warn-mode was abandoned and for the enforcement ceilings. (updated 2026-07-06 — added `unregistered_loop_guard.sh`, PR #17; previously updated 2026-06-26 — added SubagentStop hooks; updated destructive_bash_gate, enforce_pr_workflow, no_edit_on_main descriptions)
 
 ## When to Use Which
 
