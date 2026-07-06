@@ -130,6 +130,8 @@ The `protected` check uses the GitHub API directly rather than relying on `gh pr
 
 **Review artifact gate is unconditional (added PR #82):** Unlike `enforce_pr_workflow` (which no-ops without `workflow.config.yaml`), the review artifact gate runs on every merge regardless of config. It is built into `merge.sh` directly, not into the hook. The enforcement ceiling note from [[enforcement-model]] still applies: the gate checks that the artifact exists and matches the SHA; it does not verify the review was substantive. (verified: `merge.sh`, [[review-artifact-seam]])
 
+**Eval artifact gate is also unconditional and additive (added PR #3 of the task-evals cluster, 2026-07-06):** Same unconditional posture as the review gate — no config opt-out, runs on every merge. It sits in the same `OPEN` branch directly after the review-artifact check, reusing the head SHA already resolved for that gate. Both gates must pass; neither substitutes for the other. Same honest-ceiling caveat: proves a structurally-valid, SHA-bound artifact with `result: GO` exists, not that the underlying evals were run honestly or that an `agent-run` verifier had a genuinely clean context. See [[task-evals-gate]].
+
 ## See also
 
 - [[post-review]] — the command that creates the review artifact this gate checks
