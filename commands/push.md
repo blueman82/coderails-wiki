@@ -2,9 +2,9 @@
 title: "/coderails:push"
 type: command
 created: 2026-06-25
-last_updated: 2026-06-26
-sources: [commands/push.md, scripts/push.sh, scripts/lib/git-common.sh, sources/pr_47_strictcode-skill-config.md]
-tags: [command, push, pr, commit, jira, strictcode, github]
+last_updated: 2026-07-06
+sources: [commands/push.md, scripts/push.sh, scripts/lib/git-common.sh, sources/pr_47_strictcode-skill-config.md, sources/pr_11-14_gate-hardening-followups.md]
+tags: [command, push, pr, commit, jira, strictcode, github, staging, untracked-files]
 ---
 
 # /coderails:push
