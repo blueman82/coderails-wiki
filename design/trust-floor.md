@@ -88,3 +88,5 @@ consumer-side `case` was missing the arm. Full detail in [[merge]]'s
   cluster) fixes the loop-scope tier-0 NO-GO precedence
 - [[pr_7-10_task-evals-followups]] — PR #8: the original comment-spoofing
   closure (`author_association == "OWNER"`) that PR #14 later widened
+- [[pr_21-22_loop2-suggestion-tier-followups]] — PR #21: adds the `tempfile`
+  case arm to `merge.sh`'s failure-reason vocabulary above
