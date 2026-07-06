@@ -185,4 +185,5 @@ gh pr merge
 - [[agentic-loop]] — Phase 2.7c (freeze loop-scope evals) and Phase 13 (unscored result reporting)
 - [[writing-plans]] — mandatory final eval-gate task (pr scope)
 - [[enforcement-model]] — the honest-ceiling framework this design sits within
-- [[pr_1-4_task-evals-feature]] — the cluster source page
+- [[pr_1-4_task-evals-feature]] — the original cluster source page (PRs #1–4)
+- [[pr_7-10_task-evals-followups]] — the follow-up cluster closing comment-spoofing/pagination and adding tier_justification-everywhere (PRs #7–10)
