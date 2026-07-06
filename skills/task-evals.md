@@ -6,7 +6,8 @@ last_updated: 2026-07-06
 sources:
   - sources/pr_1-4_task-evals-feature.md
   - sources/pr_7-10_task-evals-followups.md
-tags: [skill, task-evals, anti-gaming, evals-json, tiering, verify-criteria, oracle-independence, tier-justification]
+  - sources/pr_15-17_loop-hardening-registration-eval-freeze-ledger-dry.md
+tags: [skill, task-evals, anti-gaming, evals-json, tiering, verify-criteria, oracle-independence, tier-justification, eval-freeze]
 ---
 
 # Skill: task-evals
