@@ -71,7 +71,7 @@ Scope is `pr` or `loop`. Each eval carries an ID, `priority` (`P0` blocks the ga
 
 Two components consume this skill's output, both live from day one (owner choice, no advisory phase-in):
 
-- **`/merge` gate** (pr scope) — [[merge]] reads the artifact `/coderails:post-evals` posts, fail-closed, additive to the existing review-artifact gate.
+- **`/merge` gate** (pr scope) — [[merge]] reads the artifact `/coderails:post-evals` posts, fail-closed, additive to the existing review-artifact gate. The evals themselves are frozen at the writing-plans freeze-after-stress-test step, well before merge; `/coderails:post-evals` at the plan's final task only grades and posts the already-frozen artifact (see [[writing-plans]]).
 - **`loop_state_guard` gate** (loop scope) — [[loop_state_guard]] blocks `LOOP-STOP: complete` at ≥3 work-units without a passing loop-scope `evals.json`, fail-open when `work_units` is absent (legacy loop).
 
 Full architecture: [[task-evals-gate]].
