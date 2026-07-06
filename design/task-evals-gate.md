@@ -3,8 +3,6 @@ title: "Task-evals gate — dual-scope (pr + loop) enforcement over frozen, orac
 type: design
 created: 2026-07-06
 last_updated: 2026-07-06
-addenda:
-  - sources/pr_1-4_task-evals-feature.md#addendum-prs-5-6-follow-up-doc-drift--teamcreate-purge
 sources:
   - sources/pr_1-4_task-evals-feature.md
   - docs/coderails/specs/2026-07-03-task-evals-design.md
