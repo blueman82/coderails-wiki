@@ -144,3 +144,17 @@ For judgement evals, a fresh sonnet subagent is spawned to grade. Its prompt car
 - ~~**`install.sh`** does not yet reference `scripts/lib/eval-artifact.sh` or `scripts/post_evals.sh` by name in its own inventory/audit surface the way it does other core scripts — flagged, not fixed.~~ **Closed by PR #3** (`9ecbeae5`, 2026-07-06) — see addendum below.
 - **Hook-enforced from day one was a deliberate owner choice**, not a phase-in: `loop_state_guard.sh`'s work-unit threshold gate ships live in the same PR that adds it, with no separate "advisory period." Contrast with `enforce_pr_workflow`'s original transcript-evidence gate, which predated its own SHA-bound artifact successor by weeks.
 - **Hybrid grading is intentional**: scripted `cmd`/`negative_control` pairs for deterministic checks, `agent-run` mode with a fresh independent verifier for judgement calls — the schema supports both in the same `evals` array, and `post_evals.sh`'s structural refusals apply per-mode (e.g. check 3/4 only fire on `mode == "scripted"`).
+
+## Addendum: PRs #5–#6 (follow-up doc drift + TeamCreate purge)
+
+Two small follow-up PRs, merged the same day as the WU1–WU4 cluster above, both docs-only.
+
+### PR #5 (`task-evals/wu6-doc-drift`, merge SHA `574ecc3`)
+
+A `sync-docs` audit pass found the WU1–WU4 rollout had left drift in its own reference material: stale REFERENCE tables, a skill-count figure, the README catalogue, and a `/coderails:workflow` cross-reference. Title: "task evals/wu6 doc drift". Body (verbatim): "docs: fix task-evals rollout drift — REFERENCE tables, skill count, README catalogue, workflow ref (sync-docs audit)". A review finding on this PR additionally corrected the **pr-scope `evals.json` location row** in `docs/REFERENCE.md` — the table had the wrong path for where a pr-scope eval artifact's working file lives before it's posted.
+
+### PR #6 (`docs/teamcreate-final-purge`, merge SHA `7aab163`)
+
+The owner made a final call to remove the **last** literal `TeamCreate` trigger-phrase strings from coderails prose — including the two survivors WU4 (PR #4, above) deliberately preserved as "this is what a user might type" quotes in `agentic-loop`'s frontmatter `description` and `docs/REFERENCE.md`. Title: "docs/teamcreate final purge". Body (verbatim): "docs: remove last TeamCreate trigger-phrase strings (owner decision — full purge)". Those two remaining occurrences are now rewritten to natural equivalents — "create a team", "team of agents", "spawn a team" — completing the purge WU4 had left at "one legitimate user-phrasing trigger" by owner decision at the time; PR #6 revisits that decision and closes it out fully.
+
+Net effect: the TeamCreate/TeamDelete purge described under "Wiring (WU4, PR #4)" above is now complete with **zero** remaining literal-string references anywhere in coderails prose, not "one legitimate survivor."
