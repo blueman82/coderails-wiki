@@ -109,6 +109,7 @@ Not itself part of the `/workflow` chain directly — invoked as writing-plans' 
 - [[writing-plans]] — invokes this skill at the freeze-after-stress-test step (corrected from "final task" wording by [[pr_15-17_loop-hardening-registration-eval-freeze-ledger-dry|PR #15]]); the plan's actual final task only grades and posts
 - [[agentic-loop]] — invokes this skill at Phase 2.7c (loop scope)
 - [[review-artifact-seam]] — the predecessor truth-seam this design largely mirrors (marker SSOT, SHA-bound artifact, fail-closed gate)
+- [[loop-progress-fields]] — consolidating page for `work_units`, the field the loop-scope eval gate's `>=3` threshold reads
 - [[pr_1-4_task-evals-feature]] — the original cluster source record (PRs #1–4)
 - [[pr_7-10_task-evals-followups]] — the follow-up cluster: wiki-first prerequisite, comment-spoofing/pagination closure, tier_justification everywhere (PRs #7–10)
 - [[pr_15-17_loop-hardening-registration-eval-freeze-ledger-dry]] — PR #15: fixes the invocation-point wording that let freeze-before-build collapse into the final task
