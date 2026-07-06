@@ -2,9 +2,9 @@
 title: "/coderails:workflow"
 type: command
 created: 2026-06-25
-last_updated: 2026-06-30
-sources: [commands/workflow.md, sources/pr_47_strictcode-skill-config.md, sources/pr_81-83_review-artifact-seam.md]
-tags: [command, workflow, orchestrator, worktree, pr-review, wiki, jira, post-review, review-artifact]
+last_updated: 2026-07-06
+sources: [commands/workflow.md, sources/pr_47_strictcode-skill-config.md, sources/pr_81-83_review-artifact-seam.md, sources/pr_1-4_task-evals-feature.md]
+tags: [command, workflow, orchestrator, worktree, pr-review, wiki, jira, post-review, review-artifact, task-evals, eval-artifact]
 ---
 
 # /coderails:workflow
