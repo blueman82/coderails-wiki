@@ -62,6 +62,10 @@ trusted comment found," not a fetch failure; an actual permission-lookup
 failure fails closed, same posture as an identity-fetch failure. This
 distinction lives in [[merge]] and is not repeated here.
 
+## Org-repo probe record (2026-07-06)
+
+Live probe of `gh repo view <org-repo> --json viewerPermission` from the owner's token against two organisation-owned public repos (`cli/cli`, `github/docs`): both returned `{"viewerPermission":"READ"}` — the field exists and returns a sane enum value on org-owned repos for a non-member. This closes the field-availability half of the org-repo question left open at [[pr_11-14_gate-hardening-followups|PR #14]]. Still unverified (requires org membership): that a member with write access on an org repo receives `WRITE`/`MAINTAIN`/`ADMIN`; the gate's fail-closed lookup behaviour covers a surprise there (an unexpected value denies trust rather than granting it).
+
 ## Failure-reason vocabulary (extended PR #21)
 
 `PR_TRUST_FETCH_FAIL_REASON`, the variable `merge.sh`'s error-message split
