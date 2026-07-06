@@ -2,7 +2,7 @@
 title: "Hook: loop_stall_guard.sh"
 type: hook
 created: 2026-06-25
-last_updated: 2026-07-05
+last_updated: 2026-07-06
 sources:
   - sources/session_2026-06-25_agentic-loop-upgrade-arc.md
   - sources/pr_49_gate-function-rename.md
