@@ -115,8 +115,8 @@ als_gate_no_transcript → als_gate_stop_loop → als_gate_require_active_loop
 ### Block condition
 
 When the three loop-complete conditions hold AND `ALS_WORK_UNIT_COUNT >= 3`: reads the loop evals result.
-- `GO` or `TIER0` → allow, logged.
-- `NO-GO` or `ABSENT` → **block** (exit 2), pointing at `/coderails:task-evals` (or a justified tier-0 exemption).
+- `GO` or a justified `TIER0` (no `result` recorded) → allow, logged.
+- `NO-GO` (including an explicit `NO-GO` at tier 0 — [[pr_11-14_gate-hardening-followups|PR #11]]) or `ABSENT` → **block** (exit 2), pointing at `/coderails:task-evals` (or a justified tier-0 exemption).
 
 Below the 3-unit threshold: allow unconditionally, logged `evals=skipped-below-threshold`. `loop_stall_guard.sh` (C2) is untouched — this entire gate lives in C1.
 
