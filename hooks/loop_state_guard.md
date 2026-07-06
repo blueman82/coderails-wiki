@@ -103,3 +103,5 @@ This hook only ever sees a loop **after** it has registered a `progress.json` �
 - [[pr_1-4_task-evals-feature]] — PR #2 source record: the loop-scope eval gate added to this hook
 - [[pr_11-14_gate-hardening-followups]] — PR #11 source record: explicit NO-GO now wins over the tier-0 exemption
 - [[pr_15-17_loop-hardening-registration-eval-freeze-ledger-dry]] — PR #17 source record: the sibling unregistered-loop nudge hook this blind spot motivated
+- [[agentic-loop-path-keying]] — design page for the repo-keyed slug scheme (PR #24)
+- [[pr_23-24_hook-lib-observability-and-repo-keyed-loop-state]] — PR #24 source record: repo-keyed slug closing the worktree-hop orphaning bug; PR #23 (same cluster): hook-lib failure-observability rework, unrelated to this hook directly but shares the cluster
