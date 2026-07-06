@@ -104,8 +104,11 @@ The `allowed-tools` frontmatter pre-authorises `/engineering-principles-go` and 
 - [[prep]] — Phase 1 delegate
 - [[push]] — Phase 4 delegate
 - [[post-review]] — Phase 3 end: the review artifact command (added PR #83)
-- [[merge]] — Phase 6 delegate (now gate-checks the artifact)
-- [[review-artifact-seam]] — design page for the full truth-seam architecture
+- [[post-evals]] — Phase 3 end: the eval artifact command (added 2026-07-06)
+- [[merge]] — Phase 6 delegate (now gate-checks both artifacts)
+- [[review-artifact-seam]] — design page for the full truth-seam architecture (review artifact)
+- [[task-evals-gate]] — design page for the dual-scope eval-gate architecture
+- [[task-evals]] — the skill that generates the evals.json
 - [[config-resolution]] — walk-up config resolver
 - [[agentic-loop]] — uses /workflow as a subroutine
 - [[enforcement-model]] — why commands are advisory, not enforcing
