@@ -131,7 +131,7 @@ Below the 3-unit threshold: allow unconditionally, logged `evals=skipped-below-t
 | loop-scope Stop gate | `work_units` absent (legacy loop) | Allow (fail-open) |
 | loop-scope Stop gate | `jq` missing | Allow (fail-open, distinct log reason) |
 | loop-scope Stop gate | `work_units >= 3`, no/malformed/non-loop-scope `evals.json` | Block (`ABSENT`) |
-| loop-scope Stop gate | `work_units >= 3`, `evals.json` result `NO-GO` | Block |
+| loop-scope Stop gate | `work_units >= 3`, `evals.json` result `NO-GO` (any tier, including tier 0 — PR #11) | Block |
 | loop-scope Stop gate | `work_units >= 3`, `tier_justification` blank/whitespace-only (any tier) | Block (`UNJUSTIFIED`, PR #10) |
 | loop-scope Stop gate | `work_units >= 3`, `evals.json` result unrecognised value | Block (`reason=unrecognised_evals_result`, PR #10, fail-closed catch-all) |
 | loop-scope Stop gate | `work_units >= 3`, `evals.json` result `GO` or justified `TIER0` | Allow |
