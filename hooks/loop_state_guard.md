@@ -92,6 +92,7 @@ This hook only ever sees a loop **after** it has registered a `progress.json` �
 
 - [[loop_stall_guard]] — C2: requires a `LOOP-STOP` declaration when active+incomplete; shares loop-active detection via `loop_state_common.sh`; untouched by the task-evals gate addition
 - [[unregistered_loop_guard]] — new sibling Stop hook (PR #17): nudges when a loop looks unregistered (no `progress.json` this hook could otherwise gate on)
+- [[hook-exit-codes]] — this hook blocks via plain `exit 2` on `Stop`, the mechanism this page's table documents
 - [[agentic-loop]] — the skill that creates and maintains `progress.json`; Phase -2 is the stub-first contract this hook enforces; Phase 2.7c freezes the loop-scope `evals.json` this hook reads
 - [[task-evals]] — the skill that generates the `evals.json` this hook's gate consumes
 - [[task-evals-gate]] — design page for the full dual-scope (pr + loop) eval-gate architecture
