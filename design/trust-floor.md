@@ -62,6 +62,20 @@ trusted comment found," not a fetch failure; an actual permission-lookup
 failure fails closed, same posture as an identity-fetch failure. This
 distinction lives in [[merge]] and is not repeated here.
 
+## Failure-reason vocabulary (extended PR #21)
+
+`PR_TRUST_FETCH_FAIL_REASON`, the variable `merge.sh`'s error-message split
+switches on, carries four values: `identity` (PR #14), `permission` (PR #14),
+`comments` (generic gh-fetch failure), and `tempfile`
+([[pr_21-22_loop2-suggestion-tier-followups|PR #21]], merged 2026-07-06,
+`d0e4c5a`). `tempfile` fires when `pr::_trusted_comment_bodies_or_fail`'s own
+`mktemp` call fails — this precedes any `gh` API call, so `merge.sh` gives it
+a dedicated case arm on both gates rather than folding it into the generic
+"GitHub fetch failed" fallback, which would misname the cause. The variable
+was already being set for this case before PR #21; only `merge.sh`'s
+consumer-side `case` was missing the arm. Full detail in [[merge]]'s
+"Error-message split for fetch failures" section.
+
 ## See also
 
 - [[merge]] — **SSOT** for the mechanism itself (the `viewerPermission` call,
