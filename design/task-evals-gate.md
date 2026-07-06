@@ -142,7 +142,7 @@ This gate proves a durable, SHA-bound (pr scope) or path-bound (loop scope), str
 
 - **Comment-spoofing trust model** — inherited wholesale from the review-artifact gate; a sufficiently motivated cooperating agent could, in principle, post a structurally-valid artifact without the evals genuinely having been run as described. Owner decision pending.
 - **`gh` comment pagination** — the newest-wins scan does not paginate; a PR with enough comments to span pages could miss an older page's marker. Same latent gap as the review-artifact reader.
-- **`install.sh` inventory gap** — does not yet name `scripts/lib/eval-artifact.sh` or `scripts/post_evals.sh` in its own audit surface the way it tracks other core scripts.
+- ~~**`install.sh` inventory gap** — does not yet name `scripts/lib/eval-artifact.sh` or `scripts/post_evals.sh` in its own audit surface the way it tracks other core scripts.~~ **Closed by [[pr_1-4_task-evals-feature|PR #3]]** (`9ecbeae5`, 2026-07-06) — `install.sh`'s script-chmod loop now lists both files (verified: `install.sh:332`).
 
 ## Owner decisions recorded
 
