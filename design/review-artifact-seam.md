@@ -9,7 +9,8 @@ sources:
   - sources/pr_92_exec-bit-sweep.md
   - sources/pr_93-94_post-review-injection-and-exec-bit-invariant.md
   - sources/pr_7-10_task-evals-followups.md
-tags: [design, review-artifact, merge-gate, truth-seam, sha-bound, enforcement, post-review, comment-spoofing]
+  - sources/pr_11-14_gate-hardening-followups.md
+tags: [design, review-artifact, merge-gate, truth-seam, sha-bound, enforcement, post-review, comment-spoofing, trust-floor, viewerPermission]
 ---
 
 # Review-artifact truth seam
