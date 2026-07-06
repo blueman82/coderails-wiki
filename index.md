@@ -104,6 +104,7 @@ Skills in `coderails/skills/*/SKILL.md`.
 | `task-evals` | Generates and freezes a tiered `evals.json` (pr or loop scope) for the task-evals merge gate | [[task-evals]] |
 | `engineering-principles` (+3 language sub-skills: go/python/ts) | Enforces YAGNI/KISS/DRY/Fail-Fast/SSOT/Law-of-Demeter; per-language dispatch | [[engineering-principles]] (+ [[engineering-principles-python]] / [[engineering-principles-go]] / [[engineering-principles-ts]]) |
 | `sync-docs` | Audits in-tree docs (README/AGENTS.md/docs/) for drift; user-level skill, not part of coderails itself; invoked at agentic-loop Phase 9 | [[sync-docs]] |
+| `dashboard` | Live local observability HUD (Next.js/R3F web + Obsidian command centre); sub-project 1 of 5 in the agentic-OS evolution | [[dashboard]] |
 
 ---
 
