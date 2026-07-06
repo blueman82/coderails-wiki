@@ -103,6 +103,7 @@ Default argument is `auto`: resolves the PR from the current branch name.
   - `pr::head_sha` — fetches current head SHA for the PR (added PR #82)
   - `pr::has_coderails_review_for_head` — exact marker match against PR comments (added PR #82; exit codes 0/1/2)
   - `pr::has_coderails_eval_for_head` — newest-artifact-wins marker match against PR comments for the eval gate (added PR #3 of the task-evals cluster; exit codes 0/1/2; sets `PR_EVAL_TIER` on a match, unset at entry so it can't leak from a prior call)
+  - `pr::_trusted_comment_bodies_or_fail` — wraps the trust-filtered comment fetch both gate readers call; recovers `PR_TRUST_FETCH_FAIL_REASON` (`identity`/`permission`/`comments`/`tempfile`) into the caller's shell for the error-message split (added PR #14)
   - `branch` / `main` — current and default branch detection
 - `scripts/lib/review-artifact.sh` — marker SSOT, sourced transitively by `git-common.sh` (added PR #82)
 - `scripts/lib/eval-artifact.sh` — marker SSOT for the eval artifact, sourced transitively by `git-common.sh` (added PR #3 of the task-evals cluster); also `eval_artifact::compute_go`, the sole place `result` is derived from per-eval P0 statuses
