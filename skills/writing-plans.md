@@ -2,7 +2,7 @@
 title: "Skill: writing-plans"
 type: skill
 created: 2026-06-25
-last_updated: 2026-06-26
+last_updated: 2026-07-06
 sources:
   - sources/session_2026-06-25_agentic-loop-upgrade-arc.md
   - sources/pr_50_planning-sequence-gate.md
@@ -11,7 +11,7 @@ tags: [skill, writing-plans, planning, decomposition, artifact-chain]
 
 # Skill: writing-plans
 
-The plan-writing skill for the agentic-loop's Phase 2.8. Turns a resolved spec/design into an ordered set of self-contained tasks, each dispatchable to a worker without re-reading the conversation. Coderails-owned; no cross-plugin dependency.
+The plan-writing skill for the agentic-loop's Phase 2.7b (formerly Phase 2.8, merged into Phase 2.7 by PR #86). Turns a resolved spec/design into an ordered set of self-contained tasks, each dispatchable to a worker without re-reading the conversation. Coderails-owned; no cross-plugin dependency.
 
 Source: `coderails/skills/writing-plans/SKILL.md`
 Companion: `coderails/skills/writing-plans/plan-anti-patterns.md`
