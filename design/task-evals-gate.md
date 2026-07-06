@@ -79,7 +79,7 @@ Full detail on [[task-evals]]. Named here because they're what the two enforceme
 ### Structural refusals (`post_evals::validate_structure`, 7 checks)
 
 1. File exists + valid JSON.
-2. Tier 0 requires non-empty `tier_justification`.
+2. Every tier requires a non-blank `tier_justification` (owner directive, [[pr_7-10_task-evals-followups|PR #10]]: tightened from tier-0-only to all tiers — see "tier_justification required at every tier" below).
 3. Tier ≥1 scripted eval requires non-empty `negative_control`.
 4. `negative_control` must not be vacuous relative to `cmd` — whitespace-normalised equality **plus** a word-bounded containment check (catches `"true; cmd"`, `"echo x && cmd"` wrapper tricks) without false-flagging a genuinely distinct control sharing a text prefix. This is a **structural** floor, not a semantic one — a genuinely-distinct-but-still-vacuous control (passes for unrelated reasons) still clears this check; semantic quality is the verifier/human review layer's job.
 5. Any P0 eval requires non-empty `evidence`.
