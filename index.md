@@ -124,7 +124,7 @@ Architectural decisions and invariants.
 - [[history-identity-scrub]] — how to erase a stale commit-author identity from a GitHub repo's history so no clone method (normal or `--mirror`) recovers it; the `refs/pull/*` trap that makes a `filter-repo` rewrite alone insufficient; delete-and-recreate is the only complete fix; the three purity invariants; post-rewrite branch-pruning caveat
 - [[task-evals-gate]] — dual-scope (pr + loop) merge gate over frozen, oracle-independent success evals; second independent enforcement axis alongside [[review-artifact-seam]]
 - [[loop-progress-fields]] — consolidating page for `progress.json`'s `work_units` (orchestrator-owned) and `loop_stop_counts` (hook-owned) fields
-- [[trust-floor]] — consolidating page for the trust-floor/OWNER-permission model (PR #14); SSOT for the mechanism remains [[merge]]
+- [[trust-floor]] — consolidating page for the trust-floor/OWNER-permission model (PR #14, extended with the `tempfile` reason by PR #21); SSOT for the mechanism remains [[merge]]
 
 ---
 
