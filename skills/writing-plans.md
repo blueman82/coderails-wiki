@@ -99,3 +99,6 @@ The per-task construction step in this skill references `coderails:test-driven-d
 - [[test-driven-development]] — referenced in per-task construction step (E→D tie)
 - [[agentic-loop]] — Phase 2.7b (formerly 2.8) invokes this skill; Phase 3 consumes the output
 - [[spec-plan-progress-artifact-chain]] — how `plan.md` fits in the full artifact chain
+- [[task-evals]] — the skill invoked at the freeze-after-stress-test step (F2 fix, PR #15)
+- [[subagent-driven-development]] — gained a Pre-Flight Plan Review bullet asserting evals are already frozen before Task 1 dispatch (F2 belt-and-braces, PR #15)
+- [[pr_15-17_loop-hardening-registration-eval-freeze-ledger-dry]] — PR #15 source record: the freeze-timing restructure
