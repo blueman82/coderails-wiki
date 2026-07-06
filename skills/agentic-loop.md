@@ -251,7 +251,7 @@ See [[enforce_pr_workflow]] for how it recognises Skill invocations. See [[revie
 Phase 9 now has two steps at the loop boundary:
 
 1. **Wiki ingest + lint** (the existing cluster step) — updates the external knowledge base ([[wiki-ingest]] + [[wiki-lint]]). Runs once per loop, not per PR.
-2. **`/sync-docs` docs-drift check** (added PR #77) — audits the repo's own in-tree docs (README.md, AGENTS.md, docs/REFERENCE.md, etc.) for drift against the just-merged code.
+2. **[[sync-docs|`/sync-docs`]] docs-drift check** (added PR #77) — audits the repo's own in-tree docs (README.md, AGENTS.md, docs/REFERENCE.md, etc.) for drift against the just-merged code. Note: this is a user-level skill (`~/.claude/skills/sync-docs`), not part of the coderails plugin itself — see [[sync-docs]] for the location detail.
 
 **The critical distinction:** wiki ingest is external-KB maintenance; `/sync-docs` is in-tree-docs maintenance. These are complementary, not redundant. Both run once at the loop boundary; wiki ingest runs first.
 
