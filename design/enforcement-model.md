@@ -2,7 +2,7 @@
 title: Enforcement Model
 type: design
 created: 2026-05-30
-last_updated: 2026-07-01
+last_updated: 2026-07-06
 sources:
   - commands/workflow.md
   - CLAUDE.md
@@ -10,6 +10,7 @@ sources:
   - sources/pr_43_rough-edges.md
   - sources/pr_57-62_subagent-enforcement-gate-hardening.md
   - sources/pr_86_agentic-loop-hardening.md
+  - sources/pr_15-17_loop-hardening-registration-eval-freeze-ledger-dry.md
 tags:
   - hooks
   - enforcement
