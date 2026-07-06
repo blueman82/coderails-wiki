@@ -67,6 +67,17 @@ edits — no code, no tests, per the spec's own carve-out (verified: PR body).
    of `hooks/scripts/lib/agentic_loop_path.sh`, pointing at `coderails:using-git-worktrees` as the
    resolution — no locking machinery was built (rejected as disproportionate complexity for a rare,
    unsupported-configuration failure mode).
+
+   **Superseded 2026-07-06 by [[pr_23-24_hook-lib-observability-and-repo-keyed-loop-state|PR #24]]**:
+   the calculus changed once the shared-checkout workflow began *prescribing* mid-session
+   `EnterWorktree` hops, and a live orphaning incident (a worktree hop silently splitting a loop's
+   state onto a new cwd-keyed path) showed "just use worktrees" was itself a new failure mode this
+   point didn't anticipate. PR #24 repo-keys the slug via `git --git-common-dir` instead — a ~15ms
+   keying change, not the locking machinery rejected above. The two decisions aren't in tension:
+   this point rejected a heavy mechanism for a narrower problem (concurrent-session collision); PR
+   #24 ships a light mechanism for the problem the later workflow shift actually created (worktree-hop
+   orphaning). See [[agentic-loop-path-keying]] for the full design. Historical text above preserved
+   as the record of what was decided at the time.
 7. **Replace 3 stale memory-file citations** — `SKILL.md` cited `feedback_wiki_ingest_and_lint_post_merge`,
    `feedback_parallel_wiki_agents`, and `feedback_three_parallel_adversarial_agents` by name; none
    existed in the design author's memory directory at design time. Each citation was replaced with
