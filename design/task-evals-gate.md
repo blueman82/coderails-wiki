@@ -191,4 +191,5 @@ gh pr merge
 - [[pr_1-4_task-evals-feature]] — the original cluster source page (PRs #1–4)
 - [[pr_7-10_task-evals-followups]] — the follow-up cluster closing comment-spoofing/pagination and adding tier_justification-everywhere (PRs #7–10)
 - [[pr_11-14_gate-hardening-followups]] — the gate-hardening cluster: explicit NO-GO wins at tier 0 (#11), HOME-sandboxed install test (#12), push.sh staging fix (#13), trust-floor widened to a permission check + merge.sh error-message split (#14)
-- [[trust-floor]] — consolidating concept page for the trust-floor/OWNER-permission model this gate's comment-fetch reader relies on (SSOT for the mechanism is [[merge]])
+- [[trust-floor]] — consolidating concept page for the trust-floor/OWNER-permission model this gate's comment-fetch reader relies on (SSOT for the mechanism is [[merge]]); extended with the `tempfile` failure-reason case by PR #21
+- [[pr_21-22_loop2-suggestion-tier-followups]] — Loop 2 follow-up: merge.sh's `tempfile` case arm (shared fetch helper, both gates) + test-coverage completions for `loop_state_guard_evals.test.sh` (final-else NO-GO fixture) and `install_mode_sweep.test.sh`
