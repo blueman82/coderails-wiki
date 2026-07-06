@@ -62,12 +62,14 @@ Gates 1–4 are implemented as named `als_gate_*` functions in `loop_state_commo
 
 ## progress.json schema fields (C1 adds)
 
-`schema_version`, `session_id`, `status` (`initialising` | `in-progress` | `complete`), `created`, `last_updated`, `completed_marker`.
+`schema_version`, `session_id`, `status` (`initialising` | `in-progress` | `complete`), `created`, `last_updated`, `completed_marker`. Plus (task-evals cluster): `work_units` — a JSON object keyed by unit id, each entry carrying at least a `status`; this hook reads `.work_units | length` off it to decide whether the ≥3-unit eval threshold applies. Fail-open when absent (legacy loops predating this field never block on it).
 
 ## Log output
 
 Appends a `key=value` line to `$CLAUDE_DISCIPLINE_LOG`:
 `hook=loop_state_guard session=<id> invocations=<n> status=<s> owned=<0|1> reason=<r> blocked=<0|1>`
+
+The eval-gate check logs its own line shape: `hook=loop_state_guard session=<id> work_units=<n> evals=<GO|TIER0|NO-GO|ABSENT|skipped-below-threshold|skipped> blocked=<0|1>` — plus a distinct `reason=jq_missing` variant when `jq` is unavailable, kept separate from the "file genuinely absent" case in the audit trail.
 
 ## Known limitations
 
