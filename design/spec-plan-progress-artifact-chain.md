@@ -126,6 +126,7 @@ Considered (2026-07-03) and rejected: moving `loop_state_guard`/`loop_stall_guar
 ## See also
 
 - [[agentic-loop]] — the skill that produces and consumes the chain
+- [[loop-progress-fields]] — consolidating concept page for `work_units` and `loop_stop_counts`, the two `progress.json` fields this page's chain carries
 - [[loop_state_guard]] · [[loop_stall_guard]] — the two hooks
 - [[writing-plans]] · [[test-driven-development]] — the two vendored skills (E→D tie)
 - [[enforcement-model]] — hooks (mechanical) vs. commands/skills (advisory)
