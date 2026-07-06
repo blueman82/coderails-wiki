@@ -4,7 +4,7 @@ type: source
 created: 2026-07-06
 last_updated: 2026-07-06
 sources: []
-tags: [task-evals, evals-json, anti-gaming, merge-gate, loop-gate, eval-artifact, post-evals, agentic-loop, writing-plans, teamcreate-purge]
+tags: [task-evals, evals-json, anti-gaming, merge-gate, loop-gate, eval-artifact, post-evals, agentic-loop, writing-plans, teamcreate-purge, doc-drift, sync-docs]
 ---
 
 # PRs #1–4 — task-evals feature
