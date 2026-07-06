@@ -79,7 +79,7 @@ Skills in `coderails/skills/*/SKILL.md`.
 |---|---|---|
 | `agentic-loop` | Multi-PR autonomous sessions; sits above `/workflow` | [[agentic-loop]] |
 | `test-driven-development` | Worker construction discipline (red-green-refactor); code-guarded | [[test-driven-development]] |
-| `writing-plans` | Turn a resolved spec into a durable task-by-task `plan.md` (Phase 2.8) | [[writing-plans]] |
+| `writing-plans` | Turn a resolved spec into a durable task-by-task `plan.md` (Phase 2.7b, formerly 2.8) | [[writing-plans]] |
 | `handoff` | Generates memory file + continuation prompt for next session | [[handoff]] |
 | `improve-prompt` | Rewrites underspecified prompts using 7 diagnostic foundations; Phase -1 of agentic-loop | [[improve-prompt]] |
 | `planning-sequence` | Pre-Parade → Premortem → Red Team on a plan | [[planning-sequence]] |
