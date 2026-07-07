@@ -2,10 +2,11 @@
 title: "Skill: dashboard"
 type: skill
 created: 2026-07-06
-last_updated: 2026-07-06
+last_updated: 2026-07-07
 sources:
   - sources/pr_25_observability-dashboard.md
-tags: [skill, dashboard, observability, nextjs, r3f, sse, obsidian, agentic-os, sub-project-1-of-5]
+  - sources/pr_43-44-46_workflow-audit-queue-seam.md
+tags: [skill, dashboard, observability, nextjs, r3f, sse, obsidian, agentic-os, sub-project-1-of-5, queue-contract]
 ---
 
 # Skill: dashboard
