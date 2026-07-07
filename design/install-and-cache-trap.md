@@ -127,6 +127,8 @@ Fix: `HOME` is redirected to a freshly-`mktemp`'d sandbox directory for the dura
 
 Everything above is about coderails' *own* local-directory dev loop (repo vs. cache within this one machine's coderails checkout). A distinct but related gap exists for any **downstream consumer** that installs coderails via the marketplace rather than developing it directly: assistant-agent's live hook-fire probe (2026-07-06) found its installed plugin cache stuck at version `1.0.0` (`autoUpdates: false` at the time) for roughly two weeks, missing `no_edit_on_main.sh`/`enforce_pr_workflow.sh`/loop-guard hooks that source had long since gained. Unlike the trap documented above, there was no local edit to diff against — the consumer has no visibility into how stale its cached install is relative to the published source, short of an explicit version check. The plugin self-updated overnight once `autoUpdates` allowed it, closing the gap silently. See [[assistant-link-send-gate-architecture]] for the full finding and the dynamic-path-resolution fix this prompted in assistant-agent's own test suite.
 
+The same update also changed [[agentic-loop-path-keying]]'s slug scheme underneath any session still on the old cache (1.0.0 predates that keying change entirely) — a second, undocumented-until-now migration gap this one auto-update triggered. See that page's caveats section for the mechanism and workaround.
+
 ## Cross-References
 
 - [[enforcement-model]] — hooks only enforce what the cache contains
