@@ -6,7 +6,8 @@ last_updated: 2026-07-07
 sources:
   - sources/pr_28_assistant-link-queue-contract-and-panel-spec.md
   - sources/pr_31_assistant-link-approve-button.md
-tags: [design, assistant-agent, send-gate, queue, dashboard, agentic-os, sub-project-4-of-5, plugin-cache]
+  - sources/pr_62_10_approvals-dir-move.md
+tags: [design, assistant-agent, send-gate, queue, approvals, dashboard, agentic-os, sub-project-4-of-5, plugin-cache]
 ---
 
 # ASSISTANT.LINK send-gate architecture
