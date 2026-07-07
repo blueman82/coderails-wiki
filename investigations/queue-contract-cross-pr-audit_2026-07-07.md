@@ -33,6 +33,15 @@ tags: [investigation, queue-contract, dashboard, workflow-audit, send-gate, assi
 > every `queue/` reference describing **workflow-audit's proposal path**
 > (producer 2) is still accurate — that seam did not move. See
 > [[pr_62_10_approvals-dir-move]] for the full record.
+>
+> ✅ **UPDATE (2026-07-07, later still):** Gap #3 below (PR #36 / the routines
+> sub-project having no wiki page) is now **closed** — see
+> [[pr_36-41-33-53-65_verified-routines]] and its four new pages
+> ([[intent-queue-runner-contract]], [[dashboard-runner]], [[routines]],
+> [[memory-consolidation]]). The routines *runner* this investigation
+> described as the still-unbuilt consumer of WU3's consumption-seam contract
+> is now built and documented. Left as-written below; only this banner and
+> the Gap #3 status line are new.
 
 # Queue contract cross-PR audit — workflow-audit, dashboard approval pipeline, send-gate
 
