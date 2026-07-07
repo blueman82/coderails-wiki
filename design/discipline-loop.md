@@ -131,15 +131,16 @@ The **Stop hooks** enforce a *floor* that is intentionally lower than the prose 
 
 **What this means in practice:** following the hook floor is necessary but not sufficient. A response can satisfy both hooks (≥1 label, no file-named DNV bullet) while still falling short of the prose standard (many unlabelled claims, no DNV section at all on a file-editing response). The prose standard is the real target. The hooks are the backstop for clear failures.
 
-## The Stop hook composition (5 Stop hooks; 2 SubagentStop hooks; 14 hooks total across all events)
+## The Stop hook composition (6 Stop hooks; 2 SubagentStop hooks; 15 hooks total across all events)
 
-The coderails Stop hook array has five hooks, running in order:
+The coderails Stop hook array has six hooks, running in order:
 
-1. `check_confidence_labels` — confidence labels gate
-2. `check_verify_loop` — DNV resolution gate
-3. `loop_state_guard` — `progress.json` presence/ownership gate (agentic-loop sessions only)
-4. `loop_stall_guard` — `LOOP-STOP` declaration gate (agentic-loop sessions only)
-5. `unregistered_loop_guard` — nudge (never blocks) when a loop looks unregistered: ≥3 distinct agent-dispatch turns, no `progress.json`, no `agentic-loop` Skill invocation (added PR #17, [[pr_15-17_loop-hardening-registration-eval-freeze-ledger-dry]])
+1. `voice_announce` — **observe-only, always exits 0** — speaks a loop lifecycle event (complete / waiting / stopped / stall) via macOS `say`; runs first specifically because it cannot affect the other gates and must not be short-circuited by one of them (added PR #71, [[pr_70-71_2026-07-07_dashboard-input-fix-and-voice-announcements]]; see [[voice_announce]])
+2. `check_confidence_labels` — confidence labels gate
+3. `check_verify_loop` — DNV resolution gate
+4. `loop_state_guard` — `progress.json` presence/ownership gate (agentic-loop sessions only)
+5. `loop_stall_guard` — `LOOP-STOP` declaration gate (agentic-loop sessions only)
+6. `unregistered_loop_guard` — nudge (never blocks) when a loop looks unregistered: ≥3 distinct agent-dispatch turns, no `progress.json`, no `agentic-loop` Skill invocation (added PR #17, [[pr_15-17_loop-hardening-registration-eval-freeze-ledger-dry]])
 
 The SubagentStop hook array has two hooks (wired PR #57):
 1. `check_confidence_labels` — reads `.last_assistant_message`; same MIN_LEN/label logic as Stop
