@@ -206,10 +206,13 @@ worth naming so a future query doesn't waste a pass assuming co-location:
 
 - [[dashboard]] — sub-project 1; button/run security model, Obsidian
   command-centre queue-writing interim path
-- [[workflow-audit]] — sub-project 3; current `AskUserQuestion` gate, pending
-  queue-mode work (WU1–WU3, not yet PR'd as of this writing)
-- [[pr_25_observability-dashboard]] / [[pr_27-39_workflow-audit-skill]] —
-  source records for the two skills
+- [[workflow-audit]] — sub-project 3; current `AskUserQuestion` gate plus, as
+  of [[pr_43-44-46_workflow-audit-queue-seam]], the queue-mode second surface
+  this investigation originally found pending (WU1–WU3, not yet PR'd as of
+  this writing — since closed)
+- [[pr_25_observability-dashboard]] / [[pr_27-39_workflow-audit-skill]] /
+  [[pr_43-44-46_workflow-audit-queue-seam]] — source records for the two
+  skills plus this cluster's queue-mode follow-up
 - assistant-agent-wiki `capabilities/send-gate.md` — the gate that
   originates one of the two queue producers (separate vault, not
   cross-linkable via `[[...]]` from here)
