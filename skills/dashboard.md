@@ -6,6 +6,7 @@ last_updated: 2026-07-07
 sources:
   - sources/pr_25_observability-dashboard.md
   - sources/pr_43-44-46_workflow-audit-queue-seam.md
+  - sources/pr_36-41-33-53-65_verified-routines.md
 tags: [skill, dashboard, observability, nextjs, r3f, sse, obsidian, agentic-os, sub-project-1-of-5, queue-contract]
 ---
 
