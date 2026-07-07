@@ -233,6 +233,8 @@ worth naming so a future query doesn't waste a pass assuming co-location:
 - [[pr_25_observability-dashboard]] / [[pr_27-39_workflow-audit-skill]] /
   [[pr_43-44-46_workflow-audit-queue-seam]] — source records for the two
   skills plus this cluster's queue-mode follow-up
+- [[pr_36-41-33-53-65_verified-routines]] — source record for sub-project 2
+  (routines), which closed Gap #3 below
 - assistant-agent-wiki `capabilities/send-gate.md` — the gate that
   originates one of the two queue producers (separate vault, not
   cross-linkable via `[[...]]` from here)
