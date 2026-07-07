@@ -7,6 +7,7 @@ sources:
   - sources/pr_28_assistant-link-queue-contract-and-panel-spec.md
   - sources/pr_31_assistant-link-approve-button.md
   - sources/pr_62_10_approvals-dir-move.md
+  - sources/pr_36-41-33-53-65_verified-routines.md
 tags: [design, assistant-agent, send-gate, queue, approvals, dashboard, agentic-os, sub-project-4-of-5, plugin-cache]
 ---
 
