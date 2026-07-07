@@ -9,7 +9,7 @@ sources:
   - sources/pr_36-41-33-53-65_verified-routines.md
   - sources/pr_55-60-64-66-67_approve-build-runner.md
   - sources/pr_70-71_2026-07-07_dashboard-input-fix-and-voice-announcements.md
-tags: [skill, dashboard, observability, nextjs, r3f, sse, obsidian, agentic-os, sub-project-1-of-5, queue-contract, builder]
+tags: [skill, dashboard, observability, nextjs, r3f, sse, obsidian, agentic-os, sub-project-1-of-5, queue-contract, builder, ask-button, argv]
 ---
 
 # Skill: dashboard
