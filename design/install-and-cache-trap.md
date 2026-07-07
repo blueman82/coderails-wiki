@@ -123,6 +123,10 @@ Fix: `HOME` is redirected to a freshly-`mktemp`'d sandbox directory for the dura
 
 **General lesson**: a test that shells out to a real installer/setup script needs every environment variable that script writes through sandboxed, not just the first one identified — `MEMORY_TARGET` alone looked sufficient until `$HOME` itself turned out to be the actual leak path.
 
+## The marketplace-consumer analogue (assistant-agent, sub-project 4)
+
+Everything above is about coderails' *own* local-directory dev loop (repo vs. cache within this one machine's coderails checkout). A distinct but related gap exists for any **downstream consumer** that installs coderails via the marketplace rather than developing it directly: assistant-agent's live hook-fire probe (2026-07-06) found its installed plugin cache stuck at version `1.0.0` (`autoUpdates: false` at the time) for roughly two weeks, missing `no_edit_on_main.sh`/`enforce_pr_workflow.sh`/loop-guard hooks that source had long since gained. Unlike the trap documented above, there was no local edit to diff against — the consumer has no visibility into how stale its cached install is relative to the published source, short of an explicit version check. The plugin self-updated overnight once `autoUpdates` allowed it, closing the gap silently. See [[assistant-link-send-gate-architecture]] for the full finding and the dynamic-path-resolution fix this prompted in assistant-agent's own test suite.
+
 ## Cross-References
 
 - [[enforcement-model]] — hooks only enforce what the cache contains
