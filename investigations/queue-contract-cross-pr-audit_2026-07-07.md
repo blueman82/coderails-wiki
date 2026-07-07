@@ -45,10 +45,11 @@ consumer safely:
    externally-flipped `status`. This is one of three approval surfaces
    documented in [[capabilities/send-gate]] (assistant-agent-wiki) — terminal,
    Telegram, and this dashboard queue file.
-2. **workflow-audit's proposed queue-mode** (not yet built — see Gaps below)
-   — the live task list at time of this query (WU1/WU2/WU3) is adding a
-   *second* writer for skill-creation proposals, reusing the identical file
-   shape rather than inventing a parallel mechanism.
+2. **workflow-audit's queue-mode** (at time of this query: not yet built — see
+   Gaps below; **shipped later the same day as PRs #43/#44/#46**, see
+   [[pr_43-44-46_workflow-audit-queue-seam]]) — a *third* writer for
+   skill-creation proposals, reusing the identical file shape rather than
+   inventing a parallel mechanism.
 
 **Nothing in either the design spec or the shipped code prevents hash
 collision or cross-talk between the two producers** beyond the fact that
