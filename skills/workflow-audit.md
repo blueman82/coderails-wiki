@@ -6,7 +6,8 @@ last_updated: 2026-07-07
 sources:
   - sources/pr_27-39_workflow-audit-skill.md
   - sources/pr_43-44-46_workflow-audit-queue-seam.md
-tags: [skill, workflow-audit, skill-creator, privacy, transcripts, agentic-os, sub-project-3-of-5, queue-contract]
+  - sources/pr_55-60-64-66-67_approve-build-runner.md
+tags: [skill, workflow-audit, skill-creator, privacy, transcripts, agentic-os, sub-project-3-of-5, queue-contract, builder]
 ---
 
 # Skill: workflow-audit
