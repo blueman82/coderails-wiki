@@ -114,6 +114,25 @@ silently change.
 - **One-time re-keying transition**: any loop active when this change
   merged saw its own `progress.json` path change once, at the next Stop-hook
   evaluation — expected, not a bug. See "Live proof" below.
+- **Plugin-version upgrade is a second, distinct re-keying trigger, undocumented until now.**
+  The re-keying transition above describes a same-version, mid-loop merge. A
+  *different* trigger was found live (2026-07-07, during the
+  [[assistant-link-send-gate-architecture]] cluster): a consumer whose
+  installed plugin cache predates PR #24 entirely — verified: the 1.0.0 cache
+  has no `agentic_loop_path.sh` file at all, i.e. no `--git-common-dir` keying
+  logic existed yet, only the older cwd-slug scheme — silently switches slug
+  schemes the moment the plugin auto-updates past PR #24's version, exactly
+  like the mid-loop-merge case, but with **no loop-side signal that a re-key
+  is imminent** (unlike a merge, which the active session observes). A
+  session with a maintained `progress.json` under the old slug can get
+  orphaned and reported as an *unregistered* loop by the newer guards
+  (`unregistered_loop_guard.sh` et al., now live post-update) despite having
+  faithfully maintained state the whole time. Workaround applied live: a
+  symlink from the new slug to the old state directory. **This is a migration
+  gap, not fixed here** — candidate fixes: the helper falls back to checking
+  the legacy cwd-slug path when the git-common-dir slug has no existing state
+  but the legacy one does, or the plugin's own update path runs a one-time
+  migration step. Filed for the owner, not actioned by this page.
 
 ## Live proof
 
