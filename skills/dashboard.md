@@ -34,6 +34,19 @@ A button is a declared, bounded run, never a free prompt box. `POST /run` looks 
 
 Every run is single-flight per button, JSONL-recorded (`~/.claude/coderails-dashboard/runs/`) with argv/cwd/profile/exit code, and CSRF-token-guarded (both `/api/events` and `/api/run` also reject non-localhost `Origin`/`Host`).
 
+### AssistantLinkPanel — per-producer readable rendering
+
+`AssistantLinkPanel.tsx` (PR #31) renders the queue directory's pending
+entries via the same collector/Approve-Deny path regardless of producer,
+treating `toolInput` opaquely by default (`JSON.stringify` + truncate). As of
+[[pr_43-44-46_workflow-audit-queue-seam]] (PR #44), a type-guarded render
+branch recognises `toolName === "workflow-audit:propose-skill"` (the
+[[workflow-audit]] skill's queue-mode output) and displays it readably —
+proposed name / description / task summary / session count — instead of the
+opaque fallback, which still covers every other `toolName` (e.g. send-gate
+entries). The Approve/Deny buttons and `POST /api/queue` path are unchanged
+by this branch; only the preview differs per producer.
+
 ### Obsidian command centre
 
 A native Obsidian plugin (official TypeScript template) registering a code-block processor (`agentic-os`) that renders dashboard state inside a real markdown note, sharing the same button config as the web deck. Until the routines sub-project (#2) lands and defines a queue+runner contract, the plugin writes intent files to `~/.claude/coderails-dashboard/queue/` as the frozen seam, with an interim direct-exec path. Ships a committed, reproducible `dist/main.js` build (same precedent as `wiki-init`'s committed Marp assets).
