@@ -2,7 +2,7 @@
 title: "ASSISTANT.LINK send-gate architecture"
 type: design
 created: 2026-07-07
-last_updated: 2026-07-07 (approvals-dir move)
+last_updated: 2026-07-07
 sources:
   - sources/pr_28_assistant-link-queue-contract-and-panel-spec.md
   - sources/pr_31_assistant-link-approve-button.md
