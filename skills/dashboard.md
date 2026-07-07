@@ -70,4 +70,5 @@ This is the first sub-project to give the task-evals gate a real production catc
 - [[unregistered_loop_guard]] — born from a gap found in *this session's own* orchestration (see PR #17 in [[pr_15-17_loop-hardening-registration-eval-freeze-ledger-dry]]); linked here as the guard this kind of large multi-task session is designed to trip if it drifts unregistered
 - [[review-artifact-seam]] — the SHA-bound review-comment gate this PR's merge consumed
 - [[pr_25_observability-dashboard]] — the source record for this PR
-- [[workflow-audit]] — sub-project 3 of the same agentic-OS evolution sequence this dashboard is sub-project 1 of
+- [[workflow-audit]] — sub-project 3 of the same agentic-OS evolution sequence this dashboard is sub-project 1 of; now a second queue producer via [[pr_43-44-46_workflow-audit-queue-seam]]
+- [[pr_43-44-46_workflow-audit-queue-seam]] — the queue-mode integration source page (writer, `AssistantLinkPanel` render branch, consumption-seam contract)
