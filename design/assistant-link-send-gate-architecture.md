@@ -94,6 +94,7 @@ The plugin self-updated 1.0.0 → 1.1.0 overnight on 2026-07-07, closing the gap
 ## See also
 
 - [[install-and-cache-trap]] — the sibling repo-vs-cache phenomenon for coderails' own local-directory dev loop; this page's stale-plugin-cache finding is the marketplace-consumer analogue
+- [[agentic-loop-path-keying]] — the loop-state re-keying gap the same plugin update triggered; documents the mechanism (`--git-common-dir` slug vs. legacy cwd slug) and the workaround/candidate fixes
 - [[enforcement-model]] — the hooks-vs-advisory law this gate follows (host-process hook chosen specifically because a bash hook's enforcement ceiling would be forgeable here)
 - [[dashboard]] — sub-project 1; the panel this gate's queue surface feeds
 - [[pr_28_assistant-link-queue-contract-and-panel-spec]] — the normative queue contract + panel spec
