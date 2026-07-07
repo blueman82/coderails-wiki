@@ -52,6 +52,18 @@ every other `toolName` (e.g. send-gate entries, per
 `POST /api/queue` path are unchanged by this branch; only the preview differs
 per producer.
 
+**Build-state visibility (added by [[pr_55-60-64-66-67_approve-build-runner]],
+PR #66):** a new `collectBuilds` collector reads `~/.claude/coderails-dashboard/builds/<hash>/state.json`
+sidecars (closed-set `state` validation mirroring `queue.ts`'s discipline —
+reject unknown/missing, never default), exposed as `Snapshot.builds`. The
+panel hash-joins each approved queue entry to its build sidecar and renders
+one of building / awaiting-your-merge / failed / builder-dead (on a stale
+heartbeat). Includes a real XSS fix: `prUrl` is builder-session-controlled
+data (read verbatim from `run-builder.sh`'s own `gh pr create` output, not
+dashboard-generated), so a `safePrUrl()` guard only links `https:`-protocol
+URLs — a `javascript:`/`data:` scheme would otherwise be a click-triggered
+vector — falling back to a plain-text CTA otherwise.
+
 ### Obsidian command centre
 
 A native Obsidian plugin (official TypeScript template) registering a code-block processor (`agentic-os`) that renders dashboard state inside a real markdown note, sharing the same button config as the web deck. The routines sub-project (#2, now shipped — see [[intent-queue-runner-contract]] and [[dashboard-runner]]) defines the queue+runner contract this seam was frozen against; the plugin writes intent files to `~/.claude/coderails-dashboard/queue/` per that contract, but still also keeps its interim direct-exec path — [[dashboard-runner]] existing doesn't yet make the plugin stop invoking `claude` itself, so the plugin has not yet been updated to rely solely on the now-real runner. Ships a committed, reproducible `dist/main.js` build (same precedent as `wiki-init`'s committed Marp assets).
