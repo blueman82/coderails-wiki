@@ -7,8 +7,17 @@ sources:
   - docs/coderails/specs/2026-07-06-assistant-link-panel-design.md
   - sources/pr_27-39_workflow-audit-skill.md
   - sources/pr_25_observability-dashboard.md
+  - sources/pr_43-44-46_workflow-audit-queue-seam.md
 tags: [investigation, queue-contract, dashboard, workflow-audit, send-gate, assistant-agent, gaps]
 ---
+
+> ✅ **UPDATE (2026-07-07, later same day):** The WU1/WU2/WU3 work this
+> investigation flagged as "not yet started, not yet PR'd" (see "workflow-audit's
+> current approval mechanism is NOT the queue — yet" below) has since shipped
+> as PRs #43/#44/#46, closing Gap #2's queue-mode half. See
+> [[pr_43-44-46_workflow-audit-queue-seam]] for the full record. The findings
+> below are left as-written (an accurate point-in-time record); only this
+> banner and the Gaps section's status lines are new.
 
 # Queue contract cross-PR audit — workflow-audit, dashboard approval pipeline, send-gate
 
