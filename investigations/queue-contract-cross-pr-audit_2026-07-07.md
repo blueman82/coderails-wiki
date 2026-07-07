@@ -154,7 +154,7 @@ worth naming so a future query doesn't waste a pass assuming co-location:
 | Dashboard skill + queue collector/API/button (PR #25, #31) | `coderails` repo (`skills/dashboard/`) | [[dashboard]] + [[pr_25_observability-dashboard]] (this wiki) — **PR #31 itself had no page until this investigation** |
 | Queue contract spec (normative) | `coderails` repo, `docs/coderails/specs/2026-07-06-assistant-link-panel-design.md` | not yet a dedicated wiki page (see Gaps) |
 | send-gate | `assistant-agent` repo (`gate/sendGate.ts`, `gate/surfaces/queue.ts`) | `capabilities/send-gate.md` in the **assistant-agent-wiki**, a separate sibling vault — not in coderails-wiki at all |
-| "routines" sub-project 2 (`@coderails/dashboard-lib`, PR #36) | `coderails` repo | **no wiki page found** — see Gaps |
+| "routines" sub-project 2 (`@coderails/dashboard-lib`, PR #36) | `coderails` repo | [[intent-queue-runner-contract]] + [[dashboard-runner]] + [[routines]] + [[memory-consolidation]] — closed, see Gap #3 |
 
 ## Gaps found (things the plan assumes but aren't enforced/documented in code)
 
