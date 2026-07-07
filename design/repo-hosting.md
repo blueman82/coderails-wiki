@@ -2,7 +2,7 @@
 title: Repo Hosting
 type: design
 created: 2026-06-01
-last_updated: 2026-07-05
+last_updated: 2026-07-07
 sources:
   - .claude-plugin/plugin.json
   - AGENTS.md
