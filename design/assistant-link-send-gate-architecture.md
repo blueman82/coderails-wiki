@@ -36,7 +36,9 @@ These two facts compound: neither is sufficient alone. A host-process hook that 
 
 ## The queue seam (dashboard connection)
 
-The gate's third approval surface (alongside terminal y/n and a Telegram bot) is a **dashboard queue**: a pending-approval JSON file written to `~/.claude/coderails-dashboard/queue/<hash>.json`, one file per pending-or-resolved approval, named by the same hex sha256 hash the approval binding uses.
+The gate's third approval surface (alongside terminal y/n and a Telegram bot) is a **dashboard queue**: a pending-approval JSON file written to `~/.claude/coderails-dashboard/approvals/<hash>.json`, one file per pending-or-resolved approval, named by the same hex sha256 hash the approval binding uses.
+
+**Moved from `queue/` to `approvals/` on 2026-07-07** ([[pr_62_10_approvals-dir-move]]): `queue/` is shared by the routines runner sweep and workflow-audit's `propose-skill` proposals ([[pr_43-44-46_workflow-audit-queue-seam]]), both of which glob every `.json` file there and quarantine/reject anything that isn't their own expected shape — a `QueueFileEntry` approval file looked like malformed input to both. `approvals/` is a sibling directory, not nested inside `queue/`; the split is a clean break with no dual-dir fallback.
 
 ```typescript
 export interface QueueFileEntry {
