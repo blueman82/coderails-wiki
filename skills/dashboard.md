@@ -53,7 +53,7 @@ per producer.
 
 ### Obsidian command centre
 
-A native Obsidian plugin (official TypeScript template) registering a code-block processor (`agentic-os`) that renders dashboard state inside a real markdown note, sharing the same button config as the web deck. Until the routines sub-project (#2) lands and defines a queue+runner contract, the plugin writes intent files to `~/.claude/coderails-dashboard/queue/` as the frozen seam, with an interim direct-exec path. Ships a committed, reproducible `dist/main.js` build (same precedent as `wiki-init`'s committed Marp assets).
+A native Obsidian plugin (official TypeScript template) registering a code-block processor (`agentic-os`) that renders dashboard state inside a real markdown note, sharing the same button config as the web deck. The routines sub-project (#2, now shipped — see [[intent-queue-runner-contract]] and [[dashboard-runner]]) defines the queue+runner contract this seam was frozen against; the plugin writes intent files to `~/.claude/coderails-dashboard/queue/` per that contract, but still also keeps its interim direct-exec path — [[dashboard-runner]] existing doesn't yet make the plugin stop invoking `claude` itself, so the plugin has not yet been updated to rely solely on the now-real runner. Ships a committed, reproducible `dist/main.js` build (same precedent as `wiki-init`'s committed Marp assets).
 
 ## Starting / stopping
 
