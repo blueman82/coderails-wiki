@@ -170,3 +170,6 @@ light mechanism for the problem the workflow shift created.
   cluster's full source record
 - [[using-git-worktrees]] — the worktree mechanics this keying scheme now
   supports natively rather than routing around
+- [[assistant-link-send-gate-architecture]] — where the plugin-version
+  re-keying gap above was found live, alongside the sibling stale-plugin-cache
+  finding for the same 1.0.0→1.1.0 update
