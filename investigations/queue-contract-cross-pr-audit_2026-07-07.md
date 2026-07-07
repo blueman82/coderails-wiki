@@ -9,6 +9,7 @@ sources:
   - sources/pr_25_observability-dashboard.md
   - sources/pr_43-44-46_workflow-audit-queue-seam.md
   - sources/pr_62_10_approvals-dir-move.md
+  - sources/pr_36-41-33-53-65_verified-routines.md
 tags: [investigation, queue-contract, dashboard, workflow-audit, send-gate, assistant-agent, gaps, approvals]
 ---
 
