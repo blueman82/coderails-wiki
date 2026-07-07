@@ -169,16 +169,20 @@ worth naming so a future query doesn't waste a pass assuming co-location:
    contract). See [[pr_43-44-46_workflow-audit-queue-seam]]. The PR #36
    routines/dashboard-lib gap immediately below is still open — the routines
    *runner* itself (the consumer of the seam WU3 defines) remains unbuilt.
-3. **PR #36 ("routines/wu1 dashboard-lib", merged `027c09f`) has no wiki page
-   either.** Scaffolds `@coderails/dashboard-lib` (intent.ts, config.ts,
-   schema-compat.ts) — this is sub-project 2 of the agentic-OS sequence
-   (routines / intent-queue + runner contract) that both [[dashboard]]'s
-   Obsidian-plugin section and the design spec's "Routine-runs slot" section
-   explicitly say is a dependency they're waiting on. It has started
-   shipping code but the wiki has zero record of it. This is also the
-   still-missing dependency for [[pr_43-44-46_workflow-audit-queue-seam]]'s
-   own consumption-seam contract (WU3) — the runner that contract describes
-   is this same unbuilt sub-project.
+3. ~~**PR #36 ("routines/wu1 dashboard-lib", merged `027c09f`) has no wiki page
+   either.**~~ **CLOSED 2026-07-07** — the full sub-project 2 cluster
+   (PRs #36/#41/#33/#53/#65) shipped and is now documented:
+   [[pr_36-41-33-53-65_verified-routines]] (source page),
+   [[intent-queue-runner-contract]] (the `Intent`/`RoutineDef` schema and
+   queue lifecycle), [[dashboard-runner]] (the sweeper, artifact gate,
+   escalation taxonomy), [[routines]] (cadence/config/launchd), and
+   [[memory-consolidation]] (one shipped routine's skill). The runner that
+   [[pr_43-44-46_workflow-audit-queue-seam]]'s WU3 consumption-seam contract
+   describes is this same runner — it is now built, though WU3's specific
+   consumption of *approved workflow-audit proposals* is not independently
+   confirmed here to be wired up (the runner executes routine buttons; it
+   was not verified during this closure to special-case
+   `workflow-audit:propose-skill` queue entries).
 4. **ASSISTANT.LINK panel is only 1 of 4 items built**, and even that item
    (3, "sends + approvals log") only has the pending-queue half — the JSONL
    audit-log tail (`gate/auditLog.ts`) rendering half of item 3 is not
