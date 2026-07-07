@@ -8,7 +8,8 @@ sources:
   - sources/pr_27-39_workflow-audit-skill.md
   - sources/pr_25_observability-dashboard.md
   - sources/pr_43-44-46_workflow-audit-queue-seam.md
-tags: [investigation, queue-contract, dashboard, workflow-audit, send-gate, assistant-agent, gaps]
+  - sources/pr_62_10_approvals-dir-move.md
+tags: [investigation, queue-contract, dashboard, workflow-audit, send-gate, assistant-agent, gaps, approvals]
 ---
 
 > ✅ **UPDATE (2026-07-07, later same day):** The WU1/WU2/WU3 work this
