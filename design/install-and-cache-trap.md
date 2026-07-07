@@ -2,7 +2,7 @@
 title: Install and Cache Trap
 type: design
 created: 2026-05-30
-last_updated: 2026-07-06
+last_updated: 2026-07-07
 sources:
   - .claude-plugin/plugin.json
   - ~/.claude/settings.json
