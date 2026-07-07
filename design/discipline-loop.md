@@ -13,6 +13,7 @@ sources:
   - sources/pr_57-62_subagent-enforcement-gate-hardening.md
   - sources/pr_78_hooks-json-timeout-floor.md
   - sources/pr_15-17_loop-hardening-registration-eval-freeze-ledger-dry.md
+  - sources/pr_70-71_2026-07-07_dashboard-input-fix-and-voice-announcements.md
 tags:
   - discipline
   - hooks
