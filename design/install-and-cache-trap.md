@@ -135,3 +135,4 @@ Everything above is about coderails' *own* local-directory dev loop (repo vs. ca
 - [[pr_96-98_mode-aware-install-argument-injection-guard-hook-owned-counter]] — PR #96: the exec-bit sweep becomes git-index-mode-aware
 - [[pr_92_exec-bit-sweep]] — the git-index-mode invariant PR #96's sweep now respects
 - [[pr_11-14_gate-hardening-followups]] — PR #12: HOME-sandboxed install_mode_sweep.test.sh, closing a real recurring corruption of the developer's actual ~/.claude/settings.json
+- [[assistant-link-send-gate-architecture]] — the marketplace-consumer analogue of this trap, found in assistant-agent's installed plugin cache (sub-project 4)
