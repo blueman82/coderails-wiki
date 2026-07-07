@@ -143,11 +143,12 @@ worth naming so a future query doesn't waste a pass assuming co-location:
 
 ## Gaps found (things the plan assumes but aren't enforced/documented in code)
 
-1. **PR #31 has no source page in coderails-wiki.** Filed for the first time
-   by this investigation, not by the wiki-ingest flow at merge time — a
-   process gap, since [[dashboard]]'s own page already documents the
-   *design* of the button/run model in detail but was never updated after
-   PR #31 actually shipped the queue-specific Approve/Deny piece.
+1. ~~**PR #31 has no source page in coderails-wiki.**~~ **CLOSED 2026-07-07**
+   — [[pr_31_assistant-link-approve-button]] filed (alongside
+   [[pr_28_assistant-link-queue-contract-and-panel-spec]] for PR #28), closing
+   the process gap this investigation originally flagged (the button/run
+   model's *design* was documented in [[dashboard]], but the queue-specific
+   Approve/Deny piece itself had no source record until now).
 2. ~~**WU1/WU2/WU3 queue-mode work not yet PR'd.**~~ **CLOSED 2026-07-07** —
    shipped as PRs #43 (writer), #44 (dashboard render), #46 (consumption-seam
    contract). See [[pr_43-44-46_workflow-audit-queue-seam]]. The PR #36

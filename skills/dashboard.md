@@ -20,7 +20,7 @@ Invoked as: `coderails:dashboard`
 
 ## What it shows
 
-Seven panels, all reading state the kernel already produces (no new services, no telemetry leaving the machine): SYSTEM VITALS (usage/hooks/lint sparklines), DIRECTIVES (active loop's `progress.json` work units as a checklist), DOCUMENTS/MEMORY.TRAIL (wiki + memory mtime feed), COMMAND DECK (declared one-click buttons + run history), PR GATES (merge-ready / blocked / stale, from the marker-grammar libs), a bottom-centre hero stat, and a reserved slot for the not-yet-built assistant-agent sub-project.
+Seven panels, all reading state the kernel already produces (no new services, no telemetry leaving the machine): SYSTEM VITALS (usage/hooks/lint sparklines), DIRECTIVES (active loop's `progress.json` work units as a checklist), DOCUMENTS/MEMORY.TRAIL (wiki + memory mtime feed), COMMAND DECK (declared one-click buttons + run history), PR GATES (merge-ready / blocked / stale, from the marker-grammar libs), a bottom-centre hero stat, and ASSISTANT.LINK — originally a reserved placeholder for sub-project 4 (assistant-agent kernel integration), now a real panel (coderails PR #31) rendering the pending send-approval queue for assistant-agent's send-gate; see [[assistant-link-send-gate-architecture]].
 
 ## Architecture
 
@@ -36,16 +36,19 @@ Every run is single-flight per button, JSONL-recorded (`~/.claude/coderails-dash
 
 ### AssistantLinkPanel — per-producer readable rendering
 
-`AssistantLinkPanel.tsx` (PR #31) renders the queue directory's pending
-entries via the same collector/Approve-Deny path regardless of producer,
-treating `toolInput` opaquely by default (`JSON.stringify` + truncate). As of
-[[pr_43-44-46_workflow-audit-queue-seam]] (PR #44), a type-guarded render
-branch recognises `toolName === "workflow-audit:propose-skill"` (the
-[[workflow-audit]] skill's queue-mode output) and displays it readably —
-proposed name / description / task summary / session count — instead of the
-opaque fallback, which still covers every other `toolName` (e.g. send-gate
-entries). The Approve/Deny buttons and `POST /api/queue` path are unchanged
-by this branch; only the preview differs per producer.
+`AssistantLinkPanel.tsx` (PR #31 — full build-out in
+[[pr_31_assistant-link-approve-button]]) renders the queue directory's
+pending entries via the same collector/Approve-Deny path regardless of
+producer, treating `toolInput` opaquely by default (`JSON.stringify` +
+truncate). As of [[pr_43-44-46_workflow-audit-queue-seam]] (PR #44), a
+type-guarded render branch recognises `toolName ===
+"workflow-audit:propose-skill"` (the [[workflow-audit]] skill's queue-mode
+output) and displays it readably — proposed name / description / task
+summary / session count — instead of the opaque fallback, which still covers
+every other `toolName` (e.g. send-gate entries, per
+[[assistant-link-send-gate-architecture]]). The Approve/Deny buttons and
+`POST /api/queue` path are unchanged by this branch; only the preview differs
+per producer.
 
 ### Obsidian command centre
 
@@ -72,3 +75,5 @@ This is the first sub-project to give the task-evals gate a real production catc
 - [[pr_25_observability-dashboard]] — the source record for this PR
 - [[workflow-audit]] — sub-project 3 of the same agentic-OS evolution sequence this dashboard is sub-project 1 of; now a second queue producer via [[pr_43-44-46_workflow-audit-queue-seam]]
 - [[pr_43-44-46_workflow-audit-queue-seam]] — the queue-mode integration source page (writer, `AssistantLinkPanel` render branch, consumption-seam contract)
+- [[assistant-link-send-gate-architecture]] — sub-project 4's send-gate design, the queue seam this panel reads/mutates, and the ASSISTANT.LINK panel's four D6 slots (only "sends + approvals log" has a real data source so far)
+- [[pr_28_assistant-link-queue-contract-and-panel-spec]] / [[pr_31_assistant-link-approve-button]] — the contract spec and the panel's implementation + path-traversal fix

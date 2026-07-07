@@ -2,7 +2,7 @@
 title: Enforcement Model
 type: design
 created: 2026-05-30
-last_updated: 2026-07-06
+last_updated: 2026-07-07
 sources:
   - commands/workflow.md
   - CLAUDE.md
@@ -11,6 +11,8 @@ sources:
   - sources/pr_57-62_subagent-enforcement-gate-hardening.md
   - sources/pr_86_agentic-loop-hardening.md
   - sources/pr_15-17_loop-hardening-registration-eval-freeze-ledger-dry.md
+  - sources/pr_28_assistant-link-queue-contract-and-panel-spec.md
+  - sources/pr_31_assistant-link-approve-button.md
 tags:
   - hooks
   - enforcement
@@ -128,9 +130,14 @@ from a disallowed spawn without trusting a self-reported flag — reintroducing 
 trust-the-agent problem the hook would exist to remove, one level down. See [[agentic-loop]] and
 [[pr_86_agentic-loop-hardening]].
 
+## Host-process hooks outside coderails itself (assistant-agent send-gate, sub-project 4)
+
+The Law's core distinction — a check performed by the party with motive to pass it is not a check — extends beyond coderails' own hooks/commands split. assistant-agent's send-approval gate (Slack/Calendar/Gmail sends from Gary's personal secretary) chose a **host-process SDK `PreToolUse` hook callback** over a bash hook script for exactly this reason: a bash hook shares the agent's own user/filesystem and is forgeable by the agent it's meant to constrain (e.g. via an approval-marker file the agent also controls), whereas a host-process callback runs outside the agent's trust domain on a `permissionDecision` control-plane path. This is the same enforcement-ceiling reasoning as `no_edit_on_main.sh`/`enforce_pr_workflow.sh` above, applied one layer down (host process vs. agent, not command vs. hook). See [[assistant-link-send-gate-architecture]] for the full design, including the companion finding that the SDK itself is fail-open on a hook that throws or times out — the gate must self-enforce fail-closed, since neither the host-process choice nor the SDK's own behaviour is sufficient alone.
+
 ## Cross-References
 
 - [[discipline-loop]] — the specific Stop hooks that enforce self-checking discipline
+- [[assistant-link-send-gate-architecture]] — the host-process-hook precedent outside coderails itself, and the SDK fail-open finding that shapes the gate's self-enforcement
 - [[install-and-cache-trap]] — editing hooks in the repo does not update the running cache without reinstall
 - [[no_edit_on_main]] — PreToolUse hook that blocks code edits on main/master (added 2026-06-25)
 - [[enforce_pr_workflow]] — PreToolUse hook that gates `gh pr create`/`gh pr merge` (added 2026-06-25)
