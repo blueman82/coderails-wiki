@@ -102,7 +102,9 @@ once the routines runner performs the filter → re-validate → create sequence
 above. An approved entry today is a recorded, hash-bound approval sitting in
 `~/.claude/coderails-dashboard/queue/`, waiting — a deliberate seam-design
 decision (the integration's own loop spec, decision C, "Consumption:
-seam-only"), not an unfinished accident. Zero approvals, or approvals that sit
+seam-only"), not an unfinished accident. (This `queue/` path is workflow-audit's
+own proposal directory and is unaffected by the later send-gate-approval split
+into a sibling `approvals/` dir — see [[pr_62_10_approvals-dir-move]].) Zero approvals, or approvals that sit
 unconsumed indefinitely, are both valid, complete states: no nag, no retry, no
 implicit timeout converts a stale approval into a create.
 
