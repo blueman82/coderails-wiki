@@ -76,7 +76,9 @@ Checked in order; first match wins:
 ## Related
 
 - [[pr_27-39_workflow-audit-skill]] — the ingest source page (full architecture, testing, files)
+- [[pr_43-44-46_workflow-audit-queue-seam]] — the queue-mode integration source page (writer, dashboard render, consumption-seam contract)
 - [[claude-code-transcript-schema_2026-07-07]] — transcript JSONL schema catalogue this skill's scan stage relies on
 - [[writing-skills]] — the TDD process invoked for each approved candidate
 - [[skill-testing-state_2026-06-26]] — same mechanical/model-judgement tiering logic, prior investigation
-- [[dashboard]] — sub-project 1 of the same agentic-OS sequence
+- [[dashboard]] — sub-project 1 of the same agentic-OS sequence; hosts the queue/AssistantLinkPanel this skill now writes into
+- [[queue-contract-cross-pr-audit_2026-07-07]] — the investigation that first flagged this queue-mode work as pending/not-yet-PR'd; now closed by this cluster
