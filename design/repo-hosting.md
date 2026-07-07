@@ -7,6 +7,7 @@ sources:
   - .claude-plugin/plugin.json
   - AGENTS.md
   - sources/repo-consolidation_2026-07-05.md
+  - sources/pr_70-71_2026-07-07_dashboard-input-fix-and-voice-announcements.md
 tags: [infrastructure, git, github, repo, operational]
 ---
 
