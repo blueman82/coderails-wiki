@@ -48,4 +48,5 @@ There is **no automated skill testing in coderails** — neither triggering nor 
 
 [[skill-testing-state_2026-06-26]] — what skill-testing exists, what's external, why coderails has no runner  
 [[self-containment]] — context: these skills were vendored so coderails could grow its own skill library  
-[[wiki-ingest]] — when you write a new skill, ingest it into the wiki
+[[wiki-ingest]] — when you write a new skill, ingest it into the wiki  
+[[workflow-audit]] — invokes this skill's RED-GREEN-REFACTOR process for each owner-approved candidate skill it proposes, one at a time through a full PR gate
