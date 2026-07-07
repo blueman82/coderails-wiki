@@ -105,3 +105,4 @@ graph settings, and enabled plugins intact; only the last pane layout regenerate
 
 - [[install-and-cache-trap]]
 - [[enforcement-model]]
+- [[pr_70-71_2026-07-07_dashboard-input-fix-and-voice-announcements]] — the source page that surfaced the PR-number collision above
