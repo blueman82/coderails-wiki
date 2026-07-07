@@ -56,15 +56,21 @@ interactive gate — stale-approval caution, zero-approvals-is-success,
 D2-whitelist-only content, never committed to a repo — is explicitly restated
 as applying to a queue entry too.
 
-**Approval today is a status flip only, not a trigger.** Clicking Approve on
-one of these dashboard entries changes only the file's `status` field from
-`pending` to `approved` — no skill is created, no branch opens, no PR is
-filed. That happens only once the not-yet-built routines runner reads the
-approved entry, re-validates its content hash against the stored `hash`
-(rejecting on mismatch or on a parse failure, never proceeding on a "close
-enough" match), and then drives the create step below itself. See
-[[pr_43-44-46_workflow-audit-queue-seam]] for the full consumption-seam
-contract and its "Honesty requirement" section.
+**Approval now triggers a real build (updated 2026-07-07).** The paragraph
+above described the state as of [[pr_43-44-46_workflow-audit-queue-seam]];
+[[pr_55-60-64-66-67_approve-build-runner]] (loop 2, same day) closed that gap.
+Clicking Approve on a `workflow-audit:propose-skill` queue entry now claims
+the hash, re-validates it, and spawns a wrapper-owned `claude -p` session
+(`skills/dashboard/scripts/run-builder.sh`) that authors the skill via
+`skill-creator` and `writing-skills`' RED/GREEN/REFACTOR process, then opens a
+PR — never merges it directly (mechanically enforced via
+`--disallowedTools`, not just a prompt instruction). The owner still reviews
+and merges the resulting PR by hand; a click approves *creation*, not landing
+an unseen diff. See [[pr_55-60-64-66-67_approve-build-runner]] for the full
+claim/spawn/wrapper/prompt-fencing architecture. **E5 (a real, manual,
+one-time build through the pipeline) was still pending as of that ingest** —
+the mechanism is wired and tested but not yet exercised end-to-end on a live
+approval.
 
 ## Mandatory judge rejection criteria
 
