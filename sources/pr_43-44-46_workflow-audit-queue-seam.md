@@ -175,3 +175,7 @@ implicit timeout converts a stale approval into a create.
   content relationship between the two; flagged here only to prevent a future
   reader conflating them. `(verified — checked existing sources/ directory
   before naming this page)`
+- The "Honesty requirement" section above is superseded same-day by
+  [[pr_55-60-64-66-67_approve-build-runner]] — see the banner inline. `(verified
+  — that page's own PR #59 clean-break-rewrites this section's live copy in
+  the spec doc; this wiki page's body is left as a historical record)`
