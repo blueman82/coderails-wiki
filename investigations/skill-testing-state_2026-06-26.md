@@ -47,3 +47,4 @@ The reasoning initially leaned on a false pillar — a claim that the eval file 
 - [[writing-skills]] — the skill that authors skills; skill testing is part of its remit
 - [[enforcement-model]] · [[discipline-loop]] — why advisory skills are the lower-stakes half
 - [[pr_55_remove-dead-evals]] · [[pr_56_writing-skills-using-coderails-example]]
+- [[workflow-audit]] — same mechanical/model-judgement tiering logic applied to a different axis (corpus scale, not compliance stakes)
