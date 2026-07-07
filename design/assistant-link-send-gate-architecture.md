@@ -104,3 +104,4 @@ The plugin self-updated 1.0.0 → 1.1.0 overnight on 2026-07-07, closing the gap
 - [[pr_28_assistant-link-queue-contract-and-panel-spec]] — the normative queue contract + panel spec
 - [[pr_31_assistant-link-approve-button]] — the dashboard-side implementation + path-traversal fix
 - [[pr_62_10_approvals-dir-move]] — the `queue/` → `approvals/` split and why it was needed
+- [[routines]] / [[dashboard-runner]] — sub-project 2, now shipped; closes the routine-runs panel slot's unbuilt-dependency status (the vault run notes now exist), though the panel-side render work itself is not recorded as done
