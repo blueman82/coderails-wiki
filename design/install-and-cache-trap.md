@@ -138,3 +138,4 @@ The same update also changed [[agentic-loop-path-keying]]'s slug scheme undernea
 - [[pr_92_exec-bit-sweep]] — the git-index-mode invariant PR #96's sweep now respects
 - [[pr_11-14_gate-hardening-followups]] — PR #12: HOME-sandboxed install_mode_sweep.test.sh, closing a real recurring corruption of the developer's actual ~/.claude/settings.json
 - [[assistant-link-send-gate-architecture]] — the marketplace-consumer analogue of this trap, found in assistant-agent's installed plugin cache (sub-project 4)
+- [[agentic-loop-path-keying]] — the loop-state re-keying migration gap the same plugin update triggered
