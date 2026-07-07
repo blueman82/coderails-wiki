@@ -41,6 +41,30 @@ Full architecture, testing approach, and file list: [[pr_27-39_workflow-audit-sk
 - **Approval gate overrides loop autonomy.** The `AskUserQuestion` approval step is a hard stop that applies even inside an agentic-loop session authorised for full autonomy ("crack on", "no human gates", "self-merge"). Skill creation never proceeds on an earlier blanket authorisation or an inferred preference — only an explicit approval given in that interaction. Zero approvals is a complete, successful run.
 - **Skills always land via the normal repo gates.** Approved candidates go through [[writing-skills]] RED-GREEN-REFACTOR and a full PR (`test_gate` → `pr-review-toolkit:review-pr` → security review → `post-review` → pr-scope evals → merge) one at a time — never a direct commit to `main`, never written into a user's personal `~/.claude/skills`.
 
+## Queue-mode output (second approval surface, additive)
+
+Section 5 of `SKILL.md` (added by [[pr_43-44-46_workflow-audit-queue-seam]],
+PRs #43/#44/#46) gives each `verdict:"propose"` judge output a second,
+asynchronous surface on the [[dashboard]]'s existing approval queue, alongside
+the interactive `AskUserQuestion` gate described below (which remains the
+primary path, unchanged). `write_queue_entry.sh` writes one `QueueFileEntry`
+per proposal (`toolName: "workflow-audit:propose-skill"`, six D2-whitelisted
+fields, sha256 hash binding, `0700`/`0600` perms), reusing the generic queue
+envelope verbatim rather than a new schema. Every pinned invariant from the
+interactive gate — stale-approval caution, zero-approvals-is-success,
+D2-whitelist-only content, never committed to a repo — is explicitly restated
+as applying to a queue entry too.
+
+**Approval today is a status flip only, not a trigger.** Clicking Approve on
+one of these dashboard entries changes only the file's `status` field from
+`pending` to `approved` — no skill is created, no branch opens, no PR is
+filed. That happens only once the not-yet-built routines runner reads the
+approved entry, re-validates its content hash against the stored `hash`
+(rejecting on mismatch or on a parse failure, never proceeding on a "close
+enough" match), and then drives the create step below itself. See
+[[pr_43-44-46_workflow-audit-queue-seam]] for the full consumption-seam
+contract and its "Honesty requirement" section.
+
 ## Mandatory judge rejection criteria
 
 Checked in order; first match wins:
