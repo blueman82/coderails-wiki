@@ -18,6 +18,19 @@ tags: [investigation, queue-contract, dashboard, workflow-audit, send-gate, assi
 > [[pr_43-44-46_workflow-audit-queue-seam]] for the full record. The findings
 > below are left as-written (an accurate point-in-time record); only this
 > banner and the Gaps section's status lines are new.
+>
+> ⚠️ **PATH UPDATE (2026-07-07, still later same day):** The send-gate's own
+> approval files (`gate/surfaces/queue.ts`, `DEFAULT_QUEUE_DIR`) moved from
+> `~/.claude/coderails-dashboard/queue/` to a new sibling directory,
+> `.../approvals/`, in [[pr_62_10_approvals-dir-move]] — fixing a collision
+> where the routines runner sweep and workflow-audit's proposal writer (both
+> still in `queue/`, item 2 below) would quarantine/reject a `QueueFileEntry`
+> approval file as malformed input. Every `~/.claude/coderails-dashboard/queue/`
+> path below describing **the send-gate's own writes/reads** (producer 1,
+> `api/queue/route.ts`'s `DEFAULT_QUEUE_DIR`) is now stale by that one word;
+> every `queue/` reference describing **workflow-audit's proposal path**
+> (producer 2) is still accurate — that seam did not move. See
+> [[pr_62_10_approvals-dir-move]] for the full record.
 
 # Queue contract cross-PR audit — workflow-audit, dashboard approval pipeline, send-gate
 
