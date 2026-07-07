@@ -84,6 +84,7 @@ Checked in order; first match wins:
 
 - [[pr_27-39_workflow-audit-skill]] — the ingest source page (full architecture, testing, files)
 - [[pr_43-44-46_workflow-audit-queue-seam]] — the queue-mode integration source page (writer, dashboard render, consumption-seam contract)
+- [[pr_55-60-64-66-67_approve-build-runner]] — the builder pipeline that turns Approve into a real skill-creator build + PR; supersedes the "status flip only" claim above
 - [[claude-code-transcript-schema_2026-07-07]] — transcript JSONL schema catalogue this skill's scan stage relies on
 - [[writing-skills]] — the TDD process invoked for each approved candidate
 - [[skill-testing-state_2026-06-26]] — same mechanical/model-judgement tiering logic, prior investigation
