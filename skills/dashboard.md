@@ -57,3 +57,5 @@ This is the first sub-project to give the task-evals gate a real production catc
 - [[review-artifact-seam]] — the SHA-bound review-comment gate this PR's merge consumed
 - [[pr_25_observability-dashboard]] — the source record for this PR
 - [[workflow-audit]] — sub-project 3 of the same agentic-OS evolution sequence this dashboard is sub-project 1 of
+- [[assistant-link-send-gate-architecture]] — sub-project 4's send-gate design, the queue seam this panel reads/mutates, and the ASSISTANT.LINK panel's four D6 slots (only "sends + approvals log" has a real data source so far)
+- [[pr_28_assistant-link-queue-contract-and-panel-spec]] / [[pr_31_assistant-link-approve-button]] — the contract spec and the panel's implementation + path-traversal fix
