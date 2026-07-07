@@ -89,6 +89,15 @@ started, not yet PR'd") — that investigation's open item is now shipped.
 
 ## The "Honesty requirement" — read before assuming a pipeline exists
 
+> ⚠️ **SUPERSEDED (2026-07-07, same day):** the claim below —
+> "clicking Approve changes only `status`, nothing else happens" — was true
+> only for this cluster. Loop 2, [[pr_55-60-64-66-67_approve-build-runner]],
+> shipped the same day and wires Approve to a real claim/spawn/build pipeline.
+> The paragraph is left as-written below because it accurately describes
+> state *at the time this page was created*; do not cite it as current
+> behaviour. See [[pr_55-60-64-66-67_approve-build-runner]] and
+> [[workflow-audit]]'s queue-mode section for what replaced it.
+
 WU3's spec has an explicit section by this name, because the natural reading
 of "workflow-audit now has a dashboard Approve button" overstates what's
 built. **As of this cluster, clicking Approve on a
