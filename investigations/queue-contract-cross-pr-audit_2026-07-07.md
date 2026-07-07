@@ -147,13 +147,21 @@ worth naming so a future query doesn't waste a pass assuming co-location:
    process gap, since [[dashboard]]'s own page already documents the
    *design* of the button/run model in detail but was never updated after
    PR #31 actually shipped the queue-specific Approve/Deny piece.
-2. **PR #36 ("routines/wu1 dashboard-lib", merged `027c09f`) has no wiki page
+2. ~~**WU1/WU2/WU3 queue-mode work not yet PR'd.**~~ **CLOSED 2026-07-07** —
+   shipped as PRs #43 (writer), #44 (dashboard render), #46 (consumption-seam
+   contract). See [[pr_43-44-46_workflow-audit-queue-seam]]. The PR #36
+   routines/dashboard-lib gap immediately below is still open — the routines
+   *runner* itself (the consumer of the seam WU3 defines) remains unbuilt.
+3. **PR #36 ("routines/wu1 dashboard-lib", merged `027c09f`) has no wiki page
    either.** Scaffolds `@coderails/dashboard-lib` (intent.ts, config.ts,
    schema-compat.ts) — this is sub-project 2 of the agentic-OS sequence
    (routines / intent-queue + runner contract) that both [[dashboard]]'s
    Obsidian-plugin section and the design spec's "Routine-runs slot" section
    explicitly say is a dependency they're waiting on. It has started
-   shipping code but the wiki has zero record of it.
+   shipping code but the wiki has zero record of it. This is also the
+   still-missing dependency for [[pr_43-44-46_workflow-audit-queue-seam]]'s
+   own consumption-seam contract (WU3) — the runner that contract describes
+   is this same unbuilt sub-project.
 3. **ASSISTANT.LINK panel is only 1 of 4 items built**, and even that item
    (3, "sends + approvals log") only has the pending-queue half — the JSONL
    audit-log tail (`gate/auditLog.ts`) rendering half of item 3 is not
