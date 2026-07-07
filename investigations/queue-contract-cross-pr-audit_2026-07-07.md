@@ -163,7 +163,7 @@ worth naming so a future query doesn't waste a pass assuming co-location:
    still-missing dependency for [[pr_43-44-46_workflow-audit-queue-seam]]'s
    own consumption-seam contract (WU3) — the runner that contract describes
    is this same unbuilt sub-project.
-3. **ASSISTANT.LINK panel is only 1 of 4 items built**, and even that item
+4. **ASSISTANT.LINK panel is only 1 of 4 items built**, and even that item
    (3, "sends + approvals log") only has the pending-queue half — the JSONL
    audit-log tail (`gate/auditLog.ts`) rendering half of item 3 is not
    confirmed built in the code reviewed here. Items 1 (tasks), 2 (email last
@@ -171,17 +171,19 @@ worth naming so a future query doesn't waste a pass assuming co-location:
    own language, each blocked on a different unbuilt dependency (an empty
    `tasks/*.md` convention, an unbuilt secretary state file, and sub-project 2
    respectively).
-4. **No producer-namespacing in the queue directory.** As above — two
-   producers (send-gate, and soon workflow-audit queue-mode) share one flat
-   directory keyed only by content hash. Not a bug today, but a documented
-   assumption (hash entropy avoids collision) rather than an enforced
-   invariant (e.g. a producer-tagged filename prefix). Worth a code comment
-   or spec note if a third producer is ever added.
-5. **No stale-entry cleanup exists.** The spec explicitly scopes this out
+5. **No producer-namespacing in the queue directory.** As above — three
+   producers now (send-gate, PR #31's own generic path, and
+   workflow-audit queue-mode as of [[pr_43-44-46_workflow-audit-queue-seam]])
+   share one flat directory keyed only by content hash. Not a bug today, but a
+   documented assumption (hash entropy avoids collision) rather than an
+   enforced invariant (e.g. a producer-tagged filename prefix). Worth a code
+   comment or spec note if a fourth producer is ever added.
+6. **No stale-entry cleanup exists.** The spec explicitly scopes this out
    ("A future cleanup routine (unbuilt, out of scope here) may prune stale
    `pending` files past some age") — confirmed still true, no cleanup script
-   found in either repo during this investigation.
-6. **`workflow.config.yaml`'s `wiki_path` is still `null`** in the main repo
+   found in either repo during this investigation. Reaffirmed as a non-goal in
+   [[pr_43-44-46_workflow-audit-queue-seam]]'s WU3 spec too.
+7. **`workflow.config.yaml`'s `wiki_path` is still `null`** in the main repo
    (noted originally in [[pr_27-39_workflow-audit-skill]]'s caveats) — this
    wiki's location keeps being resolved via fallback path convention, not
    config. Repeated here because it's the second investigation in a row to
