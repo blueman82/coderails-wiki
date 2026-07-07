@@ -39,6 +39,23 @@ stale GitHub rename redirect that resolves to `coderails`; it is **not** a
 separate repo — never push to it. Full method: [[history-identity-scrub]].
 (verified 2026-07-05 via `gh repo view` + `--mirror` clone)
 
+## PR-number collision after the 2026-07-05 recreation
+
+The delete-and-recreate step in [[history-identity-scrub]] reset GitHub's PR-number
+sequence. This means wiki source pages that cite a PR number from **before** the
+2026-07-05 recreation can collide with an unrelated PR bearing the same number
+merged **after** it. Confirmed 2026-07-07: `sources/pr_69_no-edit-message-worktree.md`
+and `sources/pr_70_gate-settings-json-edits.md` cite PR #69/#70 merged 2026-06-29 (in
+the pre-recreation repo), while `gh pr view 69`/`gh pr view 70` today resolve to two
+different, unrelated PRs merged 2026-07-07 (`security/wu1 subst audit` and `dashboard
+input delivery`). Both pairs of pages are individually correct — they document real
+work — but a bare PR-number citation is no longer a reliable unique key across the
+recreation boundary. New source pages that would otherwise collide should use a
+date-qualified filename (e.g. `pr_70-71_2026-07-07_<slug>.md`, see
+[[pr_70-71_2026-07-07_dashboard-input-fix-and-voice-announcements]]) rather than the
+bare `pr_<N>_<slug>.md` form. **Not yet done:** retitling the two older colliding
+pages so a plain `pr_69`/`pr_70` search doesn't surface both eras ambiguously.
+
 ## History note — the "not a git repository" claim is now stale
 
 Earlier wiki pages (and `coderails/CLAUDE.md`) state the plugin "is not a git
