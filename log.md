@@ -583,4 +583,3 @@ Full audit, not cluster-scoped. Findings:
 - **Process note, not a defect:** the "Sources N→M" running-count convention log entries used to append (last seen "Sources 43→44" for PR #11-14) was dropped partway through the log's history (around the 2026-07-07 cluster-ingest entries) and never resumed; `sources/` has grown from 44 to 71 since. Cosmetic — doesn't affect page content or lint validity, just a discontinued log-annotation habit. Not fixed here since `log.md` is append-only/historical.
 
 Suggestions: (1) add `offload_push_guard` to `coderails/AGENTS.md`'s Part-1 hook event map (source edit, owner's call, mirrors the `comment_citation_gate` fix pattern); (2) no wiki-side fixes needed this pass — 0 orphans, 0 dangling links, 0 open contradictions.
->>>>>>> 12a665c29cd0cc30dcf1ba529931f83adf2a0dbf
