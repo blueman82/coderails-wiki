@@ -101,6 +101,8 @@ vector — falling back to a plain-text CTA otherwise.
 
 A native Obsidian plugin (official TypeScript template) registering a code-block processor (`agentic-os`) that renders dashboard state inside a real markdown note, sharing the same button config as the web deck. The routines sub-project (#2, now shipped — see [[intent-queue-runner-contract]] and [[dashboard-runner]]) defines the queue+runner contract this seam was frozen against; the plugin writes intent files to `~/.claude/coderails-dashboard/queue/` per that contract, but still also keeps its interim direct-exec path — [[dashboard-runner]] existing doesn't yet make the plugin stop invoking `claude` itself, so the plugin has not yet been updated to rely solely on the now-real runner. Ships a committed, reproducible `dist/main.js` build (same precedent as `wiki-init`'s committed Marp assets).
 
+**`pressButton` buildArgv error-handling parity ([[pr_86-107_2026-07-08_loop-lib-residuals|PR #86]], 2026-07-08):** the interim direct-exec path's `pressButton` function (`src/exec.ts`) now wraps its `buildArgv(button, input)` call in a `try`/`catch`, returning `{ ok: false, reason: "invalid-input" }` on throw instead of letting the exception propagate uncaught — matching the web app's `route.ts`, which already had this catch. `buildArgv` throws on an empty effective prompt (no command and no input) or a leading-whitespace-then-dash flag-smuggling shape; pre-#86, either input crashed the Obsidian plugin's press instead of resolving to a `PressResult`.
+
 ## Starting / stopping
 
 `skills/dashboard/scripts/start-dashboard.sh` (npm ci → build → start → open, idempotent re-launch) and `stop-dashboard.sh` (kills the pidfile'd process). Port overridable via `DASHBOARD_PORT`.
