@@ -2,7 +2,7 @@
 title: Install and Cache Trap
 type: design
 created: 2026-05-30
-last_updated: 2026-07-07
+last_updated: 2026-07-08
 sources:
   - design/agentic-loop-path-keying.md
   - .claude-plugin/plugin.json
