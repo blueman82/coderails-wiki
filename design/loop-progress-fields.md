@@ -2,11 +2,12 @@
 title: "work_units and loop_stop_counts: progress.json's two tracked fields"
 type: design
 created: 2026-07-06
-last_updated: 2026-07-06
+last_updated: 2026-07-08
 sources:
   - sources/pr_1-4_task-evals-feature.md
   - sources/pr_96-98_mode-aware-install-argument-injection-guard-hook-owned-counter.md
   - sources/pr_15-17_loop-hardening-registration-eval-freeze-ledger-dry.md
+  - sources/pr_95_slash-command-loop-detection.md
 tags: [design, work-units, loop-stop-counts, progress-json, agentic-loop]
 ---
 
@@ -94,6 +95,7 @@ per the honest-audit framing that section describes.
   scratch without re-reading the existing value will silently reset the
   counter to empty — the hook can't detect this, since it only ever adds to
   whatever key already exists.
+- **`loop_stop_counts` could also silently stay null for a completely different reason: the guard never detected the loop at all** ([[pr_95_slash-command-loop-detection|PR #95]], 2026-07-08). If a loop was started via the slash-command form (`/coderails:agentic-loop`) rather than a programmatic `Skill` tool_use, `als_count_invocations` returned 0 invocations — the transcript records a slash-started loop as a `user`-role message with a string `.message.content` carrying `<command-name>...</command-name>`, a shape the pre-fix jq filter never matched. With 0 invocations, `als_gate_require_active_loop` exited before `als_load_progress`/`gate_loop_stop_declared` ever ran, so `bump_loop_stop_count` was never reached — the field stayed null for the loop's entire duration, with zero hook signal. This was NOT an `ALS_PATH` keying bug and NOT a tail-window blind spot (two earlier, disproven hypotheses) — it was a wholesale detection miss across the whole guard chain. Fixed by extending the count to also match the user `<command-name>` slash form.
 
 ## See also
 
@@ -118,3 +120,6 @@ per the honest-audit framing that section describes.
 - [[pr_15-17_loop-hardening-registration-eval-freeze-ledger-dry]] — PR #16:
   documents the `work_units`-vs-ledger fact-ownership split (ledger =
   task-level, controller-owned; `work_units` = unit-level, orchestrator-owned)
+- [[pr_95_slash-command-loop-detection]] — PR #95: fixes the slash-command
+  detection gap that was one root cause of `loop_stop_counts` silently
+  staying null (a wholesale guard-detection miss, not a keying bug)

@@ -2,7 +2,7 @@
 title: Discipline Loop
 type: design
 created: 2026-05-30
-last_updated: 2026-07-07
+last_updated: 2026-07-08
 sources:
   - sources/pr_63_remove-failure-log.md
   - hooks/scripts/check_confidence_labels.sh
@@ -14,6 +14,7 @@ sources:
   - sources/pr_78_hooks-json-timeout-floor.md
   - sources/pr_15-17_loop-hardening-registration-eval-freeze-ledger-dry.md
   - sources/pr_70-71_2026-07-07_dashboard-input-fix-and-voice-announcements.md
+  - sources/pr_95_slash-command-loop-detection.md
 tags:
   - discipline
   - hooks
@@ -147,7 +148,11 @@ The SubagentStop hook array has two hooks (wired PR #57):
 1. `check_confidence_labels` — reads `.last_assistant_message`; same MIN_LEN/label logic as Stop
 2. `check_verify_loop` — reads `.last_assistant_message`; no `file_count` gate; same DNV enforcement as Stop
 
-The three loop-state hooks (C1/C2 plus the new unregistered-loop nudge) remain **Stop-only** — they key off main-agent loop invocation count, session-owned `progress.json`, or (the new hook) the *absence* of one. A subagent has no `progress.json` to validate. `loop_state_guard` and `loop_stall_guard` pass immediately when no agentic-loop session is active, adding zero overhead to normal single-PR sessions; `unregistered_loop_guard` is the one loop-state hook designed to fire specifically when a loop-shaped session has NOT registered — see [[unregistered_loop_guard]] for why that's a nudge, not a block, unlike its two Stop-only siblings. See [[spec-plan-progress-artifact-chain]] for the two-hook (C1/C2) guard architecture that predates it.
+The three loop-state hooks (C1/C2 plus the new unregistered-loop nudge) remain **Stop-only** — they key off main-agent loop invocation count, session-owned `progress.json`, or (the new hook) the *absence* of one. A subagent has no `progress.json` to validate.
+
+**Correction (PR #95, 2026-07-08):** the "loop invocation count" this section describes historically missed loops started via the **slash-command form** (`/coderails:agentic-loop`), which the transcript records as a `user`-role message with a string `.message.content` carrying `<command-name>...</command-name>` — not an assistant `Skill` tool_use. `als_count_invocations` (`hooks/scripts/lib/loop_state_common.sh`) only matched the tool_use form, so a slash-started loop counted 0 invocations and every shared consumer (`als_gate_require_active_loop`, and downstream `als_load_progress`/`gate_loop_stop_declared`/`bump_loop_stop_count`) treated the session as not-a-loop. The count now covers **both** forms: the assistant `Skill` tool_use form and the user `<command-name>` slash form (anchored on the same `(^|:)agentic-loop$` name test after stripping the leading `/`). See [[pr_95_slash-command-loop-detection]] for the fix mechanics and hardening details.
+
+`loop_state_guard` and `loop_stall_guard` pass immediately when no agentic-loop session is active, adding zero overhead to normal single-PR sessions; `unregistered_loop_guard` is the one loop-state hook designed to fire specifically when a loop-shaped session has NOT registered — see [[unregistered_loop_guard]] for why that's a nudge, not a block, unlike its two Stop-only siblings. See [[spec-plan-progress-artifact-chain]] for the two-hook (C1/C2) guard architecture that predates it.
 
 ## Enforcement ceilings (documented PR #62)
 
@@ -182,6 +187,7 @@ This means: edits to transcript-extraction logic now go in `discipline_common.sh
 - [[loop_stall_guard]] — `LOOP-STOP` declaration Stop hook (C2, added 2026-06-24)
 - [[unregistered_loop_guard]] — unregistered-loop nudge Stop hook (added 2026-07-06, PR #17)
 - [[voice_announce]] — observe-only voice-lifecycle Stop hook, first in the array (added 2026-07-07, PR #71)
+- [[pr_95_slash-command-loop-detection]] — fixes the loop-invocation-count blind spot for slash-started loops (2026-07-08)
 - [[spec-plan-progress-artifact-chain]] — the two-hook loop-state guard design
 - [[hook-exit-codes]] — which hook events block on exit 2 vs. permissionDecision: deny
 - [[install-and-cache-trap]] — hook edits in the repo do not take effect until cache is re-synced
