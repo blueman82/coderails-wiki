@@ -345,3 +345,93 @@ Checked only what this cluster touched (per-cluster scope, consistent with this 
 ## [2026-07-08] lint | Cluster-scoped pass on the gate security-hardening ingest (#69/#72+75/#84/#92, substitution/force-with-lease/option-tolerance/plugin-anchor)
 
 Checked only what this cluster touched (per-cluster scope, consistent with this log's established convention). Files audited: `sources/pr_69_2026-07-08_substitution-bypass-audit.md`, `sources/pr_72-75_2026-07-08_force-with-lease-allowlist.md`, `sources/pr_84_2026-07-08_git-global-option-bypass.md`, `sources/pr_92_2026-07-08_reference-drift-and-lookalike-fp.md`, `hooks/destructive_bash_gate.md`, `design/enforcement-model.md`, `index.md`, `log.md`. WIKI-LINKS: extracted 32 unique outbound `[[links]]` across the 6 content pages, all resolve to existing vault pages (verified against a 148-page basename index) — 0 dangling. The one mechanically-flagged `[[:space:]]` is a POSIX character class inside backtick/code-fence regex, not a wiki-link (Obsidian ignores `[[...]]` inside code spans); confirmed all occurrences are code-wrapped. `index.md`'s 4 new Sources bullets and their 4 collision cross-links all resolve; the 4 older date-collision pages (`pr_69_2026-06-29_no-edit-message-worktree`, `pr_72_config-walkup-symlink-hang`, `pr_75_main-branch-fallback`, `pr_92_exec-bit-sweep`) exist and their titles/merge-dates match each new page's collision banner exactly (2026-06-29/2026-06-29/2026-06-29/2026-07-03). FRONTMATTER: all 6 pages carry title/type/created/last_updated/sources/tags, all non-empty; `type` values valid (source×4, hook, design); all `last_updated` = 2026-07-08 (nothing stale). ORPHANS: 0 — each new source page has ≥2 inbound (index.md + destructive_bash_gate.md at minimum; #69/#72-75/#84 additionally inter-link within the arc). CONTRADICTIONS: 0. Merge commits agree in short/full form across source pages and index.md (ebfee7b/8332509/e63d3d1/7c4f12f/652c5f8). The `cmd_flat` (substitution block, #69) vs `force_cmd_flat` (force-push block, #72/#75) distinction is kept distinct on every page — no conflation. Vault-wide sweep for pages asserting force-push is "always denied / no carve-out" (which the new allowlist would contradict) found none; the hook page's "no approval path" line is correctly scoped to the main-regex blocklist while the carve-out is flagged separately in the intro and its own section. MINOR (not fixed, reported to caller): `hooks/destructive_bash_gate.md:95` mentions "PR #97" as bare prose where a link `[[pr_96-98_mode-aware-install-argument-injection-guard-hook-owned-counter|PR #97]]` would resolve — contextual color about the `$ARGUMENTS` injection class, not core to this cluster; left as-is per surgical scope. STALE PAGES / full-vault scope: not re-audited this pass — per-cluster scope only.
+
+## [2026-07-08] lint | Full-vault health pass
+
+Full audit (not cluster-scoped): 129 pages — 12 commands, 13 hooks, 32 skills, 19 design, 5 investigations, 56 sources, plus index/log. Findings:
+
+- **Coverage gap (actioned as report, not authored):** `comment_citation_gate` is a live PreToolUse (Write|Edit|MultiEdit) hook — wired in `hooks/hooks.json`, script at `hooks/scripts/comment_citation_gate.sh`, added 2026-07-07 (commit 125aec7) — but has ZERO wiki coverage: no `hooks/comment_citation_gate.md`, absent from `index.md`'s hook table, unmentioned in any page (the single log.md hit is coincidental grep-output quoted in an unrelated lint entry). All other 13 hooks, all 12 commands, all 31 non-coordinator skills have pages. Root cause: the PR that added the gate was never wiki-ingested. Fix belongs to `/wiki-ingest` (author `hooks/comment_citation_gate.md` + index row), not lint. AGENTS.md's own Part-1 hook event map also omits it (source-side gap, flagged not fixed).
+- **Dangling link FIXED:** `sources/pr_23-24_hook-lib-observability-and-repo-keyed-loop-state.md` linked `[[design/agentic-loop-path-keying]]` with a `design/` path prefix Obsidian shortlinks don't resolve; the canonical form used in 8+ other pages is `[[agentic-loop-path-keying]]`. Corrected in place.
+- **Cross-wiki link noted, not a defect:** `investigations/queue-contract-cross-pr-audit_2026-07-07.md` uses `[[capabilities/send-gate]]`, explicitly labelled inline as an assistant-agent-wiki page — an intentional external reference, not a local dangle.
+- **Contradictions: 0 open.** All 4 `⚠️` markers outside index/log are already-resolved supersession/PATH-UPDATE banners (config-resolution, queue-contract-audit, pr_70-71, pr_43-44-46), each reconciling its conflict explicitly rather than leaving a live contradiction.
+- **Orphans: 0.** Every non-index/log page has ≥1 inbound link.
+- **Stale (>30d, before 2026-06-08): 6, all benign** — all are `source` or `investigation` pages (immutable PR/session records and point-in-time analyses), whose old `last_updated` is correct by schema. No evergreen command/hook/skill/design page is stale.
+- **Inbox: n/a** (no `inbox/` dir).
+
+Suggestions: (1) run `/wiki-ingest` for commit 125aec7 to close the `comment_citation_gate` gap — highest-value next action; (2) consider renaming the pre-recreation `pr_69`/`pr_70` source pages to date-qualified forms to resolve the PR-number collision already flagged in `repo-hosting.md`; (3) add `comment_citation_gate` to AGENTS.md's Part-1 hook event map (source edit, owner's call).
+
+## [2026-07-08] ingest | loop-lib residuals cluster (PRs #91/#107/#86/#87/#94) + comment_citation_gate coverage-gap fix
+
+Ingested a five-PR cluster (all merged 2026-07-08) as one source page,
+`sources/pr_86-107_2026-07-08_loop-lib-residuals.md`. Main thread: PR #91
+(`f1db15c4`) makes the shared `hooks/scripts/lib/loop_state_common.sh`
+transcript parse malformed-line-tolerant (per-line `jq -R 'fromjson? //
+empty'` pre-filter ahead of the aggregating `jq -s`, dropped lines reported
+as `skipped_malformed=N` on stderr) — a single bad JSONL line previously
+collapsed the whole invocation count to empty/0, making
+`als_gate_require_active_loop` treat a genuinely active loop as "not a loop"
+and defeating [[loop_state_guard]], [[loop_stall_guard]], [[voice_announce]],
+and (via its delegate call) [[unregistered_loop_guard]]. PR #107 (`d4256542`,
+same day, a post-merge 4-reviewer verification pass) corrected two
+failure-attribution regressions the tolerant parse had introduced: a
+`read_error` tag for an unreadable transcript or a stage-1 `jq` binary death
+(previously indistinguishable from "clean"), and an `all_lines_malformed` tag
+distinguishing total parse loss (every line malformed) from a benign partial
+skip — the distinction gates the `als_stable_invocations` retry/settle loop,
+restoring the 5-attempt flush-race window a mis-attributed "clean" result
+would have short-circuited. `unregistered_loop_guard.sh`'s own separate
+`jq -s` slurp (`ulg_count_dispatch_turns`) and `discipline_common.sh`'s
+`dc_extract_last_text` (a different lib family) both carry the identical bare
+`jq -s` fragility and were explicitly NOT touched — both recorded as standing
+residuals on the source page and cross-linked from
+[[unregistered_loop_guard]]'s own page. Smaller, unrelated fixes swept into
+the same cluster: PR #86 (`9b300355`) gives the Obsidian command-centre
+plugin's `pressButton` (`exec.ts`) a try/catch around `buildArgv`, matching
+`route.ts`'s existing parity; PR #87 (`81a705f6`) investigated a reported
+nested-worktree test-failure concern in `install_mode_sweep.test.sh` and did
+NOT reproduce it (documented as a header comment, no code change); PR #94
+(`f4e05ee9`) removes a third-occurrence leaked root `evals.json` and adds a
+root-anchored `/evals.json` gitignore entry that doesn't shadow the tracked
+dashboard test fixture. **PR-number collision, deliberately avoided:** this
+cluster's #86/#87 are unrelated to the older, pre-recreation
+`sources/pr_86_agentic-loop-hardening.md` /
+`sources/pr_87_agentic-loop-path-session-keying.md` (both merged 2026-07-01)
+— left byte-untouched; the new page's slug carries the cluster theme, not a
+bare `pr_86_`/`pr_87_` name.
+
+Updated: `hooks/loop_state_guard.md` (new "Malformed-transcript tolerance"
+section, frontmatter sources/tags, see-also, `last_updated` 2026-07-06→
+2026-07-08), `hooks/loop_stall_guard.md` (cross-reference note in its
+skip-gates list, frontmatter sources/tags, see-also, `last_updated`
+2026-07-06→2026-07-08), `hooks/voice_announce.md` (cross-reference note in
+its silence-conditions section, frontmatter sources/tags, see-also,
+`last_updated` 2026-07-07→2026-07-08), `hooks/unregistered_loop_guard.md`
+(new "Known residual: this hook's own jq -s slurp is untouched" section,
+extended design-decisions bullet, frontmatter sources/tags, see-also,
+`last_updated` 2026-07-06→2026-07-08), `skills/dashboard.md` (new
+`pressButton` buildArgv-parity paragraph under the Obsidian command centre
+subsection, frontmatter sources), `design/install-and-cache-trap.md` (new
+"Nested-worktree concern investigated, did not reproduce" section, frontmatter
+sources/tags, see-also, `last_updated` 2026-07-07→2026-07-08), `index.md`
+(hooks-table rows for `loop_state_guard.sh`/`loop_stall_guard.sh`/
+`unregistered_loop_guard.sh` annotated with the malformed-transcript fix, new
+Sources entry).
+
+**Also closed the `comment_citation_gate` coverage gap** the full-vault health
+pass above flagged (highest-value suggestion #1): authored
+`hooks/comment_citation_gate.md` from the script
+(`hooks/scripts/comment_citation_gate.sh`) and its `hooks.json` registration
+(read directly, not summarised) — a `PreToolUse (Write|Edit|MultiEdit)` hook
+denying new code comments that cite a session-artifact label (`E#:`, `F# fix`,
+`CHANGE B#/C#`, `Task A#`, `TA-I#`, "reviewer finding", `eval E#`, `WU#:`,
+`C2`, "per the plan/design/session"); `.md` files out of scope; `PR #NN` a
+documented survivor. Created `sources/pr_50_2026-07-07_comment-citation-gate.md`
+(PR #50, merged 2026-07-07T12:22:08Z, `6cdeb9c8`) — **PR-number collision,
+deliberately avoided**: this repo already has an older, unrelated
+`sources/pr_50_planning-sequence-gate.md` (merged 2026-06-26, pre-recreation);
+the new page uses the date-qualified slug per [[repo-hosting]]'s convention.
+Both PR #50's and PR #107's `gh pr view --json body` fields return a bare
+commit-log dump rather than written prose — both source pages' Summary
+sections are reconstructed from direct source-diff/script reads, flagged
+inline as such. Updated `index.md` (new hooks-table row for
+`comment_citation_gate.sh`, new Sources entry).
