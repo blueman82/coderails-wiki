@@ -2,7 +2,7 @@
 title: "Hook: voice_announce.sh"
 type: hook
 created: 2026-07-07
-last_updated: 2026-07-07
+last_updated: 2026-07-08
 sources:
   - sources/pr_70-71_2026-07-07_dashboard-input-fix-and-voice-announcements.md
   - sources/pr_86-107_2026-07-08_loop-lib-residuals.md
