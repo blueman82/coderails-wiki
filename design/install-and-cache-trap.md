@@ -12,11 +12,13 @@ sources:
   - CLAUDE.md
   - sources/pr_96-98_mode-aware-install-argument-injection-guard-hook-owned-counter.md
   - sources/pr_11-14_gate-hardening-followups.md
+  - sources/pr_86-107_2026-07-08_loop-lib-residuals.md
 tags:
   - installation
   - cache
   - plugin
   - trap
+  - nested-worktree
   - operational
   - exec-bit
   - test-sandboxing
