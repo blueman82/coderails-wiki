@@ -128,11 +128,10 @@ silently change.
   orphaned and reported as an *unregistered* loop by the newer guards
   (`unregistered_loop_guard.sh` et al., now live post-update) despite having
   faithfully maintained state the whole time. Workaround applied live: a
-  symlink from the new slug to the old state directory. **This is a migration
-  gap, not fixed here** — candidate fixes: the helper falls back to checking
-  the legacy cwd-slug path when the git-common-dir slug has no existing state
-  but the legacy one does, or the plugin's own update path runs a one-time
-  migration step. Filed for the owner, not actioned by this page.
+  symlink from the new slug to the old state directory. **RESOLVED 2026-07-08
+  by [[pr_103_agentic-loop-path-session-fallback|PR #103]]** (the first of the
+  two candidate fixes named here — a session-id fallback probe in the helper).
+  See "Update — session-id fallback probe" below.
 
 ## Live proof
 
