@@ -8,7 +8,8 @@ sources:
   - sources/pr_49_gate-function-rename.md
   - sources/pr_76_harden-hook-stdin-read.md
   - sources/pr_96-98_mode-aware-install-argument-injection-guard-hook-owned-counter.md
-tags: [hook, agentic-loop, anti-stall, stop-hook, loop-stop, loop-state, hook-owned-counter]
+  - sources/pr_86-107_2026-07-08_loop-lib-residuals.md
+tags: [hook, agentic-loop, anti-stall, stop-hook, loop-stop, loop-state, hook-owned-counter, malformed-transcript]
 ---
 
 # loop_stall_guard.sh (C2)
