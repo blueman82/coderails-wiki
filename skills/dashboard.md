@@ -10,7 +10,8 @@ sources:
   - sources/pr_55-60-64-66-67_approve-build-runner.md
   - sources/pr_70-71_2026-07-07_dashboard-input-fix-and-voice-announcements.md
   - sources/pr_80-82_dashboard-stream-run-output-viewer.md
-tags: [skill, dashboard, observability, nextjs, r3f, sse, obsidian, agentic-os, sub-project-1-of-5, queue-contract, builder, ask-button, argv, run-output, streaming]
+  - sources/pr_88_93_dashboard-launchd.md
+tags: [skill, dashboard, observability, nextjs, r3f, sse, obsidian, agentic-os, sub-project-1-of-5, queue-contract, builder, ask-button, argv, run-output, streaming, launchd, reboot-persistence]
 ---
 
 # Skill: dashboard
