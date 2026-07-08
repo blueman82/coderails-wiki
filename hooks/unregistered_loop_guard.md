@@ -8,6 +8,7 @@ sources:
   - sources/pr_23-24_hook-lib-observability-and-repo-keyed-loop-state.md
   - sources/pr_99_unregistered-loop-guard-nudge-once.md
   - sources/pr_86-107_2026-07-08_loop-lib-residuals.md
+  - sources/pr_112-113_2026-07-08_jq-slurp-residuals-round2.md
 tags: [hook, agentic-loop, unregistered-loop, stop-hook, loop-state, nudge, heuristic, nudge-once, malformed-transcript]
 ---
 
@@ -69,15 +70,22 @@ fi
 - **`jq` failures are logged with distinct reasons**, not silently folded into the below-threshold outcome: `jq_missing`, `jq_parse_error`, `payload_parse_error` are each a separate logged reason, keeping "jq isn't installed" auditably distinct from "the transcript didn't parse" or "the hook payload itself was malformed."
 - **Silent on `als_count_invocations` parse failures, by explicit choice (PR #23).** This hook's `ulg_has_skill_invocation` calls the shared `als_count_invocations` directly (not through the retry wrapper `als_stable_invocations`), and [[pr_23-24_hook-lib-observability-and-repo-keyed-loop-state|PR #23]]'s hook-lib rework moved that function's jq-failure signalling from a direct `als_log` call to a stderr tag intended for the retry wrapper to pick up. This hook now explicitly discards that stderr (`2>/dev/null`) rather than let it leak to the hook's own stderr — preserving this hook's prior (pre-#23) behaviour of staying silent on a parse failure here, now an explicit decision instead of an accident of the old design. This still holds after [[pr_86-107_2026-07-08_loop-lib-residuals|PRs #91/#107]] widened `als_count_invocations`'s stderr vocabulary (`skipped_malformed=N`, `read_error`, `all_lines_malformed`) — this hook discards all of it identically via the same `2>/dev/null`, so it benefits from the more tolerant parse (fewer false "no invocation found" results from one bad transcript line) without needing any change of its own.
 
-## Known residual: this hook's own `jq -s` slurp is untouched
+## Resolved residual: this hook's own `jq -s` slurp (PR #113, 2026-07-08)
 
 `ulg_count_dispatch_turns` — the dispatch-turn counter **inside this hook's own
-script**, not the shared lib — has the identical bare-`jq -s`-slurp fragility that
-[[pr_86-107_2026-07-08_loop-lib-residuals|PRs #91/#107]] fixed in
-`loop_state_common.sh`. A single malformed JSONL line here still collapses this
-hook's OWN dispatch-turn count, independent of the shared-lib fix. This was
-explicitly flagged as out-of-scope in PR #91's own description and remains a
-standing residual — not fixed by this cluster.
+script**, not the shared lib — had the identical bare-`jq -s`-slurp fragility
+that [[pr_86-107_2026-07-08_loop-lib-residuals|PRs #91/#107]] fixed in
+`loop_state_common.sh`. A single malformed JSONL line here used to collapse
+this hook's OWN dispatch-turn count, independent of the shared-lib fix — flagged
+as out-of-scope in PR #91's own description and left as a standing residual.
+
+**Closed same-day by [[pr_112-113_2026-07-08_jq-slurp-residuals-round2|PR
+#113]]**: `ulg_count_dispatch_turns` now mirrors `als_count_invocations`'s
+two-stage tolerant parse — a benign partial skip (some lines parse) recovers
+the valid count with `ULG_PARSE_REASON` left empty; total parse loss (every
+line malformed) reports count 0 with a non-empty reason so the caller can
+suppress the nudge on genuinely untrustworthy input, mirroring #107's
+`all_lines_malformed` distinction applied to this hook's own local parse.
 
 ## Stdin read convention
 
