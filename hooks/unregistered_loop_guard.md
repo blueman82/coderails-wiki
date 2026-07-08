@@ -7,7 +7,8 @@ sources:
   - sources/pr_15-17_loop-hardening-registration-eval-freeze-ledger-dry.md
   - sources/pr_23-24_hook-lib-observability-and-repo-keyed-loop-state.md
   - sources/pr_99_unregistered-loop-guard-nudge-once.md
-tags: [hook, agentic-loop, unregistered-loop, stop-hook, loop-state, nudge, heuristic, nudge-once]
+  - sources/pr_86-107_2026-07-08_loop-lib-residuals.md
+tags: [hook, agentic-loop, unregistered-loop, stop-hook, loop-state, nudge, heuristic, nudge-once, malformed-transcript]
 ---
 
 # unregistered_loop_guard.sh
