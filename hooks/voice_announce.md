@@ -118,3 +118,4 @@ suppressed-by-debounce case.
 - [[hook-exit-codes]] — this hook is the one Stop hook that *always* returns the non-blocking code, by design
 - [[pr_76_harden-hook-stdin-read]] — the stdin-read convention this hook follows
 - [[pr_70-71_2026-07-07_dashboard-input-fix-and-voice-announcements]] — source record for this PR
+- [[pr_86-107_2026-07-08_loop-lib-residuals]] — PRs #91/#107: malformed-transcript tolerance in the shared lib this hook's loop-active detection depends on
