@@ -521,3 +521,47 @@ call); (4) when comparing plugin↔wiki coverage, diff by name (as this pass
 did) rather than by bare count — the `sync-docs`/`verify-merged-pr` slot
 coincidence in skills is a reminder that counts can silently mask a 1-for-1
 gap.
+
+## [2026-07-08] ingest | Approve→build pipeline live-fire (PRs #89/#100/#104/#106)
+
+Loop-boundary ingest of the four-PR cluster that closes E5 (the first real
+Approve→build run) for the [[pr_55-60-64-66-67_approve-build-runner|builder
+pipeline]]. One source page for the cluster: `sources/pr_89-100-104-106_approve-build-e5-live.md`.
+
+- **New:** `sources/pr_89-100-104-106_approve-build-e5-live.md`;
+  `skills/verify-merged-pr.md` (the first skill the pipeline built — PR #104).
+  Creating this skill page **closes suggestion (2) of the 2026-07-08 wiki-lint
+  pass** (`skills/verify-merged-pr/SKILL.md` existed in the plugin with no wiki
+  page).
+- **Updated:** `skills/dashboard.md` (AssistantLinkPanel: live phase / elapsed
+  timer / heartbeat + `PR resolved` after-merge reconciliation, PR #106);
+  `skills/workflow-audit.md` (pipeline-outcome note — E5 done, first skill
+  built); `sources/pr_55-60-64-66-67_approve-build-runner.md` (E5-pending
+  caveat resolved, both occurrences); `index.md` (new source + skill rows,
+  approve-build-runner E5 note flipped to done).
+- **PR-number collision flagged:** this cluster's #89/#100 are unrelated to the
+  pre-existing [[pr_89-91_skills-doc-frontmatter-injection|#89]]; resolve by
+  merge SHA (`91d3802`/`a6f40ec`/`c30fcbf`/`23a73bd`).
+
+## [2026-07-08] lint | post-E5-ingest health pass — clean, one fix
+
+Focused lint of the seven pages the Approve→build E5 ingest touched. Verdict:
+the E5-pending→done flip is applied consistently and no dead links were
+introduced.
+- **Contradictions:** 0. The E5-pending→done flip is complete across
+  [[pr_55-60-64-66-67_approve-build-runner]] (both occurrences), [[index]],
+  and [[workflow-audit]]; a vault-wide grep for any surviving "E5 …
+  pending/not yet" claim found only text describing the *resolution*.
+- **Dead wiki-links:** 0. All 8 distinct ingest-introduced link targets
+  (`verify-merged-pr`, `pr_89-100-104-106_approve-build-e5-live`,
+  `pr_89-91_skills-doc-frontmatter-injection`,
+  `verification-before-completion`, etc.) resolve to real pages.
+- **Orphans:** 0. Both new pages are inbound-linked — the source page from
+  index/log/runner/dashboard/workflow-audit/verify-merged-pr; the skill page
+  from index/source/runner/workflow-audit/dashboard.
+- **Fixed:** this log's own ingest entry (above) called the cluster a "two-PR
+  cluster" — it is four PRs (#89/#100/#104/#106); corrected to "four-PR".
+- **PR #100 SHA resolved (post-lint):** the source page and index initially
+  carried PR #100's merge identifier as a branch-name placeholder; resolved to
+  the real merge SHA `a6f40ec` (merged 2026-07-08T13:24:47Z) via `gh` after the
+  lint pass. No placeholder remains.

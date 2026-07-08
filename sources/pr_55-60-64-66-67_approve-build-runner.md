@@ -2,7 +2,7 @@
 title: "PRs #55/#59/#60/#64/#66/#67 — Approve-click → skill-creator builder pipeline (loop 2)"
 type: source
 created: 2026-07-07
-last_updated: 2026-07-07
+last_updated: 2026-07-08
 sources: []
 tags: [source, workflow-audit, dashboard, queue-contract, builder, skill-creator, security, agentic-os]
 ---
@@ -160,9 +160,12 @@ into `queue/`+`approvals/` (WU5).
   `Skill(coderails:merge)` attempt and a `gh pr merge` attempt each produced a
   `permission_denials` entry with the skip-permissions flag also present.
 - **E5 (a real, manual, one-time build) is the loop-close gate**, per the
-  team-lead's brief — pending as of this ingest. The pipeline is fully wired
-  and mechanically hardened, but no proposal has yet been run through it
-  end-to-end on a live approval.
+  team-lead's brief. ✅ **DONE 2026-07-08** — see
+  [[pr_89-100-104-106_approve-build-e5-live]]. Running one live Approve click
+  end-to-end surfaced three production-only defects no test caught (builder
+  repo-identity, launchd env, and the opaque-build feedback gap) and produced
+  the pipeline's first real skill, [[verify-merged-pr]] (PR #104). The pipeline
+  is no longer just wired-and-tested; it has built and merged a skill.
 
 ## Files changed
 
@@ -194,11 +197,13 @@ into `queue/`+`approvals/` (WU5).
 
 ## Caveats / gotchas
 
-- **E5 (manual, one-time real build through the pipeline) had not yet run as
-  of this ingest** — every claim above is about the mechanism being wired and
-  tested, not about a proposal having actually been built and PR'd through it
-  live. `(verified — team-lead's brief states this explicitly as the pending
-  loop-close gate)`
+- **E5 (manual, one-time real build through the pipeline) has since run** —
+  every claim above was, at this ingest, about the mechanism being wired and
+  tested, not a proposal actually built and PR'd through it live. That gate
+  closed on 2026-07-08: [[pr_89-100-104-106_approve-build-e5-live]] records the
+  live run, the three production-only defects it surfaced, and the first built
+  skill [[verify-merged-pr]]. `(verified — PR #104 is a real merged skill PR
+  from an Approve-spawned build)`
 - **WU2's follow-up (PR #64) fixes a bug that shipped in WU2 itself the same
   day** — the cwd-relative wrapper path — rather than being caught before
   merge. Recorded here rather than silently folded into "WU2" so the

@@ -2,11 +2,12 @@
 title: "Skill: workflow-audit"
 type: skill
 created: 2026-07-07
-last_updated: 2026-07-07
+last_updated: 2026-07-08
 sources:
   - sources/pr_27-39_workflow-audit-skill.md
   - sources/pr_43-44-46_workflow-audit-queue-seam.md
   - sources/pr_55-60-64-66-67_approve-build-runner.md
+  - sources/pr_89-100-104-106_approve-build-e5-live.md
 tags: [skill, workflow-audit, skill-creator, privacy, transcripts, agentic-os, sub-project-3-of-5, queue-contract, builder]
 ---
 
@@ -68,9 +69,12 @@ PR — never merges it directly (mechanically enforced via
 and merges the resulting PR by hand; a click approves *creation*, not landing
 an unseen diff. See [[pr_55-60-64-66-67_approve-build-runner]] for the full
 claim/spawn/wrapper/prompt-fencing architecture. **E5 (a real, manual,
-one-time build through the pipeline) was still pending as of that ingest** —
-the mechanism is wired and tested but not yet exercised end-to-end on a live
-approval.
+one-time build through the pipeline) is now DONE (2026-07-08).** The pipeline
+has built and merged its first real skill — [[verify-merged-pr]] — from a
+genuine Approve click; the live run surfaced three production-only defects no
+test caught (builder repo-identity, launchd env, opaque-build feedback). The
+full loop is proven end-to-end, not just wired. See
+[[pr_89-100-104-106_approve-build-e5-live]].
 
 ## Mandatory judge rejection criteria
 
@@ -85,6 +89,8 @@ Checked in order; first match wins:
 - [[pr_27-39_workflow-audit-skill]] — the ingest source page (full architecture, testing, files)
 - [[pr_43-44-46_workflow-audit-queue-seam]] — the queue-mode integration source page (writer, dashboard render, consumption-seam contract)
 - [[pr_55-60-64-66-67_approve-build-runner]] — the builder pipeline that turns Approve into a real skill-creator build + PR; supersedes the "status flip only" claim above
+- [[pr_89-100-104-106_approve-build-e5-live]] — the live-fire close of that pipeline (E5 done): first built skill [[verify-merged-pr]] + honest build feedback
+- [[verify-merged-pr]] — the first skill this loop built end-to-end (Approve → headless `skill-creator` build → merged PR)
 - [[claude-code-transcript-schema_2026-07-07]] — transcript JSONL schema catalogue this skill's scan stage relies on
 - [[writing-skills]] — the TDD process invoked for each approved candidate
 - [[skill-testing-state_2026-06-26]] — same mechanical/model-judgement tiering logic, prior investigation
