@@ -67,7 +67,17 @@ fi
 - **`message.id`-based counting, not tool_use-call counting.** This is the specific design choice that keeps parallel fan-outs (a legitimate, common pattern — see [[dispatching-parallel-agents]]) from ever tripping the nudge: they share one message.id regardless of how many `Agent` calls they contain.
 - **YAGNI cuts, explicit in the source:** no `subagent_type` classification (doesn't distinguish implementer dispatches from research/review dispatches), no dispatch-review-cycle state machine, no block-once marker, no changes to `lib/loop_state_common.sh`.
 - **`jq` failures are logged with distinct reasons**, not silently folded into the below-threshold outcome: `jq_missing`, `jq_parse_error`, `payload_parse_error` are each a separate logged reason, keeping "jq isn't installed" auditably distinct from "the transcript didn't parse" or "the hook payload itself was malformed."
-- **Silent on `als_count_invocations` parse failures, by explicit choice (PR #23).** This hook's `ulg_has_skill_invocation` calls the shared `als_count_invocations` directly (not through the retry wrapper `als_stable_invocations`), and [[pr_23-24_hook-lib-observability-and-repo-keyed-loop-state|PR #23]]'s hook-lib rework moved that function's jq-failure signalling from a direct `als_log` call to a stderr tag intended for the retry wrapper to pick up. This hook now explicitly discards that stderr (`2>/dev/null`) rather than let it leak to the hook's own stderr — preserving this hook's prior (pre-#23) behaviour of staying silent on a parse failure here, now an explicit decision instead of an accident of the old design.
+- **Silent on `als_count_invocations` parse failures, by explicit choice (PR #23).** This hook's `ulg_has_skill_invocation` calls the shared `als_count_invocations` directly (not through the retry wrapper `als_stable_invocations`), and [[pr_23-24_hook-lib-observability-and-repo-keyed-loop-state|PR #23]]'s hook-lib rework moved that function's jq-failure signalling from a direct `als_log` call to a stderr tag intended for the retry wrapper to pick up. This hook now explicitly discards that stderr (`2>/dev/null`) rather than let it leak to the hook's own stderr — preserving this hook's prior (pre-#23) behaviour of staying silent on a parse failure here, now an explicit decision instead of an accident of the old design. This still holds after [[pr_86-107_2026-07-08_loop-lib-residuals|PRs #91/#107]] widened `als_count_invocations`'s stderr vocabulary (`skipped_malformed=N`, `read_error`, `all_lines_malformed`) — this hook discards all of it identically via the same `2>/dev/null`, so it benefits from the more tolerant parse (fewer false "no invocation found" results from one bad transcript line) without needing any change of its own.
+
+## Known residual: this hook's own `jq -s` slurp is untouched
+
+`ulg_count_dispatch_turns` — the dispatch-turn counter **inside this hook's own
+script**, not the shared lib — has the identical bare-`jq -s`-slurp fragility that
+[[pr_86-107_2026-07-08_loop-lib-residuals|PRs #91/#107]] fixed in
+`loop_state_common.sh`. A single malformed JSONL line here still collapses this
+hook's OWN dispatch-turn count, independent of the shared-lib fix. This was
+explicitly flagged as out-of-scope in PR #91's own description and remains a
+standing residual — not fixed by this cluster.
 
 ## Stdin read convention
 
