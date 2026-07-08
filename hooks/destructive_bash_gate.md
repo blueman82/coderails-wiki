@@ -154,6 +154,12 @@ This hook does not append to `$CLAUDE_DISCIPLINE_LOG`. (verified: destructive_ba
 
 None for the original blocklist. The in-Bash source-edit gate reads `.cwd` from the hook payload and falls back to `$PWD`. (verified: destructive_bash_gate.sh)
 
+## 2026-07-08 adversarial-hardening arc — cross-cutting theme
+
+A same-day, five-PR arc (#69, #72+#75, #84, #92) that hardened this single line-oriented ERE gate against three independent bypasses (process substitution, multi-line substitution, git-global-option adjacency-break) and fixed one false-positive (`plugin_src` lookalike). The pattern across all five: **each narrowing of a regex risks reopening an adjacent hole** — the PR #72 tab-separator regression (fixed in #75) is the concrete instance, where the fix for one gap (adding the allowlist carve-out) shipped with a live boundary bug in an unrelated part of the same regex. The corrective discipline that emerged: every fix to this gate needs (a) a fresh adversarial pass, not just a fix for the reported shape, and (b) a **positive-control test** — asserting the allowlisted path actually ALLOWs on a clean payload, not just that denied shapes stay denied — because a fail-closed default can silently mask a broken allow-path the same way it correctly masks a bypass. See each source page for the specific incident: [[pr_69_2026-07-08_substitution-bypass-audit]], [[pr_72-75_2026-07-08_force-with-lease-allowlist]], [[pr_84_2026-07-08_git-global-option-bypass]], [[pr_92_2026-07-08_reference-drift-and-lookalike-fp]].
+
+The gate's documented enforcement ceiling (`AGENTS.md`) still applies unchanged after this arc: quoted paths with embedded spaces, variable filenames, and `python -c` writes remain best-effort-uncaught.
+
 ## Related
 
 ## Stdin read convention (PR #76)
@@ -163,3 +169,7 @@ This hook reads its payload via `IFS= read -r -d '' -t 5 input || true`. See [[p
 - [[hook-exit-codes]] — why PreToolUse hooks use `permissionDecision: "deny"` + exit 0 rather than exit 2
 - [[enforcement-model]] — hooks vs. commands; this is the clearest example of mechanical enforcement
 - [[discipline-loop]] — the full set of coderails hooks
+- [[pr_69_2026-07-08_substitution-bypass-audit]] — process-substitution + multi-line substitution bypass fixes
+- [[pr_72-75_2026-07-08_force-with-lease-allowlist]] — force-with-lease allowlist carve-out + tab-separator incident
+- [[pr_84_2026-07-08_git-global-option-bypass]] — option-tolerant git_push_re
+- [[pr_92_2026-07-08_reference-drift-and-lookalike-fp]] — REFERENCE.md drift fix + plugin_src anchor fix
