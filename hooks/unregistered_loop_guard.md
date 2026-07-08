@@ -2,7 +2,7 @@
 title: "Hook: unregistered_loop_guard.sh"
 type: hook
 created: 2026-07-06
-last_updated: 2026-07-06
+last_updated: 2026-07-08
 sources:
   - sources/pr_15-17_loop-hardening-registration-eval-freeze-ledger-dry.md
   - sources/pr_23-24_hook-lib-observability-and-repo-keyed-loop-state.md
