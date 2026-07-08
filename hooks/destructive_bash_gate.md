@@ -2,18 +2,22 @@
 title: "Hook: destructive_bash_gate"
 type: hook
 created: 2026-05-31
-last_updated: 2026-06-29
+last_updated: 2026-07-08
 sources:
   - hooks/scripts/destructive_bash_gate.sh
   - sources/session_2026-05-31_prompting-doc-alignment.md
   - sources/pr_57-62_subagent-enforcement-gate-hardening.md
   - sources/pr_76_harden-hook-stdin-read.md
+  - sources/pr_69_2026-07-08_substitution-bypass-audit.md
+  - sources/pr_72-75_2026-07-08_force-with-lease-allowlist.md
+  - sources/pr_84_2026-07-08_git-global-option-bypass.md
+  - sources/pr_92_2026-07-08_reference-drift-and-lookalike-fp.md
 tags: [hook, pretooluse-hook, enforcement, destructive-bash, block]
 ---
 
 # Hook: destructive_bash_gate
 
-A `PreToolUse (Bash)` lifecycle hook that permanently blocks a fixed set of destructive shell commands before they run, with no approval path. Extended in PR #59 to cover additional force-clean, truncate, shred commands plus a best-effort branch-aware gate on in-Bash source file edits.
+A `PreToolUse (Bash)` lifecycle hook that permanently blocks a fixed set of destructive shell commands before they run, with **one narrow conditional-allow carve-out** (`git push --force-with-lease`, opt-in, see below). Extended in PR #59 to cover additional force-clean, truncate, shred commands plus a best-effort branch-aware gate on in-Bash source file edits. Hardened again in a same-day, five-PR arc on 2026-07-08 (#69, #72+#75, #84, #92) that closed three independent bypasses and one false-positive — see "2026-07-08 adversarial-hardening arc" below.
 
 Source: `hooks/scripts/destructive_bash_gate.sh`
 
