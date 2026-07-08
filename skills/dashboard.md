@@ -2,14 +2,15 @@
 title: "Skill: dashboard"
 type: skill
 created: 2026-07-06
-last_updated: 2026-07-07
+last_updated: 2026-07-08
 sources:
   - sources/pr_25_observability-dashboard.md
   - sources/pr_43-44-46_workflow-audit-queue-seam.md
   - sources/pr_36-41-33-53-65_verified-routines.md
   - sources/pr_55-60-64-66-67_approve-build-runner.md
   - sources/pr_70-71_2026-07-07_dashboard-input-fix-and-voice-announcements.md
-tags: [skill, dashboard, observability, nextjs, r3f, sse, obsidian, agentic-os, sub-project-1-of-5, queue-contract, builder, ask-button, argv]
+  - sources/pr_80-82_dashboard-stream-run-output-viewer.md
+tags: [skill, dashboard, observability, nextjs, r3f, sse, obsidian, agentic-os, sub-project-1-of-5, queue-contract, builder, ask-button, argv, run-output, streaming]
 ---
 
 # Skill: dashboard
@@ -40,6 +41,32 @@ A button is a declared, bounded run, never a free prompt box. `POST /run` looks 
 A new **"ask" button pattern** follows directly from this fix: `command: ""`, `profile: "standard"`, `inputAllowed: true` — free text becomes the entire prompt inside the button's declared envelope (profile flags still apply). Live in the owner's per-user config; documented in `examples/dashboard-config.json` (4th button, first time exercised by `lib/test/config.test.ts`).
 
 Every run is single-flight per button, JSONL-recorded (`~/.claude/coderails-dashboard/runs/`) with argv/cwd/profile/exit code, and CSRF-token-guarded (both `/api/events` and `/api/run` also reject non-localhost `Origin`/`Host`).
+
+### Run Output viewer — live-streaming + settled playback (PR #80–82)
+
+The COMMAND DECK's 4th panel, `OutputViewerPanel.tsx`, closes a gap
+[[dashboard-run-log-streaming-viewer-gap_2026-07-07]] documented the same day: the per-run
+`.log` file used to be write-only (one post-exit `appendFileSync`), never read anywhere. As of
+[[pr_80-82_dashboard-stream-run-output-viewer]], `POST /api/run` spawns `claude` with
+`--output-format stream-json --include-partial-messages --verbose` and streams each
+stdout/stderr chunk incrementally: appended to `runs/<runId>.log` as it arrives, and published
+on a new in-process pub/sub (`lib/runOutputBus.ts`) that the `/api/events` aggregator forwards
+as a `"run-output"` SSE event (`{runId, chunk}`) — deliberately riding the **existing** single
+SSE connection rather than opening a second one, per the single-SSE-provider rule established
+in PR #25's own fix-loop. A new non-throwing, forward-compatible parser (`lib/streamJson.ts`)
+validates each line is at least well-formed-or-gracefully-skipped without maintaining an
+event-type allowlist; parse failures never affect what's appended/published.
+
+The panel live-streams a still-active run from the accumulated `DashboardState.runOutput` map;
+once a run ends, it fetches the full settled output once from a new `GET /api/run/output` route,
+which resolves `runId` (format-validated `/^[0-9a-f]{16}$/`) to its `RunRecord` in `runs.jsonl`
+and reads *that record's own* `outputPath` — `runId` is never itself joined into a filesystem
+path, going one step further than the strict-format-validation precedent
+([[pr_31_assistant-link-approve-button]]) that motivated the check in the first place. Two
+Criticals were found and fixed in review: a missing `child.on("error", ...)` handler (a spawn
+failure like `ENOENT` would otherwise hang the request forever and leak the per-button lock),
+and a `fetchSettledOutput` that silently swallowed all fetch/parse errors (now a discriminated
+result type with a distinct in-progress/error/ok case and a visible retry button).
 
 ### AssistantLinkPanel — per-producer readable rendering
 
@@ -100,3 +127,5 @@ This is the first sub-project to give the task-evals gate a real production catc
 - [[intent-queue-runner-contract]] / [[dashboard-runner]] / [[routines]] / [[memory-consolidation]] — sub-project 2, the routines cluster: the queue schema/lifecycle, the sole-executor runner, the scheduling convention, and one shipped routine's skill
 - [[pr_70-71_2026-07-07_dashboard-input-fix-and-voice-announcements]] — the argv merged-prompt fix (button input was silently dropped on every `inputAllowed` button since inception) and the "ask" button pattern this fix enabled
 - [[voice_announce]] — the sibling PR in the same cluster: a new observe-only Stop hook announcing loop lifecycle events via macOS `say`, unrelated to the dashboard's own code but merged in the same session
+- [[pr_80-82_dashboard-stream-run-output-viewer]] — the Run Output viewer: incremental stream-json capture, the `runOutputBus`/`"run-output"` SSE event, the path-traversal-safe `GET /api/run/output` route, and the two Critical review fixes (missing spawn-error handler, silently-swallowed fetch errors)
+- [[dashboard-run-log-streaming-viewer-gap_2026-07-07]] — the investigation this cluster closes; documents the pre-fix write-only log model and the cross-PR constraints (single-SSE-provider, strict-ID-validation, never-throw, token non-leakage) the fix had to respect

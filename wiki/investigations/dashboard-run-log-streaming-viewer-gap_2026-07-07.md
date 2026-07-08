@@ -2,7 +2,8 @@
 title: "Investigation: dashboard run/events architecture and the streaming output-viewer gap"
 type: investigation
 created: 2026-07-07
-last_updated: 2026-07-07
+last_updated: 2026-07-08
+status: closed
 sources:
   - skills/dashboard/app/src/app/api/run/route.ts
   - skills/dashboard/app/src/app/api/events/route.ts
@@ -14,6 +15,20 @@ tags: [investigation, dashboard, sse, run-log, streaming, gap-analysis]
 ---
 
 # Investigation: dashboard run/events architecture and the streaming output-viewer gap
+
+> ## CLOSED 2026-07-08
+> This gap is closed. [[pr_80-82_dashboard-stream-run-output-viewer]] (PRs #80–82, merged
+> 2026-07-08) shipped exactly the streaming output-viewer this page said was greenfield,
+> unbuilt scope, and it respects every cross-PR constraint listed below — verified directly
+> against the merged source, not just the PR description: the log is now written
+> incrementally during the run (not once, post-exit); `outputPath` is now read by a new
+> `GET /api/run/output` route instead of being dead data; run output rides the existing
+> `/api/events` connection as a new `"run-output"` event rather than opening a second SSE
+> stream; `runId` gained the strict-format check this page's constraint #2 called for at the
+> new client-supplied-query-param trust boundary, and the new route goes further by never
+> joining `runId` into a path at all; the new `streamJson.ts` parser is fully non-throwing
+> per constraint #4; and the run token is still never present in a response body per
+> constraint #5. See the Resolution section below for the point-by-point mapping.
 
 Filed in response to a query asking what the wiki covers about `/api/run`,
 `/api/events`, and the run-log artifact model (`runs.jsonl`, `runs/<runId>.log`),
@@ -134,8 +149,45 @@ the finish-line `runs.jsonl` write already fires it.
   arrive) for a "live output viewer" to be more than a "view the finished
   transcript after the fact" feature.
 
+## Resolution
+
+**Closed 2026-07-08 by [[pr_80-82_dashboard-stream-run-output-viewer]] (PRs #80–82).**
+Point-by-point against this page's own findings and constraints, verified against the merged
+source (not just the PR description):
+
+- The write-only `.log` finding is resolved: `POST /api/run` now appends each stdout/stderr
+  chunk to `runs/<runId>.log` as it arrives (incremental), not once post-exit.
+- The dead-`outputPath` finding is resolved: a new `GET /api/run/output` route reads a
+  finished run's `RunRecord.outputPath` to serve settled output.
+- The `fs.watch`-is-not-streaming finding is superseded, not falsified: run output no longer
+  relies on `fs.watch` at all — a new in-process pub/sub (`runOutputBus.ts`) carries output
+  chunks directly from the spawn callback to the `/api/events` aggregator.
+- Constraint #1 (Origin/Host guard) — the new `GET /api/run/output` route calls
+  `isLocalOrigin(request)`, same as the existing routes.
+- Constraint #2 (strict ID validation) — `GET /api/run/output` validates `runId` against
+  `/^[0-9a-f]{16}$/` at the point it becomes a client-supplied query param, and goes further
+  than the precedent required: it never joins `runId` into a path at all, instead looking up
+  the matching `RunRecord`'s own server-written `outputPath`.
+- Constraint #3 (single-SSE-provider) — respected explicitly and by design: `runOutputBus.ts`'s
+  own header comment states run output rides the existing `/api/events` connection as a new
+  `"run-output"` event rather than opening a second stream.
+- Constraint #4 (collector never-throw discipline) — the new `streamJson.ts` parser is fully
+  non-throwing (`parseStreamJsonLine` returns `{ok: false, raw}` rather than throwing on a
+  malformed or unrecognised line), and a parse failure never affects what's appended/published.
+- Constraint #5 (token/CSRF non-leakage) — `GET /api/run/output` takes `token` as a query
+  param compared server-side only; it is never echoed back in a response body.
+- Constraint #6 (long-lived-POST/lock coupling) — resolved by design: output now streams out
+  of the same long-lived POST via the pub/sub, so a second reader (the SSE subscriber) observes
+  progress during the run without requiring the POST itself to become fire-and-forget.
+- Constraint #7 (design spec silence) — no longer applicable; this is now built, documented
+  scope (`docs/REFERENCE.md`, `skills/dashboard/SKILL.md`, both updated by PR #82).
+
+This page's investigative content is left otherwise unchanged as a historical record of the
+gap analysis that motivated the fix.
+
 ## See also
 
+- [[pr_80-82_dashboard-stream-run-output-viewer]] — the source page for the fix that closes this gap
 - [[dashboard]] — the skill's consolidating page
 - [[pr_25_observability-dashboard]] — original run/events/runlog implementation, the single-SSE-provider fix-loop finding
 - [[pr_70-71_2026-07-07_dashboard-input-fix-and-voice-announcements]] — the argv merged-prompt fix and its "argv-shape tests cannot prove delivery" lesson, directly relevant to test design for a streaming feature (behavioral verification, not shape/structure checks)
