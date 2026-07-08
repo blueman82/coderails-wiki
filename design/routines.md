@@ -2,9 +2,10 @@
 title: "Verified routines (scheduling convention)"
 type: design
 created: 2026-07-07
-last_updated: 2026-07-07
+last_updated: 2026-07-08
 sources:
   - sources/pr_36-41-33-53-65_verified-routines.md
+  - sources/pr_88_93_dashboard-launchd.md
 tags: [design, routines, cadence, artifact-gate, launchd, escalation, agentic-os, sub-project-2-of-5]
 ---
 
