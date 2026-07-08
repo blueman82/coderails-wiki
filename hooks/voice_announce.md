@@ -60,6 +60,12 @@ the shared lib — one vocabulary, two consumers (one blocks, one announces).
   successful announcement.
 - Debounce window still active for this session+kind (see below).
 
+This hook's active-loop detection shares the same `loop_state_common.sh` transcript
+parse made malformed-line-tolerant by [[pr_86-107_2026-07-08_loop-lib-residuals|PRs
+#91/#107]] — a single malformed JSONL line no longer collapses the invocation count
+(and therefore this hook's loop-active detection) to a false "not a loop." See
+[[loop_state_guard]]'s "Malformed-transcript tolerance" section for the fix detail.
+
 ## Mechanics
 
 - `speak()` launches `say` backgrounded and `disown`ed with all three streams redirected,
