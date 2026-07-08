@@ -15,6 +15,7 @@ sources:
   - sources/pr_15-17_loop-hardening-registration-eval-freeze-ledger-dry.md
   - sources/pr_70-71_2026-07-07_dashboard-input-fix-and-voice-announcements.md
   - sources/pr_95_slash-command-loop-detection.md
+  - sources/pr_99_unregistered-loop-guard-nudge-once.md
 tags:
   - discipline
   - hooks
@@ -142,7 +143,7 @@ The coderails Stop hook array has six hooks, running in order:
 3. `check_verify_loop` — DNV resolution gate
 4. `loop_state_guard` — `progress.json` presence/ownership gate (agentic-loop sessions only)
 5. `loop_stall_guard` — `LOOP-STOP` declaration gate (agentic-loop sessions only)
-6. `unregistered_loop_guard` — nudge (never blocks) when a loop looks unregistered: ≥3 distinct agent-dispatch turns, no `progress.json`, no `agentic-loop` Skill invocation (added PR #17, [[pr_15-17_loop-hardening-registration-eval-freeze-ledger-dry]])
+6. `unregistered_loop_guard` — nudge (never blocks) when a loop looks unregistered: ≥3 distinct agent-dispatch turns, no `progress.json`, no `agentic-loop` Skill invocation (added PR #17, [[pr_15-17_loop-hardening-registration-eval-freeze-ledger-dry]]). **Nudges at most once per session (PR #99, [[pr_99_unregistered-loop-guard-nudge-once]]):** the original version re-emitted the nudge on every Stop for a session that kept meeting the trip conditions, which self-perpetuated for a genuinely one-off dispatch sequence (nudge → honest "no action needed" turn → Stop → nudge again, observed live 2026-07-08). The fix greps the existing discipline log for a prior `nudged=1` line for this session id (BRE-escaped before interpolation, closing a wildcard-match regression) before emitting again; the first nudge for a session is unaffected, and a missing/unreadable log still fails open (nudges rather than wrongly suppresses).
 
 The SubagentStop hook array has two hooks (wired PR #57):
 1. `check_confidence_labels` — reads `.last_assistant_message`; same MIN_LEN/label logic as Stop
@@ -185,9 +186,10 @@ This means: edits to transcript-extraction logic now go in `discipline_common.sh
 - [[check_verify_loop]] — the verify loop hook in detail (total enforcement as of 2026-06-01)
 - [[loop_state_guard]] — `progress.json` presence/ownership Stop hook (C1, added 2026-06-24)
 - [[loop_stall_guard]] — `LOOP-STOP` declaration Stop hook (C2, added 2026-06-24)
-- [[unregistered_loop_guard]] — unregistered-loop nudge Stop hook (added 2026-07-06, PR #17)
+- [[unregistered_loop_guard]] — unregistered-loop nudge Stop hook (added 2026-07-06, PR #17; nudges at most once per session as of PR #99)
 - [[voice_announce]] — observe-only voice-lifecycle Stop hook, first in the array (added 2026-07-07, PR #71)
 - [[pr_95_slash-command-loop-detection]] — fixes the loop-invocation-count blind spot for slash-started loops (2026-07-08)
+- [[pr_99_unregistered-loop-guard-nudge-once]] — fixes the self-perpetuating nudge and a grep-metachar false-suppression regression (2026-07-08)
 - [[spec-plan-progress-artifact-chain]] — the two-hook loop-state guard design
 - [[hook-exit-codes]] — which hook events block on exit 2 vs. permissionDecision: deny
 - [[install-and-cache-trap]] — hook edits in the repo do not take effect until cache is re-synced
