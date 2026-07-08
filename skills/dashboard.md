@@ -105,6 +105,16 @@ A native Obsidian plugin (official TypeScript template) registering a code-block
 
 `skills/dashboard/scripts/start-dashboard.sh` (npm ci → build → start → open, idempotent re-launch) and `stop-dashboard.sh` (kills the pidfile'd process). Port overridable via `DASHBOARD_PORT`.
 
+### Surviving reboots (launchd)
+
+[[pr_88_93_dashboard-launchd]] gives the dashboard the same reboot-survival mechanism [[routines]] already has: a launchd LaunchAgent (`launchd/com.coderails.dashboard.plist`, `RunAtLoad`+`KeepAlive`+`ThrottleInterval 60`) instead of the manually-started, pidfile-tracked process above. A thin exec wrapper, `skills/dashboard/runner/bin/dashboard-server.sh`, execs `npm run start` in the foreground (sibling to `install-routines.sh`'s `bin/*.sh` pattern — a background+PID-file model here would just leave launchd babysitting an empty shell). It deliberately duplicates ~13 lines of `start-dashboard.sh`'s build-if-stale logic rather than sharing it (accepted YAGNI; unify only if the copies drift), extended with a fail-safe check the manual script doesn't need: staleness also compares `package.json`/`package-lock.json`/`next.config.mjs` against `.next`, not just `src/`, since a daemon has no operator to notice a stale build.
+
+`launchd/install-dashboard-agent.sh` / `uninstall-dashboard-agent.sh` copy the plist into `~/Library/LaunchAgents/` and bootstrap from that copy — the same load-bearing fix [[routines]]' own boot-persistence section documents discovering first (a bootstrap from the repo path silently unloads on reboot; launchd only auto-loads plists living in `~/Library/LaunchAgents/`). The installer also refuses to bootstrap if port 4173 is already held (`lsof` pre-flight), avoiding an EADDRINUSE crash-loop against a live manual server.
+
+**Once the agent is installed, `stop-dashboard.sh` cannot stop it** (no pidfile for the agent-owned process) — use `launchctl bootout gui/$(id -u)/com.coderails.dashboard`. Stop any manual server first; installing the agent while a manual server holds the port causes a `ThrottleInterval`-rate-limited (60s) crash-loop until one side stops.
+
+**Uninstall race, fixed same day ([[pr_88_93_dashboard-launchd]], PR #93):** `launchctl bootout` is asynchronous for a running `KeepAlive` job (~2s observed to actually unload) — a single immediate `launchctl print` re-check spuriously reported "still loaded" and bailed before removing the LaunchAgents copy. The uninstaller now polls up to 10×1s before declaring failure, and only removes the copy after the loaded-check passes.
+
 ## Process record (this PR)
 
 16 SDD tasks, each with an independent review. Five fix loops closed real findings: a lock TOCTOU (Critical), marker grammar drift, `hooksFired` today-scoping, a single-SSE-provider requirement, and the flag-smuggling vector above (High). The frozen Tier-2 eval suite (10 evals, required because this PR is both ≥3 work-units and touches an outward/irreversible surface — see [[task-evals]]'s tier rules) caught **two production bugs every review round missed**: the launch script reported false-success against a squatted port, and a statically-prerendered page baked an empty button config into the HTML (fixed by forcing the route dynamic). Both eval and review artifacts were posted SHA-bound on the PR and consumed by the merge gates ([[task-evals-gate]], [[review-artifact-seam]]).
