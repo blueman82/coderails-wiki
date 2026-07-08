@@ -2,7 +2,7 @@
 title: "agentic_loop_path.sh: repo-keyed (not cwd-keyed) progress.json slug"
 type: design
 created: 2026-07-06
-last_updated: 2026-07-07
+last_updated: 2026-07-08
 sources:
   - sources/pr_23-24_hook-lib-observability-and-repo-keyed-loop-state.md
   - sources/pr_87_agentic-loop-path-session-keying.md
