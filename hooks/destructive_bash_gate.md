@@ -144,6 +144,8 @@ Branch detection uses target-repo resolution (the file's own git repo's branch),
 
 **Enforcement ceiling:** this gate is **best-effort**. Variable filenames, quoted paths with spaces, here-docs, process substitution, and `python -c open(...)` writes remain uncaught. This is documented as a deliberate ceiling, not a bug. See [[pr_57-62_subagent-enforcement-gate-hardening]].
 
+**`plugin_src` path-boundary anchor (added 2026-07-08, PR #92).** The matcher for `skills/*/SKILL.md`/`commands/*.md` targets was originally unanchored on the left, so it matched the substring anywhere on the line — `tee xcommands/prep.md` false-positive DENYed even though `xcommands/` merely contains the substring `commands/`, not a real path segment. Fixed by requiring a path/token boundary immediately before the match (start-of-string, whitespace, quote, or a preceding `/`): `plugin_src='(^|[[:space:]/'"'"'"])(skills/[^/]+/SKILL\.md|commands/[^/]+\.md)([ '"'"'"]|$)'`. A genuinely nested real path like `vendor/skills/x/SKILL.md` still matches (the `/` before `skills/` is a real separator) — no false-negative introduced. Mirrors `src_ext`'s existing right-anchor. See [[pr_92_2026-07-08_reference-drift-and-lookalike-fp]].
+
 ## No logging
 
 This hook does not append to `$CLAUDE_DISCIPLINE_LOG`. (verified: destructive_bash_gate.sh — no reference to `$CLAUDE_DISCIPLINE_LOG` or `discipline.log`)
