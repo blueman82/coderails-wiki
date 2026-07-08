@@ -79,3 +79,6 @@ The claim is confirmed only when **all three** check out:
 - [[verification-before-completion]] — the sibling discipline for verifying your
   own work before claiming completion; verify-merged-pr applies the same
   "re-derive, don't trust" stance to *someone else's* merge claim
+- [[agentic-loop]] — the multi-PR orchestration skill this discipline applies to
+  directly: an orchestrator relying on a worker's or subagent's "PR #N is
+  merged" report sits on exactly the trust boundary this skill exists to close
