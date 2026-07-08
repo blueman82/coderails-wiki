@@ -25,6 +25,10 @@ Ingested by `/wiki-ingest` after merge. Immutable record of what changed.
 > **Follow-up for [[wiki-lint]] / a future session:** consider re-titling the two stale
 > pre-recreation pages (e.g. append `_pre-recreation` or their merge SHA) so a bare
 > `pr_69`/`pr_70` grep doesn't return two unrelated PRs.
+>
+> **Done 2026-07-08:** the two pages above were renamed to
+> `sources/pr_69_2026-06-29_no-edit-message-worktree.md` and
+> `sources/pr_70_2026-06-29_gate-settings-json-edits.md`.
 
 ## PR metadata
 
