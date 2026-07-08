@@ -75,6 +75,25 @@ Appends a `key=value` line to `$CLAUDE_DISCIPLINE_LOG`:
 
 The eval-gate check logs its own line shape: `hook=loop_state_guard session=<id> work_units=<n> evals=<GO|TIER0|NO-GO|ABSENT|skipped-below-threshold|skipped> blocked=<0|1>` — plus a distinct `reason=jq_missing` variant when `jq` is unavailable, kept separate from the "file genuinely absent" case in the audit trail.
 
+## Malformed-transcript tolerance ([[pr_86-107_2026-07-08_loop-lib-residuals|PRs #91, #107]])
+
+The shared lib's `als_count_invocations` — which this hook's `als_gate_not_a_loop`
+gate calls — used to abort its **entire** transcript parse on a single malformed
+JSONL line (a bare `jq -s` slurp), collapsing the invocation count to 0 and
+making this hook treat a genuinely active loop as "not a loop." PR #91 made the
+parse per-line tolerant (`jq -R 'fromjson? // empty'` pre-filter, dropped lines
+reported as `skipped_malformed=N` on stderr). A same-day post-merge review
+(PR #107) found this had introduced two failure-attribution regressions, fixed
+forward: a `read_error` tag for an unreadable transcript or a stage-1 `jq`
+binary death (previously indistinguishable from "clean"), and an
+`all_lines_malformed` tag distinguishing total parse loss (every line
+malformed) from a benign partial skip — the distinction gates the
+`als_stable_invocations` retry/settle loop, restoring the 5-attempt
+flush-race window a mis-attributed "clean" result would have short-circuited.
+See the source page for full detail; `unregistered_loop_guard.sh`'s own
+separate `jq -s` slurp (`ulg_count_dispatch_turns`) was explicitly NOT touched
+by this fix and remains a standing residual.
+
 ## Known limitations
 
 - Cannot force the file's content to be accurate or current; a model can write a stub and never enrich it.
