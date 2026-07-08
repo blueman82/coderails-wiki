@@ -583,3 +583,23 @@ Full audit, not cluster-scoped. Findings:
 - **Process note, not a defect:** the "Sources N→M" running-count convention log entries used to append (last seen "Sources 43→44" for PR #11-14) was dropped partway through the log's history (around the 2026-07-07 cluster-ingest entries) and never resumed; `sources/` has grown from 44 to 71 since. Cosmetic — doesn't affect page content or lint validity, just a discontinued log-annotation habit. Not fixed here since `log.md` is append-only/historical.
 
 Suggestions: (1) add `offload_push_guard` to `coderails/AGENTS.md`'s Part-1 hook event map (source edit, owner's call, mirrors the `comment_citation_gate` fix pattern); (2) no wiki-side fixes needed this pass — 0 orphans, 0 dangling links, 0 open contradictions.
+
+## [2026-07-08] lint | PR #11 cluster re-verify (offload_push_guard, verify-merged-pr, jq-slurp round-2) + full-vault confirm
+
+Requested re-lint scoped to the pending PR #11 branch cluster
+(`wiki/offload-guard-verify-merged-pr-jq-slurp-round2`). State check first: local
+`main` and the PR #11 branch point to the **same commit** (`4c6e29d`), one ahead of
+`origin/main` (`bb74d3d`) — so the entire PR #11 content set is already in the
+working tree on `main` and was linted by the immediately-prior entry above. Working
+tree clean; no uncommitted content. Re-ran an independent full-vault scan (160 files
+— 12 commands, 15 hooks, 33 skills, 19 design, 8 investigations, 71 sources) and it
+reproduces the prior pass exactly:
+
+- **PR #11 cluster pages all valid:** `hooks/offload_push_guard.md` (well-formed, cross-linked to [[enforce_pr_workflow]]/[[unregistered_loop_guard]]/[[discipline-loop]] + its PR #108 source), `skills/verify-merged-pr.md`, and both sources (`pr_108_2026-07-08_offload-push-guard.md`, `pr_112-113_2026-07-08_jq-slurp-residuals-round2.md`) present with correct frontmatter. `unregistered_loop_guard.md`'s "Resolved residual" section (line 73) correctly links the closing PR #113. Verified against the raw plugin source: `offload_push_guard.sh` exists and is registered on both `Stop` and `SubagentStop` in `hooks.json`; `skills/verify-merged-pr/SKILL.md` exists.
+- **Dead links: 0 real** (37 raw `[[...]]` regex hits, all benign — POSIX/bash syntax in fenced code, `[[wiki-links]]`/`[[page_name]]` schema meta-text, the `[[capabilities/send-gate]]` cross-vault reference explicitly labelled as assistant-agent-wiki, and historical `log.md` prose quoting pre-fix link states).
+- **Orphans: 0. Missing frontmatter: 0. Bad/missing `last_updated`: 0.**
+- **Stale (>30d): same 6 benign** immutable `source`/`investigation` pages from 2026-05-30…06-01; no evergreen page stale; no new staleness.
+- **Contradictions: 0 live** — 14 pages contain the literal string but all are `log.md`/schema prose (`skills/wiki-lint.md`), source records documenting the contradiction-detection feature, a superseded-history `⚠️` note in `design/config-resolution.md:21`, or a `⚠️ PR-number collision` section heading in `comment_citation_gate.md:111`.
+- **The one open finding is unchanged and out of wiki-lint's write scope:** `coderails/AGENTS.md`'s Part-1 "Hook event map" table still omits `offload_push_guard` (source-repo working guide, a different repo from this vault; wiki-lint documents raw source but does not edit it). Report-only, owner's call — same disposition as the prior pass.
+
+Suggestions: (1) still-standing — add `offload_push_guard` to `coderails/AGENTS.md`'s Part-1 hook event map (source edit); (2) no wiki-side fixes needed — vault is clean.
