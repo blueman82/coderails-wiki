@@ -49,13 +49,22 @@ Not run — this investigation is filed as a first-pass finding, not yet stress-
 
 ## Resolution
 
-Deferred. A Thread-B fix (closing the gap — likely either adding a `systematic-debugging` → `task-evals` cross-reference at minimum, or a hook-level check gating raw `gh pr merge` on eval evidence the same way `enforce_pr_workflow` already gates it on review evidence) is being handed off separately and is explicitly **not** part of [[pr_95_slash-command-loop-detection]]. No ticket filed yet for the follow-up (no JIRA project wired to this repo per [[pr_95_slash-command-loop-detection]]'s own metadata table).
+**CLOSED same day, 2026-07-08.** The Thread-B fix landed as a two-PR cluster (plus a docs PR), both threads this investigation's Findings section identified:
+
+- **Enforcement-path hole** ("nothing forces the merge through `scripts/merge.sh`") — closed by [[pr_96-98_evals-gate-uniform-enforcement_2026-07-08|PR #97]] (merged `5b96690`): `enforce_pr_workflow.sh` gains `gate_eval_artifact_for_merge`, a hook-level gate on raw `gh pr merge <N>` mirroring `merge.sh`'s own SHA-bound `GO`-artifact check, fail-closed, running after the pre-existing review-pr gate.
+- **Invocation-path hole** ("`systematic-debugging` — zero mention of evals anywhere in the skill") — closed at the prose level by [[pr_96-98_evals-gate-uniform-enforcement_2026-07-08|PR #96]] (merged `4e727b2`): `systematic-debugging` Phase 4 gains a Step 0 freezing pr-scope evals before a fix; `task-evals`' own invocation contract now names `systematic-debugging` as a fourth trigger point, reciprocally.
+- [[pr_96-98_evals-gate-uniform-enforcement_2026-07-08|PR #98]] (merged `d9ea84e`) documents the resulting boundary in `docs/REFERENCE.md`: the eval gate is enforced at exactly two points (`merge.sh`, config-independent; this hook, config-dependent) and explicitly **not** on raw `git merge`/`git push` or in `NO_CONFIG` repos — an accepted, named residual, not a further gap to close.
+
+Neither fix alone would have been sufficient: PR #97 gates the *merge*, but a debugging fix that still never runs `task-evals` (PR #96's target) would have nothing to gate on beyond a bare-minimum "no artifact found" deny; PR #96 is prose-only and not itself hook-checked, so without PR #97 a debugging fix could still skip `task-evals` and merge via a raw `gh pr merge` exactly as PR #95 did. Together they close both the invocation gap and the enforcement gap this investigation's Findings section treated as two layers of the same underlying problem.
+
+No ticket was filed for the follow-up before it shipped (no JIRA project wired to this repo, per [[pr_95_slash-command-loop-detection]]'s own metadata table) — the fix was dispatched and completed same-day without one.
 
 ## See also
 
 - [[pr_95_slash-command-loop-detection]] — the PR whose own debugging-framed path surfaced this gap
-- [[task-evals-gate]] — the dual-scope (pr + loop) gate design this investigation audits for coverage
+- [[pr_96-98_evals-gate-uniform-enforcement_2026-07-08]] — the closing cluster (PRs #96–98, merged same day)
+- [[task-evals-gate]] — the dual-scope (pr + loop) gate design this investigation audits for coverage; now documents a third hook-enforced consumer
 - [[discipline-loop]] — the six-hook Stop-hook composition; the general enforcement-floor framing this gap sits inside
 - [[enforcement-model]] — the Law ("hooks are mechanical enforcement, slash commands are advisory") and its existing documented ceilings (e.g. `enforce_pr_workflow`'s "evidence not completion")
-- [[systematic-debugging]] — the skill confirmed to have zero evals cross-reference
+- [[systematic-debugging]] — the skill confirmed to have zero evals cross-reference at filing time; gained one same-day via PR #96
 - [[writing-plans]] · [[subagent-driven-development]] — the two prose-only (non-hook) evals entry points
