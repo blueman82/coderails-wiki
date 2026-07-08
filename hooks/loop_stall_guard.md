@@ -114,3 +114,4 @@ This hook reads its payload via `IFS= read -r -d '' -t 5 input || true`. See [[p
 - [[discipline-loop]] — full hook composition (5 Stop hooks + 2 SubagentStop hooks, 14 hooks total across all events, as of PR #17)
 - [[enforcement-model]] — hooks vs. commands
 - [[pr_96-98_mode-aware-install-argument-injection-guard-hook-owned-counter]] — PR #98: this hook becomes the sole writer of loop_stop_counts
+- [[pr_86-107_2026-07-08_loop-lib-residuals]] — PRs #91/#107: malformed-transcript tolerance in the shared `loop_state_common.sh` parse this hook's `als_gate_not_a_loop` depends on
