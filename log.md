@@ -521,8 +521,6 @@ call); (4) when comparing plugin↔wiki coverage, diff by name (as this pass
 did) rather than by bare count — the `sync-docs`/`verify-merged-pr` slot
 coincidence in skills is a reminder that counts can silently mask a 1-for-1
 gap.
-<<<<<<< HEAD
-=======
 
 ## [2026-07-08] ingest | Approve→build pipeline live-fire (PRs #89/#100/#104/#106)
 
