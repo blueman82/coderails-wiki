@@ -218,6 +218,8 @@ updated to describe the probe.
   rejection of locking machinery
 - [[pr_23-24_hook-lib-observability-and-repo-keyed-loop-state]] — this
   cluster's full source record
+- [[pr_103_agentic-loop-path-session-fallback]] — PR #103: the session-id
+  fallback probe that closed the plugin-version re-keying gap
 - [[using-git-worktrees]] — the worktree mechanics this keying scheme now
   supports natively rather than routing around
 - [[assistant-link-send-gate-architecture]] — where the plugin-version
