@@ -185,7 +185,7 @@ rather than only in tests.
 - [[loop-progress-fields]] — no direct change (fields untouched by this
   cluster); cross-referenced for context
 - [[pr_86_agentic-loop-hardening]] — superseded-by note added to point 6
-- [[design/agentic-loop-path-keying]] — new page: the repo-keyed slug design,
+- [[agentic-loop-path-keying]] — new page: the repo-keyed slug design,
   the git<2.31 absolute-path guard, the sanitisation-collision tradeoff
 - [[index]] — new design page + source entry
 - [[log]] — this ingest + lint entries
