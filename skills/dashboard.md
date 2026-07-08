@@ -125,6 +125,8 @@ A native Obsidian plugin (official TypeScript template) registering a code-block
 
 `skills/dashboard/scripts/start-dashboard.sh` (npm ci → build → start → open, idempotent re-launch) and `stop-dashboard.sh` (kills the pidfile'd process). Port overridable via `DASHBOARD_PORT`.
 
+**First-run gotcha:** `npm ci` is exact-lock — unlike `npm install`, it fails hard (`EUSAGE`) rather than silently repairing if `package-lock.json` has drifted from `package.json`, including drift in optional/transitive native deps (e.g. `@emnapi/*`). See [[dashboard-lockfile-emnapi-drift_2026-07-08]] for a case that blocked first run this way and the general fix (`npm install --package-lock-only`).
+
 ### Surviving reboots (launchd)
 
 [[pr_88_93_dashboard-launchd]] gives the dashboard the same reboot-survival mechanism [[routines]] already has: a launchd LaunchAgent (`launchd/com.coderails.dashboard.plist`, `RunAtLoad`+`KeepAlive`+`ThrottleInterval 60`) instead of the manually-started, pidfile-tracked process above. A thin exec wrapper, `skills/dashboard/runner/bin/dashboard-server.sh`, execs `npm run start` in the foreground (sibling to `install-routines.sh`'s `bin/*.sh` pattern — a background+PID-file model here would just leave launchd babysitting an empty shell). It deliberately duplicates ~13 lines of `start-dashboard.sh`'s build-if-stale logic rather than sharing it (accepted YAGNI; unify only if the copies drift), extended with a fail-safe check the manual script doesn't need: staleness also compares `package.json`/`package-lock.json`/`next.config.mjs` against `.next`, not just `src/`, since a daemon has no operator to notice a stale build.
