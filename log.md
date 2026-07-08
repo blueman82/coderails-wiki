@@ -565,3 +565,5 @@ introduced.
   carried PR #100's merge identifier as a branch-name placeholder; resolved to
   the real merge SHA `a6f40ec` (merged 2026-07-08T13:24:47Z) via `gh` after the
   lint pass. No placeholder remains.
+
+## [2026-07-08] ingest | dashboard lockfile emnapi drift finding (closed-not-merged, already resolved on main)
