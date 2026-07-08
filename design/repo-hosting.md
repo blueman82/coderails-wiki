@@ -54,8 +54,11 @@ work — but a bare PR-number citation is no longer a reliable unique key across
 recreation boundary. New source pages that would otherwise collide should use a
 date-qualified filename (e.g. `pr_70-71_2026-07-07_<slug>.md`, see
 [[pr_70-71_2026-07-07_dashboard-input-fix-and-voice-announcements]]) rather than the
-bare `pr_<N>_<slug>.md` form. **Not yet done:** retitling the two older colliding
-pages so a plain `pr_69`/`pr_70` search doesn't surface both eras ambiguously.
+bare `pr_<N>_<slug>.md` form. **Done 2026-07-08:** the two older colliding pages
+were renamed to `sources/pr_69_2026-06-29_no-edit-message-worktree.md` and
+`sources/pr_70_2026-06-29_gate-settings-json-edits.md` (git history preserved via
+`git mv`), so a plain `pr_69`/`pr_70` search no longer surfaces both eras
+ambiguously.
 
 ## History note — the "not a git repository" claim is now stale
 
