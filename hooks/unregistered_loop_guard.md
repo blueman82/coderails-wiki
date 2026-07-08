@@ -82,3 +82,4 @@ Reads its payload via `IFS= read -r -d '' -t 5 input || true`, the repo's bounde
 - [[pr_15-17_loop-hardening-registration-eval-freeze-ledger-dry]] — PR #17 source record (F1)
 - [[pr_23-24_hook-lib-observability-and-repo-keyed-loop-state]] — PR #23 source record: the hook-lib jq-failure-signalling rework this hook's stderr-discard carve-out responds to
 - [[dashboard]] / [[pr_25_observability-dashboard]] — PR #25 (2026-07-06): a 16-task, 5-fix-loop session run under a properly registered loop; cross-linked here as the kind of large multi-task session this guard is designed to flag if orchestration ever drifts unregistered
+- [[pr_86-107_2026-07-08_loop-lib-residuals]] — PRs #91/#107: malformed-transcript tolerance in the shared lib's `als_count_invocations` (this hook's delegate call benefits passively); this hook's OWN separate `jq -s` slurp in `ulg_count_dispatch_turns` remains an untouched, explicitly out-of-scope residual
