@@ -150,3 +150,4 @@ A gate that is otherwise fail-closed can still ship a broken *allow* path silent
 - [[merge]] — enforcement-gap notice added to merge.sh in PR #43
 - [[agentic-loop]] — Phase 4b self-attestation removal and the `model: sonnet` advisory ceiling (PR #86)
 - [[pr_86_agentic-loop-hardening]] — source record for both PR #86 decisions above
+- [[destructive_bash_gate]] — the 2026-07-08 adversarial-hardening arc that established the positive-control-testing discipline above
