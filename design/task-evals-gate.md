@@ -2,7 +2,7 @@
 title: "Task-evals gate — dual-scope (pr + loop) enforcement over frozen, oracle-independent success evals"
 type: design
 created: 2026-07-06
-last_updated: 2026-07-06
+last_updated: 2026-07-08
 sources:
   - sources/pr_1-4_task-evals-feature.md
   - sources/pr_7-10_task-evals-followups.md
@@ -76,6 +76,8 @@ Full detail on [[task-evals]]. Named here because they're what the two enforceme
 ### Merge gate placement
 
 `scripts/merge.sh` gains the eval-gate check directly after the existing review-artifact gate, in the same `OPEN` branch, before `gh pr merge`. Same rc-contract shape as the review gate: `0` = match found with `GO`, `1` = no match or `NO-GO`, `2` = `gh` fetch failed (distinct error message: "GitHub fetch failed" vs "no coderails eval artifact"/"NO-GO — resolve failing P0 evals"). Fail-closed, no local-file fallback, no config opt-out — identical posture to [[review-artifact-seam]].
+
+**Second, hook-level consumer added 2026-07-08 ([[pr_96-98_evals-gate-uniform-enforcement_2026-07-08|PR #97]]):** `enforce_pr_workflow.sh`'s `PreToolUse` hook gains `gate_eval_artifact_for_merge`, applying the identical `pr::has_coderails_eval_for_head` check (same rc semantics: 0/GO allow, non-zero NO-GO/absent deny, rc=2 fetch-failure fail-closed) directly to a raw `gh pr merge <N>` Bash call, not just inside `merge.sh`'s script body. This closes the gap [[evals-gate-enforcement-gap_2026-07-08]] identified: previously nothing forced a merge to actually route through `merge.sh`, so this gate is config-dependent (inactive under `NO_CONFIG`, same as the rest of `enforce_pr_workflow`) where `merge.sh`'s own gate is config-independent — full mechanism and gate-ordering detail on [[enforce_pr_workflow]], not duplicated here.
 
 ### Structural refusals (`post_evals::validate_structure`, 7 checks)
 
@@ -153,6 +155,7 @@ This gate proves a durable, SHA-bound (pr scope) or path-bound (loop scope), str
 - ~~**`gh` comment pagination** — the newest-wins scan does not paginate; a PR with enough comments to span pages could miss an older page's marker.~~ **Closed by the same [[pr_7-10_task-evals-followups|PR #8]]**: both readers now fetch via `gh api "repos/<repo>/issues/<n>/comments" --paginate`, replacing the `gh pr view --json comments` GraphQL call that was hard-capped at 100 comments.
 - ~~**`install.sh` inventory gap** — does not yet name `scripts/lib/eval-artifact.sh` or `scripts/post_evals.sh` in its own audit surface the way it tracks other core scripts.~~ **Closed by [[pr_1-4_task-evals-feature|PR #3]]** (`9ecbeae5`, 2026-07-06) — `install.sh`'s script-chmod loop now lists both files (verified: `install.sh:332`). **A related gap in the same loop — `scripts/lib/review-artifact.sh` and `scripts/lib/config.sh` were also missing — closed by [[pr_7-10_task-evals-followups|PR #9]]** (`ffe5ccc`, 2026-07-06). The loop still has no `scripts/lib/*.sh` glob, so any future addition under `scripts/lib/` needs the same manual literal-list update repeated — a structural gap, not fully closed.
 - **`tier_justification` now required at every tier, not just tier 0** — [[pr_7-10_task-evals-followups|PR #10]] (owner directive, `238f5e1`, 2026-07-06). See "tier_justification required at every tier" above for the mechanism.
+- ~~**PR-scope gate enforced only inside `scripts/merge.sh`'s own body — nothing forced a merge to route through it, so a raw `gh pr merge` bypassed the eval check entirely** (documented same-day in [[evals-gate-enforcement-gap_2026-07-08]], the mechanism [[pr_95_slash-command-loop-detection|PR #95]] shipped through).~~ **Closed by [[pr_96-98_evals-gate-uniform-enforcement_2026-07-08|PR #97]]** (`5b96690`, 2026-07-08): `enforce_pr_workflow.sh` now gates raw `gh pr merge <N>` on the identical SHA-bound artifact check, config-dependent (`NO_CONFIG`-gated) where `merge.sh`'s own gate is config-independent — see "Merge gate placement" above. Companion invocation-path gap (`systematic-debugging` had no route to `task-evals` at all) closed prose-level by the same cluster's PR #96.
 
 ## Owner decisions recorded
 
@@ -193,3 +196,5 @@ gh pr merge
 - [[pr_11-14_gate-hardening-followups]] — the gate-hardening cluster: explicit NO-GO wins at tier 0 (#11), HOME-sandboxed install test (#12), push.sh staging fix (#13), trust-floor widened to a permission check + merge.sh error-message split (#14)
 - [[trust-floor]] — consolidating concept page for the trust-floor/OWNER-permission model this gate's comment-fetch reader relies on (SSOT for the mechanism is [[merge]]); extended with the `tempfile` failure-reason case by PR #21
 - [[pr_21-22_loop2-suggestion-tier-followups]] — Loop 2 follow-up: merge.sh's `tempfile` case arm (shared fetch helper, both gates) + test-coverage completions for `loop_state_guard_evals.test.sh` (final-else NO-GO fixture) and `install_mode_sweep.test.sh`
+- [[pr_96-98_evals-gate-uniform-enforcement_2026-07-08]] — closes the "nothing forces the merge through `merge.sh`" gap: adds a second, hook-level pr-scope gate on raw `gh pr merge` (PR #97) plus a `systematic-debugging` → `task-evals` invocation cross-reference (PR #96)
+- [[evals-gate-enforcement-gap_2026-07-08]] — the investigation that identified the gap the above cluster closes
