@@ -441,3 +441,83 @@ commit-log dump rather than written prose — both source pages' Summary
 sections are reconstructed from direct source-diff/script reads, flagged
 inline as such. Updated `index.md` (new hooks-table row for
 `comment_citation_gate.sh`, new Sources entry).
+
+## [2026-07-08] lint | Full-vault sweep, no cluster lint had run since the loop-lib-residuals ingest above
+
+138 content pages (12 commands, 14 hooks, 32 skills, 19 design, 7
+investigations, 66 sources, plus index/log). Findings:
+
+- **Coverage gap (flagged, not authored — belongs to `/wiki-ingest`):**
+  `hooks/scripts/offload_push_guard.sh` is a live `Stop`/`SubagentStop` nudge
+  hook — registered in `hooks/hooks.json` (commit `580b734`, merged
+  2026-07-08 15:01) — with **zero** wiki coverage: no `hooks/offload_push_guard.md`,
+  absent from `index.md`'s hook table, unmentioned anywhere in the vault
+  (grep-verified). It nudges (never blocks) when a session's final message
+  tells the user to run `git push` to main/master themselves instead of
+  clearing `enforce_pr_workflow.sh`'s push gate in-session — sibling to
+  `unregistered_loop_guard.sh` (same nudge-once-per-session ledger idiom,
+  same `additionalContext`-on-stdout delivery), unrelated in subject. This
+  is the same failure shape as the `comment_citation_gate` gap the prior
+  full-vault pass closed: a hook shipped and merged same-day but never
+  wiki-ingested. Plugin hook-script count is now 15; wiki hook pages are 14.
+  AGENTS.md's own Part-1 hook event map also omits it (source-side gap,
+  flagged not fixed, same as the comment_citation_gate precedent).
+- **Coverage gap (flagged, not authored — belongs to `/wiki-ingest`):**
+  `skills/verify-merged-pr/SKILL.md` (created 2026-07-08 14:31, commit
+  `984ee95`, committed clean on main) has **zero** wiki coverage: no
+  `skills/verify-merged-pr.md`, absent from `index.md`'s skills section,
+  unmentioned anywhere in the vault. Plugin skill count is 33 (32 vendored/
+  coderails-owned + `sync-docs` as a documented external skill); wiki skill
+  pages remain 32 — the count coincidentally matched pre-this-check because
+  `sync-docs` occupies a slot `verify-merged-pr` doesn't, masking the gap
+  until a name-by-name diff was run instead of a bare count comparison.
+- **New source page re-verified (2026-07-08 ingest, no lint had followed it):**
+  `sources/pr_86-107_2026-07-08_loop-lib-residuals.md` — NOT orphan: 9+
+  inbound links (index, log, design/install-and-cache-trap, hooks/
+  unregistered_loop_guard, hooks/loop_state_guard, hooks/loop_stall_guard,
+  hooks/voice_announce, skills/dashboard) (verified). All 7 outbound
+  `[[links]]` resolve: `[[dashboard]]`, `[[loop_stall_guard]]`,
+  `[[loop_state_guard]]`, `[[repo-hosting]]`, `[[task-evals]]`,
+  `[[unregistered_loop_guard]]`, `[[voice_announce]]` (verified). Frontmatter
+  conforms (`sources: []` is correct for a `type: source` page — nothing
+  informed the origin record itself, consistent with all other source
+  pages). `index.md` and touched hook/design/skill pages already updated by
+  the ingest — no further edits needed.
+- **Contradictions: 0 open.** No live `⚠️ CONTRADICTION` markers outside
+  index/log; all historical hits are already-resolved supersession banners
+  or the skill's own description of the check (verified, same set as prior
+  lints).
+- **Orphans: 0 new.** `skills/handoff.md` remains the sole genuine orphan
+  (index.md is its only inbound link) — unchanged, previously accepted.
+  Basename cross-check against all 178 raw `[[link]]` occurrences found no
+  other page with zero inbound links.
+- **Dead links: 0 new.** Re-verified the standing benign set (`[[:space:]]`
+  POSIX regex literals in code blocks; `[[wiki-links]]`/`[[link]]`/`[[links]]`/
+  `[[page_name]]`/`[[wiki-link]]` schema meta-text in log.md/wiki-lint.md/
+  wiki-query.md prose; `[[pr_73]]`/`[[review-pr]]`/`[[workflow-init]]`/
+  `[[workflow-command-chain]]`/`[[pr_64...]]`/`[[pr_72...]]`/
+  `[[pr_69_no-edit-message-worktree]]` in log.md historical prose only;
+  `[[capabilities/send-gate]]` an intentional cross-vault reference to
+  assistant-agent-wiki) — all confirmed still benign, no new dangling
+  navigational links introduced since the last full sweep.
+- **Stale (>30d, before 2026-06-08): 6, all benign** — same set as the prior
+  full-vault pass (`install-cache-trap_2026-05-30`,
+  `session_2026-05-31_prompting-doc-alignment`,
+  `session_2026-05-31_verify-loop-hardening`,
+  `install-bash32-bad-substitution_2026-06-01`,
+  `session_2026-06-01_agentic-loop-delegate-all-impl`,
+  `session_2026-06-01_verify-loop-total-enforcement`) — all `source`/
+  `investigation` pages, immutable/point-in-time by schema convention. No
+  evergreen command/hook/skill/design page is stale.
+- **Inbox: n/a** (no `inbox/` directory).
+
+Suggestions: (1) run `/wiki-ingest` for `offload_push_guard.sh` (commit
+`580b734`) — same shape and same fix as the `comment_citation_gate` gap
+closed by the prior ingest, highest-value next action; (2) run
+`/wiki-ingest` for `skills/verify-merged-pr` (commit `984ee95`); (3) add
+`offload_push_guard.sh` to AGENTS.md's Part-1 hook event map alongside the
+still-outstanding `comment_citation_gate` addition (source edit, owner's
+call); (4) when comparing plugin↔wiki coverage, diff by name (as this pass
+did) rather than by bare count — the `sync-docs`/`verify-merged-pr` slot
+coincidence in skills is a reminder that counts can silently mask a 1-for-1
+gap.
