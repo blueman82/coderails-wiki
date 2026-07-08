@@ -158,6 +158,57 @@ heavier locking machinery #86 rejected — the two decisions are not in
 tension; #86 rejected a heavy mechanism for a narrower problem, this ships a
 light mechanism for the problem the workflow shift created.
 
+## Update — session-id fallback probe (2026-07-08, PR #103)
+
+The plugin-version re-keying gap from the "Known caveats" bullet above
+**recurred and was fixed**. Merge commit `bf02e8a`.
+
+**Incident.** Session `46d6c1b5` registered its loop's `progress.json` under
+the legacy raw-cwd slug
+(`-Users-harrison-Github-coderails-.claude-worktrees-routines`) because its
+checkout predated PR #24. The live Stop hooks ran from a newer installed
+plugin cache (current main) whose helper keys the slug by `--git-common-dir`
+(`-Users-harrison-Github-coderails-.git`). The readers resolved the canonical
+git-common-dir path, found nothing, and `unregistered_loop_guard` nudged a
+COMPLETED, registered loop on every Stop; the same split earlier cost the loop
+its `loop_stop_counts` at Phase 13.
+
+**Mechanism (the general lesson).** The "sole path authority" is only sole
+**per copy**. The writer (orchestrator intake) and the readers (Stop hooks)
+can run *different helper versions*, and a session's cwd can also drift
+mid-loop. So the same session's state can be written under one slug and read
+back under another. Any fix that requires version lockstep or a stable cwd is
+therefore insufficient.
+
+**Fix.** `agentic_loop_path.sh` now, when the canonical slug path has no
+`progress.json`, probes `<base>/*/<session_id>/progress.json`. `session_id` is
+unique per session, so it is a sufficient key on its own — state parked under
+*any* slug for this session is found. Resolution order: canonical-exists →
+print canonical (unchanged); else probe → print the match; else (nothing
+anywhere) → print canonical so a fresh loop registers there. Matches are
+deduped by the **physical identity** of their containing dir (the live
+workaround symlinks the same file under several slugs; `pwd -P` collapses
+them), with a deterministic pick if distinct real files somehow coexist. The
+existing `session_id` sanitisation now runs **load-bearingly before** the
+glob, so the `<session_id>` segment cannot expand into a sibling/parent dir.
+The helper stays dependency-free, pure (prints a path, creates nothing),
+bash-3.2-safe, and empty-glob-safe.
+
+This largely **heals** the "stateless by design" caveat too: a mid-loop
+repo-ness change no longer splits state *once a `progress.json` has been
+written*, because session_id finds it under the old slug. The one residual
+gap: if the slug changes *before any file is written*, there is nothing to
+probe for and the fresh registration lands at the new canonical path (correct
+behaviour). The live workaround symlinks were left in place — they remain
+load-bearing for session `46d6c1b5` until its plugin cache refreshes.
+
+**Verify.** TDD: 5 new checks in `agentic_loop_path.test.sh` (17→22) —
+canonical-exists-wins, the incident (legacy-slug found), fresh registration,
+symlink-duplicate dedupe, generated-fallback-id resolution. Full `run_all.sh`
+green (37/37) under bash 5 and bash 3.2. PR-scope evals GO, tier 1, 6/6 P0
+against a fresh clone with passing negative controls. `docs/REFERENCE.md`
+updated to describe the probe.
+
 ## See also
 
 - [[loop_state_guard]] — the hook that reads via this path authority
