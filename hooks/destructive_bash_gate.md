@@ -50,11 +50,14 @@ Handled with dedicated arg-extraction logic before the main regex:
 | `truncate -s` / `truncate --size` | File-content truncation | Blocks size-destructive truncate |
 | `shred` | Secure file overwrite/deletion | |
 
+### `git push --force`/`-f`/`--force-with-lease` — carved out of the main regex (2026-07-08)
+
+As of the 2026-07-08 hardening arc (below), force-push detection is no longer part of the monolithic main regex — it moved to its own block earlier in the script, because POSIX ERE alternation (`grep -E`, no `BASH_REMATCH`) can't report *which* alternative matched, and the gate needs to distinguish "naked force" (always deny) from "force-with-lease" (conditionally allow). See "Force-with-lease allowlist carve-out" below for the current logic. The main regex below no longer includes any `git push` pattern.
+
 ### Original permanent blocklist (main regex)
 
 ```
 \brm +(-[rRfF]+|--recursive|--force)
-|\bgit +push +.*(--force|-f\b|--force-with-lease)
 |\bgit +reset +--hard
 |\bDROP +(TABLE|DATABASE|SCHEMA)\b
 |\bTRUNCATE +TABLE\b
@@ -67,7 +70,6 @@ Handled with dedicated arg-extraction logic before the main regex:
 | Pattern | What it catches |
 |---|---|
 | `rm -rf`, `rm -r`, `rm -R`, `rm -f`, `rm --recursive`, `rm --force` | Recursive/force file deletion |
-| `git push --force`, `git push -f`, `git push --force-with-lease` | Force-push overwriting remote history |
 | `git reset --hard` | Hard history rewind, discarding local changes |
 | `DROP TABLE/DATABASE/SCHEMA` | Destructive SQL DDL |
 | `TRUNCATE TABLE` | Destructive SQL DML |
@@ -77,6 +79,28 @@ Handled with dedicated arg-extraction logic before the main regex:
 | `git commit --no-verify` | Hook bypass — `--no-verify` anywhere in a `git commit` invocation |
 
 The grep is case-insensitive (`-i`), so `DROP table` matches. Word boundaries (`\b`) prevent false positives on substrings. (verified: destructive_bash_gate.sh)
+
+## Force-with-lease allowlist carve-out (added 2026-07-08, PR #72+#75)
+
+The **only** conditional-allow in this entire hook. `git push --force`/`-f` (including combined short-flag clusters like `-uf`/`-fu`/`-ufd`, mirroring the `git clean` force detector above) is **always denied**, even alongside `--force-with-lease` on the same line. A *clean* `--force-with-lease` with no naked force present is allowed only if `.claude/destructive_allowlist` — resolved against the command's own repo root via `git rev-parse --show-toplevel`, gitignored/local-only — contains the exact whole-line keyword `git-push-force-with-lease` (matched with `grep -qxF`, never eval'd or regex-spliced, so a malformed file can only fail to match, never widen what's permitted). Missing/empty/garbage allowlist → denies (fail-closed).
+
+Detection uses `force_cmd_flat`: a two-pass normalisation of `$cmd` that (1) splices backslash-newline *pairs* out entirely via `awk 'BEGIN{RS="\\\\\n"}...'` — matching what bash's own line-continuation does, fusing e.g. `--fo` + backslash-newline + `rce` into the real argv token `--force` — then (2) flattens any remaining bare newlines to spaces. Order matters: a naive `tr '\n' ' '` alone leaves the backslash behind (`--for\ ce`, two tokens) and misses an interior-flag-split bypass entirely (the PR #75 incident — see [[pr_72-75_2026-07-08_force-with-lease-allowlist]]).
+
+`git_push_re` is option-tolerant (added PR #84): `git`, zero-to-20 bounded git global-option tokens (`-c KEY=VALUE`, `-C path`, `--no-pager`, any other short/long flag), then `push` — so `git -c user.name=x push --force` or `git --no-pager push --force` can't defeat the trigger by breaking `git`+`push` adjacency. Applied symmetrically to both the naked-force trigger and the fwl-exclusion check, so the allowlist path stays reachable when a global option is present. Known residual gap: a `-c`/`-C` value containing a quoted space is not matched — same class as this file's documented "quoted paths with spaces... remain uncaught" ceiling elsewhere.
+
+See [[pr_72-75_2026-07-08_force-with-lease-allowlist]] and [[pr_84_2026-07-08_git-global-option-bypass]] for the full incident history and fixes.
+
+## Command-substitution detection in workflow-script arguments (added 2026-07-08, PR #69)
+
+`push.sh`/`merge.sh`/`post_review.sh`/`post_evals.sh` all take a free-text message/title/body argument. A bare backtick, `$(...)`, or process substitution `<(...)`/`>(...)` inside that argument executes as live shell substitution the instant the Bash tool_input line is interpreted — the gate denies this (same injection class as the `$ARGUMENTS` render-time bug, PR #97).
+
+`subst_re='`|\$\(|<\(|>\('` — the `<(`/`>(` process-substitution forms were added in PR #69 after a confirmed bypass (`<(touch pwned)` executed with zero backticks or `$(` on the line). `cmd_flat` flattens embedded newlines to spaces before scoping, closing a second confirmed bypass where a script mention and its substitution landed on different physical lines (heredoc with an unquoted delimiter, or backslash line-continuation) — `sed`'s and `grep`'s `.` never cross a newline, so the un-flattened command hid the substitution from the scoping logic.
+
+The prose exemption (a mention of the script name that isn't itself an invocation) is deliberately narrow after three prior narrower attempts each admitted a real bypass under adversarial review — it now fires only when the script pattern occurs exactly once, quoted, non-bare, with every substitution character on the line confined to that one quoted segment. More than one mention on a line is never treated as prose.
+
+**Documented conservative tradeoff:** the newline-flattening in this block uses a plain `tr '\n' ' '` (not the backslash-pair-aware `awk` two-pass PR #75 later introduced for the force-push flattener) — so a *quoted-delimiter* heredoc (normally substitution-inert) is also denied if it contains substitution-looking characters. The code notes this gap explicitly as flagged-but-out-of-scope for PR #69. Accepted over-block, not a false-negative.
+
+See [[pr_69_2026-07-08_substitution-bypass-audit]] for the full incident record.
 
 ### Why `git commit --no-verify` is destructive
 
