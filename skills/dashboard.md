@@ -13,7 +13,8 @@ sources:
   - sources/pr_80-82_dashboard-stream-run-output-viewer.md
   - sources/pr_88_93_dashboard-launchd.md
   - sources/pr_86-107_2026-07-08_loop-lib-residuals.md
-tags: [skill, dashboard, observability, nextjs, r3f, sse, obsidian, agentic-os, sub-project-1-of-5, queue-contract, builder, ask-button, argv, run-output, streaming, launchd, reboot-persistence]
+  - investigations/dashboard-lockfile-emnapi-drift_2026-07-08.md
+tags: [skill, dashboard, observability, nextjs, r3f, sse, obsidian, agentic-os, sub-project-1-of-5, queue-contract, builder, ask-button, argv, run-output, streaming, launchd, reboot-persistence, npm-ci, lockfile]
 ---
 
 # Skill: dashboard
