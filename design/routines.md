@@ -108,5 +108,6 @@ The runner's `writeRunNote` (`type: routine-run` frontmatter) and the Obsidian p
 - [[intent-queue-runner-contract]] — the schema and lifecycle a routine's intent travels through once seeded
 - [[dashboard-runner]] — the executor that evaluates a routine's artifact gate and escalates on failure
 - [[memory-consolidation]] — one of the three shipped routines, a worked example
-- [[dashboard]] — sub-project 1; owns the `ButtonDef`/`buildArgv` machinery a `buttonRef` routine reuses
+- [[dashboard]] — sub-project 1; owns the `ButtonDef`/`buildArgv` machinery a `buttonRef` routine reuses; its own launchd agent reuses this page's boot-persistence fix
 - [[pr_36-41-33-53-65_verified-routines]] — the source record for this page
+- [[pr_88_93_dashboard-launchd]] — the dashboard's own launchd agent + uninstall bootout-race fix, reusing this page's copy-then-bootstrap-from-copy pattern
