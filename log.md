@@ -346,6 +346,13 @@ Checked only what this cluster touched (per-cluster scope, consistent with this 
 
 Checked only what this cluster touched (per-cluster scope, consistent with this log's established convention). Files audited: `sources/pr_69_2026-07-08_substitution-bypass-audit.md`, `sources/pr_72-75_2026-07-08_force-with-lease-allowlist.md`, `sources/pr_84_2026-07-08_git-global-option-bypass.md`, `sources/pr_92_2026-07-08_reference-drift-and-lookalike-fp.md`, `hooks/destructive_bash_gate.md`, `design/enforcement-model.md`, `index.md`, `log.md`. WIKI-LINKS: extracted 32 unique outbound `[[links]]` across the 6 content pages, all resolve to existing vault pages (verified against a 148-page basename index) — 0 dangling. The one mechanically-flagged `[[:space:]]` is a POSIX character class inside backtick/code-fence regex, not a wiki-link (Obsidian ignores `[[...]]` inside code spans); confirmed all occurrences are code-wrapped. `index.md`'s 4 new Sources bullets and their 4 collision cross-links all resolve; the 4 older date-collision pages (`pr_69_2026-06-29_no-edit-message-worktree`, `pr_72_config-walkup-symlink-hang`, `pr_75_main-branch-fallback`, `pr_92_exec-bit-sweep`) exist and their titles/merge-dates match each new page's collision banner exactly (2026-06-29/2026-06-29/2026-06-29/2026-07-03). FRONTMATTER: all 6 pages carry title/type/created/last_updated/sources/tags, all non-empty; `type` values valid (source×4, hook, design); all `last_updated` = 2026-07-08 (nothing stale). ORPHANS: 0 — each new source page has ≥2 inbound (index.md + destructive_bash_gate.md at minimum; #69/#72-75/#84 additionally inter-link within the arc). CONTRADICTIONS: 0. Merge commits agree in short/full form across source pages and index.md (ebfee7b/8332509/e63d3d1/7c4f12f/652c5f8). The `cmd_flat` (substitution block, #69) vs `force_cmd_flat` (force-push block, #72/#75) distinction is kept distinct on every page — no conflation. Vault-wide sweep for pages asserting force-push is "always denied / no carve-out" (which the new allowlist would contradict) found none; the hook page's "no approval path" line is correctly scoped to the main-regex blocklist while the carve-out is flagged separately in the intro and its own section. MINOR (not fixed, reported to caller): `hooks/destructive_bash_gate.md:95` mentions "PR #97" as bare prose where a link `[[pr_96-98_mode-aware-install-argument-injection-guard-hook-owned-counter|PR #97]]` would resolve — contextual color about the `$ARGUMENTS` injection class, not core to this cluster; left as-is per surgical scope. STALE PAGES / full-vault scope: not re-audited this pass — per-cluster scope only.
 
+## [2026-07-08] ingest | PRs #96-98 evals-gate uniform enforcement cluster (hook-level gh-pr-merge eval gate + systematic-debugging routing + coverage-boundary docs) — closes evals-gate-enforcement-gap_2026-07-08 same day. New source page sources/pr_96-98_evals-gate-uniform-enforcement_2026-07-08.md (date-suffixed to disambiguate from the unrelated, earlier PR-number-collision page pr_96-98_mode-aware-install-argument-injection-guard-hook-owned-counter.md). Updated investigations/evals-gate-enforcement-gap_2026-07-08.md (Resolution), design/task-evals-gate.md (Known gaps + Merge gate placement), hooks/enforce_pr_workflow.md (new Gate 7 section, block conditions, named-gate table), design/enforcement-model.md (stale hook-map row fixed), index.md (Sources + Investigations entries)
+
+## [2026-07-08] ingest | PR #99 unregistered_loop_guard nudge-once
+
+Ingested PR #99 (merged 2026-07-08, `95479de`; commits `1ccefa7` nudge-once + `88af636` grep-metachar escape), the single merged PR for this phase. Fixes `unregistered_loop_guard.sh` re-emitting its "3+ Agent dispatches, no agentic-loop registration" nudge on EVERY Stop for a non-loop session with no per-session termination — self-perpetuating for a genuinely one-off dispatch sequence (nudge -> honest "no action needed" turn -> Stop -> nudge again, observed live 2026-07-08). Fix greps the existing discipline log (als_log's ledger, already written on the emit path) for a prior `nudged=1` line for the current session_id before emitting again; first nudge unaffected; missing/unreadable log still fails open. Second commit hardens the check: session_id is escaped (`sed 's/[.[\*^$\\]/\\&/g'`) before interpolation into the grep BRE pattern, closing a wildcard-match false-suppression regression (a literal `.` in a session id could otherwise match an unrelated session's logged line). Reviewed (code-reviewer 0 critical/0 important/1 suggestion, applied; pr-test-analyzer confirmed the regression test fails pre-fix, passes post-fix); eval artifact GO tier 1; suite 37/37. Created sources/pr_99_unregistered-loop-guard-nudge-once.md. Updated design/discipline-loop.md (Stop hook composition bullet #6 + Cross-References, frontmatter sources + last_updated), hooks/unregistered_loop_guard.md (new "Nudge-once-per-session" section, Known limitations, Test coverage count, frontmatter sources/tags/last_updated), index.md (hooks table row + new Sources entry). Sync-docs check: README.md, AGENTS.md, docs/REFERENCE.md all document the hook's trip condition but none described per-session nudge repetition/suppression before or after this PR -- no in-tree doc contained a claim this PR contradicts, so this is drift-by-omission only, not corrected factual drift; not fixed (out of this phase's scope, and each of those docs' hook-table rows remains accurate as far as it goes).
+
+>>>>>>> 12a665c29cd0cc30dcf1ba529931f83adf2a0dbf
 ## [2026-07-08] lint | Full-vault health pass
 
 Full audit (not cluster-scoped): 129 pages — 12 commands, 13 hooks, 32 skills, 19 design, 5 investigations, 56 sources, plus index/log. Findings:
@@ -515,3 +522,68 @@ call); (4) when comparing plugin↔wiki coverage, diff by name (as this pass
 did) rather than by bare count — the `sync-docs`/`verify-merged-pr` slot
 coincidence in skills is a reminder that counts can silently mask a 1-for-1
 gap.
+<<<<<<< HEAD
+=======
+
+## [2026-07-08] ingest | Approve→build pipeline live-fire (PRs #89/#100/#104/#106)
+
+Loop-boundary ingest of the four-PR cluster that closes E5 (the first real
+Approve→build run) for the [[pr_55-60-64-66-67_approve-build-runner|builder
+pipeline]]. One source page for the cluster: `sources/pr_89-100-104-106_approve-build-e5-live.md`.
+
+- **New:** `sources/pr_89-100-104-106_approve-build-e5-live.md`;
+  `skills/verify-merged-pr.md` (the first skill the pipeline built — PR #104).
+  Creating this skill page **closes suggestion (2) of the 2026-07-08 wiki-lint
+  pass** (`skills/verify-merged-pr/SKILL.md` existed in the plugin with no wiki
+  page).
+- **Updated:** `skills/dashboard.md` (AssistantLinkPanel: live phase / elapsed
+  timer / heartbeat + `PR resolved` after-merge reconciliation, PR #106);
+  `skills/workflow-audit.md` (pipeline-outcome note — E5 done, first skill
+  built); `sources/pr_55-60-64-66-67_approve-build-runner.md` (E5-pending
+  caveat resolved, both occurrences); `index.md` (new source + skill rows,
+  approve-build-runner E5 note flipped to done).
+- **PR-number collision flagged:** this cluster's #89/#100 are unrelated to the
+  pre-existing [[pr_89-91_skills-doc-frontmatter-injection|#89]]; resolve by
+  merge SHA (`91d3802`/`a6f40ec`/`c30fcbf`/`23a73bd`).
+
+## [2026-07-08] lint | post-E5-ingest health pass — clean, one fix
+
+Focused lint of the seven pages the Approve→build E5 ingest touched. Verdict:
+the E5-pending→done flip is applied consistently and no dead links were
+introduced.
+- **Contradictions:** 0. The E5-pending→done flip is complete across
+  [[pr_55-60-64-66-67_approve-build-runner]] (both occurrences), [[index]],
+  and [[workflow-audit]]; a vault-wide grep for any surviving "E5 …
+  pending/not yet" claim found only text describing the *resolution*.
+- **Dead wiki-links:** 0. All 8 distinct ingest-introduced link targets
+  (`verify-merged-pr`, `pr_89-100-104-106_approve-build-e5-live`,
+  `pr_89-91_skills-doc-frontmatter-injection`,
+  `verification-before-completion`, etc.) resolve to real pages.
+- **Orphans:** 0. Both new pages are inbound-linked — the source page from
+  index/log/runner/dashboard/workflow-audit/verify-merged-pr; the skill page
+  from index/source/runner/workflow-audit/dashboard.
+- **Fixed:** this log's own ingest entry (above) called the cluster a "two-PR
+  cluster" — it is four PRs (#89/#100/#104/#106); corrected to "four-PR".
+- **PR #100 SHA resolved (post-lint):** the source page and index initially
+  carried PR #100's merge identifier as a branch-name placeholder; resolved to
+  the real merge SHA `a6f40ec` (merged 2026-07-08T13:24:47Z) via `gh` after the
+  lint pass. No placeholder remains.
+
+## [2026-07-08] ingest | dashboard lockfile emnapi drift finding (closed-not-merged, already resolved on main)
+
+## [2026-07-08] lint | Full-vault health pass (160 files — 12 commands, 15 hooks, 33 skills, 19 design, 8 investigations, 71 sources)
+
+Full audit, not cluster-scoped. Findings:
+
+- **Coverage gap (report only, not authored — same pattern as `comment_citation_gate` in the prior full-vault pass):** `offload_push_guard.sh` is a live `Stop`+`SubagentStop` hook — wired in `hooks/hooks.json`, script at `hooks/scripts/offload_push_guard.sh`, shipped in PR #108 (merged 2026-07-08) — and the wiki side is fully covered (`hooks/offload_push_guard.md` exists, `index.md`'s hook table and Stop-order prose both list it, `sources/pr_108_2026-07-08_offload-push-guard.md` exists). But `coderails/AGENTS.md`'s own Part-1 "Hook event map" table (the source-of-truth working guide, a *different* repo from this vault) omits it — the table stops at `comment_citation_gate` (added by PR #50/#92's docs fix, merged earlier today) and was never updated for #108. Source-side gap, flagged not fixed (wiki-lint documents the raw-source repo but doesn't edit it).
+- **Dangling links: 0 real.** Full regex sweep over all `[[...]]` found ~175 raw hits; all resolved to previously-documented benign false positives — `[[:space:]]`/`[[...]]`/`[["$answer"=="y"]]`-shaped POSIX/bash syntax quoted inside fenced code blocks (`enforce_pr_workflow.md`, `destructive_bash_gate.md`, `skills-hooks-seam.md`, several `pr_*` sources), `[[wiki-links]]`/`[[link]]`/`[[page_name]]` schema meta-text describing the link syntax itself (`design/routines.md`, `skills/wiki-lint.md`, `skills/wiki-query.md`), `[[capabilities/send-gate]]` explicitly labelled as an assistant-agent-wiki cross-vault reference (`investigations/queue-contract-cross-pr-audit_2026-07-07.md`), and historical `log.md` prose (`[[pr_73]]`, `[[review-pr]]`, `[[pr_50…]]`, `[[pr_69_no-edit-message-worktree]]`, etc.) quoting pre-fix link states from earlier lint entries, already flagged as benign in those same entries.
+- **Orphans: 0.** Every non-index/log page (160 total) has ≥1 inbound `[[wiki-link]]`, verified by full Python scan.
+- **Stale (>30d, before 2026-06-08): 6, all benign** — `install-bash32-bad-substitution_2026-06-01`, `install-cache-trap_2026-05-30`, and 4 `session_*` sources from 2026-05-31/06-01. All are `source`/`investigation` pages (immutable PR/session records and point-in-time analyses) whose old `last_updated` is correct by schema; no evergreen command/hook/skill/design page is stale. Same 6 as the last full-vault pass — no new staleness.
+- **Contradictions: 0 live.** No `⚠️ CONTRADICTION` markers outside `log.md`/`skills/wiki-lint.md` (the latter is schema prose describing the check itself).
+- **Inbox: n/a** (no `inbox/` dir).
+- **Command/hook/skill parity vs the plugin repo: 12/12 commands, 15/15 hooks, 31/31 shipped skills all have wiki pages** (wiki also carries one extra skill page, `sync-docs`, not shipped in this plugin repo — pre-existing, not a gap).
+- **Staged-but-uncommitted content reviewed:** `hooks/offload_push_guard.md`, `sources/pr_108_2026-07-08_offload-push-guard.md`, `sources/pr_112-113_2026-07-08_jq-slurp-residuals-round2.md`, and diffs to `hooks/enforce_pr_workflow.md`/`hooks/unregistered_loop_guard.md`/`skills/agentic-loop.md`/`skills/verify-merged-pr.md` — all internally consistent, correctly cross-linked, and the `unregistered_loop_guard.md` "Known residual" section was correctly flipped to "Resolved residual" with a link to the closing PR #113.
+- **Process note, not a defect:** the "Sources N→M" running-count convention log entries used to append (last seen "Sources 43→44" for PR #11-14) was dropped partway through the log's history (around the 2026-07-07 cluster-ingest entries) and never resumed; `sources/` has grown from 44 to 71 since. Cosmetic — doesn't affect page content or lint validity, just a discontinued log-annotation habit. Not fixed here since `log.md` is append-only/historical.
+
+Suggestions: (1) add `offload_push_guard` to `coderails/AGENTS.md`'s Part-1 hook event map (source edit, owner's call, mirrors the `comment_citation_gate` fix pattern); (2) no wiki-side fixes needed this pass — 0 orphans, 0 dangling links, 0 open contradictions.
+>>>>>>> 12a665c29cd0cc30dcf1ba529931f83adf2a0dbf

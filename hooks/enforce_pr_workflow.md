@@ -2,14 +2,14 @@
 title: "enforce_pr_workflow.sh"
 type: hook
 created: 2026-06-25
-last_updated: 2026-06-29
-sources: [sources/pr_19-30_self-containment-and-hardening.md, sources/pr_40_hook-hardening.md, sources/pr_42_skills-hooks-seam.md, sources/pr_46_gate-git-push-on-main.md, sources/pr_49_gate-function-rename.md, sources/pr_57-62_subagent-enforcement-gate-hardening.md, sources/pr_64_loop-review-via-skill.md, sources/pr_76_harden-hook-stdin-read.md]
+last_updated: 2026-07-08
+sources: [sources/pr_19-30_self-containment-and-hardening.md, sources/pr_40_hook-hardening.md, sources/pr_42_skills-hooks-seam.md, sources/pr_46_gate-git-push-on-main.md, sources/pr_49_gate-function-rename.md, sources/pr_57-62_subagent-enforcement-gate-hardening.md, sources/pr_64_loop-review-via-skill.md, sources/pr_76_harden-hook-stdin-read.md, sources/pr_96-98_evals-gate-uniform-enforcement_2026-07-08.md]
 tags: [hook, PreToolUse, enforcement, pr-workflow, workflow-chain]
 ---
 
 # enforce_pr_workflow.sh
 
-PreToolUse(Bash) hook that mechanically guards the PR workflow chain: blocks `gh pr create` unless `/coderails:push` ran this session; blocks `gh pr merge` unless `/pr-review-toolkit:review-pr` ran this session referencing the same PR number (PR #58); (since PR #40) blocks `git merge` on `main`/`master` unless `/pr-review-toolkit:review-pr` ran since the last `git merge` (consume-on-use, PR #58); and (since PR #46) blocks `git push` that lands on `main`/`master` unless `/pr-review-toolkit:review-pr` ran this session, including bare positional `git push origin main` from any branch (PR #58).
+PreToolUse(Bash) hook that mechanically guards the PR workflow chain: blocks `gh pr create` unless `/coderails:push` ran this session; blocks `gh pr merge` unless `/pr-review-toolkit:review-pr` ran this session referencing the same PR number (PR #58); (since PR #40) blocks `git merge` on `main`/`master` unless `/pr-review-toolkit:review-pr` ran since the last `git merge` (consume-on-use, PR #58); and (since PR #46) blocks `git push` that lands on `main`/`master` unless `/pr-review-toolkit:review-pr` ran this session, including bare positional `git push origin main` from any branch (PR #58). (since PR #97, 2026-07-08) also blocks `gh pr merge <N>` — after the review-pr check above already passes — unless a SHA-bound `GO` coderails eval artifact exists for the PR's current head, mirroring `scripts/merge.sh`'s own eval gate.
 
 ## Event and mode
 
@@ -40,6 +40,7 @@ Subcommand routing after Gate 3: `create` → requires `/coderails:push` evidenc
 
 - `gh pr create` called without a prior `/coderails:push` in the session transcript.
 - `gh pr merge <N>` called without a prior `/pr-review-toolkit:review-pr <N>` (leading-token PR number match) in the session transcript. Bare `gh pr merge` (no number) accepts any review-pr. (per-PR check added PR #58)
+- `gh pr merge <N>` called (past the review-pr check above) without a SHA-bound `GO` coderails eval artifact for the PR's current head — fail-closed, including on a `gh` fetch failure. Does not apply to `git_merge`/`git_push` (no PR number to resolve a SHA-bound artifact against — documented residual). (added PR #97, 2026-07-08)
 - `git merge` on `main`/`master` called without a prior `/pr-review-toolkit:review-pr` SINCE the last `git merge` (consume-on-use, added PR #58; original session-scope check PR #40).
 - `git push` landing on `main`/`master` (current branch, explicit destination refspec, or bare positional target) called without a prior `/pr-review-toolkit:review-pr` in the session transcript. Bare positional `git push origin main` gated as of PR #58; destination-refspec model added PR #46.
 
@@ -90,6 +91,7 @@ PR #49 replaced positional `# Gate N` comments with named bash functions, making
 | `gate_targets_main` | 4b | Pass if `git merge`/`git push` does not target main/master |
 | `gate_have_transcript` | 5 | Pass if no transcript path in payload |
 | `enforce_required_step` | 6 | Scan transcript; pass if evidence found, deny if not |
+| `gate_eval_artifact_for_merge` | 7 | For `merge` subcommand only, after Gate 6 passes: pass if a SHA-bound `GO` coderails eval artifact exists for the PR's current head, deny if not (added PR #97) |
 
 `gate_targets_main` is the headline rename: the former label "Gate 4b" conveyed only position; the name now states the decision the gate makes. Mirrors the `require::` / `pr::` naming idiom in `scripts/lib/git-common.sh`. (verified — PR #49)
 
@@ -131,6 +133,24 @@ The `enforce_required_step` function (Gate 6) scans the transcript for `/pr-revi
 
 **Resolution path:** Invoke `/pr-review-toolkit:review-pr <PR#>` as a Skill, passing the PR number. The Skill itself orchestrates the six reviewers and security pass internally. See [[agentic-loop]] Phase 4b section for the orchestrator-side obligation. See [[pr_64_loop-review-via-skill]] for the source record.
 
+## Gate 7 — eval-artifact gate on gh pr merge (PR #97, 2026-07-08)
+
+`scripts/merge.sh` already required a SHA-bound `GO` coderails eval-artifact PR comment (`pr::has_coderails_eval_for_head`) before running `gh pr merge` — but this hook only ever checked for review-pr evidence on that same command, so a raw `gh pr merge <N>` run outside `/coderails:merge` skipped the eval check entirely. This is the exact bypass [[pr_95_slash-command-loop-detection|PR #95]] shipped through: it satisfied the review-pr gate (a `code-reviewer`-clean `/pr-review-toolkit:review-pr` ran and is recorded) but produced zero eval artifact of any kind, and nothing forced one.
+
+**New function `gate_eval_artifact_for_merge`**, appended after `enforce_required_step` in the gate chain and run once more before `exit 0`:
+
+- Scoped to `subcommand = merge` only — `git_merge`/`git_push` have no PR number to resolve a SHA-bound artifact against and are explicitly left uncovered (documented residual, not a bug).
+- Skips immediately if the review-pr gate (Gate 6) already denied this invocation (`[ "$step_found" -eq 0 ] 2>/dev/null && return 0`), so only one deny message is ever emitted per call, and the cheap transcript-only check always gets first refusal before this network-dependent one runs.
+- `cd`'s into the payload's `cwd` in-process (not a subshell — a subshell would lose the `PR_EVAL_TIER`/`PR_TRUST_FETCH_FAIL_REASON` globals the deny-message branches below need) before calling `repo()`/`pr::*` helpers, which are CWD-dependent.
+- Resolves the PR number (`$pr_num`, falling back to `pr::num "$(branch)"`) and head SHA (`pr::head_sha`), then calls `pr::has_coderails_eval_for_head`.
+- **rc handling mirrors `scripts/merge.sh`'s own eval gate:** `rc=2` (gh fetch failed) → deny fail-closed, reason keyed off `PR_TRUST_FETCH_FAIL_REASON` (`identity`/`permission`/`tempfile`/default); `rc≠0` otherwise → deny, tier-aware NO-GO message if `PR_EVAL_TIER` is set, else "no coderails eval artifact for current head"; `rc=0` → allow (any tier's `GO`, including tier 0).
+- The hook now sources `scripts/lib/git-common.sh` (pulling in `eval-artifact.sh` + `review-artifact.sh`) at the top of the file; its colour vars are `_GIT_COMMON_COLORS_LOADED`-guarded, so double-sourcing alongside `merge.sh`'s own in-process sourcing elsewhere is safe.
+- NO_CONFIG posture unaffected: `gate_config_present` (Gate 4) still stands aside before any of Gate 7's code runs.
+
+**Tests:** the whole suite (`hooks/scripts/tests/enforce_pr_workflow.test.sh`) gained a global `gh` mock (a fake executable, `MOCKGH_DIR`, placed first on `PATH`) so every pre-existing `gh pr merge` ALLOW case — none written with this new gate in mind — is transparently satisfied by a default `GO tier=1` marker. A dedicated new test section exercises the gate's own branches directly: no marker → deny, `GO` tier 1 → allow, `GO` tier 0 → allow, `NO-GO` tier 2 → deny naming the tier, comments-fetch failure → rc=2 fail-closed with a retry hint, `NO_CONFIG` → allow, and gate ordering (review-pr denial fires first). Suite went from 86 to 93 passing cases.
+
+See [[task-evals-gate]] "Merge gate placement" for how this sits alongside `scripts/merge.sh`'s pre-existing pr-scope gate, and [[evals-gate-enforcement-gap_2026-07-08]] for the investigation that surfaced the gap this closes.
+
 ## Stdin read convention (PR #76)
 
 This hook reads its payload via `IFS= read -r -d '' -t 5 input || true`. Context: this hook's processes were the visible symptom of the fan incident that motivated PR #76 investigation — 21 orphaned instances at 8–10% CPU for 3+ hours. However, their root cause was the config.sh walk-up infinite loop (PR #72), not `input=$(cat)`. PR #76 is defence-in-depth for the separate stdin-block risk. See [[pr_76_harden-hook-stdin-read]] and [[pr_72_config-walkup-symlink-hang]].
@@ -157,4 +177,8 @@ This hook is auto-chmod'd by `install.sh`'s hooks.json-derivation (PR #28). No m
 [[workflow]] — the full chain this hook enforces  
 [[finishing-a-development-branch]] — the skill whose local-merge option motivated the git-merge gate  
 [[skills-hooks-seam]] — the cross-reference convention this hook participates in; the merge-base regex footgun  
+[[task-evals-gate]] — the dual-scope eval-artifact design; this hook is its second (hook-level) pr-scope consumer as of PR #97  
+[[evals-gate-enforcement-gap_2026-07-08]] — the investigation that surfaced the raw-`gh-pr-merge` bypass PR #97 closes  
+[[pr_96-98_evals-gate-uniform-enforcement_2026-07-08]] — source page for PR #97 (this hook's Gate 7) and its companion PR #96/#98  
+[[offload_push_guard]] — Stop/SubagentStop nudge hook (PR #108) that redirects an agent away from telling the user to push past this hook's gate from their own shell, back toward clearing it in-session with `/pr-review-toolkit:review-pr`  
 `coderails/hooks/scripts/enforce_pr_workflow.sh`

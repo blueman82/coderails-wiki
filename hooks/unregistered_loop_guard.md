@@ -6,8 +6,10 @@ last_updated: 2026-07-08
 sources:
   - sources/pr_15-17_loop-hardening-registration-eval-freeze-ledger-dry.md
   - sources/pr_23-24_hook-lib-observability-and-repo-keyed-loop-state.md
+  - sources/pr_99_unregistered-loop-guard-nudge-once.md
   - sources/pr_86-107_2026-07-08_loop-lib-residuals.md
-tags: [hook, agentic-loop, unregistered-loop, stop-hook, loop-state, nudge, heuristic, malformed-transcript]
+  - sources/pr_112-113_2026-07-08_jq-slurp-residuals-round2.md
+tags: [hook, agentic-loop, unregistered-loop, stop-hook, loop-state, nudge, heuristic, nudge-once, malformed-transcript]
 ---
 
 # unregistered_loop_guard.sh
@@ -38,6 +40,27 @@ All three must hold:
 2. **No `progress.json`** at the path `agentic_loop_path.sh` resolves for this session.
 3. **No `agentic-loop` Skill invocation** anywhere in the transcript — same structured `jq` match on `name == "Skill"` / `input.skill` matching the agentic-loop pattern that [[loop_state_guard]]'s `als_gate_not_a_loop` uses, applied here as a positive detection rather than a skip-gate.
 
+## Nudge-once-per-session (PR #99, 2026-07-08)
+
+Before emitting, the hook now greps the discipline log (`als_log`'s existing ledger — the same file the emit path already writes to) for a prior `nudged=1` line for **this** `session_id`. If found, it exits 0 silently, logging `nudged=0 reason=already_nudged_this_session`, and does not re-emit. The check is:
+
+```bash
+esc_sid=$(printf '%s' "$session_id" | sed 's/[.[\*^$\\]/\\&/g')
+if grep -q "hook=unregistered_loop_guard .*session=$esc_sid .*nudged=1" "$LOG_FILE" 2>/dev/null; then
+  als_log "hook=unregistered_loop_guard session=$session_id dispatch_turns=$dispatch_turns nudged=0 reason=already_nudged_this_session"
+  exit 0
+fi
+```
+
+**Why:** without this, the nudge re-fired on every Stop for a session that kept meeting the trip conditions. For a genuinely one-off dispatch sequence, the honest response to the nudge is "no action needed" — but that response itself ends in a Stop, the conditions still hold, and the nudge fires again. Self-perpetuating, observed live 2026-07-08.
+
+**Design notes:**
+- Reuses the existing `als_log` ledger as the suppression source of truth rather than adding new per-session state — the emit path already recorded `nudged=1` lines keyed by `session_id`.
+- Match is `session=$esc_sid` bounded by literal spaces on both sides, so a prior nudge for session `S-A` cannot substring-match and suppress session `S-AB`'s first nudge (tested both directions).
+- The first nudge for any session is unaffected — this only suppresses repeats, never the initial signal.
+- Fails open: a missing or unreadable log file means the grep finds nothing, so the hook falls through and emits — matching the rest of this hook's (and the repo's) fail-open convention.
+- **`session_id` is escaped before interpolation into the grep BRE pattern** (`sed 's/[.[\*^$\\]/\\&/g'`), fixing a regression where a session id containing a literal BRE metachar (e.g. a `.`) could wildcard-match an unrelated session's log line and falsely suppress a legitimate first nudge. `als_sanitise_session_id` only strips `/` and collapses `..` (path-traversal defense) — a single `.` survives untouched, so this was a real reachable input. Reviewer-suggested; confirmed unreachable for real UUID-shaped session ids in current practice, but applied as defense-in-depth. See [[pr_99_unregistered-loop-guard-nudge-once]] for the full fix and test detail.
+
 ## Design decisions
 
 - **Nudge, not block — a deliberate deviation from every sibling loop-state hook.** [[loop_state_guard]] and [[loop_stall_guard]] both block on ground truth: a `progress.json` either exists with the right session stamp, or it doesn't. This hook has only a heuristic — dispatch-count-shaped evidence that a loop *might* be running unregistered — and heuristics that block risk nagging legitimate non-loop sessions (research fan-outs, single reviews) that also happen to dispatch several subagents. The flip condition is recorded explicitly in the source: a nudge that gets delivered but ignored in practice is the trigger to escalate this hook to a block in a future PR, not a silent design drift.
@@ -47,15 +70,22 @@ All three must hold:
 - **`jq` failures are logged with distinct reasons**, not silently folded into the below-threshold outcome: `jq_missing`, `jq_parse_error`, `payload_parse_error` are each a separate logged reason, keeping "jq isn't installed" auditably distinct from "the transcript didn't parse" or "the hook payload itself was malformed."
 - **Silent on `als_count_invocations` parse failures, by explicit choice (PR #23).** This hook's `ulg_has_skill_invocation` calls the shared `als_count_invocations` directly (not through the retry wrapper `als_stable_invocations`), and [[pr_23-24_hook-lib-observability-and-repo-keyed-loop-state|PR #23]]'s hook-lib rework moved that function's jq-failure signalling from a direct `als_log` call to a stderr tag intended for the retry wrapper to pick up. This hook now explicitly discards that stderr (`2>/dev/null`) rather than let it leak to the hook's own stderr — preserving this hook's prior (pre-#23) behaviour of staying silent on a parse failure here, now an explicit decision instead of an accident of the old design. This still holds after [[pr_86-107_2026-07-08_loop-lib-residuals|PRs #91/#107]] widened `als_count_invocations`'s stderr vocabulary (`skipped_malformed=N`, `read_error`, `all_lines_malformed`) — this hook discards all of it identically via the same `2>/dev/null`, so it benefits from the more tolerant parse (fewer false "no invocation found" results from one bad transcript line) without needing any change of its own.
 
-## Known residual: this hook's own `jq -s` slurp is untouched
+## Resolved residual: this hook's own `jq -s` slurp (PR #113, 2026-07-08)
 
 `ulg_count_dispatch_turns` — the dispatch-turn counter **inside this hook's own
-script**, not the shared lib — has the identical bare-`jq -s`-slurp fragility that
-[[pr_86-107_2026-07-08_loop-lib-residuals|PRs #91/#107]] fixed in
-`loop_state_common.sh`. A single malformed JSONL line here still collapses this
-hook's OWN dispatch-turn count, independent of the shared-lib fix. This was
-explicitly flagged as out-of-scope in PR #91's own description and remains a
-standing residual — not fixed by this cluster.
+script**, not the shared lib — had the identical bare-`jq -s`-slurp fragility
+that [[pr_86-107_2026-07-08_loop-lib-residuals|PRs #91/#107]] fixed in
+`loop_state_common.sh`. A single malformed JSONL line here used to collapse
+this hook's OWN dispatch-turn count, independent of the shared-lib fix — flagged
+as out-of-scope in PR #91's own description and left as a standing residual.
+
+**Closed same-day by [[pr_112-113_2026-07-08_jq-slurp-residuals-round2|PR
+#113]]**: `ulg_count_dispatch_turns` now mirrors `als_count_invocations`'s
+two-stage tolerant parse — a benign partial skip (some lines parse) recovers
+the valid count with `ULG_PARSE_REASON` left empty; total parse loss (every
+line malformed) reports count 0 with a non-empty reason so the caller can
+suppress the nudge on genuinely untrustworthy input, mirroring #107's
+`all_lines_malformed` distinction applied to this hook's own local parse.
 
 ## Stdin read convention
 
@@ -63,13 +93,14 @@ Reads its payload via `IFS= read -r -d '' -t 5 input || true`, the repo's bounde
 
 ## Test coverage
 
-`hooks/scripts/tests/unregistered_loop_guard.test.sh` — 27 checks, mirroring [[loop_state_guard]]'s test-file conventions. Landed alongside updates to `stdin_bounded_read.test.sh`, the timeout-floor test (backstop count bumped for the new hook entry), and the exec-bit invariant test (new file added at mode `100755`).
+`hooks/scripts/tests/unregistered_loop_guard.test.sh` — grew from 27 checks to include a new Task 4 block (+75 lines, PR #99): repeat-session suppression (nudge fires on the first Stop, is suppressed on the second), fresh-session still-nudges-once regression guard, cross-session independence in both directions (exact session-id match, not substring), and a BRE-metachar regression test (`s.1` vs `sX1`) that fails against an unescaped grep and passes only once the session id is escaped. Full suite 37/37 passing post-PR-99. Landed alongside updates to `stdin_bounded_read.test.sh`, the timeout-floor test (backstop count bumped for the new hook entry), and the exec-bit invariant test (new file added at mode `100755`).
 
 ## Known limitations
 
 - **Heuristic, not ground truth** — can miss unregistered-loop shapes outside its 3-distinct-dispatch-turn / no-progress.json / no-skill-invocation triple. A loop that dispatches exactly 2 sequential implementers, or one that briefly touches the `agentic-loop` Skill without properly registering `progress.json`, will not trip this hook.
 - **Nudge can be ignored** — same honest boundary every hook in this repo has: it can force a signal to appear (`additionalContext`), not force the model to act on it. This is the explicit reason the flip condition to "block" is pre-recorded rather than left as an open question.
 - **No `subagent_type` awareness** — treats every `Agent` tool_use identically; a session dispatching 3 sequential research or review agents (not implementers) can trip the same nudge as a genuine unregistered implementation loop. Accepted as a YAGNI cut, not a bug.
+- **Session-scoped suppression only (PR #99)** — the nudge-once behaviour is keyed on `session_id`; a new session that meets the same conditions gets its own first nudge. This is not a global "nudge at most once ever" — it specifically targets the self-perpetuating repeat-nudge failure mode within one session.
 
 ## See also
 
@@ -81,5 +112,6 @@ Reads its payload via `IFS= read -r -d '' -t 5 input || true`, the repo's bounde
 - [[dispatching-parallel-agents]] — the legitimate parallel-fan-out pattern this hook's `message.id` counting is designed not to trip on
 - [[pr_15-17_loop-hardening-registration-eval-freeze-ledger-dry]] — PR #17 source record (F1)
 - [[pr_23-24_hook-lib-observability-and-repo-keyed-loop-state]] — PR #23 source record: the hook-lib jq-failure-signalling rework this hook's stderr-discard carve-out responds to
+- [[pr_99_unregistered-loop-guard-nudge-once]] — PR #99 source record: the nudge-once-per-session fix and grep-metachar hardening
 - [[dashboard]] / [[pr_25_observability-dashboard]] — PR #25 (2026-07-06): a 16-task, 5-fix-loop session run under a properly registered loop; cross-linked here as the kind of large multi-task session this guard is designed to flag if orchestration ever drifts unregistered
 - [[pr_86-107_2026-07-08_loop-lib-residuals]] — PRs #91/#107: malformed-transcript tolerance in the shared lib's `als_count_invocations` (this hook's delegate call benefits passively); this hook's OWN separate `jq -s` slurp in `ulg_count_dispatch_turns` remains an untouched, explicitly out-of-scope residual

@@ -8,11 +8,13 @@ sources:
   - sources/pr_43-44-46_workflow-audit-queue-seam.md
   - sources/pr_36-41-33-53-65_verified-routines.md
   - sources/pr_55-60-64-66-67_approve-build-runner.md
+  - sources/pr_89-100-104-106_approve-build-e5-live.md
   - sources/pr_70-71_2026-07-07_dashboard-input-fix-and-voice-announcements.md
   - sources/pr_80-82_dashboard-stream-run-output-viewer.md
   - sources/pr_88_93_dashboard-launchd.md
   - sources/pr_86-107_2026-07-08_loop-lib-residuals.md
-tags: [skill, dashboard, observability, nextjs, r3f, sse, obsidian, agentic-os, sub-project-1-of-5, queue-contract, builder, ask-button, argv, run-output, streaming, launchd, reboot-persistence]
+  - investigations/dashboard-lockfile-emnapi-drift_2026-07-08.md
+tags: [skill, dashboard, observability, nextjs, r3f, sse, obsidian, agentic-os, sub-project-1-of-5, queue-contract, builder, ask-button, argv, run-output, streaming, launchd, reboot-persistence, npm-ci, lockfile]
 ---
 
 # Skill: dashboard
@@ -98,6 +100,22 @@ dashboard-generated), so a `safePrUrl()` guard only links `https:`-protocol
 URLs — a `javascript:`/`data:` scheme would otherwise be a click-triggered
 vector — falling back to a plain-text CTA otherwise.
 
+**Honest build feedback (added by [[pr_89-100-104-106_approve-build-e5-live]],
+PR #106):** the bare `building` (opaque for up to 45 minutes) is replaced with
+live progress. The builder writes a coarse phase — one of `authoring | testing
+| pushing | opening_pr` — to `builds/<hash>/phase`; `collectBuilds`
+closed-set-validates that word **before it reaches the client** (same
+reject-never-default discipline as `state`), and the panel shows `building`
+followed by the phase, an elapsed timer (from `startedAt`), and heartbeat
+freshness ("last active Ns ago"). After a build's PR leaves the dashboard's
+open-PR set (merged or closed) the panel shows **`PR resolved`** instead of a
+stale `awaiting your merge` — the builder now writes `pr_url` immediately after
+`gh pr create` so the join can happen. A **null-guard skips reconciliation**
+(falls back to `awaiting`) whenever the open-PR set is untrustworthy — gates
+not loaded, poll failed, or a repo degraded to an error entry — so an open PR
+is never falsely marked resolved. `buildPrompt` gained a `buildDir` parameter
+to interpolate the concrete phase-file path.
+
 ### Obsidian command centre
 
 A native Obsidian plugin (official TypeScript template) registering a code-block processor (`agentic-os`) that renders dashboard state inside a real markdown note, sharing the same button config as the web deck. The routines sub-project (#2, now shipped — see [[intent-queue-runner-contract]] and [[dashboard-runner]]) defines the queue+runner contract this seam was frozen against; the plugin writes intent files to `~/.claude/coderails-dashboard/queue/` per that contract, but still also keeps its interim direct-exec path — [[dashboard-runner]] existing doesn't yet make the plugin stop invoking `claude` itself, so the plugin has not yet been updated to rely solely on the now-real runner. Ships a committed, reproducible `dist/main.js` build (same precedent as `wiki-init`'s committed Marp assets).
@@ -107,6 +125,8 @@ A native Obsidian plugin (official TypeScript template) registering a code-block
 ## Starting / stopping
 
 `skills/dashboard/scripts/start-dashboard.sh` (npm ci → build → start → open, idempotent re-launch) and `stop-dashboard.sh` (kills the pidfile'd process). Port overridable via `DASHBOARD_PORT`.
+
+**First-run gotcha:** `npm ci` is exact-lock — unlike `npm install`, it fails hard (`EUSAGE`) rather than silently repairing if `package-lock.json` has drifted from `package.json`, including drift in optional/transitive native deps (e.g. `@emnapi/*`). See [[dashboard-lockfile-emnapi-drift_2026-07-08]] for a case that blocked first run this way and the general fix (`npm install --package-lock-only`).
 
 ### Surviving reboots (launchd)
 
@@ -136,6 +156,7 @@ This is the first sub-project to give the task-evals gate a real production catc
 - [[workflow-audit]] — sub-project 3 of the same agentic-OS evolution sequence this dashboard is sub-project 1 of; now a second queue producer via [[pr_43-44-46_workflow-audit-queue-seam]]
 - [[pr_43-44-46_workflow-audit-queue-seam]] — the queue-mode integration source page (writer, `AssistantLinkPanel` render branch, consumption-seam contract)
 - [[pr_55-60-64-66-67_approve-build-runner]] — the Approve-click → skill-creator builder pipeline: claim/spawn seam, wrapper state machine, injection-fenced prompt, build-state visibility, and the `safePrUrl` XSS fix
+- [[pr_89-100-104-106_approve-build-e5-live]] — the live-fire close of that pipeline: first real skill built ([[verify-merged-pr]]) + this panel's honest build feedback (phase/timer/heartbeat, `PR resolved` reconciliation)
 - [[assistant-link-send-gate-architecture]] — sub-project 4's send-gate design, the queue seam this panel reads/mutates, and the ASSISTANT.LINK panel's four D6 slots (only "sends + approvals log" has a real data source so far)
 - [[pr_28_assistant-link-queue-contract-and-panel-spec]] / [[pr_31_assistant-link-approve-button]] — the contract spec and the panel's implementation + path-traversal fix
 - [[intent-queue-runner-contract]] / [[dashboard-runner]] / [[routines]] / [[memory-consolidation]] — sub-project 2, the routines cluster: the queue schema/lifecycle, the sole-executor runner, the scheduling convention, and one shipped routine's skill
