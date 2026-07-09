@@ -72,6 +72,17 @@ failure like `ENOENT` would otherwise hang the request forever and leak the per-
 and a `fetchSettledOutput` that silently swallowed all fetch/parse errors (now a discriminated
 result type with a distinct in-progress/error/ok case and a visible retry button).
 
+**Settled output is parsed, not dumped raw ([[pr_124_dashboard-run-output-result-extraction]],
+2026-07-09).** PR #80–82 shipped `lib/streamJson.ts`'s parser but nothing consumed its parsed
+`{ok, value}` shape beyond the never-throws guarantee — `GET /api/run/output` returned the
+entire raw JSONL log file as `output`, so the panel rendered every hook/system/assistant event
+verbatim with the actual answer buried in a nested blob at the end (surfaced by a real user
+report: a correct "what time is it in Dublin" answer was unfindable on screen). Fixed with a
+module-private `extractResultText()` in `route.ts` that scans the log backwards for the last
+`type:"result"` line and returns its `result` field, falling back to the raw content if no valid
+result line exists (crashed run, or a non-string `result` e.g. an `error_during_execution`
+subtype) — same fallback value as the old behavior, so that path is unchanged by construction.
+
 ### AssistantLinkPanel — per-producer readable rendering
 
 `AssistantLinkPanel.tsx` (PR #31 — full build-out in
