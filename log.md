@@ -607,3 +607,7 @@ Suggestions: (1) still-standing — add `offload_push_guard` to `coderails/AGENT
 ## [2026-07-09] ingest | PR #118-123 Self-Improving Loops cluster (retro gate + dormant v2 promotion pipeline)
 
 Created [[pr_118-123_self-improving-loops]] source page. Updated [[loop_stall_guard]] (retro-gate section), [[agentic-loop]] (Phase 13 write-contract + Phase 2 read-back + dormant v2 section), and index.md sources. Retro gate LIVE on main (643e0ad); v2 pipeline ships dormant behind graduation predicate. 6 PRs, single-loop session 15f29276.
+
+## [2026-07-09] ingest | PR #124 dashboard Run Output panel — parse result instead of raw stream-json dump
+
+Created [[pr_124_dashboard-run-output-result-extraction]] source page. Updated [[dashboard]] (Run Output panel section, sources list) and [[pr_80-82_dashboard-stream-run-output-viewer]] (caveat marked closed inline). Closes the "not consumed for anything beyond well-formed verification" caveat that source page flagged 2026-07-08 — a real user report (correct answer unfindable in the raw dump) supplied the case it predicted. Tier-1 task-evals GO (3 P0 + 2 P1); two independent review agents (code-reviewer + pr-test-analyzer) converged unprompted on the same two coverage gaps (multi-result last-match, non-string-result fallback), both closed same session. Single-fix session, PR #124 (c9db6da).
