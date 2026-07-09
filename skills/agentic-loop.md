@@ -2,7 +2,7 @@
 title: "Skill: agentic-loop"
 type: skill
 created: 2026-05-31
-last_updated: 2026-07-06
+last_updated: 2026-07-09
 sources:
   - skills/agentic-loop/SKILL.md
   - sources/session_2026-05-31_prompting-doc-alignment.md
@@ -299,6 +299,10 @@ violations** (unchanged from Spec A) — only the human-turns scorecard was remo
 `:480`) that still described the pre-rewrite scorecard shape after the rest of Phase 13 changed —
 caught and fixed by the post-merge review, inside the same merge commit. See
 [[pr_86_agentic-loop-hardening]].
+
+## Phase 13 now writes a retro + maintains a standing-orders overlay (PR #118-123)
+
+The self-improving-loops cluster gave Phase 13 a **write contract**, and gave the loop a **read-back** at Phase 2. Teardown order: (1) assemble `retro.json` (`schema_version` 1) beside `progress.json` — raw, unscored, no verdict field; `loop_stop_counts` copied verbatim (hook-owned), `hook_blocks` mined by `dc_mine_hook_blocks` from `discipline.log`, disposition record (distinguishing "0 violations" from "no record"), evals result, artifacts; (2) update the repo-keyed, machine-owned `standing-orders.md` overlay — additive-or-recurrence-only, decay at `loops_since_recurrence >= 5` by MOVING to a tombstone file (never delete); (3) write feedback auto-memories; (4) only then declare `complete`. **The `complete` declaration is now gated** — [[loop_stall_guard]] blocks it unless the retro.json exists and parses (the feature gates its own loop's completion). Phase 2 pre-flight reads the last N=5 retros + the overlay and carries lessons **verbatim** into worker prompts (additive-only: may add cautions/assertions/premortem entries, never relax a gate or skip a phase). A **dormant v2 pipeline** ([[pr_118-123_self-improving-loops]]) will, once a graduation predicate fires (≥10 retros + one lifecycle + one clean decay), promote repo-agnostic lessons into `learned-failure-modes.md` through the full gate chain. rollback-on-regression was explicitly cut — the feedback path is additive-or-recurrence-only, never a self-issued performance verdict. See [[pr_118-123_self-improving-loops]].
 
 ## `model: sonnet` is advisory, not hook-enforced (PR #86, documentation only)
 

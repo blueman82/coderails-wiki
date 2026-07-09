@@ -9,7 +9,8 @@ sources:
   - sources/pr_76_harden-hook-stdin-read.md
   - sources/pr_96-98_mode-aware-install-argument-injection-guard-hook-owned-counter.md
   - sources/pr_86-107_2026-07-08_loop-lib-residuals.md
-tags: [hook, agentic-loop, anti-stall, stop-hook, loop-stop, loop-state, hook-owned-counter, malformed-transcript]
+  - sources/pr_118-123_self-improving-loops.md
+tags: [hook, agentic-loop, anti-stall, stop-hook, loop-stop, loop-state, hook-owned-counter, malformed-transcript, retro-gate]
 ---
 
 # loop_stall_guard.sh (C2)
@@ -99,6 +100,10 @@ Appends a `key=value` line to `$CLAUDE_DISCIPLINE_LOG`:
 
 - Cannot force the declared reason or category to be truthful; a model can rubber-stamp `awaiting-input`. The Phase 13 KPI is the auditable counter-pressure.
 - Four Stop hooks (confidence, verify, C1, C2) firing on the same stopping turn is the highest ceremony cost in the system; the main thing to watch in Phase 13 is avoidable-stall counts from stop-ceremony thrash. (A fifth Stop hook, [[unregistered_loop_guard]], was added PR #17 — it only fires on *unregistered* loops and is a nudge, not a co-requirement of this ceremony, so it does not add to this specific thrash risk.)
+
+## Retro gate on `complete` (PR #119)
+
+This hook additionally hosts the **retro gate** (`als_gate_retro_on_complete` in the shared lib). On a `LOOP-STOP: complete` declaration only, it blocks (exit 2) unless a parseable `retro.json` (`schema_version` 1) sits beside `progress.json` — the Phase 13 write contract. Category is lowercase-normalised before the check (a case-insensitive upstream match feeding a case-sensitive compare was the Critical caught in review — `Complete`/`COMPLETE` had bypassed the gate entirely). **Block-before-bump:** the gate call runs before `bump_loop_stop_count`, so a blocked `complete` never increments the counter. Fail-open when jq is absent (matches `bump_loop_stop_count`), with a `retro_gate=skipped_no_jq` breadcrumb; fail-closed when `ALS_PATH` is unset. Presence + parse only — provenance/content fidelity is not checkable here, same honest boundary as every other guard. See [[pr_118-123_self-improving-loops]].
 
 ## Stdin read convention (PR #76)
 

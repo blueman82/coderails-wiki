@@ -603,3 +603,7 @@ reproduces the prior pass exactly:
 - **The one open finding is unchanged and out of wiki-lint's write scope:** `coderails/AGENTS.md`'s Part-1 "Hook event map" table still omits `offload_push_guard` (source-repo working guide, a different repo from this vault; wiki-lint documents raw source but does not edit it). Report-only, owner's call — same disposition as the prior pass.
 
 Suggestions: (1) still-standing — add `offload_push_guard` to `coderails/AGENTS.md`'s Part-1 hook event map (source edit); (2) no wiki-side fixes needed — vault is clean.
+
+## [2026-07-09] ingest | PR #118-123 Self-Improving Loops cluster (retro gate + dormant v2 promotion pipeline)
+
+Created [[pr_118-123_self-improving-loops]] source page. Updated [[loop_stall_guard]] (retro-gate section), [[agentic-loop]] (Phase 13 write-contract + Phase 2 read-back + dormant v2 section), and index.md sources. Retro gate LIVE on main (643e0ad); v2 pipeline ships dormant behind graduation predicate. 6 PRs, single-loop session 15f29276.
