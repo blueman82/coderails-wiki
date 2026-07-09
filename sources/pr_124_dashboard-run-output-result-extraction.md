@@ -111,7 +111,6 @@ single reviewer's fixture choices can miss.
 
 - [[pr_80-82_dashboard-stream-run-output-viewer]] — caveat section note added: closed by this PR
 - [[dashboard]] — Run Output panel description updated to reflect parsed-result display
-- [[streamJson]] — new page: documents `parseStreamJsonLine`'s first real consumer
 
 ## Caveats / gotchas
 
