@@ -131,12 +131,14 @@ no code changed.
 
 ## Caveats / gotchas
 
-- The stream-json parser's output is not consumed for anything beyond
-  well-formed-or-gracefully-skipped verification today — no UI currently renders per-event-type
-  structure (e.g. distinguishing an `assistant` chunk from a `tool_use` chunk); the panel
-  renders accumulated raw chunk text as one opaque stream. A future pass could use the parsed
-  `type` field for richer rendering, but nothing in this cluster requires it (verified: not
-  read anywhere).
+- ~~The stream-json parser's output is not consumed for anything beyond
+  well-formed-or-gracefully-skipped verification today...~~ **CLOSED 2026-07-09**, see
+  [[pr_124_dashboard-run-output-result-extraction]] — a real user report (a correct answer
+  genuinely unfindable in the raw dump) supplied the "requires it" case this caveat predicted
+  would eventually arise. `GET /api/run/output` now parses the settled log's last `type:"result"`
+  line via the same `parseStreamJsonLine` shipped here, rather than returning the raw file
+  content. The panel still renders a still-*live* run's output as opaque accumulated chunk text
+  (unchanged, out of that fix's scope) — only the settled-run fetch path was fixed.
 - `RUNS_LOOKUP_LIMIT = 10_000` in the output route is a generous cap for a lookup-by-id, not a
   pagination control — deliberately not importing the aggregator's smaller `runsLimit` constant
   since this route's job (find one record) is a different shape of read.
