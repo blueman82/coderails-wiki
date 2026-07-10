@@ -683,3 +683,26 @@ project's history, after [[pr_39_agentic-loop-slim-v2]] and
 [[pr_124_dashboard-run-output-result-extraction]]. `pr_70-71_2026-07-07...` source page
 left unmodified per the immutable-record convention (it documented the true state at its
 own merge time); the superseding claim lives only on the living [[dashboard]] page.
+
+## [2026-07-10] lint | scoped pass on PR #128 ingest — clean, 0 findings
+
+Verified the PR #128 ingest ([[pr_128_dashboard-ask-button-auto-profile]], updated
+[[dashboard]], updated [[pr_124_dashboard-run-output-result-extraction]], updated
+`index.md`) is structurally sound. All `[[wiki-links]]` introduced across the 4 touched
+files resolve to real pages (checked every link in the new source page, all links in
+[[dashboard]], all links in [[pr_124_dashboard-run-output-result-extraction]], and the
+two new index.md lines). No new orphans — the new page has 4 inbound links (index.md,
+log.md, [[dashboard]], [[pr_124_dashboard-run-output-result-extraction]]). No
+contradictions: [[dashboard]]'s two edited sections (profile→flag table + the new "auto
+closes a headless-only hang" paragraph + the "ask" button paragraph) are mutually
+consistent and correctly frame the switch as historical progression
+(`profile: "standard"` → `profile: "auto"`), not a live conflict. The
+[[pr_70-71_2026-07-07_dashboard-input-fix-and-voice-announcements]] page's now-superseded
+`profile: "standard"` claim is untouched per the immutable-source-record convention, and
+the superseding fact is correctly carried only on the living [[dashboard]] page and noted
+explicitly in this session's own log entry above — reads as historical, not a
+contradiction. Diff scope matched exactly the 5 files expected (index.md, log.md,
+skills/dashboard.md, sources/pr_124_dashboard-run-output-result-extraction.md,
+sources/pr_128_dashboard-ask-button-auto-profile.md). Out of scope, not re-checked here:
+the fable-mode / loop-retro-promotion missing-page gaps already flagged by the
+2026-07-10 full-vault pass above.
