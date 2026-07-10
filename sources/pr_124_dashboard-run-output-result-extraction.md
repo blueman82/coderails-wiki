@@ -97,7 +97,9 @@ a naive buggy implementation (forward-scan-first-match, no `typeof` guard) to pr
 vacuous, then confirmed green against the real fix (16/16 total). This is the second time in this
 project's history two independently-run review agents converged on the identical gap
 unprompted — worth noting as evidence the parallel-review pattern catches real coverage holes a
-single reviewer's fixture choices can miss.
+single reviewer's fixture choices can miss. **A third occurrence followed in
+[[pr_128_dashboard-ask-button-auto-profile]]** (`code-reviewer` + `pr-test-analyzer` both flagging
+the same missing auto-profile + free-text test).
 
 ## Files changed
 
