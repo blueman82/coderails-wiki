@@ -2,7 +2,7 @@
 title: Coderails Wiki Log
 type: log
 created: 2026-05-30
-last_updated: 2026-07-08
+last_updated: 2026-07-10
 sources: []
 tags: [log]
 ---
@@ -611,3 +611,56 @@ Created [[pr_118-123_self-improving-loops]] source page. Updated [[loop_stall_gu
 ## [2026-07-09] ingest | PR #124 dashboard Run Output panel — parse result instead of raw stream-json dump
 
 Created [[pr_124_dashboard-run-output-result-extraction]] source page. Updated [[dashboard]] (Run Output panel section, sources list) and [[pr_80-82_dashboard-stream-run-output-viewer]] (caveat marked closed inline). Closes the "not consumed for anything beyond well-formed verification" caveat that source page flagged 2026-07-08 — a real user report (correct answer unfindable in the raw dump) supplied the case it predicted. Tier-1 task-evals GO (3 P0 + 2 P1); two independent review agents (code-reviewer + pr-test-analyzer) converged unprompted on the same two coverage gaps (multi-result last-match, non-string-result fallback), both closed same session. Single-fix session, PR #124 (c9db6da).
+
+## [2026-07-10] lint | full-vault health pass — 2 uncovered shipped skills found (fable-mode, loop-retro-promotion)
+
+Full independent re-scan (162 files: 12 commands, 15 hooks, 33 skills, 19 design,
+8 investigations, 73 sources) — orphans, dangling links, staleness, and
+contradictions all re-verified by direct scan (not just trusting prior log
+entries) and reproduce the last full-vault pass exactly:
+
+- **Orphans: 0.** Every non-index/log page has >=1 inbound `[[wiki-link]]` (Python scan).
+- **Dangling links: 0 real.** ~193 raw `[[...]]` regex hits, all resolved to the
+  same benign classes as before: bash `[[ ]]`/`[[:space:]]` test syntax inside
+  fenced code blocks, `[[wiki-links]]`/`[[page_name]]` schema meta-text describing
+  the link syntax itself, historical `log.md` prose quoting pre-fix link states,
+  and the one explicitly cross-vault `[[capabilities/send-gate]]` reference to
+  assistant-agent-wiki.
+- **Stale (>30d): same 6 benign** — `install-cache-trap_2026-05-30`,
+  `install-bash32-bad-substitution_2026-06-01`, and 4 `session_*` sources from
+  2026-05-31/06-01. All immutable `source`/`investigation` records; no evergreen
+  command/hook/skill/design page is stale.
+- **Contradictions: 0 live** outside `log.md`/`skills/wiki-lint.md` schema prose.
+
+**New finding — skill-catalog coverage gap (not present in prior passes):**
+Comparing the wiki's `skills/*.md` pages against the plugin's actual
+`coderails/skills/` directories found two shipped skills with **zero wiki
+documentation**:
+- `fable-mode` (shipped 2026-07-08, commit `ee8f6ed`) — not in `index.md`'s
+  skill table, not in its "what this plugin is" skill list, no
+  `skills/fable-mode.md` page, and zero mentions anywhere in the vault.
+- `loop-retro-promotion` (shipped 2026-07-09, commit `1ff2b4e`, part of
+  [[pr_118-123_self-improving-loops]]) — named in `index.md`'s design-section
+  prose, the PR #118-123 source page, and a `dashboard-runs/` routine-run note,
+  but has no dedicated `skills/loop-retro-promotion.md` page and is absent from
+  `index.md`'s skill table. The source page itself says PR #123's docs sync
+  brought the skill count to "34 skills," but the wiki's own skill table was
+  never updated to 34 rows.
+
+Both are real gaps (verified against `coderails/skills/` on disk, not
+inferred) — distinct from the intentional `sync-docs` entry (external,
+documented as such). Command/hook parity is unaffected: 12/12 commands,
+15/15 hooks still fully covered.
+
+**Still-open, unchanged, out of wiki-lint's write scope:** `coderails/AGENTS.md`'s
+Part-1 "Hook event map" table still omits `offload_push_guard` (source-repo working
+guide, a different repo from this vault; wiki-lint documents raw source but does
+not edit it) — same disposition as the last two passes, re-verified by direct grep.
+
+Suggestions: (1) create `skills/fable-mode.md` and `skills/loop-retro-promotion.md`
+using `templates/skill.md`, add both rows to `index.md`'s skill table (33->35,
+matching the plugin's actual 34 shipped skills + external `sync-docs`), and
+cross-link `loop-retro-promotion` from [[pr_118-123_self-improving-loops]] and
+[[agentic-loop]] where it's already named in prose; (2) still-standing — add
+`offload_push_guard` to `coderails/AGENTS.md`'s Part-1 hook event map (source edit,
+owner's call).
