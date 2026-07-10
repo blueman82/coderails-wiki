@@ -664,3 +664,22 @@ cross-link `loop-retro-promotion` from [[pr_118-123_self-improving-loops]] and
 [[agentic-loop]] where it's already named in prose; (2) still-standing — add
 `offload_push_guard` to `coderails/AGENTS.md`'s Part-1 hook event map (source edit,
 owner's call).
+
+## [2026-07-10] ingest | PR #128 dashboard "auto" permission profile for the ask button
+
+Created [[pr_128_dashboard-ask-button-auto-profile]] source page. Updated [[dashboard]]
+(profile→flag mapping table gains `auto`; "ask" button description updated from
+`profile: "standard"` to `profile: "auto"` with the tool-call non-determinism caveat)
+and [[pr_124_dashboard-run-output-result-extraction]] (forward-pointer noting this PR
+as the third occurrence of independent-reviewer convergence). PR #128 (`7f60d96`) adds
+a fourth `PermissionProfile` value, `"auto"`, mapped to `--permission-mode auto`, fixing
+the "ask" button's headless permission-block hang on tools needing a fresh grant (e.g.
+`WebSearch`) — but explicitly does **not** fix the separate, pre-existing non-determinism
+of whether the model attempts a tool call at all (1/3 real tool calls in this session's
+own empirical re-test, matching the PR's own `argv.ts:40-49` code-comment finding). Two
+independent PR review agents (code-reviewer + pr-test-analyzer) converged unprompted on
+the same missing auto+free-text test-coverage gap — third such occurrence in this
+project's history, after [[pr_39_agentic-loop-slim-v2]] and
+[[pr_124_dashboard-run-output-result-extraction]]. `pr_70-71_2026-07-07...` source page
+left unmodified per the immutable-record convention (it documented the true state at its
+own merge time); the superseding claim lives only on the living [[dashboard]] page.
