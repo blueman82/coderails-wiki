@@ -16,8 +16,9 @@ sources:
   - sources/pr_124_dashboard-run-output-result-extraction.md
   - sources/pr_128_dashboard-ask-button-auto-profile.md
   - sources/pr_130-136_dashboard-right-rail-ux.md
+  - sources/pr_139-141_dashboard-ask-enter-clean-output.md
   - investigations/dashboard-lockfile-emnapi-drift_2026-07-08.md
-tags: [skill, dashboard, observability, nextjs, r3f, sse, obsidian, agentic-os, sub-project-1-of-5, queue-contract, builder, ask-button, argv, run-output, streaming, launchd, reboot-persistence, npm-ci, lockfile, permission-mode]
+tags: [skill, dashboard, observability, nextjs, r3f, sse, obsidian, agentic-os, sub-project-1-of-5, queue-contract, builder, ask-button, argv, run-output, streaming, launchd, reboot-persistence, npm-ci, lockfile, permission-mode, enter-to-submit]
 ---
 
 # Skill: dashboard
