@@ -137,8 +137,12 @@ no code changed.
   genuinely unfindable in the raw dump) supplied the "requires it" case this caveat predicted
   would eventually arise. `GET /api/run/output` now parses the settled log's last `type:"result"`
   line via the same `parseStreamJsonLine` shipped here, rather than returning the raw file
-  content. The panel still renders a still-*live* run's output as opaque accumulated chunk text
-  (unchanged, out of that fix's scope) — only the settled-run fetch path was fixed.
+  content. ~~The panel still renders a still-*live* run's output as opaque accumulated chunk text
+  (unchanged, out of that fix's scope) — only the settled-run fetch path was fixed.~~ **SUPERSEDED
+  2026-07-11**, see [[pr_139-141_dashboard-ask-enter-clean-output]] — the live path is no longer
+  opaque chunk text by default: a new `projectAssistantText()` projects it to clean assistant
+  prose, with a live-only toggle back to raw. Live-path raw rendering is now opt-in, not the
+  default, for a still-running run.
 - `RUNS_LOOKUP_LIMIT = 10_000` in the output route is a generous cap for a lookup-by-id, not a
   pagination control — deliberately not importing the aggregator's smaller `runsLimit` constant
   since this route's job (find one record) is a different shape of read.
