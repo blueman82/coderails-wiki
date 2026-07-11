@@ -2,7 +2,7 @@
 title: "Skill: agentic-loop"
 type: skill
 created: 2026-05-31
-last_updated: 2026-07-09
+last_updated: 2026-07-11
 sources:
   - skills/agentic-loop/SKILL.md
   - sources/session_2026-05-31_prompting-doc-alignment.md
@@ -19,7 +19,8 @@ sources:
   - sources/pr_89-91_skills-doc-frontmatter-injection.md
   - sources/pr_1-4_task-evals-feature.md
   - sources/pr_15-17_loop-hardening-registration-eval-freeze-ledger-dry.md
-tags: [skill, agentic-loop, multi-agent, orchestration, context-window, delegation, artifact-chain, loop-state, post-review, review-artifact, self-attestation, enforcement-ceiling, session-keying, frontmatter, description-cap, task-evals, work-units, teamcreate-purge, sdd-ledger]
+  - sources/pr_134_agentic-loop-retry-until-green.md
+tags: [skill, agentic-loop, multi-agent, orchestration, context-window, delegation, artifact-chain, loop-state, post-review, review-artifact, self-attestation, enforcement-ceiling, session-keying, frontmatter, description-cap, task-evals, work-units, teamcreate-purge, sdd-ledger, retry-until-green, hard-stops]
 ---
 
 # Skill: agentic-loop
