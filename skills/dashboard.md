@@ -214,3 +214,4 @@ This is the first sub-project to give the task-evals gate a real production catc
 - [[pr_130-136_dashboard-right-rail-ux]] — the six-PR right-rail UX cluster (panel separation, input affordance, label wrapping, run-history glyphs, output-viewer header, button-state flash)
 - [[pr_134_agentic-loop-retry-until-green]] — the mid-loop agentic-loop skill edit that shipped as a 7th PR in the same loop as the UX cluster
 - [[pr_138_remove-specs-plans-tracking]] — removes this and every other skill's design-spec/plan file paths from repo tracking; this page's design-spec/plan lines above were updated in place as a direct consequence
+- [[pr_139-141_dashboard-ask-enter-clean-output]] — Enter-to-submit on the ask input, `projectAssistantText()`'s clean-by-default projection of the live run-output view (result-line-preferred, delta-concatenation fallback), the live-only raw/clean toggle, and the `.hud-output-viewer`/`.hud-output-toggle` readability CSS
