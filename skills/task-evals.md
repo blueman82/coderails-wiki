@@ -99,7 +99,6 @@ Not itself part of the `/workflow` chain directly — invoked as writing-plans' 
 ## Source
 
 `coderails/skills/task-evals/SKILL.md`
-`coderails/docs/coderails/specs/2026-07-03-task-evals-design.md`
 
 ## See also
 
