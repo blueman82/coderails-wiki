@@ -26,6 +26,9 @@ Upstream of the workflow chain — runs before `/coderails:prep` when the soluti
 3. Evaluate against constraints: complexity, reversibility, fit with existing patterns.
 4. Record decisions and their rationale in the Decision Ledger.
 5. Optionally launch the visual companion server for a structured session view.
+6. Write the validated design spec — **to a session-local scratch path, never committed to the repo** ([[pr_138_remove-specs-plans-tracking|PR #138]], 2026-07-11 — see the box below). No worktree-isolation step precedes this write anymore, since nothing is being committed for it to protect.
+
+> ⚠️ **Superseded (2026-07-11):** this skill used to write its output spec to `docs/coderails/specs/YYYY-MM-DD-<topic>-design.md` and commit it as a permanent repo artifact, preceded by a `coderails:using-git-worktrees` isolation step to keep that commit off `main`. Per an explicit owner decision, `docs/coderails/specs/` is now gitignored — specs are session-local working documents only. If a durable record of the design decision is wanted, use `coderails:handoff` or a wiki page instead. See [[pr_138_remove-specs-plans-tracking]].
 
 ## Decision Ledger
 
