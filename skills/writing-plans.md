@@ -2,11 +2,12 @@
 title: "Skill: writing-plans"
 type: skill
 created: 2026-06-25
-last_updated: 2026-07-06
+last_updated: 2026-07-11
 sources:
   - sources/session_2026-06-25_agentic-loop-upgrade-arc.md
   - sources/pr_50_planning-sequence-gate.md
   - sources/pr_15-17_loop-hardening-registration-eval-freeze-ledger-dry.md
+  - sources/pr_138_remove-specs-plans-tracking.md
 tags: [skill, writing-plans, planning, decomposition, artifact-chain, eval-freeze, task-evals]
 ---
 
