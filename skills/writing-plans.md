@@ -106,3 +106,4 @@ The per-task construction step in this skill references `coderails:test-driven-d
 - [[subagent-driven-development]] — gained a Pre-Flight Plan Review bullet asserting evals are already frozen before Task 1 dispatch (F2 belt-and-braces, PR #15)
 - [[loop-progress-fields]] — consolidating page for `work_units`, the field this skill's plan decomposition ultimately populates via `progress.json`
 - [[pr_15-17_loop-hardening-registration-eval-freeze-ledger-dry]] — PR #15 source record: the freeze-timing restructure
+- [[pr_138_remove-specs-plans-tracking]] — the 2026-07-11 change removing the direct-invocation plan output from repo tracking (loop-scope `plan.md` unaffected — already ephemeral)
