@@ -15,8 +15,9 @@ tags: [skill, task-evals, anti-gaming, evals-json, tiering, verify-criteria, ora
 Turns any non-trivial task into a frozen, tiered set of independent, game-resistant success evals — before implementation starts, not after. The one place coderails breaks its own pattern of self-verification.
 
 Source: `coderails/skills/task-evals/SKILL.md`
-Design spec: `coderails/docs/coderails/specs/2026-07-03-task-evals-design.md`
 Invoked as: `coderails:task-evals`
+
+> The design spec formerly cited here (`docs/coderails/specs/2026-07-03-task-evals-design.md`) no longer exists — removed from repo tracking by [[pr_138_remove-specs-plans-tracking]] (2026-07-11). This page's own content is now the durable record.
 
 ## Why this skill exists
 
