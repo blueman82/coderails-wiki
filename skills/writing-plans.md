@@ -78,9 +78,11 @@ Four cross-referencing docs were fixed in lockstep so none still describes freez
 
 ## Relationship to agentic-loop
 
-Phase 2.7b (formerly 2.8, merged by PR #86) invokes `coderails:writing-plans` to produce `plan.md` in the loop-state dir. Two consumption directions are stated explicitly in Phase 2.7b (not in the `## Context-window persistence` section, which is a no-touch region):
+Phase 2.7b (formerly 2.8, merged by PR #86) invokes `coderails:writing-plans` to produce `plan.md` in the loop-state dir — outside the repo, beside `progress.json`, already ephemeral and unaffected by the change below. Two consumption directions are stated explicitly in Phase 2.7b (not in the `## Context-window persistence` section, which is a no-touch region):
 - Phase 3 builds its task list directly from `plan.md` (not from conversation state).
 - After any compaction, the orchestrator re-reads `plan.md` to recover *scope* the same way it re-reads `progress.json` to recover *position*. `plan.md` is the static SSOT; `progress.json` is the dynamic cursor against it.
+
+**Direct (non-loop) invocation, superseded 2026-07-11.** Outside an agentic-loop, this skill used to write its plan to `docs/coderails/plans/<name>.md` and commit it as a permanent repo artifact — documented in `docs/REFERENCE.md`'s Artifact-and-State-Locations table, not in this skill's own SKILL.md (which never hardcoded the path). Per [[pr_138_remove-specs-plans-tracking|PR #138]], `docs/coderails/plans/` is now gitignored; that convention no longer applies. A directly-invoked plan is now a session-local working document only, same treatment as the loop-scope `plan.md` above.
 
 ## E→D tie
 
