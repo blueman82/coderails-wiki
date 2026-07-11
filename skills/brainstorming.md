@@ -52,4 +52,5 @@ An optional Node.js local server that renders a session view with a blueprint/ra
 
 [[writing-plans]] — produces the plan after brainstorming identifies the approach  
 [[planning-sequence]] — the broader planning discipline (Pre-Parade → Premortem → Red Team)  
-[[self-containment]] — added the blueprint theme + Decision Ledger as a coderails-specific twist
+[[self-containment]] — added the blueprint theme + Decision Ledger as a coderails-specific twist  
+[[pr_138_remove-specs-plans-tracking]] — the 2026-07-11 change removing this skill's spec output from repo tracking
