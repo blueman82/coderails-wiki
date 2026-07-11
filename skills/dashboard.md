@@ -88,6 +88,29 @@ module-private `extractResultText()` in `route.ts` that scans the log backwards 
 result line exists (crashed run, or a non-string `result` e.g. an `error_during_execution`
 subtype) — same fallback value as the old behavior, so that path is unchanged by construction.
 
+**Live output is now projected clean by default, with a live-only raw toggle
+([[pr_139-141_dashboard-ask-enter-clean-output]], 2026-07-11).** A new exported
+`projectAssistantText(raw)` in `streamJson.ts` reduces a raw stream-json log to just the
+assistant's readable prose: prefers the last `type:"result"` line's `result` field
+(last-wins if more than one appears, e.g. across multiple turns); else concatenates `text_delta`
+values from `stream_event`/`content_block_delta` events (covers a still-streaming run with no
+result line yet, ignoring `input_json_delta` tool-use noise); else returns the raw input
+unchanged so a run that produced real output never renders empty. `OutputViewerPanel.tsx` renders
+the projected text by default behind a `showRaw` toggle (`.hud-output-toggle`, styled in the same
+PR's CSS sibling #141 alongside a `.hud-output-viewer` readability bump — font 9.5px→12px,
+max-height 220px→320px). **The toggle only appears for a still-live run** — the settled path
+(above) is already server-extracted with no raw JSONL left client-side to toggle to, so rendering
+the button for a settled run would be a no-op control; `OutputViewerPanel.test.ts` encodes this as
+an explicit negative assertion. This live/settled asymmetry predates this PR (established by
+[[pr_80-82_dashboard-stream-run-output-viewer]] and [[pr_124_dashboard-run-output-result-extraction]]);
+this cluster's contribution is scoping the new toggle to respect it, caught by review rather than
+present in the original design.
+
+**Enter-to-submit ([[pr_139-141_dashboard-ask-enter-clean-output]], PR #139).** The `.hud-cmd-input`
+behind any `inputAllowed: true` button (currently just "ask") gained an `onKeyDown` handler:
+`Enter` without `Shift` submits the same run `handleClick(btn)` would; `Shift+Enter` is a reserved
+no-op (the input is a single-line `<input>`, not a `<textarea>` — no multi-line behavior exists yet).
+
 ### AssistantLinkPanel — per-producer readable rendering
 
 `AssistantLinkPanel.tsx` (PR #31 — full build-out in
