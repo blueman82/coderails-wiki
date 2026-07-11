@@ -15,6 +15,7 @@ sources:
   - sources/pr_86-107_2026-07-08_loop-lib-residuals.md
   - sources/pr_124_dashboard-run-output-result-extraction.md
   - sources/pr_128_dashboard-ask-button-auto-profile.md
+  - sources/pr_130-136_dashboard-right-rail-ux.md
   - investigations/dashboard-lockfile-emnapi-drift_2026-07-08.md
 tags: [skill, dashboard, observability, nextjs, r3f, sse, obsidian, agentic-os, sub-project-1-of-5, queue-contract, builder, ask-button, argv, run-output, streaming, launchd, reboot-persistence, npm-ci, lockfile, permission-mode]
 ---
