@@ -22,7 +22,7 @@ tags: [skill, dashboard, observability, nextjs, r3f, sse, obsidian, agentic-os, 
 
 # Skill: dashboard
 
-Launches the coderails observability dashboard — a live local web HUD showing sessions, agentic loops, PR gate states, runs, and memory activity — plus a companion Obsidian command centre. Sub-project 1 of a 5-part agentic-OS evolution sequence (observability → routines → workflow-audit → assistant-agent kernel integration → improvement loops); see the design spec's decisions log for the other four.
+Launches the coderails observability dashboard — a live local web HUD showing sessions, agentic loops, PR gate states, runs, and memory activity — plus a companion Obsidian command centre. Sub-project 1 of a 5-part agentic-OS evolution sequence (observability → routines → workflow-audit → assistant-agent kernel integration → improvement loops); see [[routines]], [[workflow-audit]], [[assistant-link-send-gate-architecture]], and [[pr_118-123_self-improving-loops]] for the other four.
 
 Source: `coderails/skills/dashboard/SKILL.md`
 Invoked as: `coderails:dashboard`
