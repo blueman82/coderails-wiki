@@ -706,3 +706,62 @@ skills/dashboard.md, sources/pr_124_dashboard-run-output-result-extraction.md,
 sources/pr_128_dashboard-ask-button-auto-profile.md). Out of scope, not re-checked here:
 the fable-mode / loop-retro-promotion missing-page gaps already flagged by the
 2026-07-10 full-vault pass above.
+
+## [2026-07-11] lint | Full-vault health pass (163 files: 12 commands, 15 hooks, 33 skills,
+19 design, 8 investigations, 74 sources) — 1 new contradiction, 8-PR ingest backlog, 2 known gaps unchanged
+
+**NEW — CONTRADICTION, `skills/sync-docs.md` (top finding, distinct from the coverage
+backlog below):** the page asserts, as verified fact with an inline "confirmed" citation
+(lines 19-29, 82-84), that `/sync-docs` is "a user-level skill... **not** part of the
+`coderails` plugin repo" and that "coderails does not vendor or ship it." This was true
+when written (2026-07-06) but is now **false**: PR #129 ("import sync docs skill", merged
+2026-07-10T20:00:52Z — same day as the last full-vault lint, before that pass's own
+timestamp window closed) added `skills/sync-docs/SKILL.md` directly into the coderails
+plugin repo (verified: `find /Users/harrison/Github/coderails -iname '*sync-docs*'` now
+returns `coderails/skills/sync-docs` on disk; `gh pr view 129` confirms the single file
+`skills/sync-docs/SKILL.md` added, commit `f488ca5`, title "Import sync-docs as a
+coderails plugin skill"). The page's own "Relationship"/"See also" sections and the
+index.md skill-table footnote calling out sync-docs as "external (30 coderails-owned +
+sync-docs)" likely need the same correction. Not fixed in this pass — page-content
+rewrites are ingest's job (per Step 7, lint doesn't chain into ingest); flagging for a
+PR #129 ingest to pick up, since #129 has no source page yet (see next finding).
+
+**NEW — 8-PR ingest backlog, none previously flagged:** `gh pr list --state merged`
+shows PRs #129-136 all merged 2026-07-10, none with a `sources/pr_<N>_*.md` page or a
+log.md ingest entry (checked all 8 individually — zero hits). #129 is the sync-docs
+vendoring above. #130-136 is the "dashboard UX loop" cluster (button state diff, label
+wrapping, agentic-loop retry-until-green, panel separation, output viewer context, run
+history status glyph, input affordance) — per this session's own MEMORY.md handoff notes
+these shipped as 7 independently-verified PRs, but that verification never produced wiki
+source pages. Missing-concepts/missing-cross-references checks deferred pending this
+ingest — new terminology from an 8-PR unread backlog can't be meaningfully assessed
+against existing pages yet; re-run those checks after #129-136 land.
+
+**Unchanged from 2026-07-10 pass (re-verified, still open):** `skills/fable-mode.md` and
+`skills/loop-retro-promotion.md` still don't exist (plugin `skills/` dir has 34 entries,
+wiki skill table has 33; diffed both listings directly). `coderails/AGENTS.md`'s Part-1
+hook map still omits `offload_push_guard` — source-repo edit, out of wiki-lint's write
+scope, owner's call.
+
+**Re-verified clean (direct scan, not trusted from prior entries):** 0 orphans (Python
+inbound-link scan over all 163 non-index/log/AGENTS pages). ~194 raw `[[...]]` regex hits,
+all resolved to the same benign classes documented in every prior pass: bash `[[ ]]`/
+`[[:space:]]` test syntax in fenced code blocks, `[[wiki-links]]`/`[[link]]`/`[[page_name]]`
+schema meta-text, historical log.md prose quoting pre-fix link states, and the one
+cross-vault `[[capabilities/send-gate]]` reference (explicitly labelled as targeting
+assistant-agent-wiki, confirmed the target file exists there). 0 dangling links. 6 stale
+pages, same set as every prior pass (`install-cache-trap_2026-05-30`,
+`install-bash32-bad-substitution_2026-06-01`, 4 `session_*` sources from 2026-05-31/06-01)
+— all immutable `source`/`investigation` records, expected per page-type convention, not
+fixed. 0 live `⚠️ CONTRADICTION` flags outside log.md/wiki-lint.md schema prose (the new
+sync-docs contradiction above has no such flag emoji in-page; found by direct claim
+verification, not by grepping the marker). Commands 12/12, hooks 15/15 parity confirmed
+against plugin source (`diff` of both directory listings, both empty). Inbox: doesn't exist.
+
+Suggestions: (1) run `/wiki-ingest` for PR #129 (sync-docs vendoring) and the #130-136
+dashboard-UX cluster — 8 source pages, plus the sync-docs.md rewrite and index.md skill-
+table/count update as part of #129's ingest; (2) author `skills/fable-mode.md` and
+`skills/loop-retro-promotion.md` per `templates/skill.md` (still pending since 2026-07-10);
+(3) once #129-136 are ingested, re-run missing-concepts/missing-cross-references checks
+against the new content — deferred this pass for the reason above; (4) still-standing,
+owner's call — add `offload_push_guard` to `coderails/AGENTS.md`'s hook event map.
