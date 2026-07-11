@@ -100,8 +100,9 @@ a settled run. `RailRight.test.tsx` gained 2 cases for Enter/Shift+Enter, descri
 
 - [[dashboard]] — Run Output viewer section extended with the clean-view default, the toggle, and
   the live-vs-settled asymmetry it depends on; new "ASK-button UX + clean output view" subsection
-- [[pr_80-82_dashboard-stream-run-output-viewer]] — no content change needed; this cluster builds
-  on its `streamJson.ts` module without altering its documented behavior
+- [[pr_80-82_dashboard-stream-run-output-viewer]] — caveat section note added: its "live output
+  still renders as opaque chunk text" claim is now superseded by this cluster's clean-by-default
+  projection (found during `/wiki-lint`, not at ingest time)
 - [[pr_124_dashboard-run-output-result-extraction]] — this cluster's design-fact section is the
   settled-path half of the same asymmetry that page documents for the server-side extraction
 
