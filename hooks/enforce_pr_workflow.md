@@ -87,7 +87,7 @@ PR #49 replaced positional `# Gate N` comments with named bash functions, making
 |---|---|---|
 | `gate_has_command` | 1 | Pass if command string is empty |
 | `gate_safe_passthrough` | 2 | Pass for `--help`, `--dry-run`, conflict-resolution ops |
-| `gate_in_scope` | 3 | Pass if command is not a gated subcommand; sets `$subcommand` |
+| `gate_in_scope` | 3 | Pass if command is not a gated subcommand; sets `$subcommand` (and `$matched_seg`, PR #146) |
 | `gate_config_present` | 4 | Pass if `workflow.config.yaml` absent (NO_CONFIG opt-in) |
 | `gate_targets_main` | 4b | Pass if `git merge`/`git push` does not target main/master |
 | `gate_have_transcript` | 5 | Pass if no transcript path in payload |
