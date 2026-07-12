@@ -2,7 +2,7 @@
 title: "Skill: task-evals"
 type: skill
 created: 2026-07-06
-last_updated: 2026-07-11
+last_updated: 2026-07-12
 sources:
   - sources/pr_1-4_task-evals-feature.md
   - sources/pr_7-10_task-evals-followups.md
