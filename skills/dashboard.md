@@ -2,7 +2,7 @@
 title: "Skill: dashboard"
 type: skill
 created: 2026-07-06
-last_updated: 2026-07-11
+last_updated: 2026-07-12
 sources:
   - sources/pr_25_observability-dashboard.md
   - sources/pr_43-44-46_workflow-audit-queue-seam.md
