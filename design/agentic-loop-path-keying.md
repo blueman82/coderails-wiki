@@ -97,7 +97,7 @@ silently change.
   a fake-git fixture that echoes non-absolute garbage on exit 0, asserting
   fallback to the cwd-slug rather than the poisoned value
 - Consumed identically by [[loop_state_guard]] (reader) and the
-  agentic-loop orchestrator (writer, via a `Bash` call) — both resolve
+  [[agentic-loop]] orchestrator (writer, via a `Bash` call) — both resolve
   through this one helper, per its "sole path authority" invariant
 
 ## Known caveats / edge cases
