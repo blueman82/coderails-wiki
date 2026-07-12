@@ -41,6 +41,7 @@ Subcommand routing after Gate 3: `create` → requires `/coderails:push` evidenc
 - `gh pr create` called without a prior `/coderails:push` in the session transcript.
 - `gh pr merge <N>` called without a prior `/pr-review-toolkit:review-pr <N>` (leading-token PR number match) in the session transcript. Bare `gh pr merge` (no number) accepts any review-pr. (per-PR check added PR #58)
 - `gh pr merge <N>` called (past the review-pr check above) without a SHA-bound `GO` coderails eval artifact for the PR's current head — fail-closed, including on a `gh` fetch failure. Does not apply to `git_merge`/`git_push` (no PR number to resolve a SHA-bound artifact against — documented residual). (added PR #97, 2026-07-08)
+- `scripts/merge.sh <N>` (or `./scripts/merge.sh <N>`, or `bash <path>/merge.sh <N>`) called — gated identically to `gh pr merge <N>` above (same review-pr + eval-artifact checks). (added PR #146, 2026-07-12)
 - `git merge` on `main`/`master` called without a prior `/pr-review-toolkit:review-pr` SINCE the last `git merge` (consume-on-use, added PR #58; original session-scope check PR #40).
 - `git push` landing on `main`/`master` (current branch, explicit destination refspec, or bare positional target) called without a prior `/pr-review-toolkit:review-pr` in the session transcript. Bare positional `git push origin main` gated as of PR #58; destination-refspec model added PR #46.
 
