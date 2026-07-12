@@ -197,4 +197,6 @@ This hook is auto-chmod'd by `install.sh`'s hooks.json-derivation (PR #28). No m
 [[evals-gate-enforcement-gap_2026-07-08]] — the investigation that surfaced the raw-`gh-pr-merge` bypass PR #97 closes  
 [[pr_96-98_evals-gate-uniform-enforcement_2026-07-08]] — source page for PR #97 (this hook's Gate 7) and its companion PR #96/#98  
 [[offload_push_guard]] — Stop/SubagentStop nudge hook (PR #108) that redirects an agent away from telling the user to push past this hook's gate from their own shell, back toward clearing it in-session with `/pr-review-toolkit:review-pr`  
+[[pr_144-149_agentic-loop-hardening-from-loop-engineering]] — PR #146 source record: the `merge.sh` matcher, decoy-number hijack fix, and `--dry-run` passthrough exclusion  
+[[agentic-loop]] — Phase 4b's review tier ladder (added by the same PR #146): tier-0 may skip the separate `/security-review` pass only when the diff has no hooks/scripts/auth/exec/network paths  
 `coderails/hooks/scripts/enforce_pr_workflow.sh`
