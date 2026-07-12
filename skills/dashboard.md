@@ -33,7 +33,7 @@ Invoked as: `coderails:dashboard`
 
 ## What it shows
 
-Seven panels, all reading state the kernel already produces (no new services, no telemetry leaving the machine): SYSTEM VITALS (usage/hooks/lint sparklines), DIRECTIVES (active loop's `progress.json` work units as a checklist), DOCUMENTS/MEMORY.TRAIL (wiki + memory mtime feed), COMMAND DECK (declared one-click buttons + run history), PR GATES (merge-ready / blocked / stale, from the marker-grammar libs), a bottom-centre hero stat, and ASSISTANT.LINK — originally a reserved placeholder for sub-project 4 (assistant-agent kernel integration), now a real panel (coderails PR #31) rendering the pending send-approval queue for assistant-agent's send-gate; see [[assistant-link-send-gate-architecture]].
+Seven panels, all reading state the kernel already produces (no new services, no telemetry leaving the machine): SYSTEM VITALS (usage/hooks/lint sparklines), DIRECTIVES (active loop's `progress.json` work units as a checklist, plus — since PR #148/#149 — the loop's last 5 `decisions_absorbed` entries), DOCUMENTS/MEMORY.TRAIL (wiki + memory mtime feed), COMMAND DECK (declared one-click buttons + run history), PR GATES (merge-ready / blocked / stale, from the marker-grammar libs), a bottom-centre hero stat, and ASSISTANT.LINK — originally a reserved placeholder for sub-project 4 (assistant-agent kernel integration), now a real panel (coderails PR #31) rendering the pending send-approval queue for assistant-agent's send-gate; see [[assistant-link-send-gate-architecture]].
 
 ## Architecture
 
