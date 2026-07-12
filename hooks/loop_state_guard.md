@@ -130,3 +130,4 @@ This hook only ever sees a loop **after** it has registered a `progress.json` �
 - [[agentic-loop-path-keying]] — design page for the repo-keyed slug scheme (PR #24)
 - [[pr_23-24_hook-lib-observability-and-repo-keyed-loop-state]] — PR #24 source record: repo-keyed slug closing the worktree-hop orphaning bug; PR #23 (same cluster): hook-lib failure-observability rework, unrelated to this hook directly but shares the cluster
 - [[pr_86-107_2026-07-08_loop-lib-residuals]] — PRs #91/#107 source record: malformed-transcript tolerance in the shared lib's invocation-count parse, then a same-day failure-attribution correction (`read_error`, `all_lines_malformed`)
+- [[pr_144-149_agentic-loop-hardening-from-loop-engineering]] — PR #144 source record: `grade-loop` neutral grading + the `UNSTAMPED` demotion this hook's reader gained
