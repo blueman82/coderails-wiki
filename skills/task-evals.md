@@ -40,7 +40,7 @@ a plan is written, or directly on user request.'
 
 Three invocation points (verified: SKILL.md "Invocation contract"): **agentic-loop Phase 2.7c** (loop scope), **writing-plans' freeze-after-stress-test step** (pr scope — corrected wording, [[pr_15-17_loop-hardening-registration-eval-freeze-ledger-dry|PR #15]]; previously miswritten as "writing-plans' final task," which let freeze-before-build and grade-and-post flatten into one end-stage task and produced an unfrozen 17-unit execution — see [[writing-plans]] for the fix), or **directly by the user**.
 
-## The five anti-gaming rules
+## The six anti-gaming rules
 
 Generation requirements, not descriptions of an ideal — an eval failing any one is not valid:
 
@@ -49,6 +49,7 @@ Generation requirements, not descriptions of an ideal — an eval failing any on
 3. **End-state surfaces** — assertions run against merged state, fresh clone, or deployed artifact — never working-tree self-reports.
 4. **Oracle independence** — must not share an oracle with the implementation (same regex, same fixture, same test the implementation writes).
 5. **Grader independence** — judgement evals graded by a fresh subagent that receives only `evals.json` + artifact references — never the implementation conversation. The orchestrator never hand-writes `result`.
+6. **Strongest surface** ([[pr_144-149_agentic-loop-hardening-from-loop-engineering|PR #145]], 2026-07-12) — if the task's goal state names something a human sees or interacts with (a UI, CLI output, a rendered artifact, a served endpoint), at least one P0 eval must exercise that surface directly — drive the running artifact (browser, CLI invocation, HTTP request), never only code-greps of merged state. At pr scope pre-merge this means the locally-run artifact; at loop scope, the deployed surface. Writer-side only: no script can detect "user-facing," so this is enforced at generation and by review, not by either enforcement gate. Exemplar named in the skill: the run-output noise-strip loop (PRs #139-141), where merged-state greps passed while the live streaming window still leaked injected preamble text — only an in-browser eval across the streaming lifecycle caught it.
 
 **Gameability self-check** (run once per eval, immediately before freezing): *"Can the implementer pass this by (a) editing the eval, (b) asserting on the working tree, (c) self-reporting, or (d) reusing its own oracle? Any yes → rewrite."* No partial pass — a failing eval is rewritten, not annotated.
 
