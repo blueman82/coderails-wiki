@@ -25,7 +25,7 @@ Skip gates (cheap first):
 
 1. Empty command string — pass.
 2. `--help` / `--dry-run` flags — pass (word-boundary anchored since PR #58 so `--dry-run-data` doesn't accidentally bypass). `git merge --abort/--continue/--quit/--skip` (conflict-resolution ops) — pass.
-3. Command does not match `gh pr create`, `gh pr merge`, `git merge`, or `git push` — pass. Gate 3 splits on shell separators (`;|& && ||`) and tests whether any segment **begins with** a gated command, avoiding false-positives on substring mentions (e.g. `printf 'gh pr create' > file` was previously blocked). (verified — hook source)
+3. Command does not match `gh pr create`, `gh pr merge`, `git merge`, `git push`, or `merge.sh` — pass. Gate 3 splits on shell separators (`;|& && ||`) and tests whether any segment **begins with** a gated command, avoiding false-positives on substring mentions (e.g. `printf 'gh pr create' > file` was previously blocked). (verified — hook source) The matched segment is captured (`matched_seg`, PR #146) for downstream PR-number extraction — see "The `merge.sh` matcher" below.
 4. `workflow.config.yaml` absent (NO_CONFIG sentinel) — pass. The hook is opt-in via the full workflow stack. (verified — PR #30)
 4b. For `git merge` and `git push` only: pass unless the operation touches `main`/`master`.
    - `git merge` integrates into the **checked-out** branch → the current branch decides. If not on `main`/`master` — pass.
