@@ -39,8 +39,25 @@ They are not the same kind of fact:
   `loop_stall_guard` hook on each valid `LOOP-STOP` declaration
   ([[pr_96-98_mode-aware-install-argument-injection-guard-hook-owned-counter|PR #98]]).
   The orchestrator never writes or increments it — only reads it, and must
-  carry it forward verbatim on any wholesale rewrite of `progress.json` (the
-  same treatment `completed_marker` gets).
+  carry it forward on any wholesale rewrite of `progress.json` (the
+  same treatment `completed_marker` gets) — **conditionally, not always
+  verbatim**, as of [[pr_144-149_agentic-loop-hardening-from-loop-engineering|PR #147]]
+  (2026-07-12): verbatim on a genuine mid-loop recovery rewrite, but reset to
+  `{}` when the prior file's `status` was `"complete"` (a fresh re-arm after a
+  prior loop already finished) — see "Known caveats" below.
+- **`decisions_absorbed`** is **orchestrator-owned**, added by
+  [[pr_144-149_agentic-loop-hardening-from-loop-engineering|PR #147]]
+  (2026-07-12). A chronological (oldest-first) array of `{phase, decision}`
+  objects, appended at the phase boundary where each in-scope autonomous
+  decision is made — Phase 2.5 (design-fork auto-adopted), Phase 2.6
+  (disposition defaulted), Phase 5 (a consciously-absorbed
+  `/coderails:disconfirm` skip), Phase 6 (an in-scope action taken without a
+  check-in). Phase 13's terminal "Decisions absorbed" self-audit bullet is
+  specified as **copied verbatim** from this array — before this field
+  existed, that bullet was reconstructed from conversation memory at
+  teardown time, exactly the kind of after-the-fact self-report Phase 13
+  otherwise exists to avoid. The `retro.json` teardown artifact carries the
+  same array verbatim into its own field, by the same rule.
 
 Per the wiki's own 2026-07-06 full-vault-resweep entry (`log.md`), citations
 of these two fields were spread across pages with no single concept-level
