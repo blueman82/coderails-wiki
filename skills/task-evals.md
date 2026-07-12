@@ -8,7 +8,8 @@ sources:
   - sources/pr_7-10_task-evals-followups.md
   - sources/pr_15-17_loop-hardening-registration-eval-freeze-ledger-dry.md
   - sources/pr_138_remove-specs-plans-tracking.md
-tags: [skill, task-evals, anti-gaming, evals-json, tiering, verify-criteria, oracle-independence, tier-justification, eval-freeze]
+  - sources/pr_144-149_agentic-loop-hardening-from-loop-engineering.md
+tags: [skill, task-evals, anti-gaming, evals-json, tiering, verify-criteria, oracle-independence, tier-justification, eval-freeze, strongest-surface, grade-loop]
 ---
 
 # Skill: task-evals
