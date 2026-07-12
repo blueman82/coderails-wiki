@@ -2,12 +2,13 @@
 title: "Spec→Plan→Progress artifact chain + two-hook loop-state guard"
 type: design
 created: 2026-06-25
-last_updated: 2026-07-06
+last_updated: 2026-07-12
 sources:
   - sources/session_2026-06-25_agentic-loop-upgrade-arc.md
   - sources/pr_49_gate-function-rename.md
   - sources/session_2026-07-03_ai-docs-refresh-and-cc-mechanics-probes.md
   - sources/pr_96-98_mode-aware-install-argument-injection-guard-hook-owned-counter.md
+  - sources/pr_138_remove-specs-plans-tracking.md
 tags: [design, agentic-loop, artifact-chain, loop-state, hooks, progress-json, hook-owned-counter]
 ---
 
@@ -37,7 +38,7 @@ A loop cannot brainstorm with itself. By Phase 2.7 the design is already resolve
 
 All three sit in `~/.claude/agentic-loop/<cwd-slug>/`, resolved by `agentic_loop_path.sh` — **outside the code repo, cwd-keyed, uncommitted**. This honours Phase 2.5's anti-pollution rule: loop state never lands on local `main` or in a worker's base. They are loop *state* keyed to one orchestrator's run, not shareable design records.
 
-**Tradeoff (acknowledged, deliberate):** a teammate or different machine picking up the branch sees no `spec.md`/`plan.md` — they are machine-local loop state, exactly like `progress.json`. The shareable record is the committed spec under `docs/` (for a real product) or `coderails:handoff` for ad-hoc work. (The arc's own spec docs under `coderails/docs/superpowers/specs/` are committed because coderails *is* the product — a different thing from a loop running in some other project.)
+**Tradeoff (acknowledged, deliberate):** a teammate or different machine picking up the branch sees no `spec.md`/`plan.md` — they are machine-local loop state, exactly like `progress.json`. The shareable record is `coderails:handoff` or a wiki page (verified). Note the standalone `brainstorming`/`writing-plans` skills used to commit their spec/plan to `docs/coderails/specs/` and `docs/coderails/plans/` as permanent repo artifacts, but per [[pr_138_remove-specs-plans-tracking|PR #138]] (2026-07-11) both directories are now gitignored and specs/plans are session-local only — so there is no committed spec artifact anywhere in the repo to point to (the `docs/superpowers/specs/` this page previously cited no longer exists either).
 
 ### Complexity guard
 

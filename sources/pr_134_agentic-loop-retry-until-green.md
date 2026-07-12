@@ -2,7 +2,9 @@
 title: "PR #134 — agentic-loop retry-until-green + tool wiring"
 type: source
 origin: PR #134 (merged 2026-07-10, 5a6c54d)
-date: 2026-07-10
+created: 2026-07-10
+last_updated: 2026-07-10
+sources: []
 tags: [source, agentic-loop, discipline-loop]
 ---
 

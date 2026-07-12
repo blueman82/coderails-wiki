@@ -2,7 +2,9 @@
 title: "PRs #130-136 — Dashboard right-rail UX cluster"
 type: source
 origin: PR #130, #131, #132, #133, #135, #136 (merged 2026-07-10)
-date: 2026-07-10
+created: 2026-07-10
+last_updated: 2026-07-10
+sources: []
 tags: [source, dashboard, ux, agentic-loop]
 ---
 

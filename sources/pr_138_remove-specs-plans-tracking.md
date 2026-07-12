@@ -2,7 +2,9 @@
 title: "PR #138 — remove docs/coderails/specs and docs/coderails/plans from tracking"
 type: source
 origin: PR #138 (merged 2026-07-11, b0a4487)
-date: 2026-07-11
+created: 2026-07-11
+last_updated: 2026-07-11
+sources: []
 tags: [source, brainstorming, writing-plans, discipline-loop]
 ---
 
