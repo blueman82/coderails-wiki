@@ -4,6 +4,7 @@ type: source
 origin: plugin commit 3c33f99 (feat(agentic-loop): delegate all impl+verify to sonnet agents)
 created: 2026-06-01
 last_updated: 2026-06-01
+sources: []
 tags: [source, session, skill, agentic-loop, delegation, sonnet, orchestration]
 ---
 
