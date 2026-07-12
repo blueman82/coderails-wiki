@@ -212,3 +212,5 @@ gh pr merge
 - [[pr_21-22_loop2-suggestion-tier-followups]] — Loop 2 follow-up: merge.sh's `tempfile` case arm (shared fetch helper, both gates) + test-coverage completions for `loop_state_guard_evals.test.sh` (final-else NO-GO fixture) and `install_mode_sweep.test.sh`
 - [[pr_96-98_evals-gate-uniform-enforcement_2026-07-08]] — closes the "nothing forces the merge through `merge.sh`" gap: adds a second, hook-level pr-scope gate on raw `gh pr merge` (PR #97) plus a `systematic-debugging` → `task-evals` invocation cross-reference (PR #96)
 - [[evals-gate-enforcement-gap_2026-07-08]] — the investigation that identified the gap the above cluster closes
+- [[pr_144-149_agentic-loop-hardening-from-loop-engineering]] — PRs #144-149 (2026-07-12): `grade-loop` neutral grading + `UNSTAMPED` demotion (#144), rule 6 "Strongest surface" (#145), the dashboard's third-seam `readEvalsFrozen` drift (#148/#149)
+- [[dashboard]] — the skill whose `sessions.ts`/`RailLeft.tsx` are the third schema consumer named above
