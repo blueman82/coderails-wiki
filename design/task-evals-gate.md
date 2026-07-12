@@ -42,21 +42,25 @@ Both consume the identical `schema_version: 1` shape (`scope: "pr" | "loop"` is 
     "surface": "merged-state | fresh-clone | artifact-path | deployed",
     "assert": "...", "cmd": "...", "negative_control": "...",
     "status": "pending | pass | fail", "evidence": "..." } ],
-  "amendments": [], "result": null, "graded_at": null, "head_sha": "<SHA graded against>"
+  "amendments": [], "result": null, "graded_at": null, "head_sha": "<SHA graded against>",
+  "grading": { "by": "post_evals.sh grade-loop", "checksum": "<sha256 over statuses+result>" }
 }
 ```
 
 `eval_artifact::compute_go` (`scripts/lib/eval-artifact.sh`) is the ONE place `result` is derived: a pure `jq` predicate requiring every `.priority == "P0"` eval to have `.status == "pass"`. An eval with no `priority` field is simply excluded from the P0 gate by design (not a bug — `post_evals::validate_structure` check 7 is the layer that refuses a tier≥1 artifact with zero real P0 evals, keeping `compute_go` itself an unopinionated pure gate).
 
-## The five anti-gaming rules (generation-time discipline)
+`grading` is optional and additive — added by [[pr_144-149_agentic-loop-hardening-from-loop-engineering|PR #144]], 2026-07-12. Only `post_evals.sh grade-loop` (loop scope) writes it; pr-scope files and every pre-existing reader tolerate its absence. See "Loop-scope gate: the `grade-loop` stamp" below.
 
-Full detail on [[task-evals]]. Named here because they're what the two enforcement gates below are trusting was followed at generation time — the gates themselves cannot re-verify oracle independence or grader independence; they can only verify structural shape and P0 pass/fail:
+## The six anti-gaming rules (generation-time discipline)
+
+Full detail on [[task-evals]]. Named here because they're what the two enforcement gates below are trusting was followed at generation time — the gates themselves cannot re-verify oracle independence, grader independence, or strongest-surface coverage; they can only verify structural shape and P0 pass/fail:
 
 1. Freeze-before-build
 2. Negative controls
 3. End-state surfaces
 4. Oracle independence
 5. Grader independence
+6. **Strongest surface** ([[pr_144-149_agentic-loop-hardening-from-loop-engineering|PR #145]], 2026-07-12) — if the goal state names something a human sees or interacts with (a UI, CLI output, a rendered artifact, a served endpoint), at least one P0 eval must exercise that surface directly rather than only grepping merged state. A writer-side generation rule only — no gate can detect "this goal state is user-facing," so unlike rules 2-5 there is no corresponding structural check in either enforcement gate below.
 
 ## PR-scope gate
 
