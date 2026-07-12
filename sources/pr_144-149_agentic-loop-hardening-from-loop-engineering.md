@@ -86,4 +86,3 @@ The dashboard's `collectLoops` (in `skills/dashboard/app/src/lib/collect/session
 - [[agentic-loop]] — Phase 2.7c/13 (grade-loop), Phase 4b (review tier ladder), Phase 2.5/2.6/5/6/13 (`decisions_absorbed`)
 - [[loop-progress-fields]] — consolidating page for `progress.json`'s tracked fields; extended by this cluster with `decisions_absorbed` as a third field alongside `work_units`/`loop_stop_counts`, and the `loop_stop_counts` reset-on-rearm rule
 - [[dashboard]] — the skill whose RailLeft Directives card gained the loop-decisions tile
-- [[project_agentic_loop_hardening_from_loop_engineering]] — the diagnosis memory that scoped this cluster's four target weaknesses (oracle independence, external/binary exits, proportionality, comprehension debt)
