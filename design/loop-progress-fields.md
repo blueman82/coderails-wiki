@@ -152,3 +152,9 @@ per the honest-audit framing that section describes.
 - [[pr_95_slash-command-loop-detection]] — PR #95: fixes the slash-command
   detection gap that was one root cause of `loop_stop_counts` silently
   staying null (a wholesale guard-detection miss, not a keying bug)
+- [[pr_144-149_agentic-loop-hardening-from-loop-engineering]] — PR #147
+  (2026-07-12): adds `decisions_absorbed` as this page's third tracked field,
+  and makes `loop_stop_counts` carry-forward conditional (reset to `{}` on
+  re-arm after a completed loop) instead of unconditionally verbatim
+- [[dashboard]] — the RailLeft Directives card that surfaces the last 5
+  `decisions_absorbed` entries (PR #148/#149)
