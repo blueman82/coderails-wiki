@@ -234,6 +234,8 @@ The rationale: brainstorming is human-gated by construction — its approval ste
 
 The non-obvious/durable point: if anyone asks "why doesn't the autonomous loop just invoke brainstorming?" — the answer is that brainstorming blocks on a human at its approval gates. The loop reuses its design *quality criteria* at Phase 2.5 rather than calling the gated skill. See [[pr_41_phase25-brainstorming-xref]] and [[brainstorming]].
 
+**Under full-autonomous envelopes, the auto-adopted design fork is now also recorded** ([[pr_144-149_agentic-loop-hardening-from-loop-engineering|PR #147]], 2026-07-12): `{phase: "2.5", decision: "<chosen shape + flip-condition>"}` appended to `progress.json`'s `decisions_absorbed` array, alongside the pre-existing `progress.json` note of the chosen shape.
+
 ## Phase 4b — review-pr Skill + post-review artifact (PR #64 + PR #83)
 
 Phase 4b previously described hand-rolling six toolkit reviewer agents as parallel `Agent` or `Task` spawns. PR #64 changed this: **Phase 4b now invokes `/pr-review-toolkit:review-pr <PR#>` as a Skill, passing the PR number as the argument.** PR #83 extended Phase 4b with a second step: **`/coderails:post-review <PR#>` runs after `review-pr`** to create the durable SHA-bound artifact.
