@@ -123,6 +123,8 @@ Phase 0.5 bundles this with the confidence-label and DNV requirements into one s
 
 Phase 2.6 forces a disposition decision before replacement work: **clean-break** (remove the old path; no shims) vs **preserve-compat** (keep it behind a shim, with a named blocker and a mandatory removal ticket). clean-break is the stated default; preserve-compat requires a *specific named blocker* (anti-laundering — a generic "safer" is rejected). The decision is propagated verbatim into the worker prompt (Phase 3), and the **independent code-simplifier reviewer is the load-bearing gate** (Phase 4b) — it hunts relabelled compat (fallback/adapter/guard/bridge) and whether an old path still executes; findings are MERGE-BLOCKERS. The worker's own assertion (Phase 3a) is a smell test, not the gate. Phase 13 counts `disposition-violations`, distinguishing "0 violations" from "no record found" (the latter = audit failure).
 
+**The disposition decision itself is now also appended to `progress.json`'s `decisions_absorbed` array** ([[pr_144-149_agentic-loop-hardening-from-loop-engineering|PR #147]], 2026-07-12): `{phase: "2.6", decision: "<clean-break or preserve-compat, with named_blocker if applicable>"}`. See "Phase 13 ... `decisions_absorbed` trace" below for why this array exists and how it's consumed.
+
 ## Phase 4b self-attestation loophole closed (PR #86)
 
 Before PR #86, the orchestrator could unilaterally demote a clean-break compat `MERGE-BLOCKER` —
