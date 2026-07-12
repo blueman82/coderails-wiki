@@ -152,6 +152,21 @@ The `enforce_required_step` function (Gate 6) scans the transcript for `/pr-revi
 
 See [[task-evals-gate]] "Merge gate placement" for how this sits alongside `scripts/merge.sh`'s pre-existing pr-scope gate, and [[evals-gate-enforcement-gap_2026-07-08]] for the investigation that surfaced the gap this closes.
 
+## The `merge.sh` matcher: closing a real, previously-ungated bypass (PR #146, 2026-07-12)
+
+Before this PR, `gate_in_scope`'s classification only matched literal `gh pr merge` (plus `git merge`/`git push`) — `scripts/merge.sh <N>`, the repo's own sanctioned merge wrapper (which calls `gh pr merge` internally), matched none of the `elif` arms. A hand-rolled `scripts/merge.sh <N>` invocation therefore sailed past the review-pr and eval-artifact gates **entirely**. This is a real, previously-ungated bypass discovered by a "loop engineering" diagnosis — not a regression; `merge.sh` was simply never covered by this hook until now.
+
+**The matcher.** A new `elif` arm in `gate_in_scope` recognises `merge.sh` — optionally path-prefixed, optionally `bash`/`sh`-prefixed, optionally quoted — as `subcommand="merge"`, reusing the identical downstream gating `gh pr merge` already gets (Gate 6 review-pr check, Gate 7 eval-artifact check). Word-boundary anchored, same precedent as the `git merge-base` fix (PR #42, see above): a name merely *containing* `merge.sh` (`auto_merge.sh`, `some-merge.shim`) must not match. `enforce_required_step`'s PR-number extraction for this form mirrors the existing `gh pr merge` extraction (scan tokens left-to-right for the first bare integer, stripping surrounding quotes) rather than inventing a second parser style.
+
+**Two review-found gaps closed before merge, in the same PR:**
+
+1. **Decoy-number hijack.** The original PR-number extraction (both the `gh pr merge` and the new `merge.sh` form) scanned the raw `$cmd` string end-to-end via `grep`, so a PR number merely *mentioned* in an earlier, non-executed shell segment (e.g. `echo "run merge.sh 999 first" && scripts/merge.sh 140`) could donate its number to the later, real invocation — letting an **unreviewed** PR (140) merge under a **reviewed** decoy's number (999), a silent full bypass. Fixed by capturing the matched segment itself (`matched_seg`, new variable, same idiom as the pre-existing `push_target_dir` capture) in `gate_in_scope`, and scoping both PR-number extraction blocks to `matched_seg` instead of the raw `$cmd`.
+2. **`--dry-run` passthrough bypass.** `gate_safe_passthrough`'s global `--dry-run`/`--help` exemption assumes those flags are always inert — true for `gh pr merge --dry-run` (which `gh` rejects outright as an unknown flag) and `gh pr create --help` (prints usage, never creates). But `scripts/merge.sh`'s arg parser (`merge::main`) reads only `$1` as the PR number/branch and silently ignores every trailing token — so `scripts/merge.sh 140 --dry-run` would have stood aside from this gate entirely and then performed a **real** merge of PR 140. Fixed by excluding `merge.sh` invocations from the `--dry-run`/`--help` passthrough.
+
+**Documented, tested, non-regression residuals**: `bash -x scripts/merge.sh 140` and `command bash scripts/merge.sh 140` remain ungated — the same "not every shell form is parsed" posture the hook already stood on for `gh pr merge` before this PR, now extended and tested for `merge.sh` too.
+
+Test suite grew from 96 to well over 110 cases across the two commits (matcher + follow-up fixes), including dedicated decoy-hijack and mismatched-PR-deny cases for both invocation forms. See [[pr_144-149_agentic-loop-hardening-from-loop-engineering]] for the full source record.
+
 ## Stdin read convention (PR #76)
 
 This hook reads its payload via `IFS= read -r -d '' -t 5 input || true`. Context: this hook's processes were the visible symptom of the fan incident that motivated PR #76 investigation — 21 orphaned instances at 8–10% CPU for 3+ hours. However, their root cause was the config.sh walk-up infinite loop (PR #72), not `input=$(cat)`. PR #76 is defence-in-depth for the separate stdin-block risk. See [[pr_76_harden-hook-stdin-read]] and [[pr_72_config-walkup-symlink-hang]].
