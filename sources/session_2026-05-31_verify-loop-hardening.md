@@ -4,6 +4,7 @@ type: source
 origin: direct-edit session (no PR)
 created: 2026-05-31
 last_updated: 2026-05-31
+sources: []
 tags: [source, session, hook, check_verify_loop, install-cache, exit-codes]
 ---
 
