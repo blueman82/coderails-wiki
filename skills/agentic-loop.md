@@ -107,6 +107,8 @@ A third sub-step joins 2.7a/2.7b, in the same loop-state dir alongside `spec.md`
 
 The same invocation also produces per-work-unit **pr-scope** eval refs (one per unit). These travel into worker prompts under the identical rule Phase 3 already applies to disposition: **a ref recorded only in `progress.json`/`plan.md` and absent from the worker's own prompt does not exist for that worker.** [[loop_state_guard]] is the hook that later enforces this artifact's presence at loop completion — see [[task-evals-gate]] for the full dual-scope architecture.
 
+**Grading is a separate, neutral step from freezing** ([[pr_144-149_agentic-loop-hardening-from-loop-engineering|PR #144]], 2026-07-12): freezing this file here (Phase 2.7c) only defines the evals; computing and stamping `result` at loop end is `post_evals.sh grade-loop`'s job (Phase 13), never the orchestrator's own. `grade-loop` also stamps a `grading` object (`by` + a checksum) that [[loop_state_guard]] checks before accepting a `GO`/`TIER0` verdict — an ungraded or hand-graded file now reads `UNSTAMPED` and blocks. See [[task-evals-gate]] for the full mechanism.
+
 ## The LOOP-STOP stop-ceremony contract (Spec C2)
 
 When the loop is active and incomplete, the orchestrator cannot stop without a declaration in its stopping turn:
