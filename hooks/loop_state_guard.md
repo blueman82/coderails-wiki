@@ -13,7 +13,8 @@ sources:
   - sources/pr_15-17_loop-hardening-registration-eval-freeze-ledger-dry.md
   - sources/pr_23-24_hook-lib-observability-and-repo-keyed-loop-state.md
   - sources/pr_86-107_2026-07-08_loop-lib-residuals.md
-tags: [hook, agentic-loop, progress-json, stop-hook, loop-state, session-keying, task-evals, work-units, tier-0-nogo, unregistered-loop, repo-keyed, malformed-transcript]
+  - sources/pr_144-149_agentic-loop-hardening-from-loop-engineering.md
+tags: [hook, agentic-loop, progress-json, stop-hook, loop-state, session-keying, task-evals, work-units, tier-0-nogo, unregistered-loop, repo-keyed, malformed-transcript, grade-loop, unstamped]
 ---
 
 # loop_state_guard.sh (C1)
