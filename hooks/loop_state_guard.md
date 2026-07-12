@@ -76,7 +76,7 @@ Gates 1–4 are implemented as named `als_gate_*` functions in `loop_state_commo
 Appends a `key=value` line to `$CLAUDE_DISCIPLINE_LOG`:
 `hook=loop_state_guard session=<id> invocations=<n> status=<s> owned=<0|1> reason=<r> blocked=<0|1>`
 
-The eval-gate check logs its own line shape: `hook=loop_state_guard session=<id> work_units=<n> evals=<GO|TIER0|NO-GO|ABSENT|skipped-below-threshold|skipped> blocked=<0|1>` — plus a distinct `reason=jq_missing` variant when `jq` is unavailable, kept separate from the "file genuinely absent" case in the audit trail.
+The eval-gate check logs its own line shape: `hook=loop_state_guard session=<id> work_units=<n> evals=<GO|TIER0|NO-GO|UNSTAMPED|ABSENT|skipped-below-threshold|skipped> blocked=<0|1>` — plus a distinct `reason=jq_missing` variant when `jq` is unavailable, kept separate from the "file genuinely absent" case in the audit trail.
 
 ## Malformed-transcript tolerance ([[pr_86-107_2026-07-08_loop-lib-residuals|PRs #91, #107]])
 
