@@ -256,6 +256,8 @@ The "do not substitute the generic trio" warning (architect-review + debugger + 
 
 See [[enforce_pr_workflow]] for how it recognises Skill invocations. See [[review-artifact-seam]] for the artifact gate design. See [[skills-hooks-seam]] for the general seam convention.
 
+**Review tier ladder** ([[pr_144-149_agentic-loop-hardening-from-loop-engineering|PR #146]], 2026-07-12): regardless of the PR's own eval-artifact tier (Phase 4b's eval gate is a separate, orthogonal check), every tier invokes `/pr-review-toolkit:review-pr <PR#>` plus `/coderails:post-review <PR#>` — the toolkit self-scales its reviewer fan-out by change shape. Only at **tier 0** may the separate native `/security-review` pass be skipped, and only after checking the actual diff file list (`gh pr diff <PR#> --name-only` or `git diff origin/main...HEAD --name-only`): any path under `hooks/` or `scripts/`, or any auth/exec/network-fetch touch, **forces** the security pass regardless of the declared tier. The override keys off the diff, never the self-assigned tier label — reusing a self-assigned tier alone to gate a security control would be the same self-exemption shape the task-evals tier rules exist to resist (see [[task-evals]]'s tier rules). Tier 1/2 PRs run the full Phase 4b unchanged, security pass included. Concrete example named inline: the `silent-failure-hunter` toolkit reviewer caught a real swallowed-crash-payload bug on the one-function PR #142 fix — why the toolkit review itself is never skippable, only the separate `/security-review` pass is.
+
 ## Phase 9 — cluster wiki ingest + in-tree docs-drift check (PR #77)
 
 Phase 9 now has two steps at the loop boundary:
