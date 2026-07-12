@@ -111,11 +111,19 @@ per the honest-audit framing that section describes.
   from `progress.json` — this is a deliberate fail-open, not a bug, but it
   means an orchestrator that forgets to populate the field also forgets to
   trigger the loop-scope eval requirement.
-- `loop_stop_counts` must be carried forward verbatim on any wholesale
-  `progress.json` rewrite. An orchestrator that reconstructs the file from
-  scratch without re-reading the existing value will silently reset the
-  counter to empty — the hook can't detect this, since it only ever adds to
-  whatever key already exists.
+- `loop_stop_counts` must be carried forward on any wholesale
+  `progress.json` rewrite — but not unconditionally verbatim, as of
+  [[pr_144-149_agentic-loop-hardening-from-loop-engineering|PR #147]]
+  (2026-07-12). An orchestrator that reconstructs the file from scratch
+  without re-reading the existing value will silently reset the counter to
+  empty — the hook can't detect this, since it only ever adds to whatever
+  key already exists. **The correct rule is conditional**: carry forward
+  verbatim on a genuine mid-loop recovery rewrite, but reset to `{}` when the
+  prior file's `status` was `"complete"` — a fresh re-arm after a prior loop
+  already finished. Before this fix, a brand-new loop starting in the same
+  repo/session-key slot could wrongly inherit an already-finished prior
+  loop's stop-counts, since the pre-existing rule said "always carry forward
+  verbatim" with no exception for the re-arm case.
 - **`loop_stop_counts` could also silently stay null for a completely different reason: the guard never detected the loop at all** ([[pr_95_slash-command-loop-detection|PR #95]], 2026-07-08). If a loop was started via the slash-command form (`/coderails:agentic-loop`) rather than a programmatic `Skill` tool_use, `als_count_invocations` returned 0 invocations — the transcript records a slash-started loop as a `user`-role message with a string `.message.content` carrying `<command-name>...</command-name>`, a shape the pre-fix jq filter never matched. With 0 invocations, `als_gate_require_active_loop` exited before `als_load_progress`/`gate_loop_stop_declared` ever ran, so `bump_loop_stop_count` was never reached — the field stayed null for the loop's entire duration, with zero hook signal. This was NOT an `ALS_PATH` keying bug and NOT a tail-window blind spot (two earlier, disproven hypotheses) — it was a wholesale detection miss across the whole guard chain. Fixed by extending the count to also match the user `<command-name>` slash form.
 
 ## See also
