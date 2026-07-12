@@ -4,6 +4,7 @@ type: source
 origin: direct-edit session (no PR)
 created: 2026-06-01
 last_updated: 2026-06-01
+sources: []
 tags: [source, session, hook, check_verify_loop, did-not-verify, enforcement]
 ---
 
