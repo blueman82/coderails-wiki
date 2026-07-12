@@ -1,23 +1,27 @@
 ---
-title: "work_units and loop_stop_counts: progress.json's two tracked fields"
+title: "work_units, loop_stop_counts, and decisions_absorbed: progress.json's three tracked fields"
 type: design
 created: 2026-07-06
-last_updated: 2026-07-08
+last_updated: 2026-07-12
 sources:
   - sources/pr_1-4_task-evals-feature.md
   - sources/pr_96-98_mode-aware-install-argument-injection-guard-hook-owned-counter.md
   - sources/pr_15-17_loop-hardening-registration-eval-freeze-ledger-dry.md
   - sources/pr_95_slash-command-loop-detection.md
-tags: [design, work-units, loop-stop-counts, progress-json, agentic-loop]
+  - sources/pr_144-149_agentic-loop-hardening-from-loop-engineering.md
+tags: [design, work-units, loop-stop-counts, decisions-absorbed, progress-json, agentic-loop]
 ---
 
-# work_units and loop_stop_counts: progress.json's two tracked fields
+# work_units, loop_stop_counts, and decisions_absorbed: progress.json's three tracked fields
 
-Both fields live inside the same `progress.json` object (see
-[[spec-plan-progress-artifact-chain]]) but have opposite ownership models and
+All three fields live inside the same `progress.json` object (see
+[[spec-plan-progress-artifact-chain]]) but have different ownership models and
 serve different consumers. This page is the single concept-level home for
-both — the detail already lives correctly on the seven-plus pages that cite
-them; this page maps the terrain rather than re-deriving it.
+all three — the detail already lives correctly on the pages that cite
+them; this page maps the terrain rather than re-deriving it. `decisions_absorbed`
+was added later ([[pr_144-149_agentic-loop-hardening-from-loop-engineering|PR #147]],
+2026-07-12) and shares `work_units`' ownership model (orchestrator-owned, appended
+at phase boundaries) rather than `loop_stop_counts`' (hook-owned).
 
 ## Context
 
