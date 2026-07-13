@@ -62,9 +62,9 @@ This hook does not append to `$CLAUDE_DISCIPLINE_LOG`. (verified: inject_context
 
 None. This hook reads no configurable env vars. (verified: inject_context.sh)
 
-## Relationship to discipline_catchup
+## Relationship to discipline_catchup (retired PR #159, 2026-07-13)
 
-`inject_context.sh` re-injects the discipline rules once, at session start. [[discipline_catchup]] covers the ongoing case: if a later response misses the rules, it injects a catch-up nudge on the next prompt. The two hooks work in sequence — inject once up front, catch up when needed.
+`inject_context.sh` re-injects the discipline rules once, at session start. Until 2026-07-13, [[discipline_catchup]] covered the ongoing case: if a later response missed the rules, it injected a catch-up nudge on the next prompt, and the two hooks worked in sequence — inject once up front, catch up when needed. `discipline_catchup.sh` is now **retired** (file+test deleted, null-result justification: a flat 23-26% first-attempt miss rate was unchanged by the nudge since block-mode shipped 2026-05-05). `hooks.json`'s `UserPromptSubmit` array is now `inject_context.sh` only — this hook is the sole survivor on that event. See [[pr_159_retire-catchup-add-telemetry]].
 
 ## Stdin read convention (PR #76)
 
