@@ -223,4 +223,5 @@ gh pr merge
 - [[pr_96-98_evals-gate-uniform-enforcement_2026-07-08]] — closes the "nothing forces the merge through `merge.sh`" gap: adds a second, hook-level pr-scope gate on raw `gh pr merge` (PR #97) plus a `systematic-debugging` → `task-evals` invocation cross-reference (PR #96)
 - [[evals-gate-enforcement-gap_2026-07-08]] — the investigation that identified the gap the above cluster closes
 - [[pr_144-149_agentic-loop-hardening-from-loop-engineering]] — PRs #144-149 (2026-07-12): `grade-loop` neutral grading + `UNSTAMPED` demotion (#144), rule 6 "Strongest surface" (#145), the dashboard's third-seam `readEvalsFrozen` drift (#148/#149)
+- [[pr_155-158_ceremony_noise_envelope_anchoring]] — PR #158 (2026-07-13): rule 4 "Oracle independence" extended with the loop-scope `authorising_prompt_raw` precedence rule, wired into [[agentic-loop]] at Phase -2/-1/2.7c/13
 - [[dashboard]] — the skill whose `sessions.ts`/`RailLeft.tsx` are the third schema consumer named above
