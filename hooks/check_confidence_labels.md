@@ -62,7 +62,7 @@ Note: `transcript_path` on a SubagentStop payload is the **parent** session tran
 
 ## Logging
 
-Logs a structured key=value line to `$CLAUDE_DISCIPLINE_LOG` (default `~/.claude/discipline.log`) on every run, including `text_len`, `attempts`, `matched`, and `would_block`. A second line is written on actual block with `blocked=1`. (verified: check_confidence_labels.sh:47–51, 60–64)
+Logs a structured key=value line to `$CLAUDE_DISCIPLINE_LOG` (default `~/.claude/discipline.log`) on every run, including `text_len`, `attempts`, `matched`, and `would_block`. A second line is written on actual block with `blocked=1`, or on loop-demoted warn with `would_block=1 warned=1 blocked=0`. As of PR #159 (2026-07-13), every logged line also carries `event=<hook_event_name>` (`Stop` or `SubagentStop`), enabling main-agent-vs-subagent segmentation of the log that was previously impossible to reconstruct after the fact. (verified: check_confidence_labels.sh:51, 53, 74, 76, 83, 85)
 
 ## Stdin read convention (PR #76)
 
