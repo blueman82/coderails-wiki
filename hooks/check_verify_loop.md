@@ -2,19 +2,21 @@
 title: "Hook: check_verify_loop"
 type: hook
 created: 2026-05-30
-last_updated: 2026-06-29
+last_updated: 2026-07-13
 sources:
   - hooks/scripts/check_verify_loop.sh
   - sources/session_2026-05-31_verify-loop-hardening.md
   - sources/session_2026-06-01_verify-loop-total-enforcement.md
   - sources/pr_57-62_subagent-enforcement-gate-hardening.md
   - sources/pr_76_harden-hook-stdin-read.md
-tags: [hook, stop-hook, subagentstop-hook, discipline, enforcement, did-not-verify]
+  - sources/pr_156_dnv-presence-check.md
+  - sources/pr_159_retire-catchup-add-telemetry.md
+tags: [hook, stop-hook, subagentstop-hook, discipline, enforcement, did-not-verify, presence-check, turn-scoped]
 ---
 
 # Hook: check_verify_loop
 
-A `Stop` and `SubagentStop` lifecycle hook that blocks Claude Code (exit 2) when the last response leaves **any** `## Did Not Verify` bullet untagged. Total enforcement: a bullet that is not explicitly marked uncheckable is treated as something the model could have resolved and chose to defer. Wired to both events as of PR #57.
+A `Stop` and `SubagentStop` lifecycle hook with two independent enforcement paths: (1) blocks when the last response leaves **any** `## Did Not Verify` bullet untagged (total enforcement — a bullet not explicitly marked uncheckable is treated as something the model could have resolved and chose to defer), and (2) as of PR #156 (2026-07-13), blocks on the `Stop` path when the response has **no DNV header at all** after a turn that edited `>= 3` files (the presence check — closes the inversion where omitting the section entirely passed silently while an honest section with one untagged bullet blocked). Wired to both events as of PR #57; the presence check is Stop-only (see below for why).
 
 Source: `hooks/scripts/check_verify_loop.sh`
 
