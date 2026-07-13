@@ -147,8 +147,8 @@ The **Stop hooks** enforce a *floor* that is intentionally lower than the prose 
 The coderails Stop hook array has six hooks, running in order:
 
 1. `voice_announce` — **observe-only, always exits 0** — speaks a loop lifecycle event (complete / waiting / stopped / stall) via macOS `say`; runs first specifically because it cannot affect the other gates and must not be short-circuited by one of them (added PR #71, [[pr_70-71_2026-07-07_dashboard-input-fix-and-voice-announcements]]; see [[voice_announce]])
-2. `check_confidence_labels` — confidence labels gate
-3. `check_verify_loop` — DNV resolution gate
+2. `check_confidence_labels` — confidence labels gate; demotes to loop-warn inside an active incomplete loop as of PR #155
+3. `check_verify_loop` — DNV resolution gate (untagged-bullet check) plus DNV-presence gate (missing header after `>= 3` files this turn, PR #156, 2026-07-13); both demote to loop-warn inside an active incomplete loop
 4. `loop_state_guard` — `progress.json` presence/ownership gate ([[agentic-loop]] sessions only)
 5. `loop_stall_guard` — `LOOP-STOP` declaration gate (agentic-loop sessions only)
 6. `unregistered_loop_guard` — nudge (never blocks) when a loop looks unregistered: ≥3 distinct agent-dispatch turns, no `progress.json`, no `agentic-loop` Skill invocation (added PR #17, [[pr_15-17_loop-hardening-registration-eval-freeze-ledger-dry]]). **Nudges at most once per session (PR #99, [[pr_99_unregistered-loop-guard-nudge-once]]):** the original version re-emitted the nudge on every Stop for a session that kept meeting the trip conditions, which self-perpetuated for a genuinely one-off dispatch sequence (nudge → honest "no action needed" turn → Stop → nudge again, observed live 2026-07-08). The fix greps the existing discipline log for a prior `nudged=1` line for this session id (BRE-escaped before interpolation, closing a wildcard-match regression) before emitting again; the first nudge for a session is unaffected, and a missing/unreadable log still fails open (nudges rather than wrongly suppresses).
