@@ -36,7 +36,7 @@ Both consume the identical `schema_version: 1` shape (`scope: "pr" | "loop"` is 
 ```json
 {
   "schema_version": 1, "scope": "pr | loop", "task_ref": "<PR#/branch or loop ordinal>",
-  "tier": 0, "tier_justification": "<required when tier is 0>",
+  "tier": 0, "tier_justification": "<required at every tier: tier 0 = why the exemption is legitimate; tier 1/2 = which tier predicate fired>",
   "frozen_at": "<ISO8601>", "frozen_sha": "<base SHA at freeze>",
   "evals": [ { "id": "E1", "priority": "P0", "mode": "scripted",
     "surface": "merged-state | fresh-clone | artifact-path | deployed",
