@@ -2,7 +2,7 @@
 title: Enforcement Model
 type: design
 created: 2026-05-30
-last_updated: 2026-07-08
+last_updated: 2026-07-13
 sources:
   - commands/workflow.md
   - CLAUDE.md
@@ -13,6 +13,7 @@ sources:
   - sources/pr_15-17_loop-hardening-registration-eval-freeze-ledger-dry.md
   - sources/pr_28_assistant-link-queue-contract-and-panel-spec.md
   - sources/pr_31_assistant-link-approve-button.md
+  - sources/pr_159_retire-catchup-add-telemetry.md
 tags:
   - hooks
   - enforcement
