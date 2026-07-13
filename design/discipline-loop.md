@@ -16,6 +16,8 @@ sources:
   - sources/pr_70-71_2026-07-07_dashboard-input-fix-and-voice-announcements.md
   - sources/pr_95_slash-command-loop-detection.md
   - sources/pr_99_unregistered-loop-guard-nudge-once.md
+  - sources/pr_156_dnv-presence-check.md
+  - sources/pr_159_retire-catchup-add-telemetry.md
 tags:
   - discipline
   - hooks
