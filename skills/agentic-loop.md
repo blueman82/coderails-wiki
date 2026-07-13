@@ -67,7 +67,7 @@ citations (see the caveat below) made the churn disproportionate to the benefit.
 | -2 | Stub `progress.json` first | Literal first action; write the stub at the helper-resolved path | C1 |
 | -1 | Sharpen the authorising prompt | Run `/coderails:improve-prompt`, ask once | (pre-arc) |
 | 0 | Read the authorisation envelope | `<thinking>`: verbatim quote, envelope class, in/out-of-scope, **+ explicit yes/no on clean-break auto-demote authority (quoted, not inferred) — PR #86** | (pre-arc) + PR #86 |
-| 0.5 | Orchestrator operating rules | Stop-ceremony: labels + DNV + `LOOP-STOP` together | C2 |
+| 0.5 | Orchestrator operating rules | Stop-ceremony: labels + DNV + `LOOP-STOP` (as the FINAL line) together; the two discipline hooks demote to warn in-loop as of PR #155 | C2, warn-era prose PR #157 |
 | 1 | State the plan in bullets | Ask once to confirm | (pre-arc) |
 | 2 | Pre-flight via spawned agents | Delegate planning/premortem/wiki-query to sonnet agents | (pre-arc) |
 | 2.5 | Resolve design forks up front | Ask once; record decision + flip-condition. Design agent applies [[brainstorming]]'s quality discipline (YAGNI, design-for-isolation, weigh viable approaches) **without** brainstorming's human-approval gates — see PR #41 note below. | (pre-arc) + PR #41 |
