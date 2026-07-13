@@ -44,7 +44,8 @@ Note: `transcript_path` on a SubagentStop payload is the **parent** session tran
 **Shared steps (both paths):**
 3. If the text is shorter than `MIN_LEN` (default 200, overridable via `$CLAUDE_HOOK_MIN_LEN`), exit 0 — short replies are out of scope.
 4. Check for any match of `\((verified|inferred|guess)` via `grep -qE`. If found, exit 0.
-5. Otherwise: log `blocked=1` and exit 2 with the message: `[discipline-block] response made substantive claims without (verified)/(inferred)/(guess) labels. Add them before stopping.`
+5. On `Stop` only, if an [[agentic-loop]] session is active and incomplete (`als_loop_active_incomplete`), emit an `additionalContext` warn instead of blocking, log `would_block=1 warned=1 blocked=0`, and exit 0 (PR #155). Evaluated lazily — only once a block is imminent — so non-loop sessions never pay the transcript-invocation scan.
+6. Otherwise: log `blocked=1` and exit 2 with the message (rewritten PR #159, 2026-07-13, to match [[check_verify_loop]]'s more actionable style): `[discipline-block] response >=${MIN_LEN} chars with no confidence label. Rule (CLAUDE.md): tag each substantive claim (verified)/(inferred)/(guess) — e.g. "the cache matches the repo (verified — diffed both trees)". Add labels to the claims you made, then stop again.`
 
 (verified: check_confidence_labels.sh)
 
