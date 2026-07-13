@@ -2,18 +2,30 @@
 title: "Hook: discipline_catchup"
 type: hook
 created: 2026-05-31
-last_updated: 2026-06-29
+last_updated: 2026-07-13
 sources:
   - hooks/scripts/discipline_catchup.sh
   - sources/pr_76_harden-hook-stdin-read.md
-tags: [hook, userpromptsubmit-hook, discipline, warn, confidence-labels, did-not-verify]
+  - sources/pr_159_retire-catchup-add-telemetry.md
+tags: [hook, userpromptsubmit-hook, discipline, warn, confidence-labels, did-not-verify, retired]
 ---
 
 # Hook: discipline_catchup
 
-A `UserPromptSubmit` hook that inspects the last assistant response and injects a `[discipline-catchup]` nudge into the next turn if discipline requirements were missed. The only surviving warn-mode hook in coderails.
+> **⚠️ RETIRED 2026-07-13 (PR #159).** `hooks/scripts/discipline_catchup.sh` and
+> its test were deleted; `hooks/hooks.json`'s `UserPromptSubmit` array is now
+> `inject_context.sh` only. Reason: a flat 23–26% first-attempt miss rate held
+> steady since block-mode shipped 2026-05-05 — the warn-mode nudge documented
+> below measurably added nothing on top of the two block-mode Stop hooks
+> ([[check_confidence_labels]], [[check_verify_loop]]). This page is kept as
+> a historical record of a hook that no longer exists in the plugin; everything
+> below describes past behaviour, not current state. See
+> [[pr_159_retire-catchup-add-telemetry]] for the retirement PR and
+> [[discipline-loop]] for the current hook composition.
 
-Source: `hooks/scripts/discipline_catchup.sh`
+A `UserPromptSubmit` hook that inspected the last assistant response and injected a `[discipline-catchup]` nudge into the next turn if discipline requirements were missed. Was the only surviving warn-mode hook in coderails, until its retirement.
+
+Source (deleted, historical path): `hooks/scripts/discipline_catchup.sh`
 
 ## Event and mode
 
