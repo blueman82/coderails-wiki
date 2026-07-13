@@ -83,9 +83,15 @@ The hook retries `extract_last_text` with configurable backoff (`MAX_ATTEMPTS`, 
 
 `stop_hook_active` from the hook payload is checked before any expensive transcript parsing. When the model re-runs after a block and trips this hook again, the loop-guard exits 0, allowing the second stop. This is what makes total enforcement safe: it blocks once, then lets the re-stop through, so there is no deadlock. (verified: check_verify_loop.sh:56–60)
 
+## Loop-scope demotion (PR #155 bullet path; PR #156 wires presence through the same predicate)
+
+On a `Stop` event inside an active, incomplete [[agentic-loop]] session, both the bullet-tagging block and the presence block demote to a model-visible `additionalContext` warn (`[discipline-warn(loop)] ...`) instead of `exit 2`, via the shared `als_loop_active_incomplete` predicate from `lib/loop_state_common.sh`. `SubagentStop` never demotes — worker output stays fully block-enforced regardless of loop state. (verified: check_verify_loop.sh:150-156, 225-238)
+
+PR #155 (a concurrent session's work, referenced here not duplicated) added the demotion for the bullet path first. PR #156 wired the newer presence check through the *same* predicate rather than adding a separate in-loop hard block — the stated reasoning is consistency: once #155 landed, a hard presence-block in-loop would have been the only remaining in-loop hard block in the file. The demotion evaluation is lazy (only runs once a block is imminent), so non-loop sessions never pay the cost of scanning the transcript for loop state.
+
 ## Logging
 
-Appends a structured key=value line to `$CLAUDE_DISCIPLINE_LOG` (default `~/.claude/discipline.log`) at two points: once after the DNV-item count is known, and again on block, both including `session_id`, `text_len`, `attempts`, `files`, `dnv_items`, and `resolvable_dnv_items`. (verified: check_verify_loop.sh:108, 141, 144)
+Appends a structured key=value line to `$CLAUDE_DISCIPLINE_LOG` (default `~/.claude/discipline.log`) at multiple points (empty-text skip, presence-check outcome, bullet-tagging outcome), including `session_id`, `text_len`, `attempts`, `files`, `dnv_items`, `resolvable_dnv_items`, and — as of PR #159 (2026-07-13) — `event=<hook_event_name>` (`Stop` or `SubagentStop`), enabling main-agent-vs-subagent segmentation of the log that was previously structurally impossible to reconstruct after the fact. Loop-demoted lines also carry `would_block=1 warned=1 blocked=0` so a demotion is distinguishable from a genuine pass. (verified: check_verify_loop.sh:69, 89, 122, 153, 158, 162, 215, 235, 240)
 
 ## History
 
