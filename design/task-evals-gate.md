@@ -50,7 +50,7 @@ Both consume the identical `schema_version: 1` shape (`scope: "pr" | "loop"` is 
 
 `eval_artifact::compute_go` (`scripts/lib/eval-artifact.sh`) is the ONE place `result` is derived: a pure `jq` predicate requiring every `.priority == "P0"` eval to have `.status == "pass"`. An eval with no `priority` field is simply excluded from the P0 gate by design (not a bug — `post_evals::validate_structure` check 7 is the layer that refuses a tier≥1 artifact with zero real P0 evals, keeping `compute_go` itself an unopinionated pure gate).
 
-`grading` is optional and additive — added by [[pr_144-149_agentic-loop-hardening-from-loop-engineering|PR #144]], 2026-07-12. Only `post_evals.sh grade-loop` (loop scope) writes it; pr-scope files and every pre-existing reader tolerate its absence. See "Loop-scope gate: the `grade-loop` stamp" below.
+`grading` is optional and additive — added by [[pr_144-149_agentic-loop-hardening-from-loop-engineering|PR #144]], 2026-07-12. Only `post_evals.sh grade-loop` (loop scope) writes it; pr-scope files and every pre-existing reader tolerate its absence. See "Loop-scope gate: the `grade-loop` stamp" below. It is write-time provenance, absent at freeze — PR #153 (2026-07-13) added `amendments_at_grade` to the stamp and moved the SKILL.md schema block to show the frozen shape only, after review caught that a file frozen literally from a grading-bearing template would false-refuse its first grade under the regrade-on-amendment backstop (below).
 
 ## The six anti-gaming rules (generation-time discipline)
 
