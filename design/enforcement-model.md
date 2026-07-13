@@ -64,7 +64,7 @@ PreToolUse hooks block by emitting a JSON response with `permissionDecision: "de
 |---|---|---|
 | `SessionStart` | [[inject_bootstrap]] (`inject_bootstrap.sh`) | silent — bootstraps session with `coderails:using-coderails` context |
 | `UserPromptSubmit` | [[inject_context]] (`inject_context.sh`) | silent — prepends `[ctx]` (cwd, branch, date) |
-| `UserPromptSubmit` | [[discipline_catchup]] (`discipline_catchup.sh`) | warn |
+| `UserPromptSubmit` | ~~[[discipline_catchup]] (`discipline_catchup.sh`)~~ — **RETIRED PR #159 (2026-07-13)** | ~~warn~~ |
 | `Stop` | [[voice_announce]] (`voice_announce.sh`) | observe-only, always exit 0 — speaks loop lifecycle via macOS `say`; FIRST in the Stop array so no blocking gate can short-circuit it (PR #71) |
 | `Stop` | [[check_confidence_labels]] (`check_confidence_labels.sh`) | **block** — ≥200-char response with no confidence label |
 | `Stop` | [[check_verify_loop]] (`check_verify_loop.sh`) | **block** — any untagged DNV bullet (file_count gate removed PR #61) |
