@@ -140,7 +140,9 @@ The **Stop hooks** enforce a *floor* that is intentionally lower than the prose 
 
 **What this means in practice:** following the hook floor is necessary but not sufficient. A response can satisfy both hooks (≥1 label, no untagged DNV bullet, header present if required) while still falling short of the prose standard (many unlabelled claims, a DNV section that exists but under-covers what was actually deferred). The prose standard is the real target. The hooks are the backstop for clear failures — and PR #156 moved the floor closer to the standard for the specific "omitted the section entirely" failure mode.
 
-## The Stop hook composition (6 Stop hooks; 2 SubagentStop hooks; 15 hooks total across all events)
+## The Stop hook composition (6 Stop hooks; 2 SubagentStop hooks)
+
+**Retirement note (PR #159, 2026-07-13):** `discipline_catchup.sh`, the sole `UserPromptSubmit`-event discipline hook, was retired clean-break — file and test both deleted, `hooks.json`'s `UserPromptSubmit` array is now `inject_context.sh` only. Reason: a flat 23–26% first-attempt miss rate held steady since block-mode shipped 2026-05-05 — the warn-mode catchup nudge measurably added nothing on top of the two block-mode Stop hooks below. See [[discipline_catchup]] (now marked retired) and [[pr_159_retire-catchup-add-telemetry]]. The composition below is unaffected — it was always Stop/SubagentStop-only.
 
 The coderails Stop hook array has six hooks, running in order:
 
