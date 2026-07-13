@@ -18,6 +18,7 @@ sources:
   - sources/pr_99_unregistered-loop-guard-nudge-once.md
   - sources/pr_156_dnv-presence-check.md
   - sources/pr_159_retire-catchup-add-telemetry.md
+  - sources/pr_155-158_ceremony_noise_envelope_anchoring.md
 tags:
   - discipline
   - hooks
