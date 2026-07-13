@@ -150,3 +150,4 @@ The same update also changed [[agentic-loop-path-keying]]'s slug scheme undernea
 - [[assistant-link-send-gate-architecture]] — the marketplace-consumer analogue of this trap, found in assistant-agent's installed plugin cache (sub-project 4)
 - [[agentic-loop-path-keying]] — the loop-state re-keying migration gap the same plugin update triggered
 - [[pr_86-107_2026-07-08_loop-lib-residuals]] — PR #87: the nested-worktree investigation that did not reproduce, documented in `install_mode_sweep.test.sh`'s header
+- [[pr_159_retire-catchup-add-telemetry]] — PR #159: the version-lockstep repair (1.1.5) that prompted this page's version-pinning correction
