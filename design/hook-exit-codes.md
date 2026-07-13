@@ -36,8 +36,10 @@ docs (`code.claude.com/docs/en/hooks.md`), fetched 2026-05-31. (verified by fetc
 
 The sharp consequence for coderails: on `UserPromptSubmit`, exit 2 would **erase
 the user's prompt and show stderr only to the user, not to Claude**. That is why
-`discipline_catchup.sh` (a UserPromptSubmit hook) uses the `additionalContext`
-JSON form at exit 0 to nudge Claude, not exit 2.
+`inject_context.sh` (the sole `UserPromptSubmit` hook as of PR #159, 2026-07-13)
+uses the `additionalContext` JSON form at exit 0 to inject context, not exit 2.
+(Historically `discipline_catchup.sh`, retired PR #159, used the same pattern for
+the same reason — see [[discipline_catchup]] and [[pr_159_retire-catchup-add-telemetry]].)
 
 ## Why coderails uses two block mechanisms
 
