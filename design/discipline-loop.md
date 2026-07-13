@@ -153,9 +153,11 @@ The coderails Stop hook array has six hooks, running in order:
 5. `loop_stall_guard` — `LOOP-STOP` declaration gate (agentic-loop sessions only)
 6. `unregistered_loop_guard` — nudge (never blocks) when a loop looks unregistered: ≥3 distinct agent-dispatch turns, no `progress.json`, no `agentic-loop` Skill invocation (added PR #17, [[pr_15-17_loop-hardening-registration-eval-freeze-ledger-dry]]). **Nudges at most once per session (PR #99, [[pr_99_unregistered-loop-guard-nudge-once]]):** the original version re-emitted the nudge on every Stop for a session that kept meeting the trip conditions, which self-perpetuated for a genuinely one-off dispatch sequence (nudge → honest "no action needed" turn → Stop → nudge again, observed live 2026-07-08). The fix greps the existing discipline log for a prior `nudged=1` line for this session id (BRE-escaped before interpolation, closing a wildcard-match regression) before emitting again; the first nudge for a session is unaffected, and a missing/unreadable log still fails open (nudges rather than wrongly suppresses).
 
-The SubagentStop hook array has two hooks (wired PR #57):
+The SubagentStop hook array has two hooks (wired PR #57), both always block-enforced regardless of loop state (the PR #155/#156 loop-demotion is Stop-only):
 1. `check_confidence_labels` — reads `.last_assistant_message`; same MIN_LEN/label logic as Stop
-2. `check_verify_loop` — reads `.last_assistant_message`; no `file_count` gate; same DNV enforcement as Stop
+2. `check_verify_loop` — reads `.last_assistant_message`; untagged-bullet DNV enforcement same as Stop; the presence check (PR #156) structurally cannot fire on this path — `file_count` is never computed for SubagentStop and is always `0`, so its `>= 3` condition never trips
+
+Both hooks log `event=SubagentStop` on this path as of PR #159 (2026-07-13), distinguishing these log lines from the Stop-path equivalents.
 
 The three loop-state hooks (C1/C2 plus the new unregistered-loop nudge) remain **Stop-only** — they key off main-agent loop invocation count, session-owned `progress.json`, or (the new hook) the *absence* of one. A subagent has no `progress.json` to validate.
 
