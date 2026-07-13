@@ -2,17 +2,18 @@
 title: Install and Cache Trap
 type: design
 created: 2026-05-30
-last_updated: 2026-07-08
+last_updated: 2026-07-13
 sources:
   - design/agentic-loop-path-keying.md
   - .claude-plugin/plugin.json
   - ~/.claude/settings.json
   - ~/.claude/plugins/known_marketplaces.json
-  - ~/.claude/plugins/cache/coderails/coderails/1.0.0/
+  - ~/.claude/plugins/cache/coderails/coderails/
   - CLAUDE.md
   - sources/pr_96-98_mode-aware-install-argument-injection-guard-hook-owned-counter.md
   - sources/pr_11-14_gate-hardening-followups.md
   - sources/pr_86-107_2026-07-08_loop-lib-residuals.md
+  - sources/pr_159_retire-catchup-add-telemetry.md
 tags:
   - installation
   - cache
