@@ -53,8 +53,8 @@ Two supporting changes shipped in the same PR:
    look like zero files and silently skip the presence check). This closes the
    jq-slurp fragility family for the last of the three known instances (the other
    two — `dc_extract_last_text` and `unregistered_loop_guard`'s dispatch-turn
-   count — were fixed earlier; see [[jq_slurp_round2_handoff]] equivalent memory).
-   (verified: discipline_common.sh:20-24, 26)
+   count — were fixed earlier, per the maintainer's `jq-slurp round 2` memory
+   record; not a wiki page). (verified: discipline_common.sh:20-24, 26)
 
 ## Loop-scope wiring
 
