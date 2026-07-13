@@ -2,11 +2,12 @@
 title: "Hook: inject_context"
 type: hook
 created: 2026-05-31
-last_updated: 2026-06-29
+last_updated: 2026-07-13
 sources:
   - hooks/scripts/inject_context.sh
   - sources/pr_76_harden-hook-stdin-read.md
   - sources/pr_79_sync-docs-drift.md
+  - sources/pr_159_retire-catchup-add-telemetry.md
 tags: [hook, userpromptsubmit-hook, context-injection, silent, discipline]
 ---
 
