@@ -89,7 +89,9 @@ The hooks that enforce the discipline loop live at `hooks/scripts/*.sh` in the r
 
 ## Why This Pattern Exists
 
-Claude Code's plugin architecture separates the marketplace source (which can be a local directory or a GitHub repo) from the installed cache. This allows version-pinning, rollback, and offline operation. For a local-directory plugin like coderails, the "version" is always `1.0.0` regardless of how many edits have been made — there is no semantic versioning increment on each save. The cache is only refreshed when the harness is explicitly asked to reinstall.
+Claude Code's plugin architecture separates the marketplace source (which can be a local directory or a GitHub repo) from the installed cache. This allows version-pinning, rollback, and offline operation. The cache is only refreshed when the harness is explicitly asked to reinstall or update.
+
+**Superseded claim (see the Correction note above, 2026-07-13):** this section previously said the version for a local-directory plugin like coderails was permanently `1.0.0` with no semantic versioning increments on save. That is not the current state — `plugin.json`/`marketplace.json` are bumped deliberately as part of PRs (most recently to `1.1.5`, PR #159's lockstep repair), and `claude plugin update` picks up new versions. The trap this page is actually about — repo edits not reaching the harness until the cache resyncs — does not depend on whether the version string changes; it was simply illustrated with a version that, at the time, never changed.
 
 ## Bash 3.2 portability
 
