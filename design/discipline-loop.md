@@ -199,7 +199,10 @@ This means: edits to transcript-extraction logic now go in `discipline_common.sh
 
 - [[enforcement-model]] — why hooks can enforce things that commands cannot
 - [[check_confidence_labels]] — the confidence-label Stop hook in detail
-- [[check_verify_loop]] — the verify loop hook in detail (total enforcement as of 2026-06-01)
+- [[check_verify_loop]] — the verify loop hook in detail (total enforcement as of 2026-06-01; DNV-presence check added PR #156, 2026-07-13)
+- [[discipline_catchup]] — retired PR #159 (2026-07-13); page kept as historical record
+- [[pr_156_dnv-presence-check]] — the presence-check PR, turn-scoped file_count, jq-slurp closure
+- [[pr_159_retire-catchup-add-telemetry]] — the retirement + `event=` telemetry + version-lockstep PR
 - [[loop_state_guard]] — `progress.json` presence/ownership Stop hook (C1, added 2026-06-24)
 - [[loop_stall_guard]] — `LOOP-STOP` declaration Stop hook (C2, added 2026-06-24)
 - [[unregistered_loop_guard]] — unregistered-loop nudge Stop hook (added 2026-07-06, PR #17; nudges at most once per session as of PR #99)
