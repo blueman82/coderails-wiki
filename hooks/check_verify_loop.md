@@ -112,3 +112,6 @@ This hook reads its payload via `IFS= read -r -d '' -t 5 input || true`. The 5-s
 - [[enforcement-model]]
 - [[discipline-loop]]
 - [[install-and-cache-trap]]
+- [[pr_156_dnv-presence-check]] — the presence-check PR, turn-scoping, jq hardening
+- [[pr_159_retire-catchup-add-telemetry]] — the `event=` telemetry PR
+- [[agentic-loop]] — the loop-demotion predicate's consumer context
