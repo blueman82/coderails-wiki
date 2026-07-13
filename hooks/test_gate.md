@@ -91,7 +91,7 @@ This hook reads its payload via `IFS= read -r -d '' -t 5 input || true`. One of 
 
 ## Gate-pattern convention (PR #79)
 
-`test_gate.sh` uses inline `if`-blocks (not named gate functions). It is one of the **five core gate scripts** that use this pattern: `check_verify_loop.sh`, `check_confidence_labels.sh`, `no_edit_on_main.sh`, `destructive_bash_gate.sh`, and `test_gate.sh`. This was confirmed and documented in `AGENTS.md` by PR #79 (fixing a doc-drift finding from `/sync-docs`). Support/context scripts (`inject_context.sh`, `inject_bootstrap.sh`, `discipline_catchup.sh`) also use inline blocks but are not part of the gate-pattern convention — they have no deny-path. New hook scripts should prefer named gate functions (like `enforce_pr_workflow.sh`). (verified: PR #79 body + AGENTS.md hook conventions)
+`test_gate.sh` uses inline `if`-blocks (not named gate functions). It is one of the **five core gate scripts** that use this pattern: `check_verify_loop.sh`, `check_confidence_labels.sh`, `no_edit_on_main.sh`, `destructive_bash_gate.sh`, and `test_gate.sh`. This was confirmed and documented in `AGENTS.md` by PR #79 (fixing a doc-drift finding from `/sync-docs`). Support/context scripts (`inject_context.sh`, `inject_bootstrap.sh`) also use inline blocks but are not part of the gate-pattern convention — they have no deny-path. (`discipline_catchup.sh`, formerly a third support/context script in this list, was retired PR #159, 2026-07-13 — see [[discipline_catchup]].) New hook scripts should prefer named gate functions (like `enforce_pr_workflow.sh`). (verified: PR #79 body + AGENTS.md hook conventions)
 
 ## Related
 
