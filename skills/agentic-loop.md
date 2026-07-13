@@ -431,5 +431,8 @@ edit to the listing description Claude Code shows before the skill body loads.
 - [[pr_130-136_dashboard-right-rail-ux]] — the loop PR #134 shipped inside; six independent dashboard UX fixes plus this skill's own mid-loop hardening
 - [[pr_138_remove-specs-plans-tracking]] — a separate, later PR in the same session: `docs/coderails/specs/`/`docs/coderails/plans/` (referenced by [[brainstorming]] and [[writing-plans]], both of which this skill invokes via its own phases) are no longer tracked in the repo
 - [[pr_144-149_agentic-loop-hardening-from-loop-engineering]] — PRs #144-149 (2026-07-12) source record: `grade-loop` neutral grading (Phase 2.7c/13), rule 6 "Strongest surface" ([[task-evals]]), the Phase 4b review tier ladder, the `decisions_absorbed` durable trace (Phases 2.5/2.6/5/6/13) + `loop_stop_counts` reset-on-rearm, and the dashboard's loop-decisions tile
-- [[task-evals-gate]] — the `grading`/`UNSTAMPED` mechanism this skill's Phase 2.7c/13 now names explicitly
+- [[task-evals-gate]] — the `grading`/`UNSTAMPED` mechanism this skill's Phase 2.7c/13 now names explicitly; also carries rule 4's envelope-anchoring extension (PR #158)
 - [[dashboard]] — the RailLeft Directives card that now surfaces this skill's `decisions_absorbed` trace
+- [[pr_155-158_ceremony_noise_envelope_anchoring]] — PRs #155/#157/#158 (2026-07-13) source record: the orchestrator warn-demotion mechanism (#155), the LOOP-STOP FINAL-line prose clarification + warn-era Phase 0.5 rewrite (#157), and the `authorising_prompt_raw` envelope-anchoring extension to task-evals rule 4 (#158)
+- [[pr_156_dnv-presence-check]] — concurrent session's PR #156 (2026-07-13), wired through the same `als_loop_active_incomplete` predicate PR #155 introduced
+- [[check_confidence_labels]] / [[check_verify_loop]] — the two discipline Stop hooks Phase 0.5 now describes as demoting to warn inside an active, incomplete loop (PR #155)
