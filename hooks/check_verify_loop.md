@@ -11,6 +11,7 @@ sources:
   - sources/pr_76_harden-hook-stdin-read.md
   - sources/pr_156_dnv-presence-check.md
   - sources/pr_159_retire-catchup-add-telemetry.md
+  - sources/pr_155-158_ceremony_noise_envelope_anchoring.md
 tags: [hook, stop-hook, subagentstop-hook, discipline, enforcement, did-not-verify, presence-check, turn-scoped]
 ---
 
