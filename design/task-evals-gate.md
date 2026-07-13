@@ -8,6 +8,7 @@ sources:
   - sources/pr_7-10_task-evals-followups.md
   - sources/pr_11-14_gate-hardening-followups.md
   - sources/pr_144-149_agentic-loop-hardening-from-loop-engineering.md
+  - sources/pr_155-158_ceremony_noise_envelope_anchoring.md
   - docs/coderails/specs/2026-07-03-task-evals-design.md
 tags: [design, task-evals, evals-json, merge-gate, loop-gate, truth-seam, sha-bound, work-units, oracle-independence, comment-spoofing, tier-justification, trust-floor, viewerPermission, grade-loop, unstamped]
 ---
