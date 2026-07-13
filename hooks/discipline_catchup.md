@@ -103,7 +103,8 @@ This hook reads its payload via `IFS= read -r -d '' -t 5 input || true`. See [[p
 
 ## Related
 
+- [[pr_159_retire-catchup-add-telemetry]] — the retirement PR and its stated null-result reason
 - [[hook-exit-codes]] — why UserPromptSubmit hooks must use additionalContext, not exit 2
-- [[discipline-loop]] — the full discipline hook composition
+- [[discipline-loop]] — the full discipline hook composition (current, post-retirement)
 - [[check_confidence_labels]] — the Stop-hook that blocks on missing confidence labels
-- [[inject_context]] — the session-start context injection hook
+- [[inject_context]] — the session-start context injection hook, now the sole UserPromptSubmit hook
