@@ -74,5 +74,6 @@ This hook reads its payload via `IFS= read -r -d '' -t 5 input || true`. See [[p
 
 - [[hook-exit-codes]] — explains why UserPromptSubmit hooks must use additionalContext, not exit 2
 - [[discipline-loop]] — how inject_context fits into the full discipline loop
-- [[discipline_catchup]] — the companion hook that catches misses after session start
+- [[discipline_catchup]] — the retired companion hook that used to catch misses after session start
+- [[pr_159_retire-catchup-add-telemetry]] — the retirement PR
 - [[sync-docs]] — the `/sync-docs` skill this page's PR #79 source record fixed doc-drift findings from
