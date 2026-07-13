@@ -32,19 +32,26 @@ The script detects `hook_event_name` and takes a different path depending on the
 
 **SubagentStop path (PR #57):** reads `.last_assistant_message` directly. The `file_count` gate is NOT applied — the subagent's message is the authoritative output; an untagged DNV bullet in it is proof of deferred work regardless of whether the agent transcript is readable. `transcript_path` on a SubagentStop payload is the parent session transcript, not the subagent's, so reading it would check the wrong content.
 
-**Stop path:** reads the last assistant text block from `transcript_path`. As of PR #61, the `file_count < 1` early-exit gate is **removed** — a `## Did Not Verify` section that exists is policed regardless of whether files were edited this turn. `file_count` is still computed and written to the log line for observability, but no longer short-circuits the check. This makes the Stop path consistent with SubagentStop.
+**Stop path:** reads the last assistant text block from `transcript_path`. As of PR #61, the `file_count < 1` early-exit gate on the **bullet-tagging** check is **removed** — a `## Did Not Verify` section that exists is policed regardless of whether files were edited this turn. As of PR #156 (2026-07-13), `file_count` gates a *separate* check instead: the **presence** check (see below), which fires when the header is missing entirely and the turn edited `>= 3` files. This makes the Stop path's bullet-tagging behaviour consistent with SubagentStop, while giving `file_count` a new, narrower job.
 
-Checks run top-to-bottom after the path branching. The first that matches decides. All but the last allow the stop; only an untagged DNV bullet blocks. (verified: check_verify_loop.sh)
+Checks run top-to-bottom after the path branching. The first that matches decides. All but the last two allow the stop; an untagged DNV bullet or a missing header after enough edits blocks. (verified: check_verify_loop.sh)
 
 | Check | Condition | Outcome |
 |---|---|---|
 | no transcript (Stop) | No transcript path in payload, or file does not exist | allow stop |
 | loop-guard | `stop_hook_active == true` (already blocked once this turn) | allow stop |
 | no text | Last assistant response has no text | allow stop |
-| no DNV | No `## Did Not Verify` (or `## Not Verified`) bullets in the response | allow stop |
-| **block** | Any DNV bullet **not** tagged `(unverifiable: …)` | **exit 2** |
+| **presence** (Stop only, PR #156) | No `## Did Not Verify` header at all AND turn `file_count >= 3` | **exit 2** (or loop-demoted warn) |
+| no DNV, file_count < 3 | No DNV header, but fewer than 3 files edited this turn | allow stop — nothing to enforce |
+| header present, zero bullets | DNV header exists but has no bullets (prose-only, "nothing outstanding") | allow stop — compliant empty section |
+| **block** | Any DNV bullet **not** tagged `(unverifiable: …)` | **exit 2** (or loop-demoted warn) |
+| all tagged | DNV header present, every bullet carries `(unverifiable: …)` | allow stop |
 
-Note: the previous "conversation only" gate (`file_count < 1`) was removed on the Stop path in PR #61. The SubagentStop path never had such a gate. (verified: check_verify_loop.sh)
+Note: the previous "conversation only" gate (`file_count < 1`) was removed from the **bullet-tagging** path on Stop in PR #61 — that removal is unrelated to the presence check, which is a different code path added later (PR #156) that reintroduces a `file_count` gate, just for a different question ("does a header exist at all," not "are its bullets tagged"). The SubagentStop path never had either gate, and the presence check cannot fire on SubagentStop regardless — `file_count` is never computed there (always `0`), so the `>= 3` condition never trips. (verified: check_verify_loop.sh header comment + lines 134-164)
+
+## file_count is now TURN-scoped, not session-cumulative (PR #156)
+
+`dc_file_count()` (in `hooks/scripts/lib/discipline_common.sh`) used to count `Write`/`Edit`/`MultiEdit` targets across the whole transcript. As of PR #156 it finds the last "genuine user" record — a `user`-type record whose `message.content` is a non-empty string, or an array containing a text block (a tool-result-only array does not count as genuine) — and only counts files touched after that cutoff. This matches the CLAUDE.md self-checking-discipline wording, which is per-response ("after any response that edits files"), not per-session: a session that edited 5 files across turns 1–2 and then has a pure-conversation turn 3 no longer gets nagged for a missing DNV section on turn 3. Falls back to counting the whole transcript when no genuine user record exists (test fixtures). Also hardened with the same per-line tolerant jq parse (`jq -R 'fromjson? // empty' | jq -s ...`) the text extractors already used — a single malformed transcript line no longer zeroes the count for the rest of the turn. (verified: discipline_common.sh:11-24)
 
 ## The escape hatch — the only way past
 
