@@ -157,3 +157,4 @@ A gate that is otherwise fail-closed can still ship a broken *allow* path silent
 - [[destructive_bash_gate]] — the 2026-07-08 adversarial-hardening arc that established the positive-control-testing discipline above
 - [[task-evals-gate]] — the second independent enforcement axis (frozen evals, not review evidence); `enforce_pr_workflow` became its second hook-level pr-scope consumer via PR #97
 - [[evals-gate-enforcement-gap_2026-07-08]] — investigation that found this page's own `enforce_pr_workflow` hook-map row stale (named review evidence only, not the eval gate); closed same day by [[pr_96-98_evals-gate-uniform-enforcement_2026-07-08]]
+- [[pr_159_retire-catchup-add-telemetry]] — retires `discipline_catchup.sh`, the only surviving warn-mode hook; the hooks table's `UserPromptSubmit` row above was corrected 2026-07-13 to reflect this
