@@ -42,8 +42,9 @@ Both consume the identical `schema_version: 1` shape (`scope: "pr" | "loop"` is 
     "surface": "merged-state | fresh-clone | artifact-path | deployed",
     "assert": "...", "cmd": "...", "negative_control": "...",
     "status": "pending | pass | fail", "evidence": "..." } ],
-  "amendments": [], "result": null, "graded_at": null, "head_sha": "<SHA graded against>",
-  "grading": { "by": "post_evals.sh grade-loop", "checksum": "<sha256 over statuses+result>" }
+  "amendments": [ { "eval": "E1", "when": "<ISO8601>", "why": "<reason>", "regraded_by": "<fresh grader run — required only for post-verdict amendments>" } ],
+  "result": null, "graded_at": null, "head_sha": "<SHA graded against>",
+  "grading": { "by": "post_evals.sh grade-loop", "checksum": "<sha256 over statuses+result>", "amendments_at_grade": 0 }
 }
 ```
 
