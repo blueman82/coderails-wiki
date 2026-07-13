@@ -165,7 +165,7 @@ The pr-scope gate is uniformly fail-closed (matching the review-artifact gate's 
 
 ## Verifier agent contract (agent-run evals)
 
-For judgement evals, a fresh sonnet subagent is spawned to grade. Its prompt contains ONLY the `evals.json` content, artifact references (PR number, clone path, deployed surface), and the confidence-label contract — explicitly nothing else, not the implementation conversation, not the implementer's summary, not the orchestrator's opinion of the outcome. Same "the author is the least able to see its own shims" principle as agentic-loop Phase 4b's clean-break gate (see [[agentic-loop]]). The assembly script computes `result`; the verifier never writes it directly.
+For judgement evals, a fresh sonnet subagent is spawned to grade. Its prompt contains ONLY the `evals.json` content, artifact references (PR number, clone path, artifact path or local endpoint, deployed surface), and the confidence-label contract — explicitly nothing else, not the implementation conversation, not the implementer's summary, not the orchestrator's opinion of the outcome. Same "the author is the least able to see its own shims" principle as agentic-loop Phase 4b's clean-break gate (see [[agentic-loop]]). The assembly script computes `result`; the verifier never writes it directly. Folding applies to fresh grader output only: an eval amended after a grader verdict goes back to a fresh grader, and the post-verdict amendment records who re-graded in `regraded_by` (PR #153 — see the backstop above).
 
 ## The honest ceiling — inherited, not re-solved
 
