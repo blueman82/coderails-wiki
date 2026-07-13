@@ -2,17 +2,18 @@
 title: "Hook: check_confidence_labels"
 type: hook
 created: 2026-05-30
-last_updated: 2026-06-29
+last_updated: 2026-07-13
 sources:
   - hooks/scripts/check_confidence_labels.sh
   - sources/pr_57-62_subagent-enforcement-gate-hardening.md
   - sources/pr_76_harden-hook-stdin-read.md
-tags: [hook, stop-hook, subagentstop-hook, discipline, confidence-labels, enforcement]
+  - sources/pr_159_retire-catchup-add-telemetry.md
+tags: [hook, stop-hook, subagentstop-hook, discipline, confidence-labels, enforcement, loop-demotion]
 ---
 
 # Hook: check_confidence_labels
 
-A `Stop` and `SubagentStop` lifecycle hook that blocks Claude Code (exit 2) when a substantive response carries no `(verified)`, `(inferred)`, or `(guess)` confidence label. Wired to both events as of PR #57.
+A `Stop` and `SubagentStop` lifecycle hook that blocks Claude Code (exit 2) when a substantive response carries no `(verified)`, `(inferred)`, or `(guess)` confidence label. Wired to both events as of PR #57. As of PR #155 (2026-07-13, a concurrent session's work — see [[discipline-loop]] for the fuller writeup), a `Stop`-event block demotes to a model-visible `additionalContext` warn when an [[agentic-loop]] session is active and incomplete; `SubagentStop` always blocks regardless of loop state.
 
 Source: `hooks/scripts/check_confidence_labels.sh`
 
