@@ -73,3 +73,5 @@ This hook reads its payload via `IFS= read -r -d '' -t 5 input || true` instead 
 - [[discipline-loop]]
 - [[enforcement-model]]
 - [[check_verify_loop]]
+- [[pr_159_retire-catchup-add-telemetry]] — the `event=` telemetry + block-message rewrite PR
+- [[agentic-loop]] — the loop-demotion predicate's consumer context
