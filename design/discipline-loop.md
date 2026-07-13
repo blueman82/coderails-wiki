@@ -204,6 +204,7 @@ This means: edits to transcript-extraction logic now go in `discipline_common.sh
 - [[discipline_catchup]] — retired PR #159 (2026-07-13); page kept as historical record
 - [[pr_156_dnv-presence-check]] — the presence-check PR, turn-scoped file_count, jq-slurp closure
 - [[pr_159_retire-catchup-add-telemetry]] — the retirement + `event=` telemetry + version-lockstep PR
+- [[pr_155-158_ceremony_noise_envelope_anchoring]] — PR #155's full warn-demotion mechanism (predicate truth table, lazy evaluation, fail-toward-blocking `jq` emission) and the retro-mining log-line metric (`blocked=1` count, not `would_block=1`), plus the accepted cosplay-loop residual
 - [[loop_state_guard]] — `progress.json` presence/ownership Stop hook (C1, added 2026-06-24)
 - [[loop_stall_guard]] — `LOOP-STOP` declaration Stop hook (C2, added 2026-06-24)
 - [[unregistered_loop_guard]] — unregistered-loop nudge Stop hook (added 2026-07-06, PR #17; nudges at most once per session as of PR #99)
