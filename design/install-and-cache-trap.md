@@ -48,11 +48,11 @@ Two files record where the plugin's marketplace is and where it's installed:
 These registrations tell Claude Code where to find the marketplace and that coderails is installed. They do not tell it what the plugin *contains*. That comes from location 3.
 
 **3. The runtime cache**
-`~/.claude/plugins/cache/coderails/coderails/1.0.0/`
+`~/.claude/plugins/cache/coderails/coderails/<version>/`
 
 This is what the Claude Code harness actually runs. It is a snapshot populated when the plugin was last installed or reinstalled. The directory structure mirrors the repo: `commands/`, `hooks/`, `skills/`, `scripts/`, etc. (verified — `ls` output).
 
-The version `1.0.0` matches `plugin.json` version (verified: `.claude-plugin/plugin.json` line 3: `"version": "1.0.0"`).
+**Correction (2026-07-13):** this page previously claimed the version was permanently pinned at `1.0.0` with no semver increments. That was true when originally written but is no longer the state of the repo — `plugin.json` and `marketplace.json` now carry real semver bumps (verified current: both read `"version": "1.1.5"`, PR #159 repaired a lockstep break between them), and `~/.claude/plugins/cache/coderails/coderails/` on this machine has accumulated separate versioned directories (`1.0.0`, `1.1.0`, `1.1.1`, `1.1.2`, `1.1.3`, `1.1.5` observed) rather than a single static `1.0.0` folder that gets overwritten in place. `claude plugin update` works against these versions. The core trap this page documents — editing the repo does not change what the harness runs until the cache is resynced — is unaffected by this correction; only the "version never changes" claim was wrong.
 
 ## The Trap
 
