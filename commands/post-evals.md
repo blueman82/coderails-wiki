@@ -2,7 +2,7 @@
 title: "/coderails:post-evals"
 type: command
 created: 2026-07-06
-last_updated: 2026-07-06
+last_updated: 2026-07-13
 sources:
   - commands/post-evals.md
   - scripts/lib/eval-artifact.sh
@@ -65,7 +65,7 @@ Built by `eval_artifact::marker()` in `scripts/lib/eval-artifact.sh` — the sam
 ## Scripts used
 
 - `scripts/lib/eval-artifact.sh` — marker SSOT + `eval_artifact::compute_go` (sourced, not run)
-- `scripts/post_evals.sh` — `validate-structure` and `compute-result` subcommands
+- `scripts/post_evals.sh` — `validate-structure` and `compute-result` subcommands (the script's third subcommand, `grade-loop` — added by [[pr_144-149_agentic-loop-hardening-from-loop-engineering|PR #144]], 2026-07-12 — belongs to the loop-scope gate, is invoked directly rather than via this command, and is documented on [[task-evals-gate]])
 
 ## Chain position
 
@@ -86,7 +86,7 @@ Without a valid GO (or justified tier-0) artifact on the current head SHA, [[mer
 
 ## Honest ceiling
 
-Same posture as [[post-review]]: this command validates artifact structure and P0 pass/fail, not whether the evals were genuinely oracle-independent or whether an `agent-run` verifier was genuinely given a clean context. The five anti-gaming rules are generation-time discipline in [[task-evals]]; this command is a structural floor at post-time, not a re-verification of the generation discipline. See [[task-evals-gate]] and [[enforcement-model]].
+Same posture as [[post-review]]: this command validates artifact structure and P0 pass/fail, not whether the evals were genuinely oracle-independent or whether an `agent-run` verifier was genuinely given a clean context. The six anti-gaming rules (five at this page's creation; rule 6 "Strongest surface" added by PR #145, 2026-07-12) are generation-time discipline in [[task-evals]]; this command is a structural floor at post-time, not a re-verification of the generation discipline. See [[task-evals-gate]] and [[enforcement-model]].
 
 ## See also
 
