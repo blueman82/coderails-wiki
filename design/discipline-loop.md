@@ -116,10 +116,10 @@ This is the design intent: nothing is silently deferred. Genuinely unverifiable 
 
 | Rule | Where it lives | Enforcement |
 |---|---|---|
-| Confidence labels on non-trivial claims | `~/.claude/CLAUDE.md` prose | Advisory |
-| ≥200-char response must have one label | `check_confidence_labels.sh` | **Block (Stop hook)** |
-| Did Not Verify section after file-editing responses | `~/.claude/CLAUDE.md` prose | Advisory |
-| Any untagged `## Did Not Verify` bullet | `check_verify_loop.sh` | **Block (Stop + SubagentStop hook)** |
+| Confidence labels on non-trivial claims | `~/.claude/CLAUDE.md` prose | Advisory (demotes to loop-warn per PR #155 inside an active loop) |
+| ≥200-char response must have one label | `check_confidence_labels.sh` | **Block (Stop hook)**, demoted to warn inside an active incomplete loop (PR #155); SubagentStop always blocks |
+| Did Not Verify section after file-editing responses | `~/.claude/CLAUDE.md` prose | Enforced as of PR #156 (2026-07-13) — see next row. Previously advisory-only; the DNV-section-presence gap was the actual live enforcement hole this closed |
+| Any untagged `## Did Not Verify` bullet, OR a missing `## Did Not Verify` header after `>= 3` files edited this turn | `check_verify_loop.sh` | **Block (Stop + SubagentStop hook)**; Stop-path blocks demote to warn inside an active incomplete loop (PR #155/#156); SubagentStop always blocks |
 | Ask on ambiguity, verify memory before acting | `~/.claude/CLAUDE.md` prose | Advisory |
 
 The prose rules are not redundant. They cover the cases the hooks don't — short responses, conversational turns, runtime claims. The hooks cover the high-value case where Claude might stop with a false claim of completeness.
