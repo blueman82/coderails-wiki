@@ -22,7 +22,8 @@ sources:
   - sources/pr_134_agentic-loop-retry-until-green.md
   - sources/pr_144-149_agentic-loop-hardening-from-loop-engineering.md
   - sources/pr_155-158_ceremony_noise_envelope_anchoring.md
-tags: [skill, agentic-loop, multi-agent, orchestration, context-window, delegation, artifact-chain, loop-state, post-review, review-artifact, self-attestation, enforcement-ceiling, session-keying, frontmatter, description-cap, task-evals, work-units, teamcreate-purge, sdd-ledger, retry-until-green, hard-stops, decisions-absorbed, grade-loop, review-tier-ladder, warn-demotion, envelope-anchoring, loop-stop-final-line]
+  - sources/pr_162_agentic-loop-finishing-out.md
+tags: [skill, agentic-loop, multi-agent, orchestration, context-window, delegation, artifact-chain, loop-state, post-review, review-artifact, self-attestation, enforcement-ceiling, session-keying, frontmatter, description-cap, task-evals, work-units, teamcreate-purge, sdd-ledger, retry-until-green, hard-stops, decisions-absorbed, grade-loop, review-tier-ladder, warn-demotion, envelope-anchoring, loop-stop-final-line, finishing-out, verification-before-completion]
 ---
 
 # Skill: agentic-loop
