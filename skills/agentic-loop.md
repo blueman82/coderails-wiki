@@ -122,7 +122,7 @@ Four touch points wire this through the skill:
 3. **Phase -1 (sharpen the authorising prompt)** — on adopting an improved envelope (outcome A: improved prompt adopted, or B: user tweak applied), the orchestrator updates `progress.json.authorising_prompt_raw` to the adopted text. Outcome C (proceed with the original prompt unchanged) needs no update since the Phase -2 stub already wrote it verbatim.
 4. **Phase 13 teardown enrichment** — the `retro.json` assembly step's `envelope` field is now specified as sourced from `progress.json`'s `authorising_prompt_raw` specifically, not "verbatim from `progress.json`" generically.
 
-The "Enrich at Phase 0" bullet in the `progress.json` lifecycle section (below) is worded consistently: "record the envelope verbatim in `authorising_prompt_raw`."
+`SKILL.md`'s `progress.json` lifecycle section (its "Enrich at Phase 0" bullet, describing when the envelope is first recorded) is worded consistently by the same PR: "record the envelope verbatim in `authorising_prompt_raw`."
 
 See [[pr_155-158_ceremony_noise_envelope_anchoring]] and [[task-evals-gate]] for the full mechanism.
 
