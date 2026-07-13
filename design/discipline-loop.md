@@ -183,9 +183,15 @@ All 10 hook scripts read their payload via `IFS= read -r -d '' -t 5 input || tru
 
 **Timeout-floor invariant guard (PR #78):** Every hooks.json `timeout` for `hooks/scripts/` entries must be >= 5 (the `read -t` floor). If a timeout were declared below 5, the harness would kill the hook before the in-process backstop could fire. The invariant now has a machine check: `hooks/scripts/tests/hooks_json_timeout_floor.test.sh` parses `hooks.json` via jq and fails if `min(declared timeouts) < 5`. Also guards against the fractional-timeout silent-skip bug (jq comparison, not bash `-lt`) and empty-result vacuous-pass (explicit FAIL on zero extracted timeouts). See [[pr_78_hooks-json-timeout-floor]]. (verified: PR #78 body + script)
 
-## Shared library: discipline_common.sh (added 2026-06-25, PR #29)
+**Same test hardened again (2026-07-13, commit 109987b, same-day follow-up to PR #159):** the `UserPromptSubmit` guard previously checked only `[0].hooks`, so a hook re-added as a second matcher object (`[1]`) would pass unnoticed — this is exactly the shape a regression re-adding `discipline_catchup.sh` as a second matcher (rather than a second entry in the existing matcher's `hooks` array) would take. The guard now also asserts the matcher array itself has length 1. The same commit fixed a vacuous-pass in the test's version-lockstep check (see [[install-and-cache-trap]]) and added stderr-content coverage to `check_confidence_labels.test.sh`'s blocked-path case.
 
-The three discipline hooks (`check_confidence_labels.sh`, `check_verify_loop.sh`, `discipline_catchup.sh`) previously duplicated the transcript text-extraction jq expression and retry loop. PR #29 extracted this into `hooks/scripts/lib/discipline_common.sh`, mirroring the pattern of `lib/loop_state_common.sh`. Behaviour-preserving (proven against origin/main pre-refactor). A TDD test was added. (verified — PR #29)
+## Shared library: discipline_common.sh (added 2026-06-25, PR #29; discipline_catchup.sh consumer retired PR #159)
+
+The discipline hooks previously duplicated the transcript text-extraction jq expression and retry loop. PR #29 extracted this into `hooks/scripts/lib/discipline_common.sh`, mirroring the pattern of `lib/loop_state_common.sh`. Behaviour-preserving (proven against origin/main pre-refactor). A TDD test was added. (verified — PR #29)
+
+At the time of PR #29 there were three consumers: `check_confidence_labels.sh`, `check_verify_loop.sh`, and `discipline_catchup.sh`. **`discipline_catchup.sh` was retired PR #159 (2026-07-13)** — see [[discipline_catchup]] and the retirement note above; the library now has two consumers.
+
+**jq-slurp fragility family closed (PR #156, 2026-07-13):** `dc_file_count()` was the last of three known instances of a bare `jq -s` slurp that would zero its result entirely if any single transcript line was malformed or truncated (the other two — `dc_extract_last_text`'s text extraction, and `unregistered_loop_guard`'s dispatch-turn count — were hardened in earlier PRs). PR #156 applied the same per-line tolerant two-stage parse (`jq -R 'fromjson? // empty' | jq -s ...`) to `dc_file_count`, and simultaneously re-scoped it from session-cumulative to TURN-scoped (see [[check_verify_loop]] for the mechanics). Both changes shipped in the same PR because they touch the same function.
 
 This means: edits to transcript-extraction logic now go in `discipline_common.sh`, not in each hook individually.
 
