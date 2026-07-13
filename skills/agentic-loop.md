@@ -109,6 +109,31 @@ The same invocation also produces per-work-unit **pr-scope** eval refs (one per 
 
 **Grading is a separate, neutral step from freezing** ([[pr_144-149_agentic-loop-hardening-from-loop-engineering|PR #144]], 2026-07-12): freezing this file here (Phase 2.7c) only defines the evals; computing and stamping `result` at loop end is `post_evals.sh grade-loop`'s job (Phase 13), never the orchestrator's own. `grade-loop` also stamps a `grading` object (`by` + a checksum) that [[loop_state_guard]] checks before accepting a `GO`/`TIER0` verdict — an ungraded or hand-graded file now reads `UNSTAMPED` and blocks. See [[task-evals-gate]] for the full mechanism.
 
+**The eval author's goal-state anchor at loop scope is `progress.json`'s `authorising_prompt_raw`** ([[pr_155-158_ceremony_noise_envelope_anchoring|PR #158]], 2026-07-13, extending [[task-evals]]'s rule 4 oracle-independence discipline): Phase 2.7c now cross-references this explicitly rather than leaving it implicit. This is a precedence rule, not a content denial — `spec.md`'s Phase 2.7a restatement and `plan.md`'s per-task restatement remain useful sources of constraints and concrete assertable surfaces, they just never override the envelope field as the anchor. See "Envelope anchoring for loop-scope evals" below for the full wiring across Phases -2/-1/2.7c/13.
+
+## Envelope anchoring for loop-scope evals (PR #158, 2026-07-13)
+
+`progress.json`'s `authorising_prompt_raw` field — the post-Phase-0 envelope, recorded verbatim — is now the **canonical, single-string anchor** [[task-evals]]'s rule 4 (oracle independence) points a loop-scope eval author at, closing an ambiguity: before this PR, an eval author had no stated rule for which of several plausible "goal state" sources to derive evals from (the original prompt, `spec.md`'s Phase 2.7a restatement, `plan.md`'s per-task restatement) — a paraphrase drifting during normal plan-writing could silently become the oracle, which is exactly the implementation-adjacent-oracle risk rule 4 already warned against for the non-loop case.
+
+Four touch points wire this through the skill:
+
+1. **Phase -2 stub schema comment** — `authorising_prompt_raw`'s inline comment now notes Phase -1 may update it if an improved prompt is adopted.
+2. **Phase -2 mid-loop re-stub rule** — the existing rule carrying `loop_stop_counts` forward verbatim on a mid-loop re-stub (recovery after a restart) now also covers `authorising_prompt_raw`: "a re-stub refilled from conversation memory instead of the prior file's value would silently drift the eval author's canonical anchor." Same memory-vs-durable-record concern the `decisions_absorbed` carry-forward rule already applies elsewhere in this skill.
+3. **Phase -1 (sharpen the authorising prompt)** — on adopting an improved envelope (outcome A: improved prompt adopted, or B: user tweak applied), the orchestrator updates `progress.json.authorising_prompt_raw` to the adopted text. Outcome C (proceed with the original prompt unchanged) needs no update since the Phase -2 stub already wrote it verbatim.
+4. **Phase 13 teardown enrichment** — the `retro.json` assembly step's `envelope` field is now specified as sourced from `progress.json`'s `authorising_prompt_raw` specifically, not "verbatim from `progress.json`" generically.
+
+The "Enrich at Phase 0" bullet in the `progress.json` lifecycle section (below) is worded consistently: "record the envelope verbatim in `authorising_prompt_raw`."
+
+See [[pr_155-158_ceremony_noise_envelope_anchoring]] and [[task-evals-gate]] for the full mechanism.
+
+## Orchestrator discipline demotes to warn inside an active loop (PR #155, 2026-07-13)
+
+Phase 0.5 states the orchestrator is subject to the same discipline it imposes on workers. As of PR #155, the two discipline Stop hooks — `check_confidence_labels.sh` and `check_verify_loop.sh` — **demote** a would-be block to a model-visible `additionalContext` warn on the `Stop` event, when the session is inside an active, incomplete loop (the `als_loop_active_incomplete` predicate in `loop_state_common.sh`). Outside an active loop, and for worker output (`SubagentStop`), both hooks still block outright — this is not a general relaxation of the discipline, only a change to how the orchestrator's own in-loop Stop turns are enforced. "The discipline itself hasn't changed, the warn is the correction signal the orchestrator acts on next turn."
+
+**Motivating incident:** loop f87a0a2e forced ~69 turn regenerations in one crack-on loop (49 confidence-label blocks + 20 verify-loop blocks) — each block costing a full model regeneration cycle for discipline that was correct in substance but delivered at a cost mismatched to an autonomous loop's cadence. Even at warn-level a missed warn is still a cost, "just paid as a drifted transcript instead of a forced regeneration" — the skill's framing is explicit that this is a cost-shape change, not a removal of the underlying requirement.
+
+Full mechanism (the predicate's truth table, lazy evaluation, fail-toward-blocking `jq` emission, and the `would_block=1 warned=1 blocked=0` log-line accounting that future retro mining should key on `blocked=1` counts rather than `would_block=1` counts) is documented on [[check_confidence_labels]], [[check_verify_loop]], [[discipline-loop]], and [[pr_155-158_ceremony_noise_envelope_anchoring]] — not duplicated here.
+
 ## The LOOP-STOP stop-ceremony contract (Spec C2)
 
 When the loop is active and incomplete, the orchestrator cannot stop without a declaration in its stopping turn:
