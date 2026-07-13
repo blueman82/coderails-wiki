@@ -65,16 +65,20 @@ Logic at lines 44–66 (verified):
 - If text contains `(verified`, `(inferred`, or `(guess`: passes.
 - Otherwise: blocks with `exit 2` and a message naming the failure.
 
-**`check_verify_loop.sh`** — **total enforcement** (as of 2026-06-01): blocks when *any* `## Did Not Verify` bullet is left untagged. The sole escape is an explicit `(unverifiable: <reason>)` tag on the bullet's leading clause.
+**`check_verify_loop.sh`** — **total enforcement** (as of 2026-06-01) on two independent checks: (1) blocks when *any* `## Did Not Verify` bullet is left untagged (sole escape: an explicit `(unverifiable: <reason>)` tag on the bullet's leading clause), and (2) as of PR #156 (2026-07-13), blocks on the Stop path when the response has **no DNV header at all** after a turn that touched `>= 3` files — closing the inversion where omitting the section entirely used to pass silently while an honest section with one untagged bullet blocked.
 
-As of PR #61, the `file_count < 1` gate on the Stop path was removed — a DNV section is policed regardless of whether files were edited. As of PR #57, the hook also fires on SubagentStop, reading `.last_assistant_message` directly.
+As of PR #61, the `file_count < 1` gate on the bullet-tagging check's Stop path was removed — an *existing* DNV section is policed regardless of whether files were edited. As of PR #57, the hook also fires on SubagentStop, reading `.last_assistant_message` directly. As of PR #156, `file_count` is TURN-scoped (records after the last genuine user prompt, not session-cumulative) and gates the *separate* presence check instead — see [[check_verify_loop]] for the full turn-scoping mechanics.
+
+As of PR #155 (2026-07-13, a concurrent session's work), both checks demote from a hard block to a model-visible `additionalContext` warn on `Stop` events inside an active, incomplete [[agentic-loop]] session — `SubagentStop` never demotes, so worker output stays fully block-enforced.
 
 Gate chain (verified: [[check_verify_loop]]):
 1. No transcript file (Stop path only) — allow stop.
 2. `stop_hook_active == true` — allow stop (loop-guard: already blocked once this turn).
 3. Last response has no text — allow stop.
-4. No `## Did Not Verify` bullets — allow stop.
-5. Any DNV bullet **not** tagged `(unverifiable: …)` — **block** with `exit 2`.
+4. No `## Did Not Verify` header AND turn `file_count >= 3` (Stop only) — **block** (or loop-demoted warn) — PR #156.
+5. No `## Did Not Verify` header, fewer than 3 files this turn — allow stop, nothing to enforce.
+6. Header present, zero bullets (prose-only, "nothing outstanding") — allow stop, compliant empty section.
+7. Any DNV bullet **not** tagged `(unverifiable: …)` — **block** (or loop-demoted warn) with `exit 2`.
 
 The earlier source-token regex (matching `.md`, `.sh`, etc. extensions) and the `meta_pattern` allowlist were both removed in the 2026-06-01 escalation. Now prose claims block exactly as filename claims do — any untagged bullet is treated as something the model could have confirmed. See [[check_verify_loop]] for the full history. (inferred: [[session_2026-06-01_verify-loop-total-enforcement]])
 
