@@ -20,6 +20,7 @@ sources:
   - sources/pr_159_retire-catchup-add-telemetry.md
   - sources/pr_155-158_ceremony_noise_envelope_anchoring.md
   - sources/pr_163-168_dashboard-rethink.md
+  - sources/pr_175-176_crack-on-gate-and-inbox-brief-button.md
 tags:
   - discipline
   - hooks
