@@ -56,7 +56,8 @@ See [[discipline-loop]] for the design rationale across all hooks.
 | Script | Event | Mode | Status |
 |---|---|---|---|
 | `inject_bootstrap.sh` | `SessionStart` | silent — bootstraps session with `coderails:using-coderails` | [[inject_bootstrap]] |
-| `inject_context.sh` | `UserPromptSubmit` | silent — injects `[ctx]` date/cwd/branch; sole `UserPromptSubmit` hook as of PR #159 (2026-07-13) | [[inject_context]] |
+| `inject_context.sh` | `UserPromptSubmit` | silent — injects `[ctx]` date/cwd/branch; sole `UserPromptSubmit` hook from PR #159 (2026-07-13) until PR #175 added a sibling below | [[inject_context]] |
+| `crack_on_gate.sh` | `UserPromptSubmit` + `PreToolUse (AskUserQuestion)` | silent stamp on raw-prompt "crack on" match; **block** (permissionDecision: deny) on `AskUserQuestion` while the session's flag is stamped (PR #175, 2026-07-14) | [[crack_on_gate]] |
 | ~~`discipline_catchup.sh`~~ | ~~`UserPromptSubmit`~~ | **RETIRED PR #159 (2026-07-13)** — file+test deleted, null-result (flat 23-26% miss rate unchanged by the nudge) | [[discipline_catchup]] |
 | `check_confidence_labels.sh` | `Stop` + `SubagentStop` | **block** (exit 2) — ≥200-char response with no label; reads `last_assistant_message` on SubagentStop (PR #57); demotes to loop-warn on Stop inside an active incomplete loop (PR #155); `event=` telemetry (PR #159) | [[check_confidence_labels]] |
 | `check_verify_loop.sh` | `Stop` + `SubagentStop` | **block** (exit 2) — any untagged `## Did Not Verify` bullet (file_count gate removed on Stop path, PR #61), PLUS missing-header presence check when turn `file_count >= 3` (PR #156, 2026-07-13, TURN-scoped file_count); reads `last_assistant_message` on SubagentStop (PR #57); demotes to loop-warn on Stop inside an active incomplete loop (PR #155/#156); `event=` telemetry (PR #159) | [[check_verify_loop]] |
