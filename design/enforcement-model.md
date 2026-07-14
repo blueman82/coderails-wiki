@@ -15,6 +15,7 @@ sources:
   - sources/pr_31_assistant-link-approve-button.md
   - sources/pr_159_retire-catchup-add-telemetry.md
   - sources/pr_169_model-routing-step.md
+  - sources/pr_163-168_dashboard-rethink.md
 tags:
   - hooks
   - enforcement
