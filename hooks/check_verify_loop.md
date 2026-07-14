@@ -2,7 +2,7 @@
 title: "Hook: check_verify_loop"
 type: hook
 created: 2026-05-30
-last_updated: 2026-07-13
+last_updated: 2026-07-14
 sources:
   - hooks/scripts/check_verify_loop.sh
   - sources/session_2026-05-31_verify-loop-hardening.md
@@ -12,12 +12,13 @@ sources:
   - sources/pr_156_dnv-presence-check.md
   - sources/pr_159_retire-catchup-add-telemetry.md
   - sources/pr_155-158_ceremony_noise_envelope_anchoring.md
-tags: [hook, stop-hook, subagentstop-hook, discipline, enforcement, did-not-verify, presence-check, turn-scoped]
+  - sources/pr_163-168_dashboard-rethink.md
+tags: [hook, stop-hook, subagentstop-hook, discipline, enforcement, did-not-verify, presence-check, turn-scoped, headless-exemption]
 ---
 
 # Hook: check_verify_loop
 
-A `Stop` and `SubagentStop` lifecycle hook with two independent enforcement paths: (1) blocks when the last response leaves **any** `## Did Not Verify` bullet untagged (total enforcement — a bullet not explicitly marked uncheckable is treated as something the model could have resolved and chose to defer), and (2) as of PR #156 (2026-07-13), blocks on the `Stop` path when the response has **no DNV header at all** after a turn that edited `>= 3` files (the presence check — closes the inversion where omitting the section entirely passed silently while an honest section with one untagged bullet blocked). Wired to both events as of PR #57; the presence check is Stop-only (see below for why).
+A `Stop` and `SubagentStop` lifecycle hook with two independent enforcement paths: (1) blocks when the last response leaves **any** `## Did Not Verify` bullet untagged (total enforcement — a bullet not explicitly marked uncheckable is treated as something the model could have resolved and chose to defer), and (2) as of PR #156 (2026-07-13), blocks on the `Stop` path when the response has **no DNV header at all** after a turn that edited `>= 3` files (the presence check — closes the inversion where omitting the section entirely passed silently while an honest section with one untagged bullet blocked). Wired to both events as of PR #57; the presence check is Stop-only (see below for why). As of PR #167 (2026-07-14), the `Stop` event also exempts entirely when `CODERAILS_HEADLESS_RUN=1` is present in the process env — see "Headless-run exemption" below.
 
 Source: `hooks/scripts/check_verify_loop.sh`
 
