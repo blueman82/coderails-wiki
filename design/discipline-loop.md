@@ -72,6 +72,8 @@ As of PR #61, the `file_count < 1` gate on the bullet-tagging check's Stop path 
 
 As of PR #155 (2026-07-13, a concurrent session's work), both checks demote from a hard block to a model-visible `additionalContext` warn on `Stop` events inside an active, incomplete [[agentic-loop]] session — `SubagentStop` never demotes, so worker output stays fully block-enforced.
 
+As of PR #167 (2026-07-14, [[pr_163-168_dashboard-rethink]]), both hooks also **exempt entirely** (exit 0, no warn text, `skipped=headless` logged) on the `Stop` event when `CODERAILS_HEADLESS_RUN=1` is present in the process env — a third condition alongside "outside a loop → block" and "inside an active incomplete loop → warn." This is narrower than the loop-warn demotion: it has exactly one legitimate set-site (the dashboard's `POST /api/run` spawn call, for a headless `claude -p` run with no interactive turn left to satisfy a repair-turn block) and, like the loop-warn demotion, never applies to `SubagentStop` — worker output stays block-enforced regardless of the flag. See [[enforcement-model]]'s "headless-run exemption" section for the ceiling framing.
+
 Gate chain (verified: [[check_verify_loop]]):
 1. No transcript file (Stop path only) — allow stop.
 2. `stop_hook_active == true` — allow stop (loop-guard: already blocked once this turn).
