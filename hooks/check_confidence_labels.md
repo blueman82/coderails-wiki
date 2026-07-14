@@ -83,3 +83,5 @@ This hook reads its payload via `IFS= read -r -d '' -t 5 input || true` instead 
 - [[pr_159_retire-catchup-add-telemetry]] — the `event=` telemetry + block-message rewrite PR
 - [[agentic-loop]] — the loop-demotion predicate's consumer context
 - [[pr_155-158_ceremony_noise_envelope_anchoring]] — PR #155's full mechanism writeup (predicate truth table, lazy evaluation, fail-toward-blocking `jq` emission) plus the retro-mining guidance: track the `blocked=1` line count over time, not the `would_block=1` flagged count, which stays high by design
+- [[pr_163-168_dashboard-rethink]] — PR #167's `CODERAILS_HEADLESS_RUN` Stop-only exemption, sole set-site in the dashboard's run route
+- [[dashboard]] — the run route this exemption's sole set-site lives in
