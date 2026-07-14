@@ -78,3 +78,4 @@ This hook reads its payload via `IFS= read -r -d '' -t 5 input || true`. See [[p
 - [[discipline_catchup]] — the retired companion hook that used to catch misses after session start
 - [[pr_159_retire-catchup-add-telemetry]] — the retirement PR
 - [[sync-docs]] — the `/sync-docs` skill this page's PR #79 source record fixed doc-drift findings from
+- [[crack_on_gate]] — the new (PR #175, 2026-07-14) `UserPromptSubmit` sibling hook, unrelated in purpose (envelope stamping, not context injection)
