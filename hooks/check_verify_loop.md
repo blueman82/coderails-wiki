@@ -40,6 +40,7 @@ Checks run top-to-bottom after the path branching. The first that matches decide
 
 | Check | Condition | Outcome |
 |---|---|---|
+| headless (Stop only, PR #167) | `CODERAILS_HEADLESS_RUN=1` in process env | allow stop — exit 0, no warn text, `skipped=headless` logged |
 | no transcript (Stop) | No transcript path in payload, or file does not exist | allow stop |
 | loop-guard | `stop_hook_active == true` (already blocked once this turn) | allow stop |
 | no text | Last assistant response has no text | allow stop |
