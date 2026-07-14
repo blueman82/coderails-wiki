@@ -2,19 +2,20 @@
 title: "Hook: check_confidence_labels"
 type: hook
 created: 2026-05-30
-last_updated: 2026-07-13
+last_updated: 2026-07-14
 sources:
   - hooks/scripts/check_confidence_labels.sh
   - sources/pr_57-62_subagent-enforcement-gate-hardening.md
   - sources/pr_76_harden-hook-stdin-read.md
   - sources/pr_159_retire-catchup-add-telemetry.md
   - sources/pr_155-158_ceremony_noise_envelope_anchoring.md
-tags: [hook, stop-hook, subagentstop-hook, discipline, confidence-labels, enforcement, loop-demotion]
+  - sources/pr_163-168_dashboard-rethink.md
+tags: [hook, stop-hook, subagentstop-hook, discipline, confidence-labels, enforcement, loop-demotion, headless-exemption]
 ---
 
 # Hook: check_confidence_labels
 
-A `Stop` and `SubagentStop` lifecycle hook that blocks Claude Code (exit 2) when a substantive response carries no `(verified)`, `(inferred)`, or `(guess)` confidence label. Wired to both events as of PR #57. As of PR #155 (2026-07-13, a concurrent session's work — see [[discipline-loop]] for the fuller writeup), a `Stop`-event block demotes to a model-visible `additionalContext` warn when an [[agentic-loop]] session is active and incomplete; `SubagentStop` always blocks regardless of loop state.
+A `Stop` and `SubagentStop` lifecycle hook that blocks Claude Code (exit 2) when a substantive response carries no `(verified)`, `(inferred)`, or `(guess)` confidence label. Wired to both events as of PR #57. As of PR #155 (2026-07-13, a concurrent session's work — see [[discipline-loop]] for the fuller writeup), a `Stop`-event block demotes to a model-visible `additionalContext` warn when an [[agentic-loop]] session is active and incomplete; `SubagentStop` always blocks regardless of loop state. As of PR #167 (2026-07-14), the `Stop` event also exempts entirely (exit 0, no warn text) when `CODERAILS_HEADLESS_RUN=1` is present in the process env — see "Headless-run exemption" below.
 
 Source: `hooks/scripts/check_confidence_labels.sh`
 
