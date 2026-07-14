@@ -19,6 +19,7 @@ sources:
   - sources/pr_156_dnv-presence-check.md
   - sources/pr_159_retire-catchup-add-telemetry.md
   - sources/pr_155-158_ceremony_noise_envelope_anchoring.md
+  - sources/pr_163-168_dashboard-rethink.md
 tags:
   - discipline
   - hooks
