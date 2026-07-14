@@ -46,10 +46,15 @@ Note: `transcript_path` on a SubagentStop payload is the **parent** session tran
 **Shared steps (both paths):**
 3. If the text is shorter than `MIN_LEN` (default 200, overridable via `$CLAUDE_HOOK_MIN_LEN`), exit 0 — short replies are out of scope.
 4. Check for any match of `\((verified|inferred|guess)` via `grep -qE`. If found, exit 0.
-5. On `Stop` only, if an [[agentic-loop]] session is active and incomplete (`als_loop_active_incomplete`), emit an `additionalContext` warn instead of blocking, log `would_block=1 warned=1 blocked=0`, and exit 0 (PR #155). Evaluated lazily — only once a block is imminent — so non-loop sessions never pay the transcript-invocation scan.
-6. Otherwise: log `blocked=1` and exit 2 with the message (rewritten PR #159, 2026-07-13, to match [[check_verify_loop]]'s more actionable style): `[discipline-block] response >=${MIN_LEN} chars with no confidence label. Rule (CLAUDE.md): tag each substantive claim (verified)/(inferred)/(guess) — e.g. "the cache matches the repo (verified — diffed both trees)". Add labels to the claims you made, then stop again.`
+5. On `Stop` only, if `CODERAILS_HEADLESS_RUN=1` is present in the process env, exit 0 immediately — no warn, no block (PR #167, see "Headless-run exemption" below). Checked before the loop-demotion predicate.
+6. On `Stop` only, if an [[agentic-loop]] session is active and incomplete (`als_loop_active_incomplete`), emit an `additionalContext` warn instead of blocking, log `would_block=1 warned=1 blocked=0`, and exit 0 (PR #155). Evaluated lazily — only once a block is imminent — so non-loop sessions never pay the transcript-invocation scan.
+7. Otherwise: log `blocked=1` and exit 2 with the message (rewritten PR #159, 2026-07-13, to match [[check_verify_loop]]'s more actionable style): `[discipline-block] response >=${MIN_LEN} chars with no confidence label. Rule (CLAUDE.md): tag each substantive claim (verified)/(inferred)/(guess) — e.g. "the cache matches the repo (verified — diffed both trees)". Add labels to the claims you made, then stop again.`
 
 (verified: check_confidence_labels.sh)
+
+## Headless-run exemption (PR #167, 2026-07-14)
+
+On the `Stop` event only, if `CODERAILS_HEADLESS_RUN=1` is present in the process env, the hook exits 0 immediately with no warn text (logs `skipped=headless`) — a third condition alongside "outside a loop → block" and "inside an active incomplete loop → warn." `SubagentStop` ignores the flag entirely and stays block-enforced regardless. This is set in exactly one place in the codebase — the dashboard's `POST /api/run` route's `spawn(...)` call, for a headless `claude -p` run that has no interactive turn left to satisfy a repair-turn block. A second set-site anywhere else is a documented security finding, not a legitimate extension (see `AGENTS.md`'s enforcement-ceilings note). See [[enforcement-model]]'s "headless-run exemption" section and [[pr_163-168_dashboard-rethink]] for the source record.
 
 ## Configurable thresholds
 
