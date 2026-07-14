@@ -2,7 +2,7 @@
 title: Enforcement Model
 type: design
 created: 2026-05-30
-last_updated: 2026-07-13
+last_updated: 2026-07-14
 sources:
   - commands/workflow.md
   - CLAUDE.md
@@ -14,6 +14,7 @@ sources:
   - sources/pr_28_assistant-link-queue-contract-and-panel-spec.md
   - sources/pr_31_assistant-link-approve-button.md
   - sources/pr_159_retire-catchup-add-telemetry.md
+  - sources/pr_169_model-routing-step.md
 tags:
   - hooks
   - enforcement
@@ -122,17 +123,31 @@ rule in prose; it just can't *mechanically enforce* it the way a hook can — Cl
 choose to follow the Phase 4b contract. That's an advisory ceiling, same category as the
 `enforce_pr_workflow` "evidence not completion" ceiling documented above.
 
-## The `model: sonnet` advisory ceiling (PR #86)
+## The model-role routing advisory ceiling (PR #86, reworded by PR #169)
 
-`agentic-loop` asserts `model: sonnet` for spawned workers roughly 6 times, but no hook gates
-`Agent`/`Task` spawn calls on requested model — `hooks/hooks.json` and `hooks/scripts/*.sh` only
-match `Bash` and `Write`/`Edit`/`MultiEdit` events, nothing for agent spawns. PR #86 documented this
-explicitly in `AGENTS.md`'s "Enforcement ceilings" list as a **deliberate** choice, not a gap:
-the rule is cost control, not correctness (an opus worker still produces a valid, fully-gated PR),
-and a blunt model-gate hook couldn't distinguish Phase 2.5's sanctioned opus-escalation exception
-from a disallowed spawn without trusting a self-reported flag — reintroducing the same
-trust-the-agent problem the hook would exist to remove, one level down. See [[agentic-loop]] and
-[[pr_86_agentic-loop-hardening]].
+`agentic-loop`'s Phase 2.8 (added by PR #169, 2026-07-14) assigns a capability role
+(`fast-mechanical`/`default`/`frontier`) to every task before it spawns, and the skill asserts the
+resulting role at each spawn site — Phases 2, 2.5, 3, 3a, 9, 10 as of this writing (the role→model
+table itself lives only in Phase 2.8, not repeated at each site) — but no hook gates `Agent`/`Task`
+spawn calls on the requested model: the only `PreToolUse` matchers in `hooks/hooks.json` are `Bash`
+and `Write|Edit|MultiEdit`; the remaining registered events (`SessionStart`/`UserPromptSubmit`/
+`Stop`/`SubagentStop`) gate no tool calls. PR #86 originally documented this ceiling in `AGENTS.md`'s
+"Enforcement ceilings" list around a flat `model: sonnet` assertion ("roughly 6 times"); PR #169
+reworded the same bullet for the new role vocabulary and tightened the hook-matcher claim to the
+precise statement above. **The underlying deliberateness is unchanged across both PRs:**
+
+- The rule's purpose is **cost and latency control, not correctness** — a `frontier`-role worker
+  still produces a valid, fully-gated PR (PR gates are model-independent); nothing load-bearing
+  breaks if a worker runs at the wrong role.
+- Phase 2.8 sanctions a **legitimate role-vs-role judgement call** — bounded `default` vs.
+  genuinely-ambiguous `frontier`-first for a design-fork investigation (Phase 2.8's own
+  "investigations get frontier FIRST" rule) — that a blunt model-gate hook cannot distinguish from a
+  disallowed worker spawn without trusting a self-reported carve-out flag, reintroducing the same
+  trust-the-agent problem the hook would exist to remove, one level down. This is the same shape as
+  PR #86's original opus-escalation exception, restated for the role vocabulary.
+
+See [[agentic-loop]] (its own "Phase 2.8" and "Model-role routing is advisory" sections) and
+[[pr_86_agentic-loop-hardening]] / [[pr_169_model-routing-step]] for the two source records.
 
 ## Host-process hooks outside coderails itself (assistant-agent send-gate, sub-project 4)
 
@@ -152,8 +167,9 @@ A gate that is otherwise fail-closed can still ship a broken *allow* path silent
 - [[unregistered_loop_guard]] — Stop hook that nudges on the unregistered-loop shape (added PR #17)
 - [[inject_bootstrap]] — SessionStart hook that bootstraps coderails context (added 2026-06-25)
 - [[merge]] — enforcement-gap notice added to merge.sh in PR #43
-- [[agentic-loop]] — Phase 4b self-attestation removal and the `model: sonnet` advisory ceiling (PR #86)
+- [[agentic-loop]] — Phase 4b self-attestation removal and the model-role routing advisory ceiling (PR #86, reworded PR #169)
 - [[pr_86_agentic-loop-hardening]] — source record for both PR #86 decisions above
+- [[pr_169_model-routing-step]] — PR #169 source record: Phase 2.8 model-role routing; rewords this page's advisory-ceiling bullet for the new vocabulary and a precise hook-matcher claim
 - [[destructive_bash_gate]] — the 2026-07-08 adversarial-hardening arc that established the positive-control-testing discipline above
 - [[task-evals-gate]] — the second independent enforcement axis (frozen evals, not review evidence); `enforce_pr_workflow` became its second hook-level pr-scope consumer via PR #97
 - [[evals-gate-enforcement-gap_2026-07-08]] — investigation that found this page's own `enforce_pr_workflow` hook-map row stale (named review evidence only, not the eval gate); closed same day by [[pr_96-98_evals-gate-uniform-enforcement_2026-07-08]]

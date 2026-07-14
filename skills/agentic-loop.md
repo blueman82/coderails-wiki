@@ -2,7 +2,7 @@
 title: "Skill: agentic-loop"
 type: skill
 created: 2026-05-31
-last_updated: 2026-07-13
+last_updated: 2026-07-14
 sources:
   - skills/agentic-loop/SKILL.md
   - sources/session_2026-05-31_prompting-doc-alignment.md
@@ -23,7 +23,8 @@ sources:
   - sources/pr_144-149_agentic-loop-hardening-from-loop-engineering.md
   - sources/pr_155-158_ceremony_noise_envelope_anchoring.md
   - sources/pr_162_agentic-loop-finishing-out.md
-tags: [skill, agentic-loop, multi-agent, orchestration, context-window, delegation, artifact-chain, loop-state, post-review, review-artifact, self-attestation, enforcement-ceiling, session-keying, frontmatter, description-cap, task-evals, work-units, teamcreate-purge, sdd-ledger, retry-until-green, hard-stops, decisions-absorbed, grade-loop, review-tier-ladder, warn-demotion, envelope-anchoring, loop-stop-final-line, finishing-out, verification-before-completion]
+  - sources/pr_169_model-routing-step.md
+tags: [skill, agentic-loop, multi-agent, orchestration, context-window, delegation, artifact-chain, loop-state, post-review, review-artifact, self-attestation, enforcement-ceiling, session-keying, frontmatter, description-cap, task-evals, work-units, teamcreate-purge, sdd-ledger, retry-until-green, hard-stops, decisions-absorbed, grade-loop, review-tier-ladder, warn-demotion, envelope-anchoring, loop-stop-final-line, finishing-out, verification-before-completion, model-routing, capability-roles]
 ---
 
 # Skill: agentic-loop
@@ -56,7 +57,7 @@ The skill defines a sequence of decimal-numbered phases (decimals are the establ
 | Stage | Phases |
 |---|---|
 | Setup | -2, -1, 0, 0.5 |
-| Pre-flight | 1, 2, 2.5, 2.6, 2.7 |
+| Pre-flight | 1, 2, 2.5, 2.6, 2.7, 2.8 |
 | Build | 3, 3a, 4 |
 | Review & Ship | 4b, 5, 6, 7&8 |
 | Wrap-up | 9, 10, 11, 12, 13 |
@@ -75,8 +76,9 @@ citations (see the caveat below) made the churn disproportionate to the benefit.
 | 2.5 | Resolve design forks up front | Ask once; record decision + flip-condition. Design agent applies [[brainstorming]]'s quality discipline (YAGNI, design-for-isolation, weigh viable approaches) **without** brainstorming's human-approval gates — see PR #41 note below. | (pre-arc) + PR #41 |
 | 2.6 | Resolve disposition before replacement | clean-break vs preserve-compat; named blocker required | A |
 | 2.7 | Commit resolved design to `spec.md` **and** `plan.md` **and** loop-scope `evals.json` (sub-steps 2.7a/2.7b/2.7c) | ≥3-unit guard stated once; 2.7a = `spec.md` write, 2.7b = `plan.md` via `coderails:writing-plans`, 2.7c = freeze loop-scope evals via `coderails:task-evals` | E, merged PR #86, +2.7c task-evals cluster |
-| 3 | Delegate all impl to sonnet agents | Spawn a named team at ≥3 sequential units / dependency chain | (pre-arc) + A + D |
-| 3a | Single sonnet agent for impl + verify | The spawned-team-is-overkill case | (pre-arc) + A + D |
+| 2.8 | Route: assign a model role per task | Unconditional (fires even <3-unit loops); assigns a capability role (`fast-mechanical`/`default`/`frontier`) to every Phase 3/3a build task before any worker spawns; role→model table is the only thing a model release touches | PR #169 (2026-07-14) — number reused, unrelated to the pre-PR#86 Phase 2.8 (see "2.7/2.8 merge note and the 2.8 renumber" below) |
+| 3 | Delegate all impl to routed workers | Spawn a named team at ≥3 sequential units / dependency chain | (pre-arc) + A + D; role terminology PR #169 |
+| 3a | Single routed agent for impl + verify | The spawned-team-is-overkill case | (pre-arc) + A + D; role terminology PR #169 |
 | 4 | Spawn workers in waves | Check artifacts, never idle pings | (pre-arc) |
 | 4b | PR review = invoke `/pr-review-toolkit:review-pr <PR#>` Skill; then invoke `/coderails:post-review <PR#>` | Skill required for enforce_pr_workflow gate evidence; post-review creates the SHA-bound artifact `/merge` gate-checks; clean-break compat hunt is a MERGE-BLOCKER the orchestrator **cannot self-demote** (PR #86) | A + PR #64 + PR #83 + PR #86 |
 | 5 | Disprove the premise before each fix | Reproduce via SOT before spawning | (pre-arc) |
@@ -88,10 +90,18 @@ citations (see the caveat below) made the churn disproportionate to the benefit.
 | 12 | Status reports are claims, not evidence | Re-check artifact at moment of action | (pre-arc) |
 | 13 | Confirm the factory ran (terminal self-audit) | Raw `loop_stop_counts` + unscored "decisions absorbed" list — **no numeric scorecard** (PR #86 dropped it); + unscored loop-scope eval result (task-evals cluster) | A + C2, rewritten PR #86, +eval bullet task-evals cluster |
 
-**2.7/2.8 merge note:** Phase 2.8 no longer exists as a separate phase — its content (writing
-`plan.md`) is now sub-step 2.7b under Phase 2.7. Phase 2.5 and 2.6 were deliberately left unmerged
-(they fire unconditionally, and each has 6 inbound cross-references that a merge risked breaking
-for no corresponding duplication removed — see [[pr_86_agentic-loop-hardening]]).
+**2.7/2.8 merge note, and the 2.8 renumber (PR #169):** PR #86 merged the original Phase 2.8
+(writing `plan.md`) into Phase 2.7 as sub-step 2.7b — that history is unchanged, and every
+"Phase 2.7b (formerly 2.8)" reference below describes *that* fact, not the paragraph you're
+reading now. Phase 2.5 and 2.6 were deliberately left unmerged at the time (they fire
+unconditionally, and each has 6 inbound cross-references that a merge risked breaking for no
+corresponding duplication removed — see [[pr_86_agentic-loop-hardening]]).
+
+**PR #169 (2026-07-14) then reused the vacated number 2.8** for an unrelated new phase — model-role
+routing (below) — inserted between 2.7 and 3. The two Phase-2.8s share nothing but the number: old
+2.8 was plan-writing (now permanently 2.7b), new 2.8 is per-task model-role assignment. Read every
+"formerly 2.8" note in this page and in [[writing-plans]] as pointing at the *old*, now-retired
+2.8 — the *current* Phase 2.8 is the routing phase described next.
 
 ## The spec → plan → progress artifact chain (Spec E, merged PR #86)
 
@@ -127,6 +137,70 @@ Four touch points wire this through the skill:
 `SKILL.md`'s `progress.json` lifecycle section (its "Enrich at Phase 0" bullet, describing when the envelope is first recorded) is worded consistently by the same PR: "record the envelope verbatim in `authorising_prompt_raw`."
 
 See [[pr_155-158_ceremony_noise_envelope_anchoring]] and [[task-evals-gate]] for the full mechanism.
+
+## Phase 2.8 — Route: assign a model role per task (PR #169, 2026-07-14)
+
+**Unconditional** — fires even for a 1–2 unit loop that skips Phase 2.7 entirely (unlike 2.7's
+≥3-unit-or-dependency guard). Every Phase 3/3a build task gets a **model role** assigned before any
+worker spawns, decided once and recorded, never re-litigated per spawn — the same "decide once, up
+front" shape Phase 2.5 uses for design forks.
+
+**Roles are capability tiers, not model names** — the durable content is the role and its rationale;
+only the role→model table is expected to go stale on a new model release ("a named-tier table went
+stale within a day of Fable 5's release," per the skill's own framing):
+
+| Role | Currently | Use for |
+|---|---|---|
+| `fast-mechanical` | haiku | Exact-recipe mechanical tasks with scripted ceremony; orchestrator verification micro-reads |
+| `default` | sonnet | TDD / mechanical / multi-file work; the fallback when uncertain (cost control) |
+| `frontier` | fable (opus alternate) | Design-judgement UI/architecture units; genuinely ambiguous investigations |
+
+*(`fable` here names the model Claude Fable 5 — unrelated to the repo's separate `fable-mode`
+skill; the two share a name, not a mechanism.)*
+
+**Investigations get `frontier` FIRST, not escalated-to.** For a genuinely ambiguous investigation,
+spawn `frontier` from the start rather than starting cheap and escalating: a weak investigator burns
+wall-clock discovering it's out of its depth, then a second run re-does the work at the stronger
+tier anyway — one strong run beats escalate-later for this task shape specifically. This is the one
+place `default`-first cost control does not apply; everywhere else `default` is the floor and
+`frontier` is the exception that needs a reason. This inverts what Phase 2.5 used to say pre-#169
+("sonnet recon, escalate the synthesis to opus only if the tradeoff is genuinely close") — see
+"Phase 2.5" below for the updated wording.
+
+**Record the assignment set once** — one `decisions_absorbed` entry per loop, `{phase: "2.8",
+decision: "<task id: role, ...>"}`, covering every task's role, not one entry per task. A <3-unit
+loop still writes this entry even when it skipped Phase 2.7.
+
+**Fallback valves live in the stamp, never improvised by a worker.** An escape hatch (e.g.
+"fast-mechanical; default fallback after two failed gate attempts") must be written into the
+`Model:` stamp — the plan's (`coderails:writing-plans`) for a plan.md-scale loop, or the task
+description's `Model:` bullet (Phase 3/3a) for a loop below that threshold. A worker that hits
+trouble and picks its own fallback model is exactly the failure this rule exists to prevent: the
+valve must already be named in the prompt, or it does not exist for the worker — same travel rule
+as the disposition and lessons bullets elsewhere in this skill.
+
+**Escalation is safe by construction, not a correctness control.** PR gates (review, evals,
+hook-seam) are model-independent — a `frontier` worker's PR clears the same gates a `default`
+worker's PR does. Routing is a cost/latency decision, never a correctness one; a role mismatch is
+not, by itself, a quality risk.
+
+**Inline sites elsewhere, same vocabulary, different reason each time.** Phase 2.8 routes Phase
+3/3a *build* tasks only. Three other spawn sites get their role assigned inline, at their own spawn
+point, using this phase's table and vocabulary rather than through 2.8's per-loop routing step:
+- **Phase 2** pre-flight agent — spawned at `default`; it runs skills, not architectural judgement.
+- **Phase 2.5** design-fork agent — `default` for a bounded choice between well-understood shapes,
+  `frontier` from the start for a genuinely ambiguous investigation (the same investigations-first
+  rule above).
+- **Phase 9** wiki-ingest/lint and sync-docs delegates — `default`; loop-boundary ceremony, not a
+  build task.
+
+The first two are inline because they run **before Phase 2.8 exists in the sequence** — there is no
+per-loop routing step yet to consume. Phase 9's delegates are inline because they are ceremony, not
+build tasks, so 2.8's per-task routing doesn't apply to them either. All three use 2.8's table so the
+vocabulary stays one system even though the assignment mechanism differs.
+
+See [[writing-plans]] for the `Model:` stamp this phase's assignments travel through, and
+[[enforcement-model]] for why this routing stays advisory (no hook gates it).
 
 ## Orchestrator discipline demotes to warn inside an active loop (PR #155, 2026-07-13)
 
@@ -205,15 +279,15 @@ Phase 3 and Phase 3a reference `coderails:test-driven-development` (code-guarded
 
 ## Delegation rung: single agent vs. spawned team
 
-Updated 2026-06-01 (verified: SKILL.md Phase 3 and Phase 3a); terminology updated by [[pr_1-4_task-evals-feature]] (PR #4, 2026-07-06) — the `TeamCreate`/`TeamDelete` tools this section used to name no longer exist (removed in Claude Code v2.1.178).
+Updated 2026-06-01 (verified: SKILL.md Phase 3 and Phase 3a); terminology updated by [[pr_1-4_task-evals-feature]] (PR #4, 2026-07-06) — the `TeamCreate`/`TeamDelete` tools this section used to name no longer exist (removed in Claude Code v2.1.178); model terminology updated by PR #169 (2026-07-14) — see "Phase 2.8" above.
 
-**Main context is a pure orchestrator that NEVER implements.** Every code change — even a single-file edit — is delegated to a spawned sonnet agent. The two reasons, stated in the skill: keep main context clean (opus context is scarce), and keep cost down (sonnet does the typing, not opus). A file edit done directly in main context is the exception that needs a justification, not the default.
+**Main context is a pure orchestrator that NEVER implements.** Every code change — even a single-file edit — is delegated to a spawned worker at the role Phase 2.8 assigned. The two reasons, stated in the skill: keep main context clean (frontier-tier context is scarce), and keep cost down (`default` does the typing, not `frontier`). A `frontier`-role worker, or a file edit done directly in main context, is the exception that needs a justification, not the default.
 
 The delegation decision is a two-rung ladder:
 
-**Rung 1 — Single sonnet `Agent` (default for 1–2 self-contained units):**
+**Rung 1 — Single routed `Agent` (default for 1–2 self-contained units):**
 - A bug fix, one PR, a single-file change, a tight sequence with shared context
-- One `model: sonnet` agent owns both implementation AND verification before reporting back
+- One agent, at the role Phase 2.8 assigned, owns both implementation AND verification before reporting back
 - Why one agent does both: verification output is the dense kind you delegated to keep out of main context; if main context re-verified every small change, it refills. Agent self-verifies; main context spot-checks only at dependency boundaries (Phase 12)
 - See Phase 3a for the prompt contract
 
@@ -270,6 +344,15 @@ The rationale: brainstorming is human-gated by construction — its approval ste
 The non-obvious/durable point: if anyone asks "why doesn't the autonomous loop just invoke brainstorming?" — the answer is that brainstorming blocks on a human at its approval gates. The loop reuses its design *quality criteria* at Phase 2.5 rather than calling the gated skill. See [[pr_41_phase25-brainstorming-xref]] and [[brainstorming]].
 
 **Under full-autonomous envelopes, the auto-adopted design fork is now also recorded** ([[pr_144-149_agentic-loop-hardening-from-loop-engineering|PR #147]], 2026-07-12): `{phase: "2.5", decision: "<chosen shape + flip-condition>"}` appended to `progress.json`'s `decisions_absorbed` array, alongside the pre-existing `progress.json` note of the chosen shape.
+
+**The design agent's own model assignment was inverted by PR #169 (2026-07-14).** Before #169, this
+spawn was worded "sonnet recon, escalate the synthesis to opus only if the tradeoff is genuinely
+close" — cost-first, escalate-if-needed. Phase 2.8's "investigations get frontier FIRST" rule (see
+above) reverses the order for this specific spawn: `default` when the fork is a bounded choice
+between well-understood shapes, `frontier` **from the start** when the fork is a genuinely ambiguous
+investigation — never started cheap and escalated. This agent runs before Phase 2.8 exists in the
+sequence, so its role is still assigned inline, at this spawn point, just using the new vocabulary
+and Phase 2.8's investigations-first rule rather than the old escalate-later framing.
 
 ## Phase 4b — review-pr Skill + post-review artifact (PR #64 + PR #83)
 
@@ -342,7 +425,7 @@ violations** (unchanged from Spec A) — only the human-turns scorecard was remo
 
 **Loop-scope eval result bullet (added by [[pr_1-4_task-evals-feature]], 2026-07-06).** Phase 13 gains a fourth raw fact, reported unscored alongside the three above: the loop's final `evals.json` `result` (`GO` / `NO-GO` / a justified tier-0 exemption), plus any `amendments` (post-freeze eval edits with recorded reasons). Same framing as the disposition-violation bullet: **"no `evals.json` record found" for a ≥3-work-unit loop is an audit failure, not a pass** — explicitly distinguished from a genuine `GO`, mirroring how this section already distinguishes "0 disposition violations" from "no disposition record found." No self-issued verdict is layered on top of the raw result. As of [[pr_144-149_agentic-loop-hardening-from-loop-engineering|PR #144]] (2026-07-12), this `result` is graded via `post_evals.sh grade-loop` — never hand-written into `evals.json` by the orchestrator — and reported as such.
 
-**"Decisions absorbed" is now a durable trace, not a memory reconstruction** ([[pr_144-149_agentic-loop-hardening-from-loop-engineering|PR #147]], 2026-07-12). Before this PR, the bullet above was assembled from conversation memory at teardown time — exactly the kind of after-the-fact self-report Phase 13 otherwise exists to avoid. `progress.json` now carries a `decisions_absorbed` array of `{phase, decision}` objects, appended chronologically (oldest-first) at the phase boundary where each in-scope autonomous decision is made: Phase 2.5 (design-fork auto-adopted), Phase 2.6 (disposition defaulted), Phase 5 (a consciously-absorbed `/coderails:disconfirm` skip), Phase 6 (a notable in-scope action taken without a check-in). Phase 13's "Decisions absorbed" report bullet is now specified as **copied verbatim** from this array — never reconstructed from memory. The `retro.json` teardown artifact (below) carries the same array verbatim into its own field, by the same rule.
+**"Decisions absorbed" is now a durable trace, not a memory reconstruction** ([[pr_144-149_agentic-loop-hardening-from-loop-engineering|PR #147]], 2026-07-12). Before this PR, the bullet above was assembled from conversation memory at teardown time — exactly the kind of after-the-fact self-report Phase 13 otherwise exists to avoid. `progress.json` now carries a `decisions_absorbed` array of `{phase, decision}` objects, appended chronologically (oldest-first) at the phase boundary where each in-scope autonomous decision is made: Phase 2.5 (design-fork auto-adopted), Phase 2.6 (disposition defaulted), Phase 2.8 (the loop's task→role assignment set, one entry covering all tasks, added by PR #169), Phase 5 (a consciously-absorbed `/coderails:disconfirm` skip), Phase 6 (a notable in-scope action taken without a check-in). Phase 13's "Decisions absorbed" report bullet is now specified as **copied verbatim** from this array — never reconstructed from memory. The `retro.json` teardown artifact (below) carries the same array verbatim into its own field, by the same rule.
 
 **`loop_stop_counts` carry-forward is now conditional, not unconditionally verbatim** ([[pr_144-149_agentic-loop-hardening-from-loop-engineering|PR #147]], 2026-07-12): on any wholesale `progress.json` rewrite, the orchestrator must re-read the existing file first, then carry `loop_stop_counts` forward **verbatim** on a genuine mid-loop recovery rewrite, but **reset to `{}`** when the prior file's `status` was `"complete"` — i.e. a fresh re-arm after a prior loop already finished. Before this fix, a brand-new loop starting in the same repo/session-key slot could wrongly inherit an already-finished prior loop's stop-counts.
 
@@ -357,25 +440,35 @@ The self-improving-loops cluster gave Phase 13 a **write contract**, and gave th
 
 **Concrete example (2026-07-10 loop, [[pr_130-136_dashboard-right-rail-ux]]):** two new SO entries were appended to the repo-keyed `standing-orders.md` overlay by this loop's own Phase 13 teardown — SO-2 (warn every still-running parallel worker about base-staleness proactively, once one sibling PR hits it, rather than after each one independently discovers it) and SO-3 (verify a worker-dispatch's branch is genuinely isolated from the orchestrator's own working docs before dispatching, not after a precondition check catches contamination). Both were live near-misses this same loop hit and fixed, not hypothetical.
 
-## `model: sonnet` is advisory, not hook-enforced (PR #86, documentation only)
+## Model-role routing is advisory, not hook-enforced (PR #86, reworded by PR #169)
 
-`AGENTS.md`'s "Enforcement ceilings" list gained a new bullet (no code change — a documentation
-decision, §3.5 of the hardening spec): no hook gates `Agent`/`Task` spawn calls on the requested
-model, even though `SKILL.md` asserts `model: sonnet` for workers roughly 6 times (Phases 2, 2.5, 3,
-3a, 10). This is deliberate, not a gap to close:
+`AGENTS.md`'s "Enforcement ceilings" list carries a bullet on this (no code change either time —
+a documentation decision): no hook gates `Agent`/`Task` spawn calls on the requested model. PR #86
+originally worded this around a flat `model: sonnet` assertion "roughly 6 times." PR #169
+(2026-07-14) reworded the bullet for Phase 2.8's capability-role vocabulary and made the hook-gap
+claim precise:
 
-- The rule's purpose is **cost control, not correctness** — an opus worker still produces a valid,
-  fully-gated PR; nothing load-bearing breaks if a worker runs on the wrong model.
-- Phase 2.5 sanctions a **legitimate opus-escalation exception** ("escalate the synthesis to opus
-  only if the tradeoff is genuinely close") that a blunt model-gate hook cannot distinguish from a
-  disallowed worker spawn without a self-reported carve-out flag — which reintroduces the same
-  trust-the-agent problem the hook was meant to remove, just one level down.
+- `SKILL.md` asserts the Phase-2.8-assigned role at each spawn site across the skill — Phases 2,
+  2.5, 3, 3a, 9, 10 as of this writing (the role table itself lives in Phase 2.8, not repeated at
+  each site).
+- The only `PreToolUse` hook matchers in `hooks/hooks.json` are `Bash` and `Write|Edit|MultiEdit`;
+  the remaining registered events (`SessionStart`/`UserPromptSubmit`/`Stop`/`SubagentStop`) gate no
+  tool calls at all — so nothing gates an `Agent`/`Task` spawn's model, full stop.
+- This is deliberate, not a gap to close: routing exists for **cost and latency, not correctness**
+  — PR gates (review, evals, hook-seam) are model-independent, so a `frontier`-role worker's PR
+  still clears the same gates a `default`-role worker's PR does; nothing load-bearing breaks if a
+  role assignment is ignored.
+- Phase 2.8 sanctions a **legitimate role-vs-role judgement call** (bounded `default` vs.
+  genuinely-ambiguous `frontier`-first for a design-fork investigation — see "Phase 2.8" above) that
+  a blunt model-gate hook cannot distinguish from a disallowed worker spawn without a self-reported
+  carve-out flag — which reintroduces the same trust-the-agent problem one level down. This is the
+  same shape as PR #86's original opus-escalation exception, restated for the new role vocabulary.
 
 See [[enforcement-model]] for the general hooks-vs-advisory distinction this decision extends.
 
 ## Key architectural decisions encoded
 
-- **Pre-flight + worker agents use `model: sonnet`** — orchestration pattern; cost control. No escalation path except Phase 2.5's sanctioned opus-escalation exception; documented as a deliberate advisory (not hook-enforced) ceiling as of PR #86.
+- **Pre-flight + worker agents use a Phase-2.8-assigned model role** — orchestration pattern; cost control. `frontier`-first for genuinely ambiguous investigations is the one sanctioned exception to `default`-first; documented as a deliberate advisory (not hook-enforced) ceiling as of PR #86, reworded for role vocabulary by PR #169.
 - **Wiki ingest clusters, not per-PR** — Phase 9; fragmented ingests produce fragmented wiki context.
 - **`/sync-docs` is the in-tree complement to wiki ingest** — Phase 9 (PR #77); the two were previously conflated as "docs", now separated at the loop boundary.
 - **Scope-shaping instructions go high in worker prompts** — Phase 9 lesson, reused by D's TDD placement.
@@ -401,6 +494,14 @@ enforce), not prose padding. (verified: [[pr_89-91_skills-doc-frontmatter-inject
 
 No phase content, trigger phrase, or behavioural rule changed — this is a frontmatter-only
 edit to the listing description Claude Code shows before the skill body loads.
+
+**Terminology-only update, PR #169 (2026-07-14):** the restored clause above now reads "...goes to
+a spawned **worker** that verifies its own artifact" — the word "sonnet" was removed from this one
+description sentence as part of PR #169's model-role vocabulary reconciliation, alongside the ~13
+other blanket sonnet/opus assertions across the skill body (frontmatter description; Phases 2, 2.5,
+3, 3a, 9, 10). Same no-behavioural-change framing as the PR #89 trim itself — trigger phrases and
+phase content are untouched; only the model-naming vocabulary changed. See "Phase 2.8" above for
+the substantive change this terminology update accompanies.
 
 ## Cross-references
 
@@ -442,3 +543,6 @@ edit to the listing description Claude Code shows before the skill body loads.
 - [[pr_155-158_ceremony_noise_envelope_anchoring]] — PRs #155/#157/#158 (2026-07-13) source record: the orchestrator warn-demotion mechanism (#155), the LOOP-STOP FINAL-line prose clarification + warn-era Phase 0.5 rewrite (#157), and the `authorising_prompt_raw` envelope-anchoring extension to task-evals rule 4 (#158)
 - [[pr_156_dnv-presence-check]] — concurrent session's PR #156 (2026-07-13), wired through the same `als_loop_active_incomplete` predicate PR #155 introduced
 - [[check_confidence_labels]] / [[check_verify_loop]] — the two discipline Stop hooks Phase 0.5 now describes as demoting to warn inside an active, incomplete loop (PR #155)
+- [[pr_169_model-routing-step]] — PR #169 (2026-07-14) source record: new unconditional Phase 2.8 model-role routing, the vacated-then-reused 2.8 number, the ~13-site sonnet/opus terminology reconciliation across this skill
+- [[writing-plans]] — also gains a mandatory per-task `Model:` stamp from the same PR (below the existing four cross-refs to this page)
+- [[enforcement-model]] — "Model-role routing ... advisory, not hook-enforced" bullet reworded by PR #169 for the new vocabulary and a precise hook-matcher claim (only `Bash` and `Write|Edit|MultiEdit`)

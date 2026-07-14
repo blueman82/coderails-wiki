@@ -2,18 +2,19 @@
 title: "Skill: writing-plans"
 type: skill
 created: 2026-06-25
-last_updated: 2026-07-11
+last_updated: 2026-07-14
 sources:
   - sources/session_2026-06-25_agentic-loop-upgrade-arc.md
   - sources/pr_50_planning-sequence-gate.md
   - sources/pr_15-17_loop-hardening-registration-eval-freeze-ledger-dry.md
   - sources/pr_138_remove-specs-plans-tracking.md
-tags: [skill, writing-plans, planning, decomposition, artifact-chain, eval-freeze, task-evals]
+  - sources/pr_169_model-routing-step.md
+tags: [skill, writing-plans, planning, decomposition, artifact-chain, eval-freeze, task-evals, model-routing, capability-roles]
 ---
 
 # Skill: writing-plans
 
-The plan-writing skill for the agentic-loop's Phase 2.7b (formerly Phase 2.8, merged into Phase 2.7 by PR #86). Turns a resolved spec/design into an ordered set of self-contained tasks, each dispatchable to a worker without re-reading the conversation. Coderails-owned; no cross-plugin dependency.
+The plan-writing skill for the agentic-loop's Phase 2.7b (formerly Phase 2.8 — the *original* 2.8, merged into Phase 2.7 by PR #86; the number was later reused for an unrelated phase, model-role routing, added by PR #169 — see [[agentic-loop]]'s "2.7/2.8 merge note, and the 2.8 renumber"). Turns a resolved spec/design into an ordered set of self-contained tasks, each dispatchable to a worker without re-reading the conversation. Coderails-owned; no cross-plugin dependency.
 
 Source: `coderails/skills/writing-plans/SKILL.md`
 Companion: `coderails/skills/writing-plans/plan-anti-patterns.md`
@@ -36,11 +37,12 @@ Spec E (#17) — vendored from superpowers' writing-plans discipline. Same vendo
 
 ## Key content
 
-Each plan task carries four mandatory elements:
+Each plan task carries five mandatory elements (was four before PR #169, 2026-07-14):
 1. **Exact files** (`src/auth/validator.py:42-89`; no "somewhere in the auth module").
 2. **Interfaces**: what this task consumes (exact signatures) and produces (exact function names, types) for neighboring tasks.
 3. **Steps**: one action each, 2–5 minutes. "Write the failing test" is a step; "implement auth" is not.
 4. **Verify-criteria**: runnable or inspectable — a test command with expected output, a grep, a visible UI state.
+5. **Model** (added PR #169): the capability role this task runs at — `fast-mechanical`, `default`, or `frontier` — plus a one-line rationale and an optional fallback valve. Mandatory on every task in every plan, no exceptions for small or loop-only plans (Gary: "so I am gonna need it"). This stamp names the role and the reason; it does not repeat the role→model table or the tiering rationale, both of which live in [[agentic-loop]]'s routing phase (Phase 2.8 as of this writing) — cross-referenced, not duplicated. Example: `Model: fast-mechanical — scripted rename across N files; default fallback after two failed gate attempts.`
 
 **Per-task construction method** references `coderails:test-driven-development` when the task is code (adds/alters a function, method, or branch that can carry a test). Docs/config/prose tasks verify by inspection.
 
@@ -78,9 +80,16 @@ Four cross-referencing docs were fixed in lockstep so none still describes freez
 
 ## Relationship to agentic-loop
 
-Phase 2.7b (formerly 2.8, merged by PR #86) invokes `coderails:writing-plans` to produce `plan.md` in the loop-state dir — outside the repo, beside `progress.json`, already ephemeral and unaffected by the change below. Two consumption directions are stated explicitly in Phase 2.7b (not in the `## Context-window persistence` section, which is a no-touch region):
+Phase 2.7b (formerly 2.8 — the original 2.8, merged by PR #86; see [[agentic-loop]] for the later, unrelated reuse of the number 2.8 by PR #169) invokes `coderails:writing-plans` to produce `plan.md` in the loop-state dir — outside the repo, beside `progress.json`, already ephemeral and unaffected by the change below. Two consumption directions are stated explicitly in Phase 2.7b (not in the `## Context-window persistence` section, which is a no-touch region):
 - Phase 3 builds its task list directly from `plan.md` (not from conversation state).
 - After any compaction, the orchestrator re-reads `plan.md` to recover *scope* the same way it re-reads `progress.json` to recover *position*. `plan.md` is the static SSOT; `progress.json` is the dynamic cursor against it.
+
+**Also now consumes Phase 2.8 (PR #169).** The plan's per-task `Model:` stamp (see "Key content"
+above) is what Phase 2.8's role assignment travels through into a plan-scale loop: Phase 2.8 decides
+the role once per task, `writing-plans` records it in the stamp, and Phase 3/3a workers copy it
+**verbatim** from the stamp into their own spawn prompt. A role recorded in `plan.md` but absent from
+the worker's prompt does not exist for that worker — the same travel rule this skill's artifact
+chain already applies to interfaces and verify-criteria.
 
 **Direct (non-loop) invocation, superseded 2026-07-11.** Outside an agentic-loop, this skill used to write its plan to `docs/coderails/plans/<name>.md` and commit it as a permanent repo artifact — documented in `docs/REFERENCE.md`'s Artifact-and-State-Locations table, not in this skill's own SKILL.md (which never hardcoded the path). Per [[pr_138_remove-specs-plans-tracking|PR #138]], `docs/coderails/plans/` is now gitignored; that convention no longer applies. A directly-invoked plan is now a session-local working document only, same treatment as the loop-scope `plan.md` above.
 
@@ -100,7 +109,8 @@ The per-task construction step in this skill references `coderails:test-driven-d
 
 - [[planning-sequence]] — required next step after the self-review gate (the mandatory planning-sequence gate)
 - [[test-driven-development]] — referenced in per-task construction step (E→D tie)
-- [[agentic-loop]] — Phase 2.7b (formerly 2.8) invokes this skill; Phase 3 consumes the output
+- [[agentic-loop]] — Phase 2.7b (formerly 2.8) invokes this skill; Phase 3 consumes the output; the *current* Phase 2.8 (PR #169, a different phase reusing the vacated number) supplies the `Model:` stamp's role assignment
+- [[pr_169_model-routing-step]] — PR #169 source record: adds the mandatory fifth `Model:` element to every plan task
 - [[spec-plan-progress-artifact-chain]] — how `plan.md` fits in the full artifact chain
 - [[task-evals]] — the skill invoked at the freeze-after-stress-test step (F2 fix, PR #15)
 - [[subagent-driven-development]] — gained a Pre-Flight Plan Review bullet asserting evals are already frozen before Task 1 dispatch (F2 belt-and-braces, PR #15)
