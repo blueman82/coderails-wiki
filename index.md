@@ -119,7 +119,7 @@ Skills in `coderails/skills/*/SKILL.md`.
 Architectural decisions and invariants.
 
 - [[enforcement-model]] — hooks vs. commands; the central design distinction
-- [[discipline-loop]] — how the discipline hooks compose into a coherent loop (3 discipline hooks; 5 Stop + 2 SubagentStop = 14 hooks total across all events)
+- [[discipline-loop]] — how the discipline hooks compose into a coherent loop (3 core discipline hooks; 5 Stop + 2 SubagentStop + [[crack_on_gate]]'s new UserPromptSubmit + PreToolUse pair = 16 hook-table rows across all events as of PR #175, 2026-07-14)
 - [[config-resolution]] — walk-up `workflow.config.yaml` resolver (`scripts/lib/config.sh`) shared by all workflow commands + the merge-gate hook
 - [[install-and-cache-trap]] — idempotency contracts for `install.sh`/`uninstall.sh` and the reload-plugins caveat
 - [[hook-exit-codes]] — which hook events block on exit 2; why coderails uses two block mechanisms
