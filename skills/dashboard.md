@@ -70,6 +70,8 @@ A new **"ask" button pattern** follows directly from this fix: `command: ""`, `i
 
 Every run is single-flight per button, JSONL-recorded (`~/.claude/coderails-dashboard/runs/`) with argv/cwd/profile/exit code, and CSRF-token-guarded (both `/api/events` and `/api/run` also reject non-localhost `Origin`/`Host`).
 
+**Headless discipline-hook exemption (PR #167, 2026-07-14).** `route.ts`'s `spawn(...)` call sets `CODERAILS_HEADLESS_RUN=1` (spread-preserving: `{ ...process.env, CODERAILS_HEADLESS_RUN: "1" }`) — the **sole** set-site in the codebase. `check_confidence_labels.sh` and `check_verify_loop.sh` both skip enforcement when this flag is present, but **only on the `Stop` event** — `SubagentStop` still blocks unconditionally, matching the documented invariant that worker output always blocks. Rationale: a headless `claude -p` run has no interactive turn left to satisfy a repair-turn block, so without the exemption the discipline gate would displace the run's actual answer with gate-repair text instead of the wiki/ask response the user asked for. See [[enforcement-model]] for the ceiling framing (env-triggered, inside the agent's own trust domain, not a privilege boundary) and [[pr_163-168_dashboard-rethink]] for the source record. A related same-loop finding (t7, no PR): slash-command-as-prompt runs show 0 model turns in run logs because the slash command executes as a CLI local command — the outer session genuinely takes no model turns, so the write path is faithful and this isn't a logging bug.
+
 ### Run Output viewer — live-streaming + settled playback (PR #80–82)
 
 The COMMAND DECK's 4th panel, `OutputViewerPanel.tsx`, closes a gap
