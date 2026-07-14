@@ -68,8 +68,8 @@ PreToolUse hooks block by emitting a JSON response with `permissionDecision: "de
 | `UserPromptSubmit` | [[inject_context]] (`inject_context.sh`) | silent — prepends `[ctx]` (cwd, branch, date) |
 | `UserPromptSubmit` | ~~[[discipline_catchup]] (`discipline_catchup.sh`)~~ — **RETIRED PR #159 (2026-07-13)** | ~~warn~~ |
 | `Stop` | [[voice_announce]] (`voice_announce.sh`) | observe-only, always exit 0 — speaks loop lifecycle via macOS `say`; FIRST in the Stop array so no blocking gate can short-circuit it (PR #71) |
-| `Stop` | [[check_confidence_labels]] (`check_confidence_labels.sh`) | **block** — ≥200-char response with no confidence label |
-| `Stop` | [[check_verify_loop]] (`check_verify_loop.sh`) | **block** — any untagged DNV bullet (file_count gate removed PR #61) |
+| `Stop` | [[check_confidence_labels]] (`check_confidence_labels.sh`) | **block** — ≥200-char response with no confidence label; Stop-event-only exempt when `CODERAILS_HEADLESS_RUN=1` (PR #167, see below) |
+| `Stop` | [[check_verify_loop]] (`check_verify_loop.sh`) | **block** — any untagged DNV bullet (file_count gate removed PR #61); Stop-event-only exempt when `CODERAILS_HEADLESS_RUN=1` (PR #167, see below) |
 | `Stop` | [[loop_state_guard]] (`loop_state_guard.sh`) | **block** — agentic-loop active but progress.json absent/mismatched |
 | `Stop` | [[loop_stall_guard]] (`loop_stall_guard.sh`) | **block** — agentic-loop active + incomplete + no LOOP-STOP declaration |
 | `Stop` | [[unregistered_loop_guard]] (`unregistered_loop_guard.sh`) | **nudge, not block** — ≥3 distinct sequential `Agent` tool_use `message.id`s + no `progress.json` + no `agentic-loop` skill invocation; delivers via `additionalContext` with exit 0 (added PR #17) |
