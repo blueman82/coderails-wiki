@@ -21,7 +21,8 @@ sources:
   - sources/pr_144-149_agentic-loop-hardening-from-loop-engineering.md
   - sources/pr_163-168_dashboard-rethink.md
   - sources/pr_175-176_crack-on-gate-and-inbox-brief-button.md
-tags: [skill, dashboard, observability, nextjs, r3f, sse, obsidian, agentic-os, sub-project-1-of-5, queue-contract, builder, ask-button, argv, run-output, streaming, launchd, reboot-persistence, npm-ci, lockfile, permission-mode, enter-to-submit, decisions-absorbed, loop-decisions-tile, deck-trim, multi-loop, gates-freshness, headless-exemption, inbox-brief, rachel]
+  - sources/pr_179_dashboard-lan-access.md
+tags: [skill, dashboard, observability, nextjs, r3f, sse, obsidian, agentic-os, sub-project-1-of-5, queue-contract, builder, ask-button, argv, run-output, streaming, launchd, reboot-persistence, npm-ci, lockfile, permission-mode, enter-to-submit, decisions-absorbed, loop-decisions-tile, deck-trim, multi-loop, gates-freshness, headless-exemption, inbox-brief, rachel, lan-access, dashboard-host, request-guard, security-posture]
 ---
 
 # Skill: dashboard
