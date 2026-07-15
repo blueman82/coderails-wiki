@@ -187,3 +187,4 @@ A gate that is otherwise fail-closed can still ship a broken *allow* path silent
 - [[pr_159_retire-catchup-add-telemetry]] — retires `discipline_catchup.sh`, the only surviving warn-mode hook; the hooks table's `UserPromptSubmit` row above was corrected 2026-07-13 to reflect this
 - [[pr_163-168_dashboard-rethink]] — PR #167 source record: the `CODERAILS_HEADLESS_RUN` Stop-only exemption on the two discipline hooks, sole set-site in the dashboard's run route
 - [[dashboard]] — the run route this exemption's sole set-site lives in, and the "0 model turns" t7 finding that motivated it
+- [[pr_179_dashboard-lan-access]] — PR #179 source record: opt-in `DASHBOARD_HOST` LAN exposure, the trust-boundary-preserving framing above, and the deliberate unauthenticated-command-exec security posture that framing depends on
