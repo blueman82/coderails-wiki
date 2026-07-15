@@ -76,7 +76,12 @@ Every run is single-flight per button, JSONL-recorded (`~/.claude/coderails-dash
 
 **Headless discipline-hook exemption (PR #167, 2026-07-14).** `route.ts`'s `spawn(...)` call sets `CODERAILS_HEADLESS_RUN=1` (spread-preserving: `{ ...process.env, CODERAILS_HEADLESS_RUN: "1" }`) — the **sole** set-site in the codebase. `check_confidence_labels.sh` and `check_verify_loop.sh` both skip enforcement when this flag is present, but **only on the `Stop` event** — `SubagentStop` still blocks unconditionally, matching the documented invariant that worker output always blocks. Rationale: a headless `claude -p` run has no interactive turn left to satisfy a repair-turn block, so without the exemption the discipline gate would displace the run's actual answer with gate-repair text instead of the wiki/ask response the user asked for. See [[enforcement-model]] for the ceiling framing (env-triggered, inside the agent's own trust domain, not a privilege boundary) and [[pr_163-168_dashboard-rethink]] for the source record. A related same-loop finding (t7, no PR): slash-command-as-prompt runs show 0 model turns in run logs because the slash command executes as a CLI local command — the outer session genuinely takes no model turns, so the write path is faithful and this isn't a logging bug.
 
-### Run Output viewer — live-streaming + settled playback (PR #80–82)
+### Run Output viewer — streaming capture + modal playback (PR #80–82, superseded/extended by #171–174, #181, #183)
+
+> Rewritten 2026-07-15 — the previous text here described a retired inline `<pre>` viewer
+> with a live-only raw/clean toggle. Neither exists anymore; see
+> [[dashboard-run-output-rendering-gap_2026-07-15]] for the investigation that caught the
+> wiki 5 PRs behind the code before this rewrite.
 
 The COMMAND DECK's 4th panel, `OutputViewerPanel.tsx`, closes a gap
 [[dashboard-run-log-streaming-viewer-gap_2026-07-07]] documented the same day: the per-run
@@ -89,13 +94,16 @@ as a `"run-output"` SSE event (`{runId, chunk}`) — deliberately riding the **e
 SSE connection rather than opening a second one, per the single-SSE-provider rule established
 in PR #25's own fix-loop. A new non-throwing, forward-compatible parser (`lib/streamJson.ts`)
 validates each line is at least well-formed-or-gracefully-skipped without maintaining an
-event-type allowlist; parse failures never affect what's appended/published.
+event-type allowlist; parse failures never affect what's appended/published. **This streaming
+backend is unchanged by everything below** — #171-174/#181/#183 are all client-rendering
+follow-ups; the 2026-07-15 investigation confirmed neither #172 nor #174's diffs touch
+`api/run/output/route.ts`, `runOutputBus.ts`, or any file-path/token boundary.
 
 The panel live-streams a still-active run from the accumulated `DashboardState.runOutput` map;
-once a run ends, it fetches the full settled output once from a new `GET /api/run/output` route,
-which resolves `runId` (format-validated `/^[0-9a-f]{16}$/`) to its `RunRecord` in `runs.jsonl`
-and reads *that record's own* `outputPath` — `runId` is never itself joined into a filesystem
-path, going one step further than the strict-format-validation precedent
+once a run ends, it fetches the full settled output once from `GET /api/run/output`, which
+resolves `runId` (format-validated `/^[0-9a-f]{16}$/`) to its `RunRecord` in `runs.jsonl` and
+reads *that record's own* `outputPath` — `runId` is never itself joined into a filesystem path,
+going one step further than the strict-format-validation precedent
 ([[pr_31_assistant-link-approve-button]]) that motivated the check in the first place. Two
 Criticals were found and fixed in review: a missing `child.on("error", ...)` handler (a spawn
 failure like `ENOENT` would otherwise hang the request forever and leak the per-button lock),
@@ -113,28 +121,64 @@ module-private `extractResultText()` in `route.ts` that scans the log backwards 
 result line exists (crashed run, or a non-string `result` e.g. an `error_during_execution`
 subtype) — same fallback value as the old behavior, so that path is unchanged by construction.
 
-**Live output is now projected clean by default, with a live-only raw toggle
-([[pr_139-141_dashboard-ask-enter-clean-output]], 2026-07-11).** A new exported
-`projectAssistantText(raw)` in `streamJson.ts` reduces a raw stream-json log to just the
-assistant's readable prose: prefers the last `type:"result"` line's `result` field
-(last-wins if more than one appears, e.g. across multiple turns); else concatenates `text_delta`
-values from `stream_event`/`content_block_delta` events (covers a still-streaming run with no
-result line yet, ignoring `input_json_delta` tool-use noise); else returns the raw input
-unchanged so a run that produced real output never renders empty. `OutputViewerPanel.tsx` renders
-the projected text by default behind a `showRaw` toggle (`.hud-output-toggle`, styled in the same
-PR's CSS sibling #141 alongside a `.hud-output-viewer` readability bump — font 9.5px→12px,
-max-height 220px→320px). **The toggle only appears for a still-live run** — the settled path
-(above) is already server-extracted with no raw JSONL left client-side to toggle to, so rendering
-the button for a settled run would be a no-op control; `OutputViewerPanel.test.ts` encodes this as
-an explicit negative assertion. This live/settled asymmetry predates this PR (established by
-[[pr_80-82_dashboard-stream-run-output-viewer]] and [[pr_124_dashboard-run-output-result-extraction]]);
-this cluster's contribution is scoping the new toggle to respect it, caught by review rather than
-present in the original design.
+**Client-side, `projectAssistantText()` now runs unconditionally on both live and settled
+paths ([[pr_139-141_dashboard-ask-enter-clean-output]], 2026-07-11; behavior since changed
+again — see below).** The exported `projectAssistantText(raw)` in `streamJson.ts` reduces a raw
+stream-json log to just the assistant's readable prose: prefers the last `type:"result"` line's
+`result` field (last-wins if more than one appears); else concatenates `text_delta` values from
+`stream_event`/`content_block_delta` events (covers a still-streaming run with no result line
+yet); else returns the raw input unchanged so a run that produced real output never renders
+empty.
 
-**Enter-to-submit ([[pr_139-141_dashboard-ask-enter-clean-output]], PR #139).** The `.hud-cmd-input`
-behind any `inputAllowed: true` button (currently just "ask") gained an `onKeyDown` handler:
-`Enter` without `Shift` submits the same run `handleClick(btn)` would; `Shift+Enter` is a reserved
-no-op (the input is a single-line `<input>`, not a `<textarea>` — no multi-line behavior exists yet).
+**The inline `<pre>` viewer and its live-only raw/clean toggle were retired outright by
+PR #172 (`rethink/t10-runoutput-modal`, merged 2026-07-14) — do not describe either as current.**
+`(verified)` `RunOutputOverlay.tsx` — a portal-rendered modal opened by clicking a run-history
+row, not an always-visible inline box — replaced the old `.hud-output-viewer`/`showRaw` toggle
+entirely. There is no `showRaw` state anywhere in the current overlay and **no way to view raw
+stream-json in the UI at all** — `OutputViewerPanel.tsx:151` now calls
+`projectAssistantText(rawOpenOutput)` unconditionally for *both* the live and settled paths (a
+change from the #124/#139-141 model, where the settled path's server-side `extractResultText`
+was assumed already-clean prose needing no further client projection — it still needs
+`projectAssistantText` too, because a crashed run with no `result` line falls back to raw
+stream-json server-side).
+
+**PR #174 (`rethink/t12-runoutput-markdown`, merged 2026-07-14) — GFM markdown rendering with
+two deliberate security layers, previously undocumented here.** `(verified)` The modal renders
+output via `<ReactMarkdown remarkPlugins={[remarkGfm]}>` with: (a) react-markdown itself as the
+sanitizer — raw HTML in the source renders as escaped text, no `rehype-raw`, no
+`dangerouslySetInnerHTML`, because run output is untrusted; (b) an `img` component override that
+renders every image as its alt text instead of a live `<img>` — closing a tracking-beacon/SSRF-
+from-the-viewer vector a bare CommonMark image would otherwise open (a GET fires on render with
+no click). Links are left alone, relying on `defaultUrlTransform` to inert `javascript:` URLs.
+A future change to run-output rendering that reintroduces `rehype-raw` or live images would be
+undoing this considered decision, not adding a feature.
+
+**PR #181 (merged 2026-07-15) — long lines/fenced code blocks now wrap.** `.hud-markdown pre`
+gained `white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word;` (kept
+`overflow-x: auto` as a fallback) — previously a long unbroken line overflowed the modal
+horizontally. See [[pr_181_183_dashboard-run-output-wrap-and-inbox-brief-clean-modal]].
+
+**PR #183 (merged 2026-07-15) — inbox-brief button's modal output is now the clean brief, not
+Rachel's execution trace.** The button's `command` was rewritten so the outer spawned `claude`
+agent reads the scratch file named on a `BRIEF FILE: <path>` sentinel line (added to
+`tasks/inbox-brief.md` by the paired assistant-agent PR #27) and makes its entire final message
+that file's verbatim contents — necessary because the modal renders the outer agent's `result`
+field, and merely changing what Rachel outputs (the inner layer) can't reach it. See
+[[pr_181_183_dashboard-run-output-wrap-and-inbox-brief-clean-modal]] for the full two-repo
+mechanism.
+
+**Enter-to-submit ([[pr_139-141_dashboard-ask-enter-clean-output]], PR #139) — still current,
+unaffected by the modal rewrite.** The `.hud-cmd-input` behind any `inputAllowed: true` button
+(currently just "ask") gained an `onKeyDown` handler: `Enter` without `Shift` submits the same
+run `handleClick(btn)` would; `Shift+Enter` is a reserved no-op (the input is a single-line
+`<input>`, not a `<textarea>` — no multi-line behavior exists yet).
+
+**PR #171 (`rethink/t9-no-truncation`, merged 2026-07-14) — the 80-char title truncation and
+two-line description clamp documented elsewhere in this page (Directives panel) no longer
+apply.** `(verified)` `readTitle()` in `sessions.ts` now returns the full trimmed prompt with no
+80-char cap; `.hud-unit-desc`'s CSS switched from `-webkit-line-clamp: 2` to
+`overflow-wrap: break-word` (no clamp at all). Not run-output-specific, but caught by the same
+2026-07-15 investigation and noted here since it's the same PR range.
 
 ### AssistantLinkPanel — per-producer readable rendering
 
