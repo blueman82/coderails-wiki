@@ -84,7 +84,7 @@ nested-subagent recursion, fail-open, multi-model split + rollup, cache
 5m/1h pricing, legacy flat cache-write fallback, unpriced-model handling,
 path-traversal neutralised, all three whole-batch-wipeout guards, stage-1
 garbage-line tolerance). Also run against a real session
-(`0767967d-90a4-459c-a552-529a19c512eb`, the [[dashboard-rethink-complete|dashboard-rethink loop]]):
+(`0767967d-90a4-459c-a552-529a19c512eb`, the [[pr_163-168_dashboard-rethink|dashboard-rethink loop]]):
 65 transcripts, 4 models, `unpriced_models: []`, `total_usd_estimate: ~$409`.
 
 ### `model_prices.json` — the dated price table
