@@ -16,6 +16,19 @@ tags: [investigation, retro-json, phase-13, dashboard, cost-tracking, token-usag
 
 # retro.json / Phase 13 / dashboard: what a per-model cost-tracking plan would assume but isn't enforced
 
+> **RESOLVED same day, 2026-07-15.** The plan this investigation was filed
+> ahead of shipped as PRs #184/#185/#186 within hours — see
+> [[pr_184_185_186_loop-cost-tracking]] for the source record. The headline
+> finding below ("no cost or per-model tracking anywhere") is no longer
+> true. This page is kept as the point-in-time gap analysis and design-input
+> record per the wiki's investigation-page convention (point-in-time,
+> superseded rather than deleted) — the cross-PR constraints section below
+> held up as the actual design contract the shipped cluster followed. The
+> one constraint that did **not** get closed: #4, model-identity-at-spawn
+> attribution — the miner reads `message.model` per-transcript-line (a
+> stronger per-message join than this page anticipated), but still has no
+> reconciliation against Phase 2.8's role-assignment intent.
+
 Query-driven wiki investigation (2026-07-15): what does the wiki know about
 `retro.json`, agentic-loop Phase 13 teardown, the dashboard's data sources, and
 existing cost/token/model tracking — filed because a plan to add **per-model
