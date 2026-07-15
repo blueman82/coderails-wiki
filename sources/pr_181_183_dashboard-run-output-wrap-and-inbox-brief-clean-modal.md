@@ -15,7 +15,7 @@ tags: [source, dashboard, run-output, inbox-brief, modal, rachel, telegram, cros
 # PR #181, #183 (coderails) + PR #27 (assistant-agent) — run-output modal wrap fix + clean inbox-brief modal output
 
 Two independent, same-day post-ship fixes to the [[dashboard]]'s run-output modal
-([[RunOutputOverlay]], shipped by the `dashboard-rethink` loop's t10/t12 — see
+(`RunOutputOverlay.tsx`, shipped by the `dashboard-rethink` loop's t10/t12 — see
 [[dashboard-run-output-rendering-gap_2026-07-15]] for the investigation that found the
 wiki hadn't caught up to that modal's existence yet). Grouped as one ingest because both
 are "modal follow-ups," not because they share a mechanism.
