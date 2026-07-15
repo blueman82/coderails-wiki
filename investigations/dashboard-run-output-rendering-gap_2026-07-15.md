@@ -152,6 +152,13 @@ Output viewer section; `/wiki-lint` should also catch the stale 80-char-truncati
 raw-toggle claims once ingest runs. Filed as an investigation, not actioned as an ingest,
 per this session's scope (answer a query, not perform ingest).
 
+Note on scope boundary: PRs #150-154 (a separate, unrelated backlog item — docs sync,
+routine deploy/invocability fix, regrade-backstop docs) were checked against `log.md` and
+confirmed to be an already-tracked, repeatedly-logged wiki-ingest backlog item (flagged in
+at least 5 prior lint passes, 2026-07-06 through 2026-07-15) — not a new finding from this
+investigation, and out of scope for a query about run-output rendering. Left untouched by
+design, consistent with that backlog's own "ingest's job, not lint's/query's" framing.
+
 ## See also
 
 - [[dashboard]] — the skill page whose Run Output viewer section is now stale
