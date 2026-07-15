@@ -93,15 +93,26 @@ straightforward superseded-decision gap, not security-relevant, but a plan refer
 "truncated to 80 chars" or "clamped to two lines" for Directives-panel content would be
 wrong.
 
-**5. `#179` (`dashboard-lan-access`, OPEN, not merged) is actively changing the
-Origin/Host localhost invariant the wiki documents as a baseline security control.**
-`(inferred)` — not read in full, scope limited per advisor guidance — its file list
-(`requestGuard.ts` +21/-2 lines, plus `start-dashboard.sh`/`dashboard-server.sh`) strongly
-suggests it's loosening the "binds `127.0.0.1` only, rejects non-local Origin/Host" rule
-[[dashboard]] documents as the security-load-bearing baseline. A plan that assumes the
-dashboard is unreachable off-localhost should treat that as a **currently-true, soon-to-be-
-revisited** invariant, not a permanent one — re-check `requestGuard.ts` before relying on it
-once #179 lands or changes.
+**5. `#179` (`dashboard-lan-access`, OPEN, not yet merged) adds an opt-in LAN-access mode —
+read in full, not merely inferred from the file list.** `(verified)` The diff adds a new
+`DASHBOARD_HOST` env var. Unset (the default, unchanged from today): `isAllowedHost()` in
+`requestGuard.ts` degrades to exactly `isLocalhost()` — behaviour identical to current main.
+Set: it allows exactly **one** additional exact host string (never "any non-loopback host")
+on top of loopback, for both the `Host` and `Origin` header checks; a mismatched, rebinding,
+or substring-spoofed host is still rejected (the PR's own new test file,
+`requestGuard.test.ts`, asserts all three attack shapes explicitly). `SKILL.md`'s new "LAN
+access (opt-in)" section adds an explicit security note: the Host/Origin guard defends
+against a hostile web page / DNS-rebinding reaching the dashboard from the browser, but does
+**not** authenticate LAN devices — any device on the LAN that can reach the port can trigger
+declared runs once `DASHBOARD_HOST` is set. **Empirically re-confirmed against the actually-
+running dashboard server** (PID 83512, `127.0.0.1:4173`, this machine, this session):
+`curl` with `Origin: http://evil.com` returns `403`; a same-origin request returns `200`;
+`ps eww` on the live process shows no `DASHBOARD_HOST` in its environment — matching the
+"unset = today's behaviour, unchanged" claim exactly, on the real running process, not just
+read from source. A plan that assumes the dashboard is unreachable off-localhost is safe
+under today's default and under #179 as designed (opt-in, single-exact-host, tested against
+rebinding) — the invariant is preserved, not broken, once #179 lands; it becomes user-toggleable
+rather than fixed.
 
 **6. The button→claude spawn boundary is enforced by a hardcoded literal, confirmed.**
 `(verified)` `run/route.ts` calls `spawnImpl("claude", argv, {...})` with a literal string,
