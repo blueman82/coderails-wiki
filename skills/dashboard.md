@@ -55,7 +55,7 @@ DIRECTIVES now renders **one card per live loop** instead of a single tracked "a
 
 ## Architecture
 
-One Next.js process serves both the React Three Fiber HUD frontend and the API routes: an SSE stream (`/api/events`) and a token + Origin-guarded run trigger (`/api/run`). Binds `127.0.0.1` only. Collectors read: `~/.claude/projects/*` session dirs, agentic-loop `progress.json` (via the existing `agentic_loop_path.sh` SSOT — see [[agentic-loop]]), `gh`-polled PR state parsed with the same marker grammar as `review-artifact.sh`/`eval-artifact.sh` (see [[review-artifact-seam]] and [[task-evals-gate]]), hook logs, and wiki/memory mtimes.
+One Next.js process serves both the React Three Fiber HUD frontend and the API routes: an SSE stream (`/api/events`) and a token + Origin-guarded run trigger (`/api/run`). Binds `127.0.0.1` by default — loopback-only until [[pr_179_dashboard-lan-access|PR #179]] added an opt-in `DASHBOARD_HOST` override (see "LAN access (opt-in)" under Starting/stopping below); unset/empty is unchanged from before that PR. Collectors read: `~/.claude/projects/*` session dirs, agentic-loop `progress.json` (via the existing `agentic_loop_path.sh` SSOT — see [[agentic-loop]]), `gh`-polled PR state parsed with the same marker grammar as `review-artifact.sh`/`eval-artifact.sh` (see [[review-artifact-seam]] and [[task-evals-gate]]), hook logs, and wiki/memory mtimes.
 
 ### Button / run model — the security-load-bearing piece
 
