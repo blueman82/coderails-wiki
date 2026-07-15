@@ -103,7 +103,7 @@ The transcript scan in `enforce_required_step` looks for *invocation evidence* �
 1. **Hollow invocation**: a Skill call that errors immediately still satisfies the gate.
 2. **Substring false-positive**: assistant prose that *mentions* `gh pr create` (not a tool call) can trigger a false block.
 
-The real "no unreviewed merge to main" guarantee is server-side GitHub branch protection. This hook is a redirect + audit layer. The fix is deferred; no behaviour changed in PR #49. (inferred — PR #49 body / team-lead briefing)
+This repo deliberately does not enable GitHub branch protection — a standing decision (2026-07-15), not a gap awaiting a deferred fix. There is no server-side "no unreviewed merge to main" guarantee here: the redirect + audit layer above is the whole enforcement story for this concern, by design. (verified — AGENTS.md / docs/routines.md, PR #182)
 
 ## Log output
 
