@@ -11,7 +11,7 @@ sources:
   - skills/dashboard.md
   - sources/pr_118-123_self-improving-loops.md
   - sources/pr_169_model-routing-step.md
-tags: [investigation, retro-json, phase-13, dashboard, cost-tracking, token-usage, model-routing, gap-analysis]
+tags: [investigation, retro-json, phase-13, dashboard, cost-tracking, token-usage, model-routing, gap-analysis, resolved]
 ---
 
 # retro.json / Phase 13 / dashboard: what a per-model cost-tracking plan would assume but isn't enforced
