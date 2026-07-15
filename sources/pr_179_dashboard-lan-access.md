@@ -57,6 +57,7 @@ This is recorded as a **known, deliberate posture**, not an oversight: the decis
 ## Wiki pages updated
 
 - [[dashboard]] — "Architecture" section's stale "Binds `127.0.0.1` only" claim corrected to "by default"; new "LAN access (opt-in)" subsection under Starting/stopping; CSRF-guard sentence in "Button / run model" reworded from "non-localhost" to the allowed-set framing; frontmatter `sources`/`tags`/`last_updated` updated
+- [[enforcement-model]] — new "LAN access as a trust-boundary-preserving scope expansion (PR #179)" section (wiki-lint pass, same-day): `dashboard.md` cites this page's trust-boundary framing for the LAN opt-in, so this page gained the reciprocal cross-reference, matching the existing pattern for PR #167's headless-run exemption; frontmatter `sources`/`last_updated` updated
 - `index.md` — new source-table row
 - `log.md` — new ingest entry
 
