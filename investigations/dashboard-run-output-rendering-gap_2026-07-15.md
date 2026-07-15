@@ -124,13 +124,18 @@ documented convention. The inbox-brief button's "thin dispatcher" design (spawn 
 the wiki says.
 
 **7. Cross-PR constraints from the closed 2026-07-07 investigation
-([[dashboard-run-log-streaming-viewer-gap_2026-07-07]]) still hold and were re-verified
-here for the T10/T12 work, informally:** the overlay reads already-projected `output` text
-passed down as a prop — it does not itself touch `runId`, the SSE bus, or any file path,
-so the strict-ID-validation and token-non-leakage constraints that page established are
-untouched by the modal/markdown refactor. This was not a formal re-audit; noted as a
-reasonable inference from reading the component, not a line-by-line re-verification of
-every constraint against #172/#174's full diff.
+([[dashboard-run-log-streaming-viewer-gap_2026-07-07]]) still hold — confirmed against the
+full diffs of both PRs, not just the components.** `(verified)` `gh pr diff 172` and
+`gh pr diff 174` were read in full: #172's non-lockfile changes are `OutputViewerPanel.tsx`,
+`RunOutputOverlay.tsx`, and test fixtures — every `runId`/`token` occurrence in the diff is
+inside pre-existing test-fixture literals (`run({ runId: "done1", ... })`,
+`createElement(OutputViewerPanel, { token: "t" })`), not new production logic; no new
+`path.join`/`readFileSync`/fetch-route code appears. #174's non-lockfile file list is exactly
+`package.json`, one test file, and `RunOutputOverlay.tsx`; the same grep for `runId`/
+`readFileSync`/`join(` returns only test-fixture literals. Neither PR touches
+`api/run/output/route.ts`, `runOutputBus.ts`, or any file-path/token boundary — the strict-ID-
+validation, never-throw, and token-non-leakage constraints [[pr_80-82_dashboard-stream-run-output-viewer]]
+established are structurally untouched by the modal/markdown refactor, not merely assumed so.
 
 ## Adversarial review
 
