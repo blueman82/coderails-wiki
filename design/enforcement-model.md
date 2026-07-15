@@ -2,7 +2,7 @@
 title: Enforcement Model
 type: design
 created: 2026-05-30
-last_updated: 2026-07-14
+last_updated: 2026-07-15
 sources:
   - commands/workflow.md
   - CLAUDE.md
@@ -16,6 +16,7 @@ sources:
   - sources/pr_159_retire-catchup-add-telemetry.md
   - sources/pr_169_model-routing-step.md
   - sources/pr_163-168_dashboard-rethink.md
+  - sources/pr_179_dashboard-lan-access.md
 tags:
   - hooks
   - enforcement
