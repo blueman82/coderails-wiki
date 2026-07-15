@@ -441,6 +441,20 @@ The self-improving-loops cluster gave Phase 13 a **write contract**, and gave th
 
 **Concrete example (2026-07-10 loop, [[pr_130-136_dashboard-right-rail-ux]]):** two new SO entries were appended to the repo-keyed `standing-orders.md` overlay by this loop's own Phase 13 teardown — SO-2 (warn every still-running parallel worker about base-staleness proactively, once one sibling PR hits it, rather than after each one independently discovers it) and SO-3 (verify a worker-dispatch's branch is genuinely isolated from the orchestrator's own working docs before dispatching, not after a precondition check catches contamination). Both were live near-misses this same loop hit and fixed, not hypothetical.
 
+## Phase 13 gains a cost-mining sub-step, `retro.json` now `schema_version` 2 (PR #184/#185/#186, 2026-07-15)
+
+Same step 1 as above, run immediately after the fields listed there are assembled: source `hooks/scripts/lib/loop_cost.sh` and run `dc_mine_token_usage <session_id>`. The miner enumerates this loop's transcripts — the orchestrator's own `~/.claude/projects/<slug>/<sid>.jsonl` plus every worker transcript recursively under `<proj>/<sid>/subagents/` — dedupes by `message.id`, sums per-model token usage, and prices it from a dated table (`hooks/scripts/lib/model_prices.json`), returning one object with `prices_as_of`, `per_model`, `total_tokens`, `total_usd_estimate`, `models_used`, `unpriced_models`, and `transcripts_scanned`.
+
+**Fold-in is a split, not a copy.** The miner's returned object is written verbatim as `retro.cost` (its own nested `schema_version` 1, independent of the retro's), and its `models_used` array is lifted **out** to top-level `retro.models_used` — never duplicated inside `cost`. This split is what bumps the retro's own `schema_version` from 1 to 2; the `cost`/`models_used` fields do not exist under `schema_version` 1.
+
+**Fail-open, matching the miner's own guarantee.** On any miner error both `retro.cost` and `retro.models_used` end up empty, and a `complete` declaration proceeds exactly as it would with populated values — [[loop_stall_guard]] checks the retro's presence and `schema_version`, never the cost field's correctness, so a miner failure cannot stall a loop. The gate itself was widened in the same cluster to accept any `schema_version >= 1` (forward-compatible) specifically so this bump didn't require a matching same-PR hook change.
+
+**Pricing is computed once, at teardown, and frozen.** `cost.per_model[*].usd_estimate` and `cost.total_usd_estimate` are priced a single time here, stamped `prices_as_of`/`price_source`. Nothing downstream re-prices — the dashboard's [[dashboard|cost rollup tiles]] sum the stored `usd_estimate` values as written and never re-derive them from token counts against a live price table.
+
+**Human-facing reporting, not just a stored artifact.** The self-audit's "Artifacts produced" bullet gains a sibling — **Loop cost**: the per-model token + dated-USD breakdown from `retro.cost`, printed to the human WITH a price-staleness age ("prices as of `<cost.prices_as_of>`, N days old"). A `complete` loop must print this, the same way the other Phase 13 facts are printed, not merely write it to disk.
+
+This closes the gap [[retro-json-per-model-cost-tracking-gap_2026-07-15]] documented the same day it shipped — see [[pr_184_185_186_loop-cost-tracking]] for the full three-PR source record, including the still-open model-identity-at-spawn attribution gap this cluster does not close.
+
 ## Model-role routing is advisory, not hook-enforced (PR #86, reworded by PR #169)
 
 `AGENTS.md`'s "Enforcement ceilings" list carries a bullet on this (no code change either time —
