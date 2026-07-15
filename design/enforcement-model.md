@@ -2,7 +2,7 @@
 title: Enforcement Model
 type: design
 created: 2026-05-30
-last_updated: 2026-07-14
+last_updated: 2026-07-15
 sources:
   - commands/workflow.md
   - CLAUDE.md
@@ -16,6 +16,7 @@ sources:
   - sources/pr_159_retire-catchup-add-telemetry.md
   - sources/pr_169_model-routing-step.md
   - sources/pr_163-168_dashboard-rethink.md
+  - sources/pr_179_dashboard-lan-access.md
 tags:
   - hooks
   - enforcement
@@ -156,6 +157,10 @@ See [[agentic-loop]] (its own "Phase 2.8" and "Model-role routing is advisory" s
 
 This is the **same enforcement-ceiling shape** as the model-role routing ceiling above, one layer down: the exemption lives inside the same trust domain as the hooks it exempts (a bash flag the agent's own process env carries), not a privilege-separated bypass like the assistant-agent host-process hook below. The mitigation is scope, not architecture: the exemption is Stop-event-only — `SubagentStop` still blocks unconditionally regardless of the flag, so a headless run's own spawned subagents get no pass — and it has exactly one set-site by design; `AGENTS.md` explicitly flags any PR introducing a second set-site as a security finding, not a legitimate extension. See [[pr_163-168_dashboard-rethink]] and [[dashboard]]'s "Headless discipline-hook exemption" section.
 
+## LAN access as a trust-boundary-preserving scope expansion (PR #179)
+
+The dashboard's opt-in `DASHBOARD_HOST` LAN exposure ([[pr_179_dashboard-lan-access]]) reuses this page's trust-boundary framing for a different kind of change: not a hook exemption, but a capability expansion of an already-unauthenticated surface (`POST /api/run`, workflow-audit Approve/Deny — see [[dashboard]]'s "Button / run model"). The `Host`/`Origin` guard's allowlist gains one exact-match LAN host instead of relaxing to "any non-loopback host," so the change stays inside the dashboard's existing trust boundary (a hostile-web-page/DNS-rebinding defence) rather than crossing into a new one (device-level authentication, which was out of scope and not evaluated). Same shape as the headless-run exemption above: the mitigation is scope (one literal host, validated and fail-loud), not new architecture.
+
 ## Host-process hooks outside coderails itself (assistant-agent send-gate, sub-project 4)
 
 The Law's core distinction — a check performed by the party with motive to pass it is not a check — extends beyond coderails' own hooks/commands split. assistant-agent's send-approval gate (Slack/Calendar/Gmail sends from Gary's personal secretary) chose a **host-process SDK `PreToolUse` hook callback** over a bash hook script for exactly this reason: a bash hook shares the agent's own user/filesystem and is forgeable by the agent it's meant to constrain (e.g. via an approval-marker file the agent also controls), whereas a host-process callback runs outside the agent's trust domain on a `permissionDecision` control-plane path. This is the same enforcement-ceiling reasoning as `no_edit_on_main.sh`/`enforce_pr_workflow.sh` above, applied one layer down (host process vs. agent, not command vs. hook). See [[assistant-link-send-gate-architecture]] for the full design, including the companion finding that the SDK itself is fail-open on a hook that throws or times out — the gate must self-enforce fail-closed, since neither the host-process choice nor the SDK's own behaviour is sufficient alone.
@@ -183,3 +188,4 @@ A gate that is otherwise fail-closed can still ship a broken *allow* path silent
 - [[pr_159_retire-catchup-add-telemetry]] — retires `discipline_catchup.sh`, the only surviving warn-mode hook; the hooks table's `UserPromptSubmit` row above was corrected 2026-07-13 to reflect this
 - [[pr_163-168_dashboard-rethink]] — PR #167 source record: the `CODERAILS_HEADLESS_RUN` Stop-only exemption on the two discipline hooks, sole set-site in the dashboard's run route
 - [[dashboard]] — the run route this exemption's sole set-site lives in, and the "0 model turns" t7 finding that motivated it
+- [[pr_179_dashboard-lan-access]] — PR #179 source record: opt-in `DASHBOARD_HOST` LAN exposure, the trust-boundary-preserving framing above, and the deliberate unauthenticated-command-exec security posture that framing depends on
