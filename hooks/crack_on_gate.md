@@ -2,7 +2,7 @@
 title: "Hook: crack_on_gate"
 type: hook
 created: 2026-07-14
-last_updated: 2026-07-14
+last_updated: 2026-07-15
 sources:
   - hooks/scripts/crack_on_gate.sh
   - hooks/scripts/tests/crack_on_gate.test.sh
@@ -128,4 +128,4 @@ documented in [[discipline-loop]]'s "Stdin read convention" section.
 - [[loop_state_guard]] / [[loop_stall_guard]] — the sibling family that DOES use
   `agentic_loop_path.sh`'s resolver, and why this hook deliberately does not
 - [[hook-exit-codes]] — why `UserPromptSubmit` hooks never use exit 2
-- [[sources/pr_175-176_crack-on-gate-and-inbox-brief-button]] — the merge record
+- [[pr_175-176_crack-on-gate-and-inbox-brief-button]] — the merge record

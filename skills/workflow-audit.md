@@ -2,7 +2,7 @@
 title: "Skill: workflow-audit"
 type: skill
 created: 2026-07-07
-last_updated: 2026-07-08
+last_updated: 2026-07-15
 sources:
   - sources/pr_27-39_workflow-audit-skill.md
   - sources/pr_43-44-46_workflow-audit-queue-seam.md
@@ -41,6 +41,7 @@ Full architecture, testing approach, and file list: [[pr_27-39_workflow-audit-sk
 - **Structural privacy boundary, not a redaction pass.** `scan_transcripts.sh` only ever extracts three whitelisted shapes: a Bash command's first two tokens, a Skill's name, or an Agent's `subagent_type`. Every other tool emits `{tool}` alone. This is enforced by construction (the jq filter never touches other fields), not by a downstream scrub step. See [[claude-code-transcript-schema_2026-07-07]] for the full transcript record-type catalogue this scan sits on top of.
 - **Judge has a fixed vocabulary.** The judge subagent receives exactly two inputs — the cluster JSON and existing skill names/descriptions — and must reject or flag a limitation rather than guess if a verdict would need information beyond whitelisted heads, counts, and session ids.
 - **Approval gate overrides loop autonomy.** The `AskUserQuestion` approval step is a hard stop that applies even inside an agentic-loop session authorised for full autonomy ("crack on", "no human gates", "self-merge"). Skill creation never proceeds on an earlier blanket authorisation or an inferred preference — only an explicit approval given in that interaction. Zero approvals is a complete, successful run.
+  > ⚠️ **CONTRADICTION (surfaced 2026-07-14, still live 2026-07-15) — source-vs-hook conflict, owner decision owed.** This "hard stop even under crack on" claim is faithful to its plugin source (`workflow-audit/SKILL.md` §7 "Approval gate — hard stop, no exceptions"), but conflicts with what [[crack_on_gate]] actually does: `crack_on_gate.sh` denies **every** `AskUserQuestion` call while a session's crack-on flag is stamped, with a bare `tool_name = "AskUserQuestion"` matcher and no caller/context carve-out (verified against the script + its test suite — the "HARD-STOP PRESERVED" test only exercises Bash/Write/Task pass-through, never workflow-audit's approval call). So under a live crack-on envelope the hook mechanically suppresses the very gate this bullet calls unbreakable. This is **not wiki drift** — the wiki accurately mirrors its source; the source and the hook disagree. Resolution is a source-or-design decision the owner must make (either `crack_on_gate.sh` gains a documented carve-out — e.g. a payload field identifying the calling skill — or `workflow-audit/SKILL.md` §7's claim is narrowed), not a wiki edit. Flagged durably here so it stops re-evaporating into per-pass lint log entries.
 - **Skills always land via the normal repo gates.** Approved candidates go through [[writing-skills]] RED-GREEN-REFACTOR and a full PR (`test_gate` → `pr-review-toolkit:review-pr` → security review → `post-review` → pr-scope evals → merge) one at a time — never a direct commit to `main`, never written into a user's personal `~/.claude/skills`.
 
 ## Queue-mode output (second approval surface, additive)
