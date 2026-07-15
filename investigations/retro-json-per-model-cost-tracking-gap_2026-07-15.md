@@ -247,3 +247,6 @@ enforce it beyond code review.
   design decision, the dormant v2 pipeline
 - [[pr_169_model-routing-step]] — capability-role vocabulary, the advisory
   (non-hook-enforced) nature of model routing
+- [[pr_184_185_186_loop-cost-tracking]] — the resolution: the three-PR
+  cluster that shipped the miner, the `retro.json` schema_version 2 write
+  contract, and the dashboard rollup this page found missing
