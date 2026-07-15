@@ -24,7 +24,8 @@ sources:
   - sources/pr_179_dashboard-lan-access.md
   - investigations/dashboard-run-output-rendering-gap_2026-07-15.md
   - sources/pr_181_183_dashboard-run-output-wrap-and-inbox-brief-clean-modal.md
-tags: [skill, dashboard, observability, nextjs, r3f, sse, obsidian, agentic-os, sub-project-1-of-5, queue-contract, builder, ask-button, argv, run-output, streaming, launchd, reboot-persistence, npm-ci, lockfile, permission-mode, enter-to-submit, decisions-absorbed, loop-decisions-tile, deck-trim, multi-loop, gates-freshness, headless-exemption, inbox-brief, rachel, lan-access, dashboard-host, request-guard, security-posture]
+  - sources/pr_184_185_186_loop-cost-tracking.md
+tags: [skill, dashboard, observability, nextjs, r3f, sse, obsidian, agentic-os, sub-project-1-of-5, queue-contract, builder, ask-button, argv, run-output, streaming, launchd, reboot-persistence, npm-ci, lockfile, permission-mode, enter-to-submit, decisions-absorbed, loop-decisions-tile, deck-trim, multi-loop, gates-freshness, headless-exemption, inbox-brief, rachel, lan-access, dashboard-host, request-guard, security-posture, cost-tile, cost-rollup, retro-json]
 ---
 
 # Skill: dashboard
