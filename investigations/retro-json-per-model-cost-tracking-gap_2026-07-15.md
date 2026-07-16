@@ -2,7 +2,7 @@
 title: "retro.json / Phase 13 / dashboard: what a per-model cost-tracking plan would assume but isn't enforced"
 type: investigation
 created: 2026-07-15
-last_updated: 2026-07-15
+last_updated: 2026-07-16
 sources:
   - skills/agentic-loop.md
   - hooks/loop_stall_guard.md
@@ -11,6 +11,7 @@ sources:
   - skills/dashboard.md
   - sources/pr_118-123_self-improving-loops.md
   - sources/pr_169_model-routing-step.md
+  - sources/pr_192_frontier-opus-effort-routing.md
 tags: [investigation, retro-json, phase-13, dashboard, cost-tracking, token-usage, model-routing, gap-analysis, resolved]
 ---
 
