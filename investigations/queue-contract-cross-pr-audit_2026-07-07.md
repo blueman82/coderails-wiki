@@ -2,7 +2,7 @@
 title: "Queue contract cross-PR audit — workflow-audit, dashboard approval pipeline, send-gate"
 type: investigation
 created: 2026-07-07
-last_updated: 2026-07-07
+last_updated: 2026-07-16
 sources:
   - docs/coderails/specs/2026-07-06-assistant-link-panel-design.md  # deleted by PR #138 (2026-07-11); cited as historical provenance
   - sources/pr_138_remove-specs-plans-tracking.md

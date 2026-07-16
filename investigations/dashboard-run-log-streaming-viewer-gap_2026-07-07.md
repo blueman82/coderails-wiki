@@ -2,7 +2,7 @@
 title: "Investigation: dashboard run/events architecture and the streaming output-viewer gap"
 type: investigation
 created: 2026-07-07
-last_updated: 2026-07-08
+last_updated: 2026-07-16
 status: closed
 sources:
   - skills/dashboard/app/src/app/api/run/route.ts
