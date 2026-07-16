@@ -10,7 +10,8 @@ sources:
   - skills/dashboard/app/src/lib/runlog.ts
   - skills/dashboard/app/src/lib/collect/index.ts
   - skills/dashboard/app/src/hooks/useRunLifecycle.ts
-  - docs/coderails/specs/2026-07-06-observability-dashboard-design.md
+  - docs/coderails/specs/2026-07-06-observability-dashboard-design.md  # deleted by PR #138 (2026-07-11); cited as historical provenance
+  - sources/pr_138_remove-specs-plans-tracking.md
 tags: [investigation, dashboard, sse, run-log, streaming, gap-analysis]
 ---
 
