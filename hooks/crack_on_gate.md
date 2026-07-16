@@ -80,7 +80,7 @@ allowed. (verified: `crack_on_gate.test.sh`, "NEGATIVE CONTROL" section)
 by [[loop_state_guard]] and [[loop_stall_guard]]. That resolution can return a
 *different* directory between the stamp write and the later read whenever the
 underlying git-common-dir slug shifts mid-session (the documented slug-drift class
-— see [[Case-insensitive retirement sweep|feedback]] and related loop-path
+— see the `feedback_case_insensitive_retirement_sweep` and related loop-path
 memories for other instances of this drift family). For those two guards, a missed
 read fails toward the safe side (treating an active loop as unregistered still
 surfaces a nudge or block). For this gate, a missed read would fail the **unsafe**
@@ -98,8 +98,8 @@ header comment)
 ## Hard-stops are untouched by design
 
 The deny is scoped to the `AskUserQuestion` tool matcher only. The four
-agentic-loop hard-stops (see [[Never remove agentic-loop hard-stops|discipline-loop]]
-invariant) are turn-ending `LOOP-STOP` "report and wait" *declarations* in the
+agentic-loop hard-stops (the [[agentic-loop]] invariant; memory:
+`feedback_never_remove_hard_stops`) are turn-ending `LOOP-STOP` "report and wait" *declarations* in the
 final assistant message, not `AskUserQuestion` tool calls — this hook has no
 mechanism (no Stop-event deny, no global flag) that could reach them, and none was
 added. The test suite asserts this directly: with the crack-on flag live for a

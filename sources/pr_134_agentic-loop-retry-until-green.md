@@ -10,7 +10,7 @@ tags: [source, agentic-loop, discipline-loop]
 
 # PR #134 — agentic-loop retry-until-green + tool wiring
 
-Mid-loop skill edit, triggered by direct user feedback during the [[pr_130-136_dashboard-right-rail-ux]] loop: the user asked for a fully-autonomous agentic loop with zero human interruption ever, after finding the loop's scope-negotiation questions excessive. The orchestrator refused to remove agentic-loop's 4 hard-stops (verification failure surviving retry, disproven premise, genuine ambiguity, destructive/irreversible operation) even under explicit "never ask a human anything" pressure, named the specific risk (a runaway loop pushing through a broken test suite or force-pushing with nobody watching), and negotiated a narrower, safe version instead. See [[feedback_never_remove_hard_stops]] (memory) for the full exchange.
+Mid-loop skill edit, triggered by direct user feedback during the [[pr_130-136_dashboard-right-rail-ux]] loop: the user asked for a fully-autonomous agentic loop with zero human interruption ever, after finding the loop's scope-negotiation questions excessive. The orchestrator refused to remove agentic-loop's 4 hard-stops (verification failure surviving retry, disproven premise, genuine ambiguity, destructive/irreversible operation) even under explicit "never ask a human anything" pressure, named the specific risk (a runaway loop pushing through a broken test suite or force-pushing with nobody watching), and negotiated a narrower, safe version instead. See the `feedback_never_remove_hard_stops` memory for the full exchange.
 
 ## What shipped
 
@@ -37,4 +37,4 @@ The PR itself was delayed by a genuine mistake: the orchestrator's own design-sp
 - [[pr_130-136_dashboard-right-rail-ux]] — the loop this mid-loop edit shipped inside
 - [[pr_39_agentic-loop-slim-v2]] — the prior file-size slimming pass this edit's extraction respects (did not reopen that decision, added new content via progressive disclosure instead)
 - [[systematic-debugging]] / [[dispatching-parallel-agents]] — the two vendored skills newly wired into the retry cycle
-- [[feedback_never_remove_hard_stops]] — the memory record of the "never ask a human anything" pushback and negotiation
+- `feedback_never_remove_hard_stops` (memory) — the record of the "never ask a human anything" pushback and negotiation

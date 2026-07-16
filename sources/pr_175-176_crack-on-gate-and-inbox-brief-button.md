@@ -46,9 +46,9 @@ a transcript/context scan would false-positive fleet-wide and permanently suppre
 human interaction — only a human actually typing the phrase activates the gate. The
 four agentic-loop hard-stops are untouched by design: they are turn-ending
 `LOOP-STOP` "report and wait" declarations, not `AskUserQuestion` tool calls, so this
-deny cannot reach them (see [[Never remove agentic-loop hard-stops|discipline-loop]]
-invariant — no gate in this repo is permitted to remove or weaken the four
-hard-stops, and this one doesn't).
+deny cannot reach them (see the [[agentic-loop]] hard-stops
+invariant; memory `feedback_never_remove_hard_stops` — no gate in this repo is
+permitted to remove or weaken the four hard-stops, and this one doesn't).
 
 **PR #176 — inbox-brief dashboard button.** Adds one entry to
 `examples/dashboard-config.json`'s `buttons` array: `name: "inbox-brief"`,
