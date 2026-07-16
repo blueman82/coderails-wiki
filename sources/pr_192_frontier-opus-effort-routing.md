@@ -75,7 +75,7 @@ Three files, lockstep (41 insertions):
 - Every future loop's `frontier` work runs at roughly half the token cost
   unless a stamp explicitly justifies fable — the justification burden now
   sits on the expensive choice, not the cheap one.
-- Plans stamp effort per task; [[loop-cost-tracking]]'s per-model miner
+- Plans stamp effort per task; [[pr_184_185_186_loop-cost-tracking|loop-cost-tracking]]'s per-model miner
   will show the shift in retro.json cost objects.
 - The three in-flight improvement-loop plans (sandbox-workers, tier-review,
   workflow-audit-routine — session-local docs) needed NO edits: they stamp
