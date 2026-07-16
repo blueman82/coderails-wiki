@@ -90,6 +90,8 @@ exactly as well as a real one.
 
 Phase 2.8 assigns a **capability role** (`fast-mechanical`/`default`/
 `frontier` → currently haiku/sonnet/fable) to every build task before Phase 3.
+*(Point-in-time note: accurate when filed; PR #192 (2026-07-16) re-pointed `frontier` to
+opus-at-`xhigh` with fable as a justified escalation — see [[pr_192_frontier-opus-effort-routing]].)*
 Critically:
 
 - The assignment is recorded **once**, in `progress.json.decisions_absorbed`,

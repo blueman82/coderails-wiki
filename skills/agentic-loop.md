@@ -2,7 +2,7 @@
 title: "Skill: agentic-loop"
 type: skill
 created: 2026-05-31
-last_updated: 2026-07-15
+last_updated: 2026-07-16
 sources:
   - skills/agentic-loop/SKILL.md
   - sources/session_2026-05-31_prompting-doc-alignment.md
@@ -24,8 +24,9 @@ sources:
   - sources/pr_155-158_ceremony_noise_envelope_anchoring.md
   - sources/pr_162_agentic-loop-finishing-out.md
   - sources/pr_169_model-routing-step.md
+  - sources/pr_192_frontier-opus-effort-routing.md
   - sources/pr_184_185_186_loop-cost-tracking.md
-tags: [skill, agentic-loop, multi-agent, orchestration, context-window, delegation, artifact-chain, loop-state, post-review, review-artifact, self-attestation, enforcement-ceiling, session-keying, frontmatter, description-cap, task-evals, work-units, teamcreate-purge, sdd-ledger, retry-until-green, hard-stops, decisions-absorbed, grade-loop, review-tier-ladder, warn-demotion, envelope-anchoring, loop-stop-final-line, finishing-out, verification-before-completion, model-routing, capability-roles, cost-tracking, schema-version-2, loop-cost-miner]
+tags: [skill, agentic-loop, multi-agent, orchestration, context-window, delegation, artifact-chain, loop-state, post-review, review-artifact, self-attestation, enforcement-ceiling, session-keying, frontmatter, description-cap, task-evals, work-units, teamcreate-purge, sdd-ledger, retry-until-green, hard-stops, decisions-absorbed, grade-loop, review-tier-ladder, warn-demotion, envelope-anchoring, loop-stop-final-line, finishing-out, verification-before-completion, model-routing, capability-roles, effort-routing, cost-tracking, schema-version-2, loop-cost-miner]
 ---
 
 # Skill: agentic-loop
@@ -154,10 +155,29 @@ stale within a day of Fable 5's release," per the skill's own framing):
 |---|---|---|
 | `fast-mechanical` | haiku | Exact-recipe mechanical tasks with scripted ceremony; orchestrator verification micro-reads |
 | `default` | sonnet | TDD / mechanical / multi-file work; the fallback when uncertain (cost control) |
-| `frontier` | fable (opus alternate) | Design-judgement UI/architecture units; genuinely ambiguous investigations |
+| `frontier` | opus at `xhigh` effort (fable escalation — see below) | Design-judgement UI/architecture units; genuinely ambiguous investigations |
 
 *(`fable` here names the model Claude Fable 5 — unrelated to the repo's separate `fable-mode`
 skill; the two share a name, not a mechanism.)*
+
+**`frontier` resolves to opus, never automatically to fable (PR #192, 2026-07-16).** The table
+originally resolved `frontier` to fable — the most expensive model, roughly 2× opus — which
+contradicted Anthropic's own model-selection guidance: complex agentic coding (multihour
+autonomous agents, large-scale refactoring, systems engineering) is Opus's documented territory,
+with `xhigh` effort named as the best setting for coding/agentic work; Fable is positioned for
+next-generation-intelligence needs at premium pricing. The owner's framing (verbatim intent):
+auto-picking the priciest model is a cost decision the loop has no authority to make silently.
+Escalating a task to fable now requires BOTH a named capability gap in the `Model:` stamp (what
+opus-at-xhigh cannot do — not "it's important") and the standard fallback-valve discipline.
+
+**Effort is part of the stamp (PR #192).** Recent opus/sonnet models expose an effort parameter,
+and Anthropic's guidance is that tuning effort is often a better lever than switching models —
+so every `Model:` stamp now names role AND effort: `frontier` → opus `xhigh` (`max` is a per-task
+escalation needing a named reason, same discipline as fable); `default` → sonnet at default
+effort (`high`; a stamp may lower a bounded exact-recipe task to `medium`, never investigations
+or reviews); `fast-mechanical` → haiku, no effort parameter. Effort tuning is the first lever,
+model escalation the second. Valve discipline unchanged: an effort change not named in the stamp
+does not exist for the worker.
 
 **Investigations get `frontier` FIRST, not escalated-to.** For a genuinely ambiguous investigation,
 spawn `frontier` from the start rather than starting cheap and escalating: a weak investigator burns

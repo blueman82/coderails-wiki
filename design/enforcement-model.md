@@ -2,7 +2,7 @@
 title: Enforcement Model
 type: design
 created: 2026-05-30
-last_updated: 2026-07-15
+last_updated: 2026-07-16
 sources:
   - commands/workflow.md
   - CLAUDE.md
@@ -128,7 +128,7 @@ choose to follow the Phase 4b contract. That's an advisory ceiling, same categor
 ## The model-role routing advisory ceiling (PR #86, reworded by PR #169)
 
 `agentic-loop`'s Phase 2.8 (added by PR #169, 2026-07-14) assigns a capability role
-(`fast-mechanical`/`default`/`frontier`) to every task before it spawns, and the skill asserts the
+(`fast-mechanical`/`default`/`frontier`) plus, since PR #192, a reasoning-effort level to every task before it spawns, and the skill asserts the
 resulting role at each spawn site — Phases 2, 2.5, 3, 3a, 9, 10 as of this writing (the role→model
 table itself lives only in Phase 2.8, not repeated at each site) — but no hook gates `Agent`/`Task`
 spawn calls on the requested model: the only `PreToolUse` matchers in `hooks/hooks.json` are `Bash`

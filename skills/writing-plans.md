@@ -2,13 +2,14 @@
 title: "Skill: writing-plans"
 type: skill
 created: 2026-06-25
-last_updated: 2026-07-14
+last_updated: 2026-07-16
 sources:
   - sources/session_2026-06-25_agentic-loop-upgrade-arc.md
   - sources/pr_50_planning-sequence-gate.md
   - sources/pr_15-17_loop-hardening-registration-eval-freeze-ledger-dry.md
   - sources/pr_138_remove-specs-plans-tracking.md
   - sources/pr_169_model-routing-step.md
+  - sources/pr_192_frontier-opus-effort-routing.md
 tags: [skill, writing-plans, planning, decomposition, artifact-chain, eval-freeze, task-evals, model-routing, capability-roles]
 ---
 
@@ -42,7 +43,7 @@ Each plan task carries five mandatory elements (was four before PR #169, 2026-07
 2. **Interfaces**: what this task consumes (exact signatures) and produces (exact function names, types) for neighboring tasks.
 3. **Steps**: one action each, 2–5 minutes. "Write the failing test" is a step; "implement auth" is not.
 4. **Verify-criteria**: runnable or inspectable — a test command with expected output, a grep, a visible UI state.
-5. **Model** (added PR #169): the capability role this task runs at — `fast-mechanical`, `default`, or `frontier` — plus a one-line rationale and an optional fallback valve. Mandatory on every task in every plan, no exceptions for small or loop-only plans (Gary: "so I am gonna need it"). This stamp names the role and the reason; it does not repeat the role→model table or the tiering rationale, both of which live in [[agentic-loop]]'s routing phase (Phase 2.8 as of this writing) — cross-referenced, not duplicated. Example: `Model: fast-mechanical — scripted rename across N files; default fallback after two failed gate attempts.`
+5. **Model** (added PR #169; effort added PR #192): the capability role this task runs at — `fast-mechanical`, `default`, or `frontier` — plus the reasoning-effort level where the role's model supports one, a one-line rationale, and an optional fallback valve. Mandatory on every task in every plan, no exceptions for small or loop-only plans (Gary: "so I am gonna need it"). This stamp names the role, effort, and reason; it does not repeat the role→model table, the per-role effort defaults, or the tiering rationale — all live in [[agentic-loop]]'s routing phase (Phase 2.8 as of this writing) — cross-referenced, not duplicated. Examples: `Model: fast-mechanical — scripted rename across N files; default fallback after two failed gate attempts.` / `Model: frontier (effort: xhigh) — ambiguous design fork across two subsystems; no fallback, one strong run beats escalate-later.`
 
 **Per-task construction method** references `coderails:test-driven-development` when the task is code (adds/alters a function, method, or branch that can carry a test). Docs/config/prose tasks verify by inspection.
 
