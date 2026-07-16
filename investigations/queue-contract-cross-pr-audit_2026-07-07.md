@@ -4,7 +4,8 @@ type: investigation
 created: 2026-07-07
 last_updated: 2026-07-07
 sources:
-  - docs/coderails/specs/2026-07-06-assistant-link-panel-design.md
+  - docs/coderails/specs/2026-07-06-assistant-link-panel-design.md  # deleted by PR #138 (2026-07-11); cited as historical provenance
+  - sources/pr_138_remove-specs-plans-tracking.md
   - sources/pr_27-39_workflow-audit-skill.md
   - sources/pr_25_observability-dashboard.md
   - sources/pr_43-44-46_workflow-audit-queue-seam.md
