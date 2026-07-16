@@ -113,6 +113,13 @@ the writer side.
 
 ## The normative contract: `docs/coderails/specs/2026-07-06-assistant-link-panel-design.md`
 
+> ⚠️ **File removed since this investigation was filed.** `docs/coderails/specs/`
+> was gitignored and its contents deleted by [[pr_138_remove-specs-plans-tracking]]
+> (2026-07-11), so the spec called "normative" below no longer exists in the repo.
+> This page is a point-in-time record and is left as written; for the durable
+> contract see [[intent-queue-runner-contract]] and
+> [[assistant-link-send-gate-architecture]].
+
 This spec (sub-project 4 of 5 in the agentic-OS sequence) is the **source of
 truth for the `QueueFileEntry` shape**, and it says so explicitly and
 unusually directly: at the time it was written, assistant-agent's
