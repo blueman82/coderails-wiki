@@ -15,6 +15,8 @@ tags: [design, task-evals, evals-json, merge-gate, loop-gate, truth-seam, sha-bo
 
 # Task-evals gate
 
+> The design spec formerly cited in this page's `sources:` (`docs/coderails/specs/2026-07-03-task-evals-design.md`) no longer exists — removed from repo tracking by [[pr_138_remove-specs-plans-tracking]] (2026-07-11). This page's own content is now the durable record.
+
 Introduced by [[pr_1-4_task-evals-feature]] (PRs #1–4, merged 2026-07-06). Adds a second, independent enforcement axis alongside [[review-artifact-seam]]: instead of gating on *review having happened*, this gates on *frozen, oracle-independent success evals having passed* — at two distinct scopes, pr and loop, sharing one schema.
 
 ## The core problem
