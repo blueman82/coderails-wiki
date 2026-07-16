@@ -123,7 +123,10 @@ the finish-line `runs.jsonl` write already fires it.
    how a second reader (SSE tail) observes progress independently of that
    long-lived POST, since the POST itself blocks until exit and currently
    owns the only write to the log file.
-7. **Design spec silence.** `docs/coderails/specs/2026-07-06-observability-dashboard-design.md`
+7. **Design spec silence.** (⚠️ The spec cited here was deleted from the repo by
+   [[pr_138_remove-specs-plans-tracking]] on 2026-07-11, after this investigation
+   was filed; the observation is preserved as historical record.)
+   `docs/coderails/specs/2026-07-06-observability-dashboard-design.md`
    lists "tail hook logs" only for the SYSTEM VITALS/health source
    (`~/.claude/discipline.log`) — an unrelated file — and never mentions
    run-output tailing as in-scope, deferred, or rejected. This is unbuilt
