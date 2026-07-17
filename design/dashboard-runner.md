@@ -39,6 +39,8 @@ Each sweep (`sweepOnce()`, `skills/dashboard/runner/src/sweep.ts`):
 
 `artifactPath` supports `{date}` (`YYYY-MM-DD`), `{runId}`, and `{vault}` (the first entry of `wikiPaths`) template tokens, substituted at check time. See [[routines]] for the full field contract and worked example.
 
+**`{date}` is resolved in LOCAL time, not UTC (fixed 2026-07-17, PR #202).** `sweepOnce()` previously derived `{date}` via `new Date().toISOString().slice(0, 10)` — always UTC regardless of `process.env.TZ` — while the producer (the `claude -p` run) writes its artifact keyed to its own LOCAL calendar date. Between local midnight and the local UTC offset the two disagree, and a genuinely correct run was graded `artifact-gate-failed`. Fixed with a `localDateIso()` helper (TZ-aware `getFullYear`/`getMonth`/`getDate` accessors) sourced from a new optional `clock?: () => Date` on `SweepOptions`, applied at the one `checkArtifact()` call site. Affects all four date-bearing gates, including `wiki-lint`'s own — its `{date}` lives in the `contains` predicate's **marker** text rather than its path, but `artifactGate.ts:92` resolves the token identically regardless of which predicate field it appears in. See [[pr_201_202_203_routine-followups]].
+
 **Vault-root path-traversal defense**: the evaluator's path substitution is bounded so a crafted `{vault}`-relative path can't escape the vault root `(inferred from the source page's characterisation; not independently re-derived from `artifactGate.ts` for this page)`.
 
 ## Escalation taxonomy
