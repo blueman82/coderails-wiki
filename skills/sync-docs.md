@@ -2,10 +2,11 @@
 title: "Skill: sync-docs"
 type: skill
 created: 2026-07-06
-last_updated: 2026-07-06
+last_updated: 2026-07-17
 sources:
   - sources/pr_77_agentic-loop-sync-docs-step.md
   - sources/pr_79_sync-docs-drift.md
+  - sources/pr_207_209_docs-sync-nightly-and-drift-fix.md
 tags: [skill, sync-docs, docs-drift, loop-boundary]
 ---
 
@@ -14,19 +15,22 @@ tags: [skill, sync-docs, docs-drift, loop-boundary]
 Audits a project's own in-tree documentation (README, AGENTS.md/CLAUDE.md,
 `docs/`) for drift against the actual codebase, and generates an actionable
 sync report. Invoked by [[agentic-loop]] at Phase 9, the loop-boundary
-docs-drift check.
+docs-drift check, and by [[docs-sync]] as the audit step of its nightly
+self-merging pipeline.
 
-**Important location note (verified against the actual repo, not secondhand
-wiki references):** `/sync-docs` is a **user-level skill** at
-`~/.claude/skills/sync-docs/SKILL.md` — it is **not** part of the `coderails`
-plugin repo. There is no `commands/sync-docs.md` and no
-`skills/sync-docs/SKILL.md` inside `coderails` itself
-(confirmed: `find /Users/harrison/Github/coderails -iname '*sync-docs*'`
-returns only this wiki's own `sources/pr_77_*` and `sources/pr_79_*` records,
-never a file inside the coderails repo). [[agentic-loop]]'s Phase 9 invokes it
-as an external, generally-available skill the same way any Claude Code
-session might invoke it on any project — it is not coderails-specific
-tooling, and coderails does not vendor or ship it.
+**Correction (2026-07-17): this skill now ships in-repo, not user-level
+only.** An earlier version of this page claimed `/sync-docs` was a
+user-level-only skill at `~/.claude/skills/sync-docs/SKILL.md`, never part
+of the `coderails` plugin repo. That was accurate when written (2026-07-06)
+but went stale on **2026-07-10** (commit `f488ca5`, "Import sync-docs as a
+coderails plugin skill"), four days before this correction — the skill now
+lives at `coderails/skills/sync-docs/SKILL.md` in-repo, same as any other
+plugin skill. This staleness predates and is independent of the
+`docs-sync-nightly` routine cluster ([[pr_207_209_docs-sync-nightly-and-drift-fix]]);
+it surfaced only because that ingest cross-checked this page against
+current source. Do not confuse this skill with [[docs-sync]] — a separate,
+newer skill that *invokes* this one's audit as step 1 of its own larger
+self-merge pipeline.
 
 ## Trigger phrases
 
