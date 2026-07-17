@@ -9,7 +9,8 @@ sources:
   - sources/pr_15-17_loop-hardening-registration-eval-freeze-ledger-dry.md
   - sources/pr_95_slash-command-loop-detection.md
   - sources/pr_144-149_agentic-loop-hardening-from-loop-engineering.md
-tags: [design, work-units, loop-stop-counts, decisions-absorbed, progress-json, agentic-loop]
+  - sources/pr_194_198_loop-complete-deferral-and-proof-gates.md
+tags: [design, work-units, loop-stop-counts, decisions-absorbed, progress-json, agentic-loop, deferral-gate]
 ---
 
 # work_units, loop_stop_counts, and decisions_absorbed: progress.json's three tracked fields
