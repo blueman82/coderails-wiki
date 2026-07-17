@@ -107,7 +107,8 @@ Skills in `coderails/skills/*/SKILL.md`.
 | `brainstorming` | Structured ideation + Decision Ledger before committing to a design | [[brainstorming]] |
 | `task-evals` | Generates and freezes a tiered `evals.json` (pr or loop scope) for the task-evals merge gate | [[task-evals]] |
 | `engineering-principles` (+3 language sub-skills: go/python/ts) | Enforces YAGNI/KISS/DRY/Fail-Fast/SSOT/Law-of-Demeter; per-language dispatch | [[engineering-principles]] (+ [[engineering-principles-python]] / [[engineering-principles-go]] / [[engineering-principles-ts]]) |
-| `sync-docs` | Audits in-tree docs (README/AGENTS.md/docs/) for drift; user-level skill, not part of coderails itself; invoked at agentic-loop Phase 9 | [[sync-docs]] |
+| `sync-docs` | Audits in-tree docs (README/AGENTS.md/docs/) for drift; ships in-repo since 2026-07-10 (an earlier "user-level only" claim on this page was stale and is corrected); invoked at agentic-loop Phase 9 and by `docs-sync`'s nightly pipeline | [[sync-docs]] |
+| `docs-sync` | Machine-run only: nightly pipeline that invokes `sync-docs`'s audit and, only if drift is found, edits/pushes/reviews/self-merges a fix with no human in the loop; manifest-locked to git-tracked `.md` files with a self-governance deny-list | [[docs-sync]] |
 | `dashboard` | Live local observability HUD (Next.js/R3F web + Obsidian command centre); sub-project 1 of 5 in the agentic-OS evolution | [[dashboard]] |
 | `workflow-audit` | Mines transcripts for repeated tool-use patterns, judges skill candidates, creates every `propose`-verdict candidate (in-session `AskUserQuestion` gate removed 2026-07-15; queue-mode dashboard Approve is the opt-in human gate); sub-project 3 of 5 in the agentic-OS evolution | [[workflow-audit]] |
 | `verify-merged-pr` | Re-derives a "PR #N is merged" claim (state + content on origin/main + sibling PRs) before relying on it; the first skill built end-to-end by the dashboard Approve→build pipeline | [[verify-merged-pr]] |
