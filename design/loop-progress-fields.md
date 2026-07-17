@@ -99,7 +99,15 @@ per the honest-audit framing that section describes.
 - **`work_units`**: read by `als_read_work_units()`
   (`hooks/scripts/lib/loop_state_common.sh:138-145`), fail-open on
   absent/malformed input; consumed by the `>=3`-work-unit threshold gate in
-  [[loop_state_guard]].
+  [[loop_state_guard]]. Gained a **second consumer** with
+  [[pr_194_198_loop-complete-deferral-and-proof-gates|PR #194]]
+  (2026-07-17): `als_gate_work_units_on_complete` in [[loop_stall_guard]]
+  reads the same field on a `LOOP-STOP: complete` declaration and blocks
+  unless every entry is `"done"` or `"dropped"` with a non-empty
+  `dropped_reason` — file-level absence still fails open (same posture as
+  the threshold gate), but an individual unit that cannot be proven
+  terminal now fails closed, which the threshold gate never did (it only
+  counts entries, never judges their status).
 - **`loop_stop_counts`**: written exclusively by `bump_loop_stop_count()`
   (`hooks/scripts/loop_stall_guard.sh:52-58`, called at `:85` on every valid
   `LOOP-STOP` declaration) — see [[loop_stall_guard]] for the full mechanism
