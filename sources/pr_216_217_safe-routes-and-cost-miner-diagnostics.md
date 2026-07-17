@@ -296,7 +296,3 @@ possible future enhancement, not built.
 - [[pr_204_cost-reporter]] — the reporter that reads `retro.cost`, and the
   explicit "do not fix this into fail-closed" design note this PR's fix
   respects
-- [[feedback_fail_open_hides_its_cause]] — the four-wrong-causes memory this
-  PR's stderr fix directly addresses
-- [[feedback_validate_frozen_checks]] — the discriminating-check principle
-  both PRs' review caught violations of
