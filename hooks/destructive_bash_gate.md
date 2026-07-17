@@ -201,3 +201,4 @@ This hook reads its payload via `IFS= read -r -d '' -t 5 input || true`. See [[p
 - [[pr_72-75_2026-07-08_force-with-lease-allowlist]] — force-with-lease allowlist carve-out + tab-separator incident
 - [[pr_84_2026-07-08_git-global-option-bypass]] — option-tolerant git_push_re
 - [[pr_92_2026-07-08_reference-drift-and-lookalike-fp]] — REFERENCE.md drift fix + plugin_src anchor fix
+- [[pr_201_202_203_routine-followups]] — PR #203, per-pattern named safe route in deny messages + the bash 3.2 `${pat,,}` fail-open incident
