@@ -91,3 +91,4 @@ the model chose to relay it.
 - [[loop_state_guard]] — a Stop hook using plain exit 2 (C1)
 - [[loop_stall_guard]] — a Stop hook using plain exit 2 (C2)
 - [[unregistered_loop_guard]] — a Stop hook that deliberately does NOT use exit 2, nudging via exit-0 `additionalContext` instead
+- [[pr_204_cost-reporter]] — the source record for the new `systemMessage` channel and the reporter that uses it
