@@ -141,6 +141,14 @@ Four touch points wire this through the skill:
 
 See [[pr_155-158_ceremony_noise_envelope_anchoring]] and [[task-evals-gate]] for the full mechanism.
 
+## Phase 2.7e — freeze `proof.json`, authored by a separate blind agent (PR #198, 2026-07-17)
+
+A new sub-step, unconditional for every loop with an executable surface — it fires even when the rest of Phase 2.7 is skipped (2.7a/2.7b's ≥3-work-unit threshold does not gate 2.7e). The orchestrator spawns a **SEPARATE agent** whose only input is `progress.json.authorising_prompt_raw` (verbatim) plus any pre-implementation docs that prompt itself references — never the plan, spec, design decisions, or the orchestrator's own conversation. By Phase 2.7c the orchestrator has already seen the plan, so its blind spot already exists by then; this step generalises [[task-evals]]'s grader-independence rule from *grading* to *authoring* — the same principle [[pr_155-158_ceremony_noise_envelope_anchoring|envelope anchoring]] established for eval-goal-state, applied here to who is trusted to pick the proof commands.
+
+That blind agent writes `proof.json` (`{"schema_version":1,"frozen_at","frozen_sha","proofs":[{"id","claim","cmd","expect","status":"pending"}]}`) beside `progress.json`/`evals.json` — same "never committed, outside the repo" rule as those two files. The **command-authoring contract** each `cmd` must satisfy: a single self-contained shell command, runnable verbatim as its own Bash call BY THE ORCHESTRATOR in its own session (never a worker), in the FOREGROUND (never `run_in_background` — the [[loop_stall_guard|proof gate]]'s transcript miner excludes backgrounded launches, since an immediate launch result is not a pass/fail outcome), using absolute paths, exiting 0 on success (beware grep-style non-zero-on-no-match), with no command substitution mixed into a gated script's own invocation line and no destructive pattern.
+
+A loop with nothing executable writes no `proof.json` and records that choice in `decisions_absorbed` — the proof gate fails open on absence, so skipping it is a visible, auditable decision, not a silent gap.
+
 ## Phase 2.8 — Route: assign a model role per task (PR #169, 2026-07-14)
 
 **Unconditional** — fires even for a 1–2 unit loop that skips Phase 2.7 entirely (unlike 2.7's
