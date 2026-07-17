@@ -2,12 +2,13 @@
 title: Discipline Loop
 type: design
 created: 2026-05-30
-last_updated: 2026-07-14
+last_updated: 2026-07-17
 sources:
   - sources/pr_63_remove-failure-log.md
   - hooks/scripts/check_confidence_labels.sh
   - hooks/scripts/check_verify_loop.sh
   - CLAUDE.md
+  - sources/pr_206_208_loop-state-common-docs-and-robustness.md
   - instructions/self-checking-discipline.md
   - sources/session_2026-05-31_prompting-doc-alignment.md
   - sources/pr_57-62_subagent-enforcement-gate-hardening.md
