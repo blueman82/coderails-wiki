@@ -2,7 +2,9 @@
 title: "PR #238 — crack_on_prose_gate"
 type: source
 origin: https://github.com/blueman82/coderails/pull/238
-date: 2026-07-17
+created: 2026-07-17
+last_updated: 2026-07-17
+sources: []
 tags: [pr, hook, stop-hook, crack-on, discipline]
 ---
 
