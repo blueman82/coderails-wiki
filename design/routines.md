@@ -7,7 +7,8 @@ sources:
   - sources/pr_36-41-33-53-65_verified-routines.md
   - sources/pr_88_93_dashboard-launchd.md
   - sources/pr_201_202_203_routine-followups.md
-tags: [design, routines, cadence, artifact-gate, launchd, escalation, agentic-os, sub-project-2-of-5]
+  - sources/pr_207_209_docs-sync-nightly-and-drift-fix.md
+tags: [design, routines, cadence, artifact-gate, launchd, escalation, agentic-os, sub-project-2-of-5, security, self-governance]
 ---
 
 # Verified routines
