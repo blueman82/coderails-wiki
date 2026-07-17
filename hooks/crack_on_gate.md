@@ -100,11 +100,17 @@ header comment)
 The deny is scoped to the `AskUserQuestion` tool matcher only. The four
 agentic-loop hard-stops (the [[agentic-loop]] invariant; memory:
 `feedback_never_remove_hard_stops`) are turn-ending `LOOP-STOP` "report and wait" *declarations* in the
-final assistant message, not `AskUserQuestion` tool calls — this hook has no
-mechanism (no Stop-event deny, no global flag) that could reach them, and none was
-added. The test suite asserts this directly: with the crack-on flag live for a
-session, `Bash`/`Write`/`Task` tool calls all still allow. (verified:
-`crack_on_gate.test.sh`, "HARD-STOP PRESERVED" section)
+final assistant message, not `AskUserQuestion` tool calls — *this* hook has no
+mechanism that could reach them, and none was added here. The test suite asserts
+this directly: with the crack-on flag live for a session, `Bash`/`Write`/`Task`
+tool calls all still allow. (verified: `crack_on_gate.test.sh`, "HARD-STOP
+PRESERVED" section)
+
+> Note: the crack-on human-ask waiver DOES now have a Stop-event half —
+> [[crack_on_prose_gate]] (PR #238, 2026-07-17) — which blocks a **prose** question
+> in the final message. It, too, leaves `LOOP-STOP` declarations untouched (no tier
+> matches the declarative ending line). This gate remains the tool-deny half; the
+> two together cover both forms of the ask.
 
 ## Environment variables
 
@@ -128,4 +134,6 @@ documented in [[discipline-loop]]'s "Stdin read convention" section.
 - [[loop_state_guard]] / [[loop_stall_guard]] — the sibling family that DOES use
   `agentic_loop_path.sh`'s resolver, and why this hook deliberately does not
 - [[hook-exit-codes]] — why `UserPromptSubmit` hooks never use exit 2
+- [[crack_on_prose_gate]] — the Stop-event half of the same waiver, blocking a
+  question handed back in the final message's prose (PR #238)
 - [[pr_175-176_crack-on-gate-and-inbox-brief-button]] — the merge record
