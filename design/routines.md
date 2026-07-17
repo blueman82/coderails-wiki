@@ -6,6 +6,7 @@ last_updated: 2026-07-17
 sources:
   - sources/pr_36-41-33-53-65_verified-routines.md
   - sources/pr_88_93_dashboard-launchd.md
+  - sources/pr_201_202_203_routine-followups.md
 tags: [design, routines, cadence, artifact-gate, launchd, escalation, agentic-os, sub-project-2-of-5]
 ---
 
