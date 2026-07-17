@@ -13,12 +13,13 @@ sources:
   - sources/pr_84_2026-07-08_git-global-option-bypass.md
   - sources/pr_92_2026-07-08_reference-drift-and-lookalike-fp.md
   - sources/pr_201_202_203_routine-followups.md
+  - sources/pr_216_217_safe-routes-and-cost-miner-diagnostics.md
 tags: [hook, pretooluse-hook, enforcement, destructive-bash, block]
 ---
 
 # Hook: destructive_bash_gate
 
-A `PreToolUse (Bash)` lifecycle hook that permanently blocks a fixed set of destructive shell commands before they run, with **one narrow conditional-allow carve-out** (`git push --force-with-lease`, opt-in, see below). Extended in PR #59 to cover additional force-clean, truncate, shred commands plus a best-effort branch-aware gate on in-Bash source file edits. Hardened again in a same-day, five-PR arc on 2026-07-08 (#69, #72+#75, #84, #92) that closed three independent bypasses and one false-positive — see "2026-07-08 adversarial-hardening arc" below. Deny messages gained a per-pattern named safe route on 2026-07-17 (PR #203) — see "Deny messages name a concrete safe route" below.
+A `PreToolUse (Bash)` lifecycle hook that permanently blocks a fixed set of destructive shell commands before they run, with **one narrow conditional-allow carve-out** (`git push --force-with-lease`, opt-in, see below). Extended in PR #59 to cover additional force-clean, truncate, shred commands plus a best-effort branch-aware gate on in-Bash source file edits. Hardened again in a same-day, five-PR arc on 2026-07-08 (#69, #72+#75, #84, #92) that closed three independent bypasses and one false-positive — see "2026-07-08 adversarial-hardening arc" below. Deny messages gained a per-pattern named safe route on 2026-07-17, first for 3 patterns (PR #203), then extended to **all ~13 blockable patterns** the same day (PR #216) — see "Deny messages name a concrete safe route" below.
 
 Source: `hooks/scripts/destructive_bash_gate.sh`
 
