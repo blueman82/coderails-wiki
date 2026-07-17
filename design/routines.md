@@ -73,7 +73,7 @@ Worked example, the shipped `wiki-lint` routine (`examples/dashboard-config.json
 The first three shipped in `examples/dashboard-config.json` at PR #53, all `"profile": "read-only"`:
 
 - **`wiki-lint`** (nightly) — gates on `{vault}/log.md` containing `## [{date}] lint`.
-- **`sync-docs-weekly`** (weekly) — the `sync-docs` skill, referenced via `foreignSkillPath` (lives outside this repo).
+- ~~**`sync-docs-weekly`** (weekly)~~ — **retired 2026-07-17, replaced by `sync-docs-nightly`** (see its own section below). Referenced the `sync-docs` skill via a `foreignSkillPath` that pointed at a location that never existed.
 - **`memory-consolidation-weekly`** (weekly) — see [[memory-consolidation]]; gates on that skill's own report file existing.
 
 Two more were added to that same example config later, and are also live on this machine. Both are `buttonRef`-backed, weekly, `maxAgeSeconds` 691200 (8 days), escalating via `notification` + `vault-note` `(verified, examples/dashboard-config.json and ~/.claude/coderails-dashboard.json, both read 2026-07-17 — 5 routines in each)`:
@@ -84,6 +84,37 @@ Two more were added to that same example config later, and are also live on this
 > **✅ Both defects noted by the 2026-07-17 lint pass above are now fixed or corrected (same-day cluster, PRs #201/#202 — [[pr_201_202_203_routine-followups]]):**
 > 1. **`{date}` local/UTC skew — fixed by PR #202.** `sweepOnce()` now derives `{date}` via a TZ-aware `localDateIso()` helper (an injectable `clock?: () => Date` on `SweepOptions`) instead of `new Date().toISOString()`. Affects all four dated routines; see [[dashboard-runner]] for the mechanism.
 > 2. **The example config's stale `Documents/Github` path — fixed by PR #201.** `examples/dashboard-config.json` is documentation-only (its sole real consumer is a vitest fixture — the LIVE config `~/.claude/coderails-dashboard.json` never carried this rot) and now uses slash-rooted `/path/to/...` placeholders throughout instead of any machine-specific absolute path. The original "gate can never pass" framing in [[loop-retro-promotion]] was **true only of the example file, never of the live config** — see that page's own note, corrected 2026-07-17, for the live-state re-verification.
+
+## `sync-docs-nightly`: the self-merging replacement for the broken weekly routine
+
+**Root cause of `sync-docs-weekly`'s failure, and a correction on how it was diagnosed.** The retired routine ran green 2026-07-08, then went red on 2026-07-15 with `failureClass: skill-missing` — its `foreignSkillPath` pointed at `/Users/harrison/.claude/skills/sync-docs/SKILL.md`, a path that never existed (the real skill had already moved in-repo, `f488ca5`, 2026-07-10). Everything merged after 2026-07-15 drifted unaudited, including PR #199's sandbox workers.
+
+**The escalation itself worked; a first-pass claim that it "failed silently" was wrong and is retracted here on purpose.** That claim came from grepping `~/.claude/coderails-dashboard/routines/sweeper.log` (launchd stdout) — the wrong surface for this question. `escalate.ts:55-68` (`writeRunNote`) did write a structured red run-note to `dashboard-runs/sync-docs-weekly.md` and fire a synchronous macOS notification, exactly as designed; that run-note is the escalation, sitting exactly where the design says it should `(verified, dashboard-runs/sync-docs-weekly.md read in full, and skills/dashboard/runner/src/escalate.ts read directly)`. **The real gap: escalation fired to a channel nobody was watching** — a vault-note file and a transient `osascript` popup are not equivalent to something a routine's owner actually sees day to day. For an unattended routine, "escalated to an unread channel" and "failed silently" are operationally indistinguishable, even though mechanically they are not the same failure. Keep both the wrong claim and its correction in view — the wrong-surface trap (check the convenient log, not the log the design actually specifies) is the reusable lesson, not just the eventual right answer.
+
+`sync-docs-nightly` (button `sync-docs`) needs no `foreignSkillPath` at all — its skill (`skills/docs-sync/SKILL.md`, a **new, separate** skill from [[sync-docs]] that *invokes* `sync-docs`'s audit as its first step) ships in-repo, same pattern as [[loop-retro-promotion]]. Nightly cadence, `maxAgeSeconds: 129600` (36h, correctly re-derived per the trap noted above — not inherited from the old routine's weekly 8-day bar), `predicate: exists` against a per-night run log, `bypass` profile, both escalation channels. Unlike its read-only predecessor, this routine **edits, pushes, reviews, and self-merges a fix with no human in the loop** if drift is found; if nothing is wrong, it logs `no-drift` and stops before touching any git state, specifically to avoid nightly PR spam on ordinary nights.
+
+**Security: an extension check is not a path allow-list.** The manifest asserts the diff contains ONLY `.md` files before pushing — but the routine's own governing files (`skills/docs-sync/SKILL.md` itself, `AGENTS.md`, `CLAUDE.md`, `docs/routines.md`) are ALL `.md`, so a bare extension check would let the routine legally rewrite its own safety contract, one degraded night compounding into the next. Two further holes were proven empirically (commands re-run and verified live during this ingest, not just taken from the PR's own prose):
+
+```
+$ git mv scripts/gate.sh evil.md
+$ git diff --name-only HEAD    →  evil.md
+$ git diff --name-status HEAD  →  R100  scripts/gate.sh  evil.md
+```
+`--name-only` shows only the destination — a `.md` path on no deny-list, smuggling a renamed shell script past an extension-only check. `--name-status` exposes the rename source.
+
+```
+$ git rm README.md
+$ git diff --name-only HEAD~1    →  README.md   (indistinguishable from an edit)
+$ git diff --name-status HEAD~1  →  D  README.md
+```
+
+The shipped fix: `--name-status` (never `--name-only`) + an explicit self-governance deny-list (every `skills/**/SKILL.md` including its own, `AGENTS.md`, `CLAUDE.md`, `docs/routines.md`, anything under `.claude/`, `examples/dashboard-config.json`) + reject `R`/`C` lines whose source wasn't already in-scope + reject `D` lines for in-scope docs. Any violation is ABORT WITH CLEANUP (close PR, delete branch locally+remotely, log `abort=<reason>`) — never warn-and-continue.
+
+**Contract tests are regression-locked against silent rot, not just present.** A bare keyword grep like `grep -qi 'no-drift'` passes even on prose stating the opposite of the intended behaviour (`echo "no-drift handling was removed; the routine now always opens a PR" | grep -qi 'no-drift'` — passes); an earlier pushed revision of the SKILL.md had, in fact, already dropped its entire failure-visibility section while all 14 original checks stayed green. `hooks/scripts/tests/docs_sync_routine.test.sh` fixes this by anchoring each check on the exact normative sentence and adding `neg_check` negative controls that strip the sentence and assert the check goes RED without it.
+
+**Honest limits.** Same shape as [[loop-retro-promotion]]'s own limits below: the manifest and deny-list are prompt-enforced, not hook-enforced (`PreToolUse` does not fire under `claude -p` — see the security warning further down), and this repo carries no branch protection by design. The routine also generates its own review/eval artifacts and merges on them — the same headless run authors the docs and attests they're good; the `.md`-only blast-radius cap is the actual mitigation, and the self-attestation is real and unresolved. **Scope was narrowed on purpose vs. the literal ask** ("no human involved"): the routine refuses to auto-fix drift in its own governing docs and escalates those to a human instead. Like [[loop-retro-promotion]], its full self-merge chain had (as of this section's writing) never fired end-to-end in production before this routine shipped — this makes `sync-docs-nightly` this repo's first actual production exercise of the complete headless task-evals→push→review→merge chain, not a repeat of a battle-tested path. Live-fired 2026-07-17 (seeder queued it, sweeper claimed and ran it successfully, frozen loop evals E6/E7 passed) but no drift existed that run, so only the no-drift short-circuit was exercised — the actual self-merge chain remains unexercised in production.
+
+See [[docs-sync]] for the skill page and [[pr_207_209_docs-sync-nightly-and-drift-fix]] for the full source record.
 
 ## launchd wiring
 
