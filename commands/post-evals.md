@@ -2,14 +2,15 @@
 title: "/coderails:post-evals"
 type: command
 created: 2026-07-06
-last_updated: 2026-07-13
+last_updated: 2026-07-17
 sources:
   - commands/post-evals.md
   - scripts/lib/eval-artifact.sh
   - scripts/post_evals.sh
   - sources/pr_1-4_task-evals-feature.md
   - sources/pr_7-10_task-evals-followups.md
-tags: [command, post-evals, eval-artifact, sha-bound, merge-gate, task-evals]
+  - sources/pr_218_discriminating-check-gate.md
+tags: [command, post-evals, eval-artifact, sha-bound, merge-gate, task-evals, discriminating-check, fixtures]
 ---
 
 # /coderails:post-evals
