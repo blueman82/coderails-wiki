@@ -5,6 +5,7 @@ created: 2026-07-07
 last_updated: 2026-07-07
 sources:
   - sources/pr_36-41-33-53-65_verified-routines.md
+  - sources/pr_201_202_203_routine-followups.md
 tags: [design, dashboard, runner, routines, artifact-gate, escalation, agentic-os, sub-project-2-of-5]
 ---
 
