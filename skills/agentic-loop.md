@@ -616,5 +616,7 @@ the substantive change this terminology update accompanies.
 - [[writing-plans]] — also gains a mandatory per-task `Model:` stamp from the same PR (below the existing four cross-refs to this page)
 - [[enforcement-model]] — "Model-role routing ... advisory, not hook-enforced" bullet reworded by PR #169 for the new vocabulary and a precise hook-matcher claim (only `Bash` and `Write|Edit|MultiEdit`)
 - [[pr_194_198_loop-complete-deferral-and-proof-gates]] — PRs #194/#198 (2026-07-17) source record: Phase 2.7e blind-authored `proof.json` + the Phase 13 teardown's new first step (run every proof verbatim, foreground, orchestrator session); the deferral gate's `work_units` terminal-status enforcement; the `als_count_invocations` non-object-line fix that closed a full complete-gate-family bypass
-- [[loop_stall_guard]] — the hook hosting all three `complete`-branch gates now: retro, deferral (`work_units`), and proof (`proof.json` vs. transcript)
+- [[loop_stall_guard]] — the hook hosting all three `complete`-branch gates (retro, deferral, proof) plus the new non-blocking cost reporter
 - [[task-evals]] — the grader-independence rule (rule 4/oracle-independence) that Phase 2.7e's blind proof authorship generalises from grading to authoring
+- [[pr_204_cost-reporter]] — PR #204 (2026-07-17) source record: `als_report_cost_on_complete`, the mechanical, never-blocking cost print that closes the "must print it" prose gap; first coderails hook use of the `systemMessage` human-visible channel
+- [[hook-exit-codes]] — the `systemMessage`-vs-`additionalContext` channel distinction PR #204 established
