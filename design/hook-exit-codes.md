@@ -61,6 +61,28 @@ Rule of thumb: pick one mechanism per hook — exit 2 *or* exit-0-with-JSON, nev
 both (JSON is ignored on exit 2). Use the JSON form only where its richer reason
 field earns its keep.
 
+## `additionalContext` vs. `systemMessage` — model-visible vs. human-visible (PR #204)
+
+`additionalContext` (used by every hook above that emits JSON at exit 0) is
+**model-visible only** — Claude Code's own docs state it "doesn't appear as a
+chat message in the interface." A `Stop` hook's raw stdout otherwise goes only
+to the debug log, invisible to the human. Until PR #204, no hook in coderails
+ever emitted a top-level `systemMessage` field — the channel Claude Code's own
+schema documents as "Warning message shown to the user." `loop_stall_guard.sh`'s
+new [[loop_stall_guard|cost reporter]] (`als_report_cost_on_complete`) is the
+first hook to use it, verified empirically with a live smoke test: it renders
+in the terminal as `Stop says: <msg>`, reaching the human directly rather than
+only steering the model's next turn. See [[pr_204_cost-reporter]] for why a
+mechanically-printed cost line needed a human-visible channel specifically —
+the whole point was to make the report reach the human regardless of whether
+the model chose to relay it.
+
+| Channel | Reaches | Used by |
+|---|---|---|
+| `additionalContext` (exit 0 JSON) | model only | every nudge/warn hook in the table above |
+| `systemMessage` (exit 0 JSON, top-level) | **human, directly** | `loop_stall_guard.sh`'s cost reporter (PR #204) — the sole user so far |
+| stderr on `exit 2` | model (fed back into the blocked turn) | every block-mode hook in this file |
+
 ## Related
 
 - [[enforcement-model]] — the hooks-vs-commands distinction this refines
