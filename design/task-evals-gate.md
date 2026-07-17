@@ -258,3 +258,4 @@ gh pr merge
 - [[pr_144-149_agentic-loop-hardening-from-loop-engineering]] — PRs #144-149 (2026-07-12): `grade-loop` neutral grading + `UNSTAMPED` demotion (#144), rule 6 "Strongest surface" (#145), the dashboard's third-seam `readEvalsFrozen` drift (#148/#149)
 - [[pr_155-158_ceremony_noise_envelope_anchoring]] — PR #158 (2026-07-13): rule 4 "Oracle independence" extended with the loop-scope `authorising_prompt_raw` precedence rule, wired into [[agentic-loop]] at Phase -2/-1/2.7c/13
 - [[dashboard]] — the skill whose `sessions.ts`/`RailLeft.tsx` are the third schema consumer named above
+- [[pr_218_discriminating-check-gate]] — PR #218 (2026-07-17): the discriminating-check gate — `fixtures`-based freeze-time proof that a scripted check's formula can both pass and fail, closing the class rule 2's text-only negative-control check cannot
