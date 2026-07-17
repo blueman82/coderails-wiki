@@ -27,7 +27,8 @@ sources:
   - sources/pr_192_frontier-opus-effort-routing.md
   - sources/pr_184_185_186_loop-cost-tracking.md
   - sources/pr_194_198_loop-complete-deferral-and-proof-gates.md
-tags: [skill, agentic-loop, multi-agent, orchestration, context-window, delegation, artifact-chain, loop-state, post-review, review-artifact, self-attestation, enforcement-ceiling, session-keying, frontmatter, description-cap, task-evals, work-units, teamcreate-purge, sdd-ledger, retry-until-green, hard-stops, decisions-absorbed, grade-loop, review-tier-ladder, warn-demotion, envelope-anchoring, loop-stop-final-line, finishing-out, verification-before-completion, model-routing, capability-roles, effort-routing, cost-tracking, schema-version-2, loop-cost-miner, proof-json, blind-authorship, deferral-gate, proof-gate]
+  - sources/pr_204_cost-reporter.md
+tags: [skill, agentic-loop, multi-agent, orchestration, context-window, delegation, artifact-chain, loop-state, post-review, review-artifact, self-attestation, enforcement-ceiling, session-keying, frontmatter, description-cap, task-evals, work-units, teamcreate-purge, sdd-ledger, retry-until-green, hard-stops, decisions-absorbed, grade-loop, review-tier-ladder, warn-demotion, envelope-anchoring, loop-stop-final-line, finishing-out, verification-before-completion, model-routing, capability-roles, effort-routing, cost-tracking, schema-version-2, loop-cost-miner, proof-json, blind-authorship, deferral-gate, proof-gate, cost-reporter, reporter-not-gate, system-message]
 ---
 
 # Skill: agentic-loop
