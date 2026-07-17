@@ -209,6 +209,69 @@ forgery. A session that deliberately appends forged
 no transcript-reading hook can close that, and this gate makes no stronger
 claim.
 
+## Cost reporter on `complete` (PR #204) — the one step here that never blocks
+
+`als_report_cost_on_complete` in the shared lib, called after the proof gate
+above and before `bump_loop_stop_count`. Unlike every other function on this
+branch, it is named `..._report_...` deliberately: **every path returns 0.**
+It exists because `skills/agentic-loop/teardown.md` already said, in bold,
+that a `complete` loop "must print" its cost — prose that loop `0d3fb487`
+read, then silently skipped anyway (and fabricated an explanation for the
+omission). Prose can't enforce prose; this closes that gap mechanically,
+independent of what the model chooses to do.
+
+**Deliberately inverts this file's fail-toward-blocking idiom.** Every other
+gate here (and `check_verify_loop.sh`/`check_confidence_labels.sh` elsewhere)
+runs its check and lets a failure exit non-zero. This function does the
+opposite on purpose: `dc_mine_token_usage`
+(`hooks/scripts/lib/loop_cost.sh:7-12`, see
+[[pr_184_185_186_loop-cost-tracking]]) is contractually fail-open to `{}` and
+"must never block a caller" — a legitimately empty `.cost` on an
+otherwise-valid, already-finished loop is expected, not an error state. A
+fail-closed reporter would deadlock a loop that has ALREADY cleared the
+retro/work_units/proof gates above it — strictly worse than the
+unrecorded-cost bug it exists to fix.
+
+**Behaviour matrix**, keyed off `retro.json`'s `schema_version` and `.cost`
+(the retro is already proven present/parseable by the retro gate above, so
+this function doesn't re-check that):
+
+| Condition | Output |
+|---|---|
+| `schema_version < 2` (legacy, pre-cost-miner) | silent |
+| `schema_version >= 2`, `.cost` populated | `Loop cost: $<usd> (<tokens> tokens), prices as of <date>, N days old` |
+| `schema_version >= 2`, `.cost` non-empty but missing a required field | `cost recorded but incomplete (missing <field(s)>)` |
+| `schema_version >= 2`, `.cost == {}` (miner failed open) | `cost unavailable (miner returned no data)` |
+| `schema_version >= 2`, `.cost` absent (teardown skipped the mining step) | `cost not recorded` |
+
+The four non-legacy rows are deliberately distinct messages — `schema_version`
+is the discriminator between "legacy loop, nothing to report" and "sv2 loop,
+teardown skipped a step it should have run," since both leave `.cost` absent.
+Collapsing any two into one message, or into a silent return, would recreate
+the exact failure this reporter exists to close.
+
+**Anti-fabrication, not just anti-silence.** Every branch follows
+"visibly-wrong beats plausibly-fabricated": a non-scalar cost field is
+selected to empty rather than rendered as a multi-line `jq -r` pretty-print
+blob; `printf '%.2f'` on a non-numeric input is gated behind a numeric-string
+check first (it otherwise silently prints `$0.00` — verified); a
+`prices_as_of` staleness date is gated on the exact `YYYY-MM-DD` shape before
+`date` parses it (macOS `date -j -f "%Y-%m-%d"` silently accepts trailing
+garbage like `"2026-06-24FORGED"` — verified) and prints the raw string
+otherwise; the final message is stripped to printable+space/tab characters
+before reaching the terminal. The discipline-log entry records only the
+outcome class (`reported`/`miner_failed_open`/`cost_absent`/
+`cost_incomplete`), never the interpolated message body.
+
+**New precedent: the first coderails hook to use `systemMessage`.** Every
+prior hook in this repo delivers to the model via `additionalContext`
+(model-visible only — Claude Code's own docs state it never appears as a
+chat message). A Stop hook's stdout otherwise lands in the debug log,
+invisible to the human. `systemMessage` is the channel that actually reaches
+the human's terminal — verified empirically with a live smoke test, rendering
+as `Stop says: <msg>`. See [[hook-exit-codes]] for the fuller channel-mechanics
+treatment. See [[pr_204_cost-reporter]] for the full source record.
+
 ## Stdin read convention (PR #76)
 
 This hook reads its payload via `IFS= read -r -d '' -t 5 input || true`. See [[pr_76_harden-hook-stdin-read]] for the full convention and the fail-open rationale.
