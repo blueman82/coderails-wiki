@@ -225,7 +225,7 @@ independent of what the model chooses to do.
 gate here (and `check_verify_loop.sh`/`check_confidence_labels.sh` elsewhere)
 runs its check and lets a failure exit non-zero. This function does the
 opposite on purpose: `dc_mine_token_usage`
-(`hooks/scripts/lib/loop_cost.sh:7-12`, see
+([[loop_cost]]:7-12, see
 [[pr_184_185_186_loop-cost-tracking]]) is contractually fail-open to `{}` and
 "must never block a caller" — a legitimately empty `.cost` on an
 otherwise-valid, already-finished loop is expected, not an error state. A
