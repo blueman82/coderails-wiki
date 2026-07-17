@@ -27,15 +27,16 @@ Run after `/coderails:task-evals` has produced an `evals.json` for this PR — t
 
 ## What it does
 
-Seven sequential steps (verified: `commands/post-evals.md`):
+Eight sequential steps (verified: `commands/post-evals.md`):
 
 1. **Step 0 — Argument gate.** Verify the argument is a plain PR number (digits only, non-empty) **by inspection** — never by pasting it into a shell command. Stop if empty or non-numeric. Ships this way from day one (post-evals.md was written after PR #97 closed the equivalent injection class in `post-review.md`, so it never carried the vulnerable render-time pattern).
 2. **Locate the evals.json** — working material, not a fixed path; `/coderails:task-evals` (pr scope) doesn't mandate a fixed location, so it's found wherever the invoking workflow placed it.
 3. **Resolve head SHA** — `gh pr view "$ARGUMENTS" --json headRefOid -q .headRefOid`.
 4. **Validate structure** — `./scripts/post_evals.sh validate-structure <path> "$ARGUMENTS" "$HEAD_SHA"`. Non-zero exit **aborts** — do not post. See the 7 structural refusals below.
-5. **Compute result + read tier** — `./scripts/post_evals.sh compute-result <path>` (never hand-written) and `jq -r '.tier'`.
-6. **Build marker, write summary** — sources `scripts/lib/eval-artifact.sh`, calls `eval_artifact::marker`. Summary body: per-eval pass/fail split by priority, plus any `amendments` verbatim. The prose summary is deliberately **not grammar-gated** — the JSON's structural guarantees are what the merge gate relies on, not the comment wording (contrast with [[post-review]]'s grammar-checked summary, a deliberate difference: `task-evals`' floor is the schema, not prose structure).
-7. **Post via `gh api`** (not `gh pr comment`) — checks for an existing artifact comment matching this PR+SHA first (skip + report existing URL if found, avoiding duplicate artifacts), otherwise posts and captures the returned URL/id/author/created metadata.
+5. **Step 3b — Validate discriminating checks** ([[pr_218_discriminating-check-gate|PR #218]], 2026-07-17). `./scripts/post_evals.sh validate-discriminating <path>`. Non-zero exit **aborts** — do not post. For every scripted eval carrying an optional `fixtures` object, mechanically pipes `fixtures.good`/`fixtures.bad` into the check's formula and rejects any check whose two fixtures don't produce opposite exit codes — catching a check that is textually well-formed (passes the Step 3 structural gate) but behaviourally broken (can never both pass and fail). Evals with no `fixtures` field are grandfathered — untouched by this step. Full mechanism and honest boundary: [[task-evals-gate]].
+6. **Compute result + read tier** — `./scripts/post_evals.sh compute-result <path>` (never hand-written) and `jq -r '.tier'`.
+7. **Build marker, write summary** — sources `scripts/lib/eval-artifact.sh`, calls `eval_artifact::marker`. Summary body: per-eval pass/fail split by priority, plus any `amendments` verbatim. The prose summary is deliberately **not grammar-gated** — the JSON's structural guarantees are what the merge gate relies on, not the comment wording (contrast with [[post-review]]'s grammar-checked summary, a deliberate difference: `task-evals`' floor is the schema, not prose structure).
+8. **Post via `gh api`** (not `gh pr comment`) — checks for an existing artifact comment matching this PR+SHA first (skip + report existing URL if found, avoiding duplicate artifacts), otherwise posts and captures the returned URL/id/author/created metadata.
 
 Report step: prints the posted comment URL and the computed result/tier.
 
