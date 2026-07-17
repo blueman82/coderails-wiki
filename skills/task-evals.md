@@ -2,14 +2,15 @@
 title: "Skill: task-evals"
 type: skill
 created: 2026-07-06
-last_updated: 2026-07-13
+last_updated: 2026-07-17
 sources:
   - sources/pr_1-4_task-evals-feature.md
   - sources/pr_7-10_task-evals-followups.md
   - sources/pr_15-17_loop-hardening-registration-eval-freeze-ledger-dry.md
   - sources/pr_138_remove-specs-plans-tracking.md
   - sources/pr_144-149_agentic-loop-hardening-from-loop-engineering.md
-tags: [skill, task-evals, anti-gaming, evals-json, tiering, verify-criteria, oracle-independence, tier-justification, eval-freeze, strongest-surface, grade-loop]
+  - sources/pr_218_discriminating-check-gate.md
+tags: [skill, task-evals, anti-gaming, evals-json, tiering, verify-criteria, oracle-independence, tier-justification, eval-freeze, strongest-surface, grade-loop, discriminating-check, fixtures]
 ---
 
 # Skill: task-evals
