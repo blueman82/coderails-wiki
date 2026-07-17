@@ -66,6 +66,8 @@ Worked example, the shipped `wiki-lint` routine (`examples/dashboard-config.json
 
 `maxAgeSeconds` should sit comfortably above the cadence interval — the nightly example above uses 129600s (36h); all four weekly routines use 691200s (8 days) — so a slightly-late run doesn't fail its own gate on staleness alone `(verified, docs/routines.md)`.
 
+**The `maxAgeSeconds` trap: it is a manual field, not derived from `cadence`** `(verified, config.ts:76-79 defines the field with no cadence-linkage)`. Flipping an existing routine's `cadence` from `weekly` to `nightly` while leaving its old weekly 691200s (8-day) freshness bar in place would let a routine that's been dead for a full week still read as "fresh" — silently reintroducing the exact staleness bug a nightly cadence exists to catch faster. Every cadence change to an existing routine must re-derive `maxAgeSeconds` by hand; nothing in the schema does it automatically. This bit `sync-docs-nightly` at design time (below) — its shipped value is 129600s (36h), correctly narrowed for the new nightly cadence, not inherited from its weekly predecessor.
+
 ## The five shipped routines
 
 The first three shipped in `examples/dashboard-config.json` at PR #53, all `"profile": "read-only"`:
