@@ -67,7 +67,7 @@ Built by `eval_artifact::marker()` in `scripts/lib/eval-artifact.sh` — the sam
 ## Scripts used
 
 - `scripts/lib/eval-artifact.sh` — marker SSOT + `eval_artifact::compute_go` (sourced, not run)
-- `scripts/post_evals.sh` — `validate-structure` and `compute-result` subcommands (the script's third subcommand, `grade-loop` — added by [[pr_144-149_agentic-loop-hardening-from-loop-engineering|PR #144]], 2026-07-12 — belongs to the loop-scope gate, is invoked directly rather than via this command, and is documented on [[task-evals-gate]])
+- `scripts/post_evals.sh` — `validate-structure`, `validate-discriminating` ([[pr_218_discriminating-check-gate|PR #218]]), and `compute-result` subcommands (the script's fourth subcommand, `grade-loop` — added by [[pr_144-149_agentic-loop-hardening-from-loop-engineering|PR #144]], 2026-07-12 — belongs to the loop-scope gate, is invoked directly rather than via this command, and is documented on [[task-evals-gate]])
 
 ## Chain position
 
