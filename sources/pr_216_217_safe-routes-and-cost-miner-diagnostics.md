@@ -243,13 +243,11 @@ possible future enhancement, not built.
    staying green), and bare `-n`/`-i` two-char substrings matching inside
    unrelated words (proven by a fabricated route containing `"manual-n"`/
    `"4-i"` passing clean). Both were fixed and negative-controlled before
-   merge — see [[feedback_validate_frozen_checks]] for the general form of
-   this failure mode.
+   merge.
 3. **A fail-open collapses N causes into one value.** `{}` said nothing about
    *why*, so four loops each guessed a different wrong cause from outside the
    function, none verified inside it. Fixing the silence is as important as
-   fixing whatever bug the silence was hiding — see
-   [[feedback_fail_open_hides_its_cause]].
+   fixing whatever bug the silence was hiding.
 4. **The gate blocks its own patterns even inside a comment or quoted
    string — a known, NOT-fixed-here follow-up.** During this cluster's own
    build, [[destructive_bash_gate]] blocked an orchestrator's own
