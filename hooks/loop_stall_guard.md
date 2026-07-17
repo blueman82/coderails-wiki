@@ -224,3 +224,5 @@ This hook reads its payload via `IFS= read -r -d '' -t 5 input || true`. See [[p
 - [[pr_96-98_mode-aware-install-argument-injection-guard-hook-owned-counter]] — PR #98: this hook becomes the sole writer of loop_stop_counts
 - [[pr_86-107_2026-07-08_loop-lib-residuals]] — PRs #91/#107: malformed-transcript tolerance in the shared `loop_state_common.sh` parse this hook's `als_gate_not_a_loop` depends on
 - [[pr_184_185_186_loop-cost-tracking]] — PR #186: widens the retro gate to `schema_version >= 1`; PR #184: the cost-mining sub-step that bumps the retro to `schema_version` 2
+- [[pr_194_198_loop-complete-deferral-and-proof-gates]] — PR #194: the deferral gate (`work_units` terminal-status check); PR #198: the proof gate (transcript-derived verdicts against a blind-authored `proof.json`) and the `als_count_invocations` non-object-line fix that closed a full complete-gate-family bypass
+- [[loop-progress-fields]] — `work_units`' full schema; now has two consumers (the eval-threshold gate here documented and the deferral gate above)
