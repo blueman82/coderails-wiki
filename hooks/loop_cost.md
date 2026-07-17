@@ -8,7 +8,8 @@ sources:
   - sources/pr_184_185_186_loop-cost-tracking.md
   - sources/pr_204_cost-reporter.md
   - sources/pr_216_217_safe-routes-and-cost-miner-diagnostics.md
-tags: [lib, agentic-loop, cost-tracking, fail-open, diagnostics, loop-stall-guard]
+  - sources/pr_228_229_230_token-burn-reduction-and-agents-split.md
+tags: [lib, agentic-loop, cost-tracking, fail-open, diagnostics, loop-stall-guard, headless-children, zsh-compat]
 ---
 
 # Lib: loop_cost.sh (`dc_mine_token_usage`)
@@ -20,7 +21,9 @@ no direct lifecycle-event entry of its own. It's called from
 pages rather than under a `design/` or `skills/` heading. First shipped in
 PR #186 ([[pr_184_185_186_loop-cost-tracking]]); its fail-open bails gained
 distinct diagnostic messages in PR #217
-([[pr_216_217_safe-routes-and-cost-miner-diagnostics]]).
+([[pr_216_217_safe-routes-and-cost-miner-diagnostics]]); its output gained an
+honest headless-child-exclusion count in PR #230
+([[pr_228_229_230_token-burn-reduction-and-agents-split]]).
 
 Source: `hooks/scripts/lib/loop_cost.sh`
 
@@ -87,6 +90,52 @@ stdout is real contract risk (a `2>&1` merge or `tee` could corrupt the `{}`
 JSON on stdout) for marginal additional diagnostic value. Recorded as a
 possible future enhancement.
 
+## `headless_children_excluded_count` — honest disclosure, not attribution (PR #230, 2026-07-17)
+
+Headless `claude -p` children (e.g. `skills/dashboard/scripts/run-builder.sh`'s
+bypass spawn) land as their OWN top-level `<proj>/<other-session>.jsonl`
+transcript with no `subagents/` linkage back to the orchestrator session —
+there was never a sound way to fold their tokens into `per_model`/`total_tokens`,
+and the pre-existing `notes` field already said so ("headless claude -p child
+sessions excluded"). What was missing: any *signal* that an exclusion had
+happened, so a reader saw a clean total with no indication it might be an
+undercount.
+
+PR #230 adds `headless_children_excluded_count` (integer) to the miner's
+output object: a **candidate count**, not a resolved attribution — top-level
+`.jsonl` siblings in the same `<proj>` dir as the orchestrator transcript
+(excluding the orchestrator transcript itself) whose mtime falls within a
+symmetric window of the orchestrator transcript's own mtime. Default window
+`3600`s, overridable via `CLAUDE_HEADLESS_WINDOW_SECS` (for tests), chosen to
+cover a single build's wall-clock budget (`BUILDER_WALL_CLOCK_SECS` default
+2700s in `run-builder.sh`) with margin. The `notes` field text was extended
+to point a reader at the new count. **This can overcount** (any unrelated
+session active in the same project dir within the window) **or undercount**
+(a headless child outside the window, or in a different project dir) — treat
+it as "an undercount category exists, roughly this large," not a precise
+figure.
+
+Two follow-up fixes landed on the same branch before merge:
+
+- **Numeric guard (review finding).** `CLAUDE_HEADLESS_WINDOW_SECS` was read
+  directly into a `-le` numeric comparison with no validation — a non-numeric
+  override would leak a raw `"[: integer expression expected"` to stderr.
+  Guarded with `case "$headless_window" in ''|*[!0-9]*) headless_window=3600
+  ;; esac` — falls back to the default rather than mining a garbage window;
+  still fail-open either way.
+- **zsh stdout-corruption fix (security-review finding).** The counting
+  loop's `local f_mtime diff` was originally declared *inside* the `while
+  read` loop body. Under zsh 5.9, a `local` redeclared on each iteration
+  echoes `"name=value"` to stdout on the 2nd+ pass — corrupting this
+  function's single-JSON-object-on-stdout output contract (this file has
+  explicit zsh-compat support, so the break is real, not theoretical). Fixed
+  by hoisting `f_mtime diff` out to the same `local` declaration as
+  `orch_mtime`, before the loop starts.
+
+Net effect: one new integer field on the returned object; the `{}` fail-open
+contract, the 7 distinct-stderr bail messages (table above), and the
+dedupe-by-`message.id` mining logic are all unchanged.
+
 ## Verification
 
 - 71 ok / 0 FAIL on `hooks/scripts/tests/loop_cost.test.sh` (re-verified live
@@ -109,5 +158,8 @@ possible future enhancement.
   miner
 - [[pr_216_217_safe-routes-and-cost-miner-diagnostics]] — the diagnostic-line
   fix this page mostly documents
+- [[pr_228_229_230_token-burn-reduction-and-agents-split]] — PR #230 source
+  record: `headless_children_excluded_count`, the numeric guard, and the zsh
+  stdout-corruption fix
 - [[loop_stall_guard]] — hosts the `complete`-branch call site and the wider
   teardown gate sequence

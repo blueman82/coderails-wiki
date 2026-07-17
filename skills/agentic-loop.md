@@ -28,7 +28,8 @@ sources:
   - sources/pr_184_185_186_loop-cost-tracking.md
   - sources/pr_194_198_loop-complete-deferral-and-proof-gates.md
   - sources/pr_204_cost-reporter.md
-tags: [skill, agentic-loop, multi-agent, orchestration, context-window, delegation, artifact-chain, loop-state, post-review, review-artifact, self-attestation, enforcement-ceiling, session-keying, frontmatter, description-cap, task-evals, work-units, teamcreate-purge, sdd-ledger, retry-until-green, hard-stops, decisions-absorbed, grade-loop, review-tier-ladder, warn-demotion, envelope-anchoring, loop-stop-final-line, finishing-out, verification-before-completion, model-routing, capability-roles, effort-routing, cost-tracking, schema-version-2, loop-cost-miner, proof-json, blind-authorship, deferral-gate, proof-gate, cost-reporter, reporter-not-gate, system-message]
+  - sources/pr_228_229_230_token-burn-reduction-and-agents-split.md
+tags: [skill, agentic-loop, multi-agent, orchestration, context-window, delegation, artifact-chain, loop-state, post-review, review-artifact, self-attestation, enforcement-ceiling, session-keying, frontmatter, description-cap, task-evals, work-units, teamcreate-purge, sdd-ledger, retry-until-green, hard-stops, decisions-absorbed, grade-loop, review-tier-ladder, warn-demotion, envelope-anchoring, loop-stop-final-line, finishing-out, verification-before-completion, model-routing, capability-roles, effort-routing, cost-tracking, schema-version-2, loop-cost-miner, proof-json, blind-authorship, deferral-gate, proof-gate, cost-reporter, reporter-not-gate, system-message, token-burn, compaction-cadence, model-pinning, probe-discipline, tool-output-diet]
 ---
 
 # Skill: agentic-loop
@@ -60,11 +61,13 @@ The skill defines a sequence of decimal-numbered phases (decimals are the establ
 
 | Stage | Phases |
 |---|---|
-| Setup | -2, -1, 0, 0.5 |
+| Setup | -2, -1, 0, 0.4, 0.5 |
 | Pre-flight | 1, 2, 2.5, 2.6, 2.7, 2.8 |
 | Build | 3, 3a, 4 |
 | Review & Ship | 4b, 5, 6, 7&8 |
 | Wrap-up | 9, 10, 11, 12, 13 |
+
+**Stage-map gains Phase 0.4 (PR #228, 2026-07-17).** [[pr_228_229_230_token-burn-reduction-and-agents-split|PR #228]] inserted a new Phase 0.4 between 0 and 0.5 — see "Token-burn reduction rules" below.
 
 Full renumbering was rejected — a 9-reference audit plus `docs/coderails-review.md`'s line-number
 citations (see the caveat below) made the churn disproportionate to the benefit.
@@ -74,6 +77,7 @@ citations (see the caveat below) made the churn disproportionate to the benefit.
 | -2 | Stub `progress.json` first | Literal first action; write the stub at the helper-resolved path | C1 |
 | -1 | Sharpen the authorising prompt | Run `/coderails:improve-prompt`, ask once | (pre-arc) |
 | 0 | Read the authorisation envelope | `<thinking>`: verbatim quote, envelope class, in/out-of-scope, **+ explicit yes/no on clean-break auto-demote authority (quoted, not inferred) — PR #86** | (pre-arc) + PR #86 |
+| 0.4 | Pin the orchestrator's own model at loop launch | Pin via `/model` (`opus`/`sonnet`) at launch, alongside the Phase 0 envelope read — never an unpinned default; distinct from Phase 2.8's worker-role routing | PR #228 (token-burn row 2 of 4) |
 | 0.5 | Orchestrator operating rules | Stop-ceremony: labels + DNV + `LOOP-STOP` (as the FINAL line) together; the two discipline hooks demote to warn in-loop as of PR #155 | C2, warn-era prose PR #157 |
 | 1 | State the plan in bullets | Ask once to confirm | (pre-arc) |
 | 2 | Pre-flight via spawned agents | Delegate planning/premortem/wiki-query to sonnet agents | (pre-arc) |
@@ -307,6 +311,19 @@ full decision record and the 2 post-merge Critical stale-cross-reference fixes t
 ## Construction discipline (Spec D + PR #24)
 
 Phase 3 and Phase 3a reference `coderails:test-driven-development` (code-guarded: "if the change adds or alters a function, method, or branch that can carry a test"). Vendored as a coderails-owned skill so the plugin keeps zero cross-plugin dependency (REVERSED from Spec A's "reference, not vendor" note). The reference sits near the TOP of the Phase 3a prompt-contract list (Phase 9's placement lesson: scope-shaping instructions get shortcut when buried low). PR #24 additive-wired `coderails:subagent-driven-development` into worker-prompt construction (Phase 3), replacing the former superpowers cross-plugin reference. Also fixed dead `/claude-guardrails:assumptions` and `/claude-guardrails:notchecked` references → `coderails:assumptions` and `coderails:notchecked` respectively. The six C1/C2 no-touch regions were kept byte-identical. (verified — PR #24) See [[test-driven-development]] and [[subagent-driven-development]].
+
+## Four token-burn reduction rules (PR #228, 2026-07-17)
+
+[[pr_228_229_230_token-burn-reduction-and-agents-split|PR #228]] added four rules across the skill, each explicitly stamped "token-burn rule, row N of 4" so the set stays traceable even though the rules land in different phases:
+
+| Row | Where | Rule |
+|---|---|---|
+| 1 of 4 (**"the single largest saving"**) | New Phase 4b sub-step + `## Context-window persistence` | **Mandatory compaction at every PR-merge boundary.** Immediately after a work-unit's worktree teardown: write the phase summary into `progress.json`, run `/compact`, re-read `progress.json` + `plan.md` to re-orient. Not optional, not skippable for "still has headroom" — orchestrator context grows linearly and is re-read in full every turn at orchestrator rates, so the merge boundary (already the moment `progress.json` is current) is the cheapest cut point. |
+| 2 of 4 | New Phase 0.4 | **Pin the orchestrator's own model at loop launch** via `/model`, alongside the Phase 0 envelope read — an unpinned default can silently resolve to a costlier frontier tier (2x cache-read rate cited) and the cost compounds across the whole session. Distinct from Phase 2.8's worker-role routing table. |
+| 3 of 4 | Phase 4 (probe discipline) | **Batch the probe battery into ONE compound Bash call**, not one call per check — 4 probes as 4 separate turns costs "roughly 4x the cache-read volume" of the same 4 chained and read once. Applies to the Phase 4 idle-worker battery and any similar battery (Phase 12 artifact checks, gate-state reads). Compound the reads, not the decisions — still reason once over the combined output. |
+| 4 of 4 | Phase 4 (tool-output diet) + Phase 3 | **Cap probe output before it enters context** (`jq -c`, `head`, or equivalent) so a large `git diff --stat`/`gh pr view` payload doesn't re-inflate every later turn's re-read. **Plus:** the orchestrator's own `Write`/`Edit` calls are for loop-state only (`progress.json`, `spec.md`, `plan.md`, `retro.json`) — every deliverable artifact is authored by a spawned worker, never typed inline in main context; workers report back a short confidence-labelled verdict, not narrative prose. |
+
+**Reconciliation — row 1 lands inside a documented no-touch region.** The "Slimming (Spec B)" section below documents `## Context-window persistence` as one of six byte-stable no-touch regions (protected because the Stop hooks teach exact behaviour off it, so drift there turns a safety net into a stall generator). PR #228 added its "Compaction cadence" paragraph *inside* that exact section. This is the same shape as PR #86's earlier supersession of the Phase 13 KPI no-touch region (see "Phase 13 — terminal self-audit" below): the no-touch convention guards against *accidental* drift, not a deliberate, reviewed rule addition — a genuine exception, not a violation, and now two precedents deep.
 
 ## Delegation rung: single agent vs. spawned team
 
@@ -620,3 +637,5 @@ the substantive change this terminology update accompanies.
 - [[task-evals]] — the grader-independence rule (rule 4/oracle-independence) that Phase 2.7e's blind proof authorship generalises from grading to authoring
 - [[pr_204_cost-reporter]] — PR #204 (2026-07-17) source record: `als_report_cost_on_complete`, the mechanical, never-blocking cost print that closes the "must print it" prose gap; first coderails hook use of the `systemMessage` human-visible channel
 - [[hook-exit-codes]] — the `systemMessage`-vs-`additionalContext` channel distinction PR #204 established
+- [[pr_228_229_230_token-burn-reduction-and-agents-split]] — PR #228 (2026-07-17) source record: the 4 token-burn rules (mandatory PR-merge-boundary compaction, orchestrator model pinning at Phase 0.4, batched probe batteries, tool-output diet + orchestrator-never-authors-inline); same cluster also covers PR #229 (AGENTS.md split, see [[loop_cost]] for PR #230's honest headless-cost-accounting sibling)
+- [[loop_cost]] — gains `headless_children_excluded_count` + a numeric-input guard + a zsh stdout-corruption fix from the same 2026-07-17 cluster (PR #230)
