@@ -126,3 +126,4 @@ Not itself part of the `/workflow` chain directly — invoked as writing-plans' 
 - [[pr_138_remove-specs-plans-tracking]] — removed this skill's design spec from repo tracking; this page's own content is now the durable record
 - [[dashboard]] / [[pr_25_observability-dashboard]] — PR #25 (2026-07-06): first production demonstration of this gate paying for itself — the frozen Tier-2 suite (10 evals, GO) caught two real bugs (a launch-script false-success and a statically-baked empty config) that every review round had missed
 - [[pr_144-149_agentic-loop-hardening-from-loop-engineering]] — PRs #144/#145 (2026-07-12) source record: `grade-loop` neutral grading + `UNSTAMPED` demotion, and rule 6 "Strongest surface"
+- [[pr_218_discriminating-check-gate]] — PR #218 (2026-07-17): the optional `fixtures`-based freeze-time gate proving a scripted check's formula can both pass and fail
