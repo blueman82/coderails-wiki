@@ -2,7 +2,7 @@
 title: "Skill: agentic-loop"
 type: skill
 created: 2026-05-31
-last_updated: 2026-07-16
+last_updated: 2026-07-17
 sources:
   - skills/agentic-loop/SKILL.md
   - sources/session_2026-05-31_prompting-doc-alignment.md
