@@ -2,12 +2,13 @@
 title: "Trust floor for artifact gates: repo permission, not OWNER-badge"
 type: design
 created: 2026-07-06
-last_updated: 2026-07-06
+last_updated: 2026-07-17
 sources:
   - sources/pr_7-10_task-evals-followups.md
   - sources/pr_11-14_gate-hardening-followups.md
   - sources/pr_21-22_loop2-suggestion-tier-followups.md
-tags: [design, trust-floor, viewerPermission, comment-spoofing, artifact-gates, tempfile]
+  - sources/pr_232_tier-review-gate.md
+tags: [design, trust-floor, viewerPermission, comment-spoofing, artifact-gates, tempfile, tier-review]
 ---
 
 # Trust floor for artifact gates: repo permission, not OWNER-badge
@@ -80,6 +81,20 @@ was already being set for this case before PR #21; only `merge.sh`'s
 consumer-side `case` was missing the arm. Full detail in [[merge]]'s
 "Error-message split for fetch failures" section.
 
+## A distinct, later trust mechanism — not an extension of this one (PR #232)
+
+[[pr_232_tier-review-gate|PR #232]] (2026-07-17) added a **second, unrelated**
+trust check that also lives in `merge.sh` and also gates on GitHub-API
+identity: the tier-review status gate requires a `tier-review` commit status'
+`creator.login` to exactly match a configured machine user. This is worth
+distinguishing explicitly rather than conflating with the mechanism above —
+they check different artifact types (a PR *comment* here vs. a commit
+*status* there), different identity sources (`viewerPermission`/repo-write
+access here vs. an exact configured login there), and guard different gates
+(review/eval-artifact trust here vs. tier-0-specific daemon-verdict trust
+there). See [[pr_232_tier-review-gate]] for that mechanism; it is not
+documented on this page.
+
 ## See also
 
 - [[merge]] — **SSOT** for the mechanism itself (the `viewerPermission` call,
@@ -94,3 +109,5 @@ consumer-side `case` was missing the arm. Full detail in [[merge]]'s
   closure (`author_association == "OWNER"`) that PR #14 later widened
 - [[pr_21-22_loop2-suggestion-tier-followups]] — PR #21: adds the `tempfile`
   case arm to `merge.sh`'s failure-reason vocabulary above
+- [[pr_232_tier-review-gate]] — a distinct, later trust mechanism in the same
+  file; see the section above for why it's not folded into this page

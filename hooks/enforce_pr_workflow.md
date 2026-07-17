@@ -2,14 +2,14 @@
 title: "enforce_pr_workflow.sh"
 type: hook
 created: 2026-06-25
-last_updated: 2026-07-12
-sources: [sources/pr_19-30_self-containment-and-hardening.md, sources/pr_40_hook-hardening.md, sources/pr_42_skills-hooks-seam.md, sources/pr_46_gate-git-push-on-main.md, sources/pr_49_gate-function-rename.md, sources/pr_57-62_subagent-enforcement-gate-hardening.md, sources/pr_64_loop-review-via-skill.md, sources/pr_76_harden-hook-stdin-read.md, sources/pr_96-98_evals-gate-uniform-enforcement_2026-07-08.md, sources/pr_144-149_agentic-loop-hardening-from-loop-engineering.md]
-tags: [hook, PreToolUse, enforcement, pr-workflow, workflow-chain, merge-sh]
+last_updated: 2026-07-17
+sources: [sources/pr_19-30_self-containment-and-hardening.md, sources/pr_40_hook-hardening.md, sources/pr_42_skills-hooks-seam.md, sources/pr_46_gate-git-push-on-main.md, sources/pr_49_gate-function-rename.md, sources/pr_57-62_subagent-enforcement-gate-hardening.md, sources/pr_64_loop-review-via-skill.md, sources/pr_76_harden-hook-stdin-read.md, sources/pr_96-98_evals-gate-uniform-enforcement_2026-07-08.md, sources/pr_144-149_agentic-loop-hardening-from-loop-engineering.md, sources/pr_232_tier-review-gate.md]
+tags: [hook, PreToolUse, enforcement, pr-workflow, workflow-chain, merge-sh, tier-review, root-daemon]
 ---
 
 # enforce_pr_workflow.sh
 
-PreToolUse(Bash) hook that mechanically guards the PR workflow chain: blocks `gh pr create` unless `/coderails:push` ran this session; blocks `gh pr merge` unless `/pr-review-toolkit:review-pr` ran this session referencing the same PR number (PR #58); (since PR #40) blocks `git merge` on `main`/`master` unless `/pr-review-toolkit:review-pr` ran since the last `git merge` (consume-on-use, PR #58); and (since PR #46) blocks `git push` that lands on `main`/`master` unless `/pr-review-toolkit:review-pr` ran this session, including bare positional `git push origin main` from any branch (PR #58). (since PR #97, 2026-07-08) also blocks `gh pr merge <N>` — after the review-pr check above already passes — unless a SHA-bound `GO` coderails eval artifact exists for the PR's current head, mirroring `scripts/merge.sh`'s own eval gate. (since PR #146, 2026-07-12) `scripts/merge.sh <N>` invocations are now recognised as the same gated `merge` subcommand as raw `gh pr merge <N>` — previously a hand-rolled `scripts/merge.sh <N>` bypassed this entire hook.
+PreToolUse(Bash) hook that mechanically guards the PR workflow chain: blocks `gh pr create` unless `/coderails:push` ran this session; blocks `gh pr merge` unless `/pr-review-toolkit:review-pr` ran this session referencing the same PR number (PR #58); (since PR #40) blocks `git merge` on `main`/`master` unless `/pr-review-toolkit:review-pr` ran since the last `git merge` (consume-on-use, PR #58); and (since PR #46) blocks `git push` that lands on `main`/`master` unless `/pr-review-toolkit:review-pr` ran this session, including bare positional `git push origin main` from any branch (PR #58). (since PR #97, 2026-07-08) also blocks `gh pr merge <N>` — after the review-pr check above already passes — unless a SHA-bound `GO` coderails eval artifact exists for the PR's current head, mirroring `scripts/merge.sh`'s own eval gate. (since PR #146, 2026-07-12) `scripts/merge.sh <N>` invocations are now recognised as the same gated `merge` subcommand as raw `gh pr merge <N>` — previously a hand-rolled `scripts/merge.sh <N>` bypassed this entire hook. (since [[pr_232_tier-review-gate|PR #232]], 2026-07-17) also blocks, for a tier-0 eval artifact only and only when `tier_review.machine_user` is configured, unless a matching `tier-review` commit status of `state: success` from that exact machine user exists for the head SHA (Gate 8).
 
 ## Event and mode
 
@@ -152,6 +152,16 @@ The `enforce_required_step` function (Gate 6) scans the transcript for `/pr-revi
 
 See [[task-evals-gate]] "Merge gate placement" for how this sits alongside `scripts/merge.sh`'s pre-existing pr-scope gate, and [[evals-gate-enforcement-gap_2026-07-08]] for the investigation that surfaced the gap this closes.
 
+## Gate 8 — tier-review status gate on gh pr merge ([[pr_232_tier-review-gate|PR #232]], 2026-07-17)
+
+Mirrors `scripts/merge.sh`'s own step-4a tier-review check (see [[merge]]) into this hook's `gh pr merge`/`scripts/merge.sh` path, so a raw `gh pr merge <N>` gets the same tier-review requirement `scripts/merge.sh` already enforces — closing the same class of "wrapper enforces it, raw command bypasses it" gap Gate 7 above closed for the eval-artifact check.
+
+**New function `gate_tier_review_status`**, called from `gate_eval_artifact_for_merge` only in the `elif` branch where `PR_EVAL_TIER == "0"` — i.e. only after the eval-artifact gate has *already passed* with a tier-0 result, never for tier 1/2. Config-keyed and inactive by default: stands aside entirely (`return 0`, no deny) unless `tier_review.machine_user` is set in `workflow.config.yaml`, via a local `coderails::_tier_review_machine_user` extractor duplicated from `merge.sh`'s own (no shared lib file was in scope for this change, so both hooks carry their own copy rather than a new shared dependency).
+
+When active, fetches the newest `tier-review` commit status for the SHA (`gh api .../statuses --jq 'select(.context == "tier-review")'`) and denies (one JSON deny per invocation, same contract as every other gate in this hook) on any of: a `gh` fetch failure (fail-closed, retry-hint message); no status found yet (daemon hasn't judged this SHA); `state != success`; or `creator.login != machine_user` (misconfiguration-or-forgery signal, never bypassed). Unlike `merge.sh`'s own check, this gate's deny does **not** re-check the status description for `verdict=legitimate` — the state+creator check alone is what's mirrored here (verified against the actual `enforce_pr_workflow.sh` diff: no `tr_desc`/`verdict` string check appears in `gate_tier_review_status`, only in `merge.sh`'s corresponding block).
+
+Same "belt-and-braces, not primary control" framing as `merge.sh`'s copy: explicitly redundant once a GitHub branch-protection ruleset requiring the `tier-review` status check is live; kept as the only *local* check that catches a machine-user misconfiguration before GitHub itself would.
+
 ## The `merge.sh` matcher: closing a real, previously-ungated bypass (PR #146, 2026-07-12)
 
 Before this PR, `gate_in_scope`'s classification only matched literal `gh pr merge` (plus `git merge`/`git push`) — `scripts/merge.sh <N>`, the repo's own sanctioned merge wrapper (which calls `gh pr merge` internally), matched none of the `elif` arms. A hand-rolled `scripts/merge.sh <N>` invocation therefore sailed past the review-pr and eval-artifact gates **entirely**. This is a real, previously-ungated bypass discovered by a "loop engineering" diagnosis — not a regression; `merge.sh` was simply never covered by this hook until now.
@@ -195,6 +205,7 @@ This hook is auto-chmod'd by `install.sh`'s hooks.json-derivation (PR #28). No m
 [[skills-hooks-seam]] — the cross-reference convention this hook participates in; the merge-base regex footgun  
 [[task-evals-gate]] — the dual-scope eval-artifact design; this hook is its second (hook-level) pr-scope consumer as of PR #97  
 [[evals-gate-enforcement-gap_2026-07-08]] — the investigation that surfaced the raw-`gh-pr-merge` bypass PR #97 closes  
+[[pr_232_tier-review-gate]] — PR #232 (2026-07-17): Gate 8, this hook's mirror of `merge.sh`'s tier-review status check; also the daemon that posts the status both gates read
 [[pr_96-98_evals-gate-uniform-enforcement_2026-07-08]] — source page for PR #97 (this hook's Gate 7) and its companion PR #96/#98  
 [[offload_push_guard]] — Stop/SubagentStop nudge hook (PR #108) that redirects an agent away from telling the user to push past this hook's gate from their own shell, back toward clearing it in-session with `/pr-review-toolkit:review-pr`  
 [[pr_144-149_agentic-loop-hardening-from-loop-engineering]] — PR #146 source record: the `merge.sh` matcher, decoy-number hijack fix, and `--dry-run` passthrough exclusion  

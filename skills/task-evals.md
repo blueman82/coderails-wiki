@@ -10,7 +10,8 @@ sources:
   - sources/pr_138_remove-specs-plans-tracking.md
   - sources/pr_144-149_agentic-loop-hardening-from-loop-engineering.md
   - sources/pr_218_discriminating-check-gate.md
-tags: [skill, task-evals, anti-gaming, evals-json, tiering, verify-criteria, oracle-independence, tier-justification, eval-freeze, strongest-surface, grade-loop, discriminating-check, fixtures]
+  - sources/pr_232_tier-review-gate.md
+tags: [skill, task-evals, anti-gaming, evals-json, tiering, verify-criteria, oracle-independence, tier-justification, eval-freeze, strongest-surface, grade-loop, discriminating-check, fixtures, tier-review, root-daemon]
 ---
 
 # Skill: task-evals
@@ -70,6 +71,8 @@ Concrete predicates, same design rationale as agentic-loop Phase 2.6's "what nam
 
 **`tier_justification` is required at every tier, not just tier 0** (owner directive, [[pr_7-10_task-evals-followups|PR #10]]) — tier 0 justifies the exemption itself; tier 1/2 must state which tier predicate fired. Both the writer (`post_evals::validate_structure` check 2, pr scope) and the loop-scope reader (`als_read_loop_evals_result`, which gained a distinct `UNJUSTIFIED` result) enforce this; a blank or whitespace-only justification blocks regardless of grading outcome, including retroactively against pre-existing GO artifacts written before the check existed. See [[task-evals-gate]] for the mechanism.
 
+**Tier 0's exemption claim is self-written by the same party it exempts — nothing in this skill reviews it**, and this page's own opening line ("the one place coderails breaks its own pattern of self-verification") is about this exact gap. Where a project opts in (`config.tier_review.machine_user` set), [[pr_232_tier-review-gate|PR #232]] (2026-07-17) closes this specific slice: a separate root-owned daemon (`scripts/tier-gate/`) judges the PR's claimed tier against its real, capped diff — never the `tier_justification` prose itself, which the judge does not read — via a subscription-authenticated Claude call outside the agent's trust domain, and posts a `tier-review` commit status both [[merge]] and [[enforce_pr_workflow]] additionally require before a tier-0 merge. The tier-0 predicate above is unchanged and remains the source of truth for what the daemon judges against — the daemon verifies the claim, it does not redefine the rule. This raises the cost of a dishonest tier-0 from free to expensive; it is not a claim of impossibility. Absent that config, tier-0 self-exemption stays unreviewed exactly as described above.
+
 ## Schema (schema_version 1)
 
 Scope is `pr` or `loop`. Each eval carries an ID, `priority` (`P0` blocks the gate, `P1` doesn't), `mode` (`scripted` or `agent-run`), `surface`, an `assert` one-liner, a `cmd` or verifier instruction, a `negative_control` (required for scripted), `status`, and `evidence`. A scripted eval may also carry an **optional** `fixtures` object (`{good, bad, formula?}`, [[pr_218_discriminating-check-gate|PR #218]], 2026-07-17) — when present, `/coderails:post-evals` Step 3b mechanically proves the check's formula can both pass (on `good`) and fail (on `bad`) before the artifact is posted; absent `fixtures` means the eval is grandfathered, validated exactly as before that gate existed. GO requires **all P0 evals pass**; P1 failures don't block but must be listed unresolved. See [[task-evals-gate]] for the full JSON shape, the discriminating-check gate's full mechanism, and how the enforcement seams consume it.
@@ -123,6 +126,7 @@ Not itself part of the `/workflow` chain directly — invoked as writing-plans' 
 - [[pr_1-4_task-evals-feature]] — the original cluster source record (PRs #1–4)
 - [[pr_7-10_task-evals-followups]] — the follow-up cluster: wiki-first prerequisite, comment-spoofing/pagination closure, tier_justification everywhere (PRs #7–10)
 - [[pr_15-17_loop-hardening-registration-eval-freeze-ledger-dry]] — PR #15: fixes the invocation-point wording that let freeze-before-build collapse into the final task
+- [[pr_232_tier-review-gate]] — PR #232 (2026-07-17): opt-in root-daemon judge closing the tier-0 self-exemption gap named in "Tier rules" above
 - [[pr_138_remove-specs-plans-tracking]] — removed this skill's design spec from repo tracking; this page's own content is now the durable record
 - [[dashboard]] / [[pr_25_observability-dashboard]] — PR #25 (2026-07-06): first production demonstration of this gate paying for itself — the frozen Tier-2 suite (10 evals, GO) caught two real bugs (a launch-script false-success and a statically-baked empty config) that every review round had missed
 - [[pr_144-149_agentic-loop-hardening-from-loop-engineering]] — PRs #144/#145 (2026-07-12) source record: `grade-loop` neutral grading + `UNSTAMPED` demotion, and rule 6 "Strongest surface"

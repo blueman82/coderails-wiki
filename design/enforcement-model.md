@@ -19,12 +19,15 @@ sources:
   - sources/pr_163-168_dashboard-rethink.md
   - sources/pr_179_dashboard-lan-access.md
   - sources/pr_204_cost-reporter.md
+  - sources/pr_232_tier-review-gate.md
 tags:
   - hooks
   - enforcement
   - design-law
   - slash-commands
   - self-attestation
+  - tier-review
+  - root-daemon
 ---
 
 # Enforcement Model
@@ -80,7 +83,7 @@ PreToolUse hooks block by emitting a JSON response with `permissionDecision: "de
 | `SubagentStop` | [[check_verify_loop]] (`check_verify_loop.sh`) | **block** — same as Stop; reads `last_assistant_message`, no file_count gate (added PR #57) |
 | `Stop` + `SubagentStop` | [[offload_push_guard]] (`offload_push_guard.sh`) | **nudge, not block** — final text that both names a push to main/master AND carries an offload-to-user cue ("run this yourself", `! ` prefix, "your own shell"); at most once per session; LAST in both arrays |
 | `PreToolUse` (Bash) | [[destructive_bash_gate]] (`destructive_bash_gate.sh`) | **block** — permanent blocklist + in-Bash source edits on main (extended PR #59) |
-| `PreToolUse` (Bash) | [[enforce_pr_workflow]] (`enforce_pr_workflow.sh`) | **block** — `gh pr create` without prior `/push`; `gh pr merge`/`git merge`/`git push` without prior `/review-pr` (per-PR + consume-on-use + positional push, PR #58); `gh pr merge` ALSO requires a SHA-bound `GO` coderails eval artifact for the PR's current head, config-gated same as the rest of this hook (PR #97, 2026-07-08) |
+| `PreToolUse` (Bash) | [[enforce_pr_workflow]] (`enforce_pr_workflow.sh`) | **block** — `gh pr create` without prior `/push`; `gh pr merge`/`git merge`/`git push` without prior `/review-pr` (per-PR + consume-on-use + positional push, PR #58); `gh pr merge` ALSO requires a SHA-bound `GO` coderails eval artifact for the PR's current head, config-gated same as the rest of this hook (PR #97, 2026-07-08); for a tier-0 artifact ONLY, ALSO requires a matching `tier-review` commit status from a configured machine user, opt-in via `tier_review.machine_user` (Gate 8, [[pr_232_tier-review-gate|PR #232]], 2026-07-17) |
 | `PreToolUse` (Bash) | [[test_gate]] (`test_gate.sh`) | **block** on `git commit` if tests fail — opt-in only. Runs AFTER `destructive_bash_gate` and `enforce_pr_workflow` in the declared Bash chain |
 | `PreToolUse` (Write\|Edit\|MultiEdit) | [[no_edit_on_main]] (`no_edit_on_main.sh`) | **block** — source files (allowlist model PR #60): everything except doc/config/special dotfiles on main/master |
 | `PreToolUse` (Write\|Edit\|MultiEdit) | [[comment_citation_gate]] (`comment_citation_gate.sh`) | **block** — new/changed code comments citing session-artifact labels instead of stating the constraint; `.md` files out of scope; a PR number survives (durable artifact) |
@@ -167,6 +170,14 @@ The dashboard's opt-in `DASHBOARD_HOST` LAN exposure ([[pr_179_dashboard-lan-acc
 
 The Law's core distinction — a check performed by the party with motive to pass it is not a check — extends beyond coderails' own hooks/commands split. assistant-agent's send-approval gate (Slack/Calendar/Gmail sends from Gary's personal secretary) chose a **host-process SDK `PreToolUse` hook callback** over a bash hook script for exactly this reason: a bash hook shares the agent's own user/filesystem and is forgeable by the agent it's meant to constrain (e.g. via an approval-marker file the agent also controls), whereas a host-process callback runs outside the agent's trust domain on a `permissionDecision` control-plane path. This is the same enforcement-ceiling reasoning as `no_edit_on_main.sh`/`enforce_pr_workflow.sh` above, applied one layer down (host process vs. agent, not command vs. hook). See [[assistant-link-send-gate-architecture]] for the full design, including the companion finding that the SDK itself is fail-open on a hook that throws or times out — the gate must self-enforce fail-closed, since neither the host-process choice nor the SDK's own behaviour is sufficient alone.
 
+## A root-owned daemon: the first enforcement layer entirely outside the agent's own trust domain (PR #232)
+
+Every hook in this page's Hook Map runs **inside the agent's own process**: same uid, same filesystem, same trust domain as the agent it constrains. The "Enforcement ceiling" note on this hook design (`AGENTS.md`) states the honest consequence plainly — a hook checks evidence of invocation, not evidence of completion, and "anything the hook checks, the agent can also satisfy directly, because there is no privilege boundary between them." [[pr_232_tier-review-gate|PR #232]] (2026-07-17) is the first coderails enforcement mechanism that is genuinely outside that boundary for a *judgment* call, not just a filesystem write (sandboxed workers, see `AGENTS.md`'s sandboxing section, close a different boundary — write containment, not judgment).
+
+`scripts/tier-gate/` is a **root-owned macOS LaunchDaemon**, a separate OS process running under a different uid than the agent (uid 501) it judges. It authenticates its own judge call via the repo owner's Claude subscription (`CLAUDE_CODE_OAUTH_TOKEN`, root-held), execs a root-owned `claude` binary with `HOME`/`cwd` pinned to a root-owned directory (so no uid-501-writable config can reach the judge process), and routes every GitHub read/write through root-owned `curl` rather than a uid-501-writable `gh`. None of these three properties (separate uid, root-owned config path, root-owned network tool) is available to any hook in the Hook Map above — a hook cannot escape the agent's own uid, because it runs as a subprocess of the agent's own session.
+
+This closes a narrow but real gap for tier-0 self-exemption specifically: [[task-evals-gate]]'s tier-0 predicate was, until this PR, entirely self-graded, with literally nothing checking whether a `tier=0` claim was honest. Stated with the same honesty this page applies elsewhere: this daemon is **defence-in-depth for one classification claim**, not a general solution to the Law's core tension — it does not judge whether tier-1/2 evals were run honestly, does not judge code quality or correctness, and (per the PR's own framing) raises the cost of a dishonest tier-0 claim from free to expensive, not to impossible — an LLM judging a diff remains fallible. And it inherits its own new honest boundary: it is **available, not active** — dormant in this repo until the owner completes a credentials-file population, a branch-protection ruleset, and a live-fire validation pass. See [[pr_232_tier-review-gate]] for the full mechanism and its own PR-internal fixes (the judge-injection channel deletion, the verdict-laundering closure, the root-owned-curl routing).
+
 ## Positive-control testing for gates with a conditional-allow path (2026-07-08)
 
 A gate that is otherwise fail-closed can still ship a broken *allow* path silently, because "everything stays denied" looks identical to "the allowlist carve-out is dead" in ordinary testing — only a positive control (assert the allowlisted case actually ALLOWs on a clean payload) catches it. This surfaced concretely in [[destructive_bash_gate]]'s 2026-07-08 hardening arc: PR #72 added a `git push --force-with-lease` allowlist carve-out, but shipped with a live tab-separator regression in an unrelated boundary check in the same regex — caught only because the fix (PR #75) included a positive-control test proving the allowlist path was actually live, not just that denied shapes stayed denied. The broader lesson generalises to any gate in this file's Hook Map that has a conditional-allow branch, not just this one hook: narrowing a regex to close a bypass always risks reopening an adjacent hole, and a fail-closed default masks that risk rather than catching it. See [[destructive_bash_gate]]'s "2026-07-08 adversarial-hardening arc" section for the full incident and the five-PR pattern it established.
@@ -191,3 +202,5 @@ A gate that is otherwise fail-closed can still ship a broken *allow* path silent
 - [[pr_163-168_dashboard-rethink]] — PR #167 source record: the `CODERAILS_HEADLESS_RUN` Stop-only exemption on the two discipline hooks, sole set-site in the dashboard's run route
 - [[dashboard]] — the run route this exemption's sole set-site lives in, and the "0 model turns" t7 finding that motivated it
 - [[pr_179_dashboard-lan-access]] — PR #179 source record: opt-in `DASHBOARD_HOST` LAN exposure, the trust-boundary-preserving framing above, and the deliberate unauthenticated-command-exec security posture that framing depends on
+- [[pr_232_tier-review-gate]] — PR #232 source record: the root-owned daemon that is the first enforcement layer entirely outside the agent's own trust domain, and its own honest "available, not active" boundary
+- [[task-evals-gate]] — the tier-0 self-exemption gap this daemon narrows, documented in that page's "honest ceiling" section

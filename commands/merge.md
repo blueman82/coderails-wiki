@@ -2,14 +2,14 @@
 title: "/coderails:merge"
 type: command
 created: 2026-06-25
-last_updated: 2026-07-06
-sources: [commands/merge.md, scripts/merge.sh, scripts/lib/git-common.sh, sources/pr_43_rough-edges.md, sources/pr_81-83_review-artifact-seam.md, sources/pr_89-91_skills-doc-frontmatter-injection.md, sources/session_2026-07-03_ai-docs-refresh-and-cc-mechanics-probes.md, sources/pr_93-94_post-review-injection-and-exec-bit-invariant.md, sources/pr_96-98_mode-aware-install-argument-injection-guard-hook-owned-counter.md, sources/pr_1-4_task-evals-feature.md, sources/pr_11-14_gate-hardening-followups.md, sources/pr_21-22_loop2-suggestion-tier-followups.md]
-tags: [command, merge, pr, github, branch-cleanup, sync, review-artifact, sha-bound, dynamic-injection, command-substitution, security, task-evals, eval-artifact, trust-floor, viewerPermission, error-messages, tempfile]
+last_updated: 2026-07-17
+sources: [commands/merge.md, scripts/merge.sh, scripts/lib/git-common.sh, sources/pr_43_rough-edges.md, sources/pr_81-83_review-artifact-seam.md, sources/pr_89-91_skills-doc-frontmatter-injection.md, sources/session_2026-07-03_ai-docs-refresh-and-cc-mechanics-probes.md, sources/pr_93-94_post-review-injection-and-exec-bit-invariant.md, sources/pr_96-98_mode-aware-install-argument-injection-guard-hook-owned-counter.md, sources/pr_1-4_task-evals-feature.md, sources/pr_11-14_gate-hardening-followups.md, sources/pr_21-22_loop2-suggestion-tier-followups.md, sources/pr_232_tier-review-gate.md]
+tags: [command, merge, pr, github, branch-cleanup, sync, review-artifact, sha-bound, dynamic-injection, command-substitution, security, task-evals, eval-artifact, trust-floor, viewerPermission, error-messages, tempfile, tier-review, root-daemon]
 ---
 
 # /coderails:merge
 
-Merges an approved PR, switches to main, pulls latest, and cleans up the feature branch. Branch cleanup is decoupled from the merge itself so a failed cleanup never reports a successful merge as failed. Since [[pr_1-4_task-evals-feature]] (PR #3, merged 2026-07-06), merging additionally requires a passing eval artifact — a second, independent gate stacked on top of the review-artifact gate.
+Merges an approved PR, switches to main, pulls latest, and cleans up the feature branch. Branch cleanup is decoupled from the merge itself so a failed cleanup never reports a successful merge as failed. Since [[pr_1-4_task-evals-feature]] (PR #3, merged 2026-07-06), merging additionally requires a passing eval artifact — a second, independent gate stacked on top of the review-artifact gate. A third, opt-in gate — the tier-review status check ([[pr_232_tier-review-gate|PR #232]], 2026-07-17) — additionally applies only to tier-0 eval artifacts, and only when `tier_review.machine_user` is configured.
 
 ## Dynamic Git-status injection (PR #91)
 
@@ -85,6 +85,7 @@ Default argument is `auto`: resolves the PR from the current branch name.
    - Exit 1, `PR_EVAL_TIER` set (artifact found but NO-GO) → "Eval artifact for current head is NO-GO (tier N) — resolve failing P0 evals and re-run /coderails:post-evals."
    - Exit 1, no artifact found at all → "No coderails eval artifact for current head — run /coderails:task-evals then /coderails:post-evals after /pr-review-toolkit:review-pr."
    Fail-closed, no local fallback, no config opt-out — identical posture to the review gate. This is **additive**, not a replacement: both gates must pass. See [[task-evals-gate]].
+4a. **Tier-review gate** (added [[pr_232_tier-review-gate|PR #232]], 2026-07-17; only when `PR_EVAL_TIER == "0"`, i.e. only for a tier-0 claim): config-keyed and inactive by default — a no-op unless `tier_review.machine_user` is set in `workflow.config.yaml`. When active, fetches the newest `tier-review` GitHub commit status for the head SHA (via `gh api .../statuses`) and requires all three: `state == success`, the status's `creator.login` exactly matches the configured machine user (a mismatch is treated as misconfiguration-or-forgery and never bypassed), and the status description contains `verdict=legitimate` (not just `state=success`, which closes a verdict-laundering path). Fail-closed on a `gh` fetch failure, same posture as steps 3/4. **Explicitly documented in the script's own comments as redundant-by-design once a GitHub branch-protection ruleset is live** — a defence-in-depth layer for the pre-ruleset interim, not the primary control; do not remove once the ruleset is active. See [[pr_232_tier-review-gate]] for the daemon that posts this status.
 5. **Merge**: `gh pr merge <num> --merge`. This is a remote merge only — its failure aborts the script via `set -euo pipefail`. Branch cleanup is explicitly separate and non-fatal so a worktree collision never causes a merged PR to report as failed.
 6. **Sync**: Checks out `main` and pulls `origin/main`.
 7. **Branch cleanup (best-effort)**:
@@ -94,7 +95,7 @@ Default argument is `auto`: resolves the PR from the current branch name.
 
 ## Config fields read
 
-`merge.md` and `merge.sh` do not read `workflow.config.yaml`. The merge command has no config dependency. See [[config-resolution]] for context on how the other three commands use it.
+`merge.md`/`merge.sh` read no config for the review-artifact or eval-artifact gates — those two remain unconditional, no config dependency. **This changed for one field with [[pr_232_tier-review-gate|PR #232]] (2026-07-17):** `merge.sh` now reads `tier_review.machine_user` (via `coderails::config_path` + a minimal single-purpose extractor, `coderails::_tier_review_machine_user` — not a generic YAML reader) to activate the tier-review gate at step 4a above. Absent config = the gate is inactive, matching every other install's prior behaviour exactly. See [[config-resolution]] for context on how the other three commands use the same config file.
 
 ## Scripts invoked
 
@@ -118,6 +119,7 @@ Default argument is `auto`: resolves the PR from the current branch name.
 - If branch protection is enabled: PR must have `APPROVED` review decision
 - A coderails review artifact must exist on the PR matching the **current** head SHA (added PR #82 — see [[review-artifact-seam]])
 - A coderails eval artifact must exist on the PR matching the **current** head SHA, with `result: GO` (or a justified tier-0 exemption) — added PR #3 of the task-evals cluster (see [[task-evals-gate]])
+- If the PR's eval artifact is tier 0 AND `tier_review.machine_user` is configured: a `tier-review` status of `state: success`, posted by that exact machine user, carrying `verdict=legitimate` — added [[pr_232_tier-review-gate|PR #232]] (see step 4a above)
 - PR must not be already closed (without merge)
 
 ## Chain position
@@ -160,3 +162,4 @@ The `protected` check uses the GitHub API directly rather than relying on `gh pr
 - [[pr_93-94_post-review-injection-and-exec-bit-invariant]] — PR #93 ships the deferred post-review.md injection
 - [[pr_96-98_mode-aware-install-argument-injection-guard-hook-owned-counter]] — PR #97 removes that injection for a command-substitution vulnerability; PR #96 makes install.sh's chmod sweep git-index-mode-aware
 - [[pr_11-14_gate-hardening-followups]] — PR #14 widens the trust floor to a repo-permission check and splits the fetch-failure error messages; PR #11 fixes the loop-scope tier-0 NO-GO precedence
+- [[pr_232_tier-review-gate]] — PR #232 (2026-07-17): the third, opt-in tier-review gate at step 4a; the only workflow.config.yaml field merge.sh now reads

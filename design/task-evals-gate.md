@@ -11,7 +11,8 @@ sources:
   - sources/pr_155-158_ceremony_noise_envelope_anchoring.md
   - sources/pr_138_remove-specs-plans-tracking.md
   - sources/pr_218_discriminating-check-gate.md
-tags: [design, task-evals, evals-json, merge-gate, loop-gate, truth-seam, sha-bound, work-units, oracle-independence, comment-spoofing, tier-justification, trust-floor, viewerPermission, grade-loop, unstamped, discriminating-check, fixtures]
+  - sources/pr_232_tier-review-gate.md
+tags: [design, task-evals, evals-json, merge-gate, loop-gate, truth-seam, sha-bound, work-units, oracle-independence, comment-spoofing, tier-justification, trust-floor, viewerPermission, grade-loop, unstamped, discriminating-check, fixtures, tier-review, root-daemon]
 ---
 
 # Task-evals gate
@@ -205,6 +206,8 @@ For judgement evals, a fresh sonnet subagent is spawned to grade. Its prompt con
 
 This gate proves a durable, SHA-bound (pr scope) or path-bound (loop scope), structurally-valid artifact **exists** with the right result. It does not — cannot — prove the underlying evals were run honestly, that a scripted `cmd` genuinely exercised the asserted surface, or that an `agent-run` verifier subagent was genuinely given a clean, uncontaminated context. This is the **identical** honest ceiling [[review-artifact-seam]] already documents for the review artifact: an auditable layer, not a tamper-proof barrier. `task-evals` inherits this ceiling rather than closing it — a pending owner decision, not resolved by this cluster. See [[enforcement-model]] for the general framework.
 
+**One specific slice of this ceiling — the tier-0 exemption itself — gained an opt-in closer.** Tier 0's `tier_justification` is self-written by the same party it exempts; nothing in this gate, and nothing in [[task-evals]]'s own generation rules, ever reviewed whether a `tier=0` claim was honest — that stayed true until [[pr_232_tier-review-gate|PR #232]] (2026-07-17). Where a project opts in (`config.tier_review.machine_user` set), a separate root-owned daemon (`scripts/tier-gate/`) judges the PR's claimed tier against its real, capped diff — never the `tier_justification` prose itself, which the judge does not read at all — via a subscription-authenticated Claude call outside the agent's own trust domain, then posts a `tier-review` commit status that both [[merge]] and [[enforce_pr_workflow]] additionally check before allowing a tier-0 merge. This narrows the ceiling for tier-0 specifically; it does not touch the ceiling for tier 1/2 evals (a scripted `cmd` genuinely reflecting reality, or a verifier subagent genuinely being given clean context) at all — see [[pr_232_tier-review-gate]] for the full mechanism, its own honest boundary (available, not yet active in this repo), and why it raises the cost of a dishonest tier-0 from free to expensive rather than claiming impossibility.
+
 ## Known gaps — status
 
 - ~~**Comment-spoofing trust model** — inherited wholesale from the review-artifact gate; a sufficiently motivated cooperating agent could, in principle, post a structurally-valid artifact without the evals genuinely having been run as described.~~ **Closed for both PR-gate readers by [[pr_7-10_task-evals-followups|PR #8]]** (`62ad18d`, 2026-07-06): `scripts/lib/git-common.sh` now filters comments to the `gh`-authenticated login with `author_association == "OWNER"` before any marker matching, fail-closed on identity-fetch failure.
@@ -258,4 +261,5 @@ gh pr merge
 - [[pr_144-149_agentic-loop-hardening-from-loop-engineering]] — PRs #144-149 (2026-07-12): `grade-loop` neutral grading + `UNSTAMPED` demotion (#144), rule 6 "Strongest surface" (#145), the dashboard's third-seam `readEvalsFrozen` drift (#148/#149)
 - [[pr_155-158_ceremony_noise_envelope_anchoring]] — PR #158 (2026-07-13): rule 4 "Oracle independence" extended with the loop-scope `authorising_prompt_raw` precedence rule, wired into [[agentic-loop]] at Phase -2/-1/2.7c/13
 - [[dashboard]] — the skill whose `sessions.ts`/`RailLeft.tsx` are the third schema consumer named above
+- [[pr_232_tier-review-gate]] — PR #232 (2026-07-17): root-daemon tier-0 honesty judge, opt-in, closes the tier-0-specific slice of the honest ceiling above
 - [[pr_218_discriminating-check-gate]] — PR #218 (2026-07-17): the discriminating-check gate — `fixtures`-based freeze-time proof that a scripted check's formula can both pass and fail, closing the class rule 2's text-only negative-control check cannot
