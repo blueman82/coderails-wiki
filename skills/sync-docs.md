@@ -85,12 +85,15 @@ doc drift a code-only test suite has no way to catch.
 
 ## Source
 
-`~/.claude/skills/sync-docs/SKILL.md` (user-level, NOT `coderails/skills/sync-docs/` — see location note above)
+`coderails/skills/sync-docs/SKILL.md` — in-repo since commit `f488ca5`
+(2026-07-10). See the correction note above for the prior stale claim.
 
 ## See also
 
 - [[agentic-loop]] — Phase 9 invokes this skill (delegated to a spawned
   agent), distinct from and after wiki ingest
+- [[docs-sync]] — separate, newer skill that invokes this one's audit as
+  step 1 of its own nightly self-merge pipeline
 - [[pr_77_agentic-loop-sync-docs-step]] — PR #77: adds the Phase 9 `/sync-docs`
   step to agentic-loop, separating in-tree docs from external wiki maintenance
 - [[pr_79_sync-docs-drift]] — PR #79: fixes 4 pre-existing doc-drift findings
