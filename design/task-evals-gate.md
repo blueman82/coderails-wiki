@@ -99,6 +99,36 @@ Full detail on [[task-evals]]. Named here because they're what the two enforceme
 6. `head_sha` in the file must match the PR's current live head SHA.
 7. Tier ≥1 requires at least one actual P0 eval in `.evals` — added in the review-fix round, closing a **vacuous-GO gap**: without this check, a tier-1+ artifact with an empty or P1-only `.evals` array would pass `compute_go`'s P0-only predicate vacuously (no P0 evals to fail = trivially "GO"). Tier 0 is exempt by design.
 
+## Discriminating-check gate ([[pr_218_discriminating-check-gate|PR #218]], 2026-07-17)
+
+A second, distinct pr-scope freeze-time gate, additive to the seven structural refusals above — added at `/coderails:post-evals` Step 3b, between structural validation and result computation. Catches a defect class rule 2 (negative controls) does not: a scripted check whose `cmd` and `negative_control` are both present and textually distinct, but whose formula is **itself broken** — incapable of ever passing (false alarm) or ever failing (vacuous). Motivating real instance: loop 8b69e779's awk formula split `"39/39 suites passed"` under `-F'[ /]'` and landed `$(NF-2)` on the literal word `"suites"`, exiting 1 unconditionally — a genuine pass and a genuine fail produced identical exit codes.
+
+### Mechanism
+
+An eval may carry an optional `fixtures` object: `{ good, bad, formula? }` — `good` is sample input that should make the check pass, `bad` is sample input that should make it fail, `formula` is the verdict-stage command (defaults to the text after the last top-level pipe in `cmd` when omitted; text-position split, not shell-aware, so a quoted pipe forces an explicit `fixtures.formula`). `post_evals::validate_discriminating` (`scripts/post_evals.sh`) pipes `good` and `bad` into the formula via `post_evals::_run_formula` (a `perl alarm`-wrapped 10s-timeout `bash -c`) and requires opposite exit codes: `good_rc == 0 && bad_rc != 0`. Both fixtures producing the same exit code (both 0, both non-zero) rejects as non-discriminating, by eval id, with a distinct message per direction.
+
+**Env-guard**: exit 127 (command not found), exit 142 (the function's own timeout sentinel, 128+SIGALRM), exit 126 (permission denied), and any exit ≥128 (signal deaths — 137=SIGKILL, 139=SIGSEGV, ...) are all reported as distinct environmental-failure messages, never conflated with a discrimination verdict — a formula that crashes on the bad-fixture leg would otherwise fall through into the accept path (`good_rc=0 && bad_rc≠0`) and read as a legitimate "bad correctly fails" result. The 142 check runs before the ≥128 check so the timeout message stays distinct (142 also satisfies ≥128; ordering here is load-bearing per the source comment). The ≥128 broadening (126 and general signal deaths) was a same-day follow-up fix (`335a382`), not the original PR.
+
+**Fail-closed on required-pair and malformed shape**: `fixtures` present but not a JSON object rejects with a distinct "must be an object" message (a bare string/number would otherwise silently degrade every field extraction to `""` and misreport as non-discriminating). `good` and `bad` are required **together** — an author supplying `good`+`formula` but omitting `bad` gets `bad=""` by jq's default, and proving discrimination against an empty string nobody wrote is the unsafe accept direction; both omission directions reject explicitly rather than silently accepting. This pairing requirement was also a same-day follow-up fix, closing a gap the original PR's own design left open.
+
+### Grandfathering — explicit, load-bearing scope limit
+
+An eval with no `fixtures` field is validated **exactly as it was before this gate existed** — zero behaviour change, `validate_discriminating` returns 0 immediately if no scripted eval in the file carries `fixtures`. `fixtures` is opt-in per eval, never retroactive: freezing this gate did not retroactively validate any pre-existing `evals.json`, and an author who never adds `fixtures` gets no discrimination proof at all from this layer.
+
+### Honest boundary — do not overclaim
+
+This gate validates only checks that **carry** `fixtures` — it does not retroactively validate the ~46% of the corpus that already has scripted checks without fixtures (a figure re-derived after an earlier, badly broken classifier in the building loop had claimed 91% and used that number to conclude the whole feature was unbuildable — see "Design history" below), and it does nothing for prose/judgement-mode evals. Even where `fixtures` is present, a pass proves only that the formula **can discriminate between these two specific synthetic inputs** — it proves nothing about whether the formula tests the **right** claim, whether `cmd` and `fixtures.formula` stay in sync after later edits, or whether the fixtures are representative of real pass/fail states. This closes the "never fails" (or "never passes") class of defect; it is not a general correctness proof of the check, and it is a narrower claim than the seven pr-scope structural refusals above, which apply to every scripted eval unconditionally.
+
+### Design fork: formula-against-fixtures vs. real-surface execution
+
+Rejected alternative: run the check against the real target surface at freeze time. Rejected because at freeze a not-yet-built surface and a genuinely broken check both exit non-zero **indistinguishably** — a real-surface gate could not tell "this check is broken" apart from "this feature legitimately doesn't exist yet." Piping synthetic `fixtures.good`/`fixtures.bad` text into the formula sidesteps that ambiguity: the formula is exercised against known inputs with known expected outcomes, independent of whether the real implementation exists.
+
+### Design history: a wrongly-concluded hard-stop, overturned
+
+An earlier point in the building loop concluded the feature was "unbuildable," premised on a measured claim that ~91% of the corpus's `negative_control` values looked like prose rather than machine-checkable commands (near-zero surface for a fixtures gate to validate). That 91% came from a broken classifier; re-measured, the real figure is closer to 46%. A `/coderails:disconfirm` pass plus an adversarial fable-5 red-team review overturned the stop by challenging the classifier itself. Recorded as a general caution: a hard-stop premised on a measured corpus statistic warrants the same "is this measurement itself broken" scrutiny as any other claim before it's allowed to kill a feature.
+
+Relationship to rule 2 (negative controls): rule 2 and the pre-existing structural check (`validate_structure` check 4, vacuous-relative-to-cmd) both operate on **text** — do `cmd` and `negative_control` differ as strings. This gate operates on **behaviour** — does the check's formula actually produce different verdicts on different real inputs. A check can satisfy rule 2 and check 4 (textually distinct control) while still failing this gate (formula behaviourally identical on pass and fail input), which is exactly the loop-8b69e779 shape.
+
 ## Loop-scope gate
 
 Lives entirely inside the pre-existing `loop_state_guard.sh` Stop hook (C1) — extended, not replaced or forked into a new script.
