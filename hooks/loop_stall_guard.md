@@ -2,7 +2,7 @@
 title: "Hook: loop_stall_guard.sh"
 type: hook
 created: 2026-06-25
-last_updated: 2026-07-15
+last_updated: 2026-07-17
 sources:
   - sources/session_2026-06-25_agentic-loop-upgrade-arc.md
   - sources/pr_49_gate-function-rename.md
@@ -11,7 +11,8 @@ sources:
   - sources/pr_86-107_2026-07-08_loop-lib-residuals.md
   - sources/pr_118-123_self-improving-loops.md
   - sources/pr_184_185_186_loop-cost-tracking.md
-tags: [hook, agentic-loop, anti-stall, stop-hook, loop-stop, loop-state, hook-owned-counter, malformed-transcript, retro-gate, schema-version-2, cost-tracking]
+  - sources/pr_194_198_loop-complete-deferral-and-proof-gates.md
+tags: [hook, agentic-loop, anti-stall, stop-hook, loop-stop, loop-state, hook-owned-counter, malformed-transcript, retro-gate, schema-version-2, cost-tracking, deferral-gate, proof-gate, work-units, anti-gaming]
 ---
 
 # loop_stall_guard.sh (C2)
