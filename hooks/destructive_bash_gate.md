@@ -134,32 +134,86 @@ Any Bash command matching the regex above is denied. The hook emits a JSON respo
 
 There is no approval path built into the hook. The reason field tells Claude to add a `settings.json` permission rule or choose a safer alternative — but that requires a deliberate human configuration change, not just re-asking.
 
-## Deny messages name a concrete safe route (added 2026-07-17, PR #203)
+## Deny messages name a concrete safe route (added 2026-07-17, PR #203; extended to all patterns same day, PR #216)
 
-Before this PR, `<route>` above was a single generic sentence appended
+Before PR #203, `<route>` above was a single generic sentence appended
 regardless of which pattern matched ("use a non-destructive alternative"
 without naming one) — this caused a real stall in practice (an orchestrator
 blocked on `git reset --hard` with no named way forward). `deny()` now looks
 up a `route` string keyed on the matched pattern's own text (lowercased,
-whitespace-collapsed for the lookup only — the reported `$pat` is unchanged):
+whitespace-collapsed for the lookup only — the reported `$pat` is unchanged).
+PR #203 shipped 3 named routes; **PR #216, merged the same day, extended
+every remaining blockable pattern to its own named route** — route arms went
+4 → 14 (13 real routes + the generic fallback, kept for anything genuinely
+unmapped). The full table, current as of PR #216:
 
 | Blocked pattern | Named safe route |
 |---|---|
 | `git reset --hard` | `git branch backup/<desc> <ref>` first, then `git reset --keep <ref>` — `--keep` refuses rather than clobbers when it would discard uncommitted changes |
 | `rm -rf` / recursive-force-remove | `unlink <file>` for a single file; move to a temp dir (`mkdir -p /tmp/trash && mv <target> /tmp/trash/`) for a directory |
 | `git push --force`/`-f` | `--force-with-lease` — **with an explicit disclosure that fwl is itself denied by default**, naming the exact opt-in line (`git-push-force-with-lease` in `.claude/destructive_allowlist`) |
-| No specific mapping (e.g. `git clean -fdx`) | Generic fallback text — not a false claim of a specific route |
+| `git clean -f`/`--force`/`-fd` etc. | `git clean -n` (dry-run/preview, lists targets without deleting) or `git clean -i` (interactive per-file/dir prompt) — **both already ALLOWed by this same gate**; only the force forms are blocked |
+| `chmod -R 777` | `chmod -R u+rwX,go+rX <path>` — owner rw(+x on dirs/already-executable files), group/other read, without world-writable/world-executable |
+| `git commit ... --no-verify` | Fix the failing pre-commit hook and re-run without `--no-verify`; if the hook itself is broken (not the change), fix the hook, don't skip it |
+| `find ... -delete`/`--delete` | **No safe equivalent for the deletion itself** — preview the match set first with `-print` (or `-print0 \| xargs -0 ls`); to allow, add a settings.json permission rule |
+| `truncate -s`/`--size` | **No safe equivalent** — truncate destroys content in place; back up first (`cp <file> <file>.bak`) or rotate instead of truncating; to allow, add a settings.json permission rule |
+| `shred` | **No safe equivalent** — shred exists specifically to make content unrecoverable; if you only meant to delete (not securely wipe), move to a temp dir instead; to allow, add a settings.json permission rule |
+| `DROP TABLE`/`DATABASE`/`SCHEMA` | **No safe equivalent** — take a backup/dump first if the data must be recoverable, confirm you're pointed at the intended database; to allow, add a settings.json permission rule |
+| `TRUNCATE TABLE` | **No safe equivalent** — removes all rows, not equivalent in safety to a scoped `DELETE`; take a backup/dump first; to allow, add a settings.json permission rule |
+| `dd if=` | **No safe equivalent** — writes raw bytes with no confirmation; double-check the `of=` target isn't a mounted disk; to allow, add a settings.json permission rule |
+| `mkfs.*` | **No safe equivalent** — reformats a filesystem, destroying existing data; confirm the target device isn't mounted/in-use; to allow, add a settings.json permission rule |
+| No specific mapping (nothing currently falls here — the fallback is retained for any future unmapped pattern) | Generic fallback text — not a false claim of a specific route |
 
-This is **message text only** — the paired test file asserts the same
-DENY/ALLOW verdict set as before, unchanged; only `permissionDecisionReason`'s
-content changed. **bash 3.2 gotcha caught by the hook's own test suite
-during this work:** the lowercase-normalisation step was first tried with
-`${pat,,}` (bash 4+), which **aborts the hook** on this machine's bash 3.2
-(macOS default) — an abort here is a fail-open (denies nothing). Fixed with
+**Six patterns (`find -delete`, `truncate`, `shred`, the three SQL DDL
+patterns, and `dd`/`mkfs`) genuinely have no safe alternative.** Their routes
+say so explicitly rather than inventing a plausible-sounding one — a
+fabricated safe route was judged strictly worse than the honest generic
+fallback it replaced, because an invented alternative sends someone down a
+false path with false confidence. Only `git reset --hard`, `rm -rf`, `git
+push --force`, `git clean`, `chmod -R 777`, and `git commit --no-verify` have
+a genuine safer alternative to name.
+
+This remains **message text only** — the paired test file asserts the same
+DENY/ALLOW verdict set as before PR #203, unchanged; only
+`permissionDecisionReason`'s content changed, both times. **bash 3.2 gotcha
+caught by the hook's own test suite during PR #203's work:** the
+lowercase-normalisation step was first tried with `${pat,,}` (bash 4+), which
+**aborts the hook** on this machine's bash 3.2 (macOS default) — an abort
+here is a fail-open (denies nothing). Fixed with
 `tr '[:upper:]' '[:lower:]'`. See [[pr_201_202_203_routine-followups]] for
 the full incident record, including two other durable lessons from the same
 cluster (a handoff memory's claims need live-state re-verification; a frozen
 eval command must be smoke-run once at freeze).
+
+### Sync enforcement — a test, not a scheduled routine (PR #216)
+
+Keeping this table from silently rotting as new patterns are added needed a
+decision: a scheduled routine (drift reported days later) vs. a test in the
+existing suite (fails the instant a routeless pattern ships). **Resolved: a
+test** — the enforcement needs to be as fast as the change that causes the
+gap. Two independent mechanisms, because a behavioural test alone only proves
+today's pattern list has routes, not that a future one will:
+
+1. **Per-pattern route assertions** via a new `assert_specific_route` test
+   helper that drives the real gate and fails on the generic fallback text,
+   AND requires pattern-specific needle strings unique to that route's own
+   wording — 13 assertions, one per pattern.
+2. **A source-drift tripwire** comparing the gate's actual blockable set (the
+   `deny "..."` call sites plus the monolithic `pattern=` line) against two
+   committed `EXPECTED_*` snapshots, failing with an actionable message the
+   moment either changes.
+
+Two discriminating-check defects were found in the first draft and fixed
+before merge — both of the class "a check that cannot both pass and fail is
+not a check": (a) the six honest ("no safe equivalent") routes originally
+shared identical needles, so a copy-paste-swapped route body passed every
+assertion (proven by swapping `dd`'s route text into `shred`'s case and
+confirming it stayed green); (b) the `git clean` check grepped bare `-n`/`-i`,
+two-char substrings matching incidentally inside unrelated words (a
+fabricated route mentioning `"manual-n"` and `"4-i"` passed clean). Both
+fixed with route-specific needles and full-string literals respectively. See
+[[pr_216_217_safe-routes-and-cost-miner-diagnostics]] for the full incident
+record.
 
 **Why JSON deny and not exit 2:** For `PreToolUse`, both mechanisms block the tool call, but the JSON form carries `permissionDecisionReason`, delivering a useful explanation rather than a bare stderr string. JSON output is only processed at exit 0, so the hook exits 0 after emitting JSON. See [[hook-exit-codes]] for the full rationale.
 
