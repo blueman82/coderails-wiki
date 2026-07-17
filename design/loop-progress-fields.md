@@ -167,3 +167,7 @@ per the honest-audit framing that section describes.
   re-arm after a completed loop) instead of unconditionally verbatim
 - [[dashboard]] — the RailLeft Directives card that surfaces the last 5
   `decisions_absorbed` entries (PR #148/#149)
+- [[pr_194_198_loop-complete-deferral-and-proof-gates]] — PR #194
+  (2026-07-17): `work_units` gains its second consumer, the deferral gate
+  in [[loop_stall_guard]], which blocks `LOOP-STOP: complete` on any unit
+  that isn't provably `done`/`dropped`
