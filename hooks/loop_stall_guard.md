@@ -273,6 +273,42 @@ the human's terminal — verified empirically with a live smoke test, rendering
 as `Stop says: <msg>`. See [[hook-exit-codes]] for the fuller channel-mechanics
 treatment. See [[pr_204_cost-reporter]] for the full source record.
 
+## `als_extract_last_text` malformed-line fix (PR #208) — the extraction path, not the count path
+
+The declaration-detection gate (step 5 above) depends on `als_extract_last_text`
+to read the orchestrator's actual last message text and check it against the
+`LOOP-STOP` regex. Before PR #208, a single non-object JSON line anywhere in
+the tail window (`jq -R 'fromjson? // empty'` admits any valid JSON value, not
+only objects) crashed the downstream `select(.type == "assistant")` stage
+(`Cannot index number with string "type"`), and the function's blanket
+`2>/dev/null` silently collapsed the **whole** extraction to empty — even with
+a genuine `LOOP-STOP: complete` line sitting right next to the bad one.
+**Verified consequence:** this hook then reported "no LOOP-STOP declaration in
+your last message" and blocked a stop that should have been allowed. Fixed
+with one line, `select(type == "object")`, inserted right after the
+`fromjson?` stage. Fails CLOSED (spurious block), not open — a forced
+security-review pass (mandatory, diff touches `hooks/`) returned APPROVE, and
+the complete-only gates above read their own JSON artifacts independently, so
+they were never at risk from this bug either way.
+
+**Not the same fix as `als_count_invocations`'s `select(type == "object")`
+guard** (line 169, added by [[pr_194_198_loop-complete-deferral-and-proof-gates|PR #198]],
+self-labelled "SECURITY FIX" in its own source comment) even though both are
+one-line guards of the identical shape in the identical file. `als_count_invocations`
+decides whether a session is a loop at all — a poisoned line there collapsed
+the count to 0, causing `als_gate_require_active_loop` to treat the session as
+"not a loop" and skip the retro/work-units/proof gates entirely (fail-OPEN, a
+full gate-family bypass). `als_extract_last_text` only decides whether *this
+turn's* declaration parses — a poisoned line there caused a false block
+(fail-CLOSED). Same defect class, different function, different failure
+direction, five days apart. See [[pr_206_208_loop-state-common-docs-and-robustness]]
+for the full comparison.
+
+`discipline_common.sh`'s sibling `dc_extract_last_text` carries the same
+two-stage shape (documented in `als_extract_last_text`'s own source comment)
+and almost certainly the same defect — explicitly **not** fixed by PR #208,
+parked for the jq-slurp round-2 arc.
+
 ## Stdin read convention (PR #76)
 
 This hook reads its payload via `IFS= read -r -d '' -t 5 input || true`. See [[pr_76_harden-hook-stdin-read]] for the full convention and the fail-open rationale.
