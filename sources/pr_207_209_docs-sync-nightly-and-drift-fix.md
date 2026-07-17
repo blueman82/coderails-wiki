@@ -11,10 +11,16 @@ tags: [docs-sync, sync-docs, routines, self-merge, security, self-governance, da
 
 Two PRs treated as one cluster: #207 fixed the documentation drift that had
 accumulated (skill count, missing rows, sandbox workers), and #209 replaced
-the routine that was supposed to catch that drift automatically but had
-been silently broken for 9 days. The second PR only makes sense in light of
-the first — #209's `docs-sync-nightly` routine exists specifically because
-the mechanism #207 patched by hand had failed.
+the routine that was supposed to catch that drift automatically but had been
+dead for 9 days. The second PR only makes sense in light of the first —
+#209's `docs-sync-nightly` routine exists specifically because the mechanism
+#207 patched by hand had failed.
+
+**Precision on "dead", because the imprecise version was the loop's own worst
+error:** the routine did **not** fail silently. It went red on 2026-07-15 with
+`failureClass: skill-missing` and escalated correctly, to a vault-note and a
+macOS notification. Nobody was watching those channels. The distinction is the
+whole lesson — see [[the wrong-surface trap]] below.
 
 ## PR metadata
 
