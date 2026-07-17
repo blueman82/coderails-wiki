@@ -2,7 +2,7 @@
 title: "Task-evals gate — dual-scope (pr + loop) enforcement over frozen, oracle-independent success evals"
 type: design
 created: 2026-07-06
-last_updated: 2026-07-16
+last_updated: 2026-07-17
 sources:
   - sources/pr_1-4_task-evals-feature.md
   - sources/pr_7-10_task-evals-followups.md
@@ -10,7 +10,8 @@ sources:
   - sources/pr_144-149_agentic-loop-hardening-from-loop-engineering.md
   - sources/pr_155-158_ceremony_noise_envelope_anchoring.md
   - sources/pr_138_remove-specs-plans-tracking.md
-tags: [design, task-evals, evals-json, merge-gate, loop-gate, truth-seam, sha-bound, work-units, oracle-independence, comment-spoofing, tier-justification, trust-floor, viewerPermission, grade-loop, unstamped]
+  - sources/pr_218_discriminating-check-gate.md
+tags: [design, task-evals, evals-json, merge-gate, loop-gate, truth-seam, sha-bound, work-units, oracle-independence, comment-spoofing, tier-justification, trust-floor, viewerPermission, grade-loop, unstamped, discriminating-check, fixtures]
 ---
 
 # Task-evals gate
