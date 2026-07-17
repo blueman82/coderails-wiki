@@ -290,3 +290,4 @@ This hook reads its payload via `IFS= read -r -d '' -t 5 input || true`. See [[p
 - [[pr_184_185_186_loop-cost-tracking]] — PR #186: widens the retro gate to `schema_version >= 1`; PR #184: the cost-mining sub-step that bumps the retro to `schema_version` 2
 - [[pr_194_198_loop-complete-deferral-and-proof-gates]] — PR #194: the deferral gate (`work_units` terminal-status check); PR #198: the proof gate (transcript-derived verdicts against a blind-authored `proof.json`) and the `als_count_invocations` non-object-line fix that closed a full complete-gate-family bypass
 - [[loop-progress-fields]] — `work_units`' full schema; now has two consumers (the eval-threshold gate here documented and the deferral gate above)
+- [[pr_204_cost-reporter]] — PR #204: `als_report_cost_on_complete`, the non-blocking reporter that mechanically prints the loop's cost via `systemMessage` — the fourth complete-only step, after the three gates above
