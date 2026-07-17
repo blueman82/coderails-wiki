@@ -99,3 +99,4 @@ Same posture as [[post-review]]: this command validates artifact structure and P
 - [[review-artifact-seam]] — the design page this pattern was largely mirrored from
 - [[pr_1-4_task-evals-feature]] — the cluster source record
 - [[pr_7-10_task-evals-followups]] — follow-up cluster; PR #10 (owner directive) tightened `tier_justification` from tier-0-only to all tiers
+- [[pr_218_discriminating-check-gate]] — PR #218 (2026-07-17): Step 3b, the `fixtures`-based discriminating-check gate
