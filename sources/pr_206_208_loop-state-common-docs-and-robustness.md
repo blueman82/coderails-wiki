@@ -141,7 +141,7 @@ this ingest). Record the relationship here; do **not** present
 ## Wiki pages updated
 
 - [[loop_stall_guard]] — documented the `als_extract_last_text` fix, its user-facing consequence (spurious block on poisoned tail window), and the relationship to the `als_count_invocations` fix already on that page
-- [[discipline-loop]] — noted the REFERENCE.md function-inventory correction alongside the existing hook-composition inventory it maintains
+- [[discipline-loop]] — while cross-referencing the sibling `dc_extract_last_text` gap, found and flagged a **pre-existing wiki contradiction**: that page claimed `dc_extract_last_text` was "hardened in earlier PRs," but `origin/main`'s current `discipline_common.sh` shows no such guard exists — added a dated `⚠️ CONTRADICTION` note there rather than silently repeating the false claim
 
 ## Caveats / gotchas
 
