@@ -169,9 +169,7 @@ multi-session blind spot → unpriced models → cwd sensitivity → "empty
 `BASH_SOURCE` in both shells." All four were falsified. The real cause was a
 zsh-only `${BASH_SOURCE[0]}` bug (empty inside a function under zsh, so
 `dirname ''` resolves to `.`, so a relative `./model_prices.json` path fails
-the `[ -f ]` check) — fixed separately in PR #205. See
-[[feedback_fail_open_hides_its_cause|the memory this PR closes the gap
-named in]] for the full four-loop history.
+the `[ -f ]` check) — fixed separately in PR #205.
 
 ### The fix: 6 new distinct stderr lines (was 1)
 
