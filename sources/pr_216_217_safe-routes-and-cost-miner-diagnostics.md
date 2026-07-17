@@ -134,7 +134,7 @@ record the incident that motivated each fix rather than just the fixed code.
 
 - **Message-only change, confirmed by inspection and by test.** Zero changes
   to any matching regex, condition, or control-flow branch — verified against
-  the diff and by [[security-review|a security review]] of the PR. The paired
+  the diff and by a security review of the PR. The paired
   behavioural test suite asserts the same DENY/ALLOW verdict set as before
   PR #203 already established this invariant; PR #216 only adds to the
   *reason string*, never the *verdict*.
