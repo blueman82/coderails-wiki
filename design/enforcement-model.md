@@ -18,6 +18,7 @@ sources:
   - sources/pr_192_frontier-opus-effort-routing.md
   - sources/pr_163-168_dashboard-rethink.md
   - sources/pr_179_dashboard-lan-access.md
+  - sources/pr_204_cost-reporter.md
 tags:
   - hooks
   - enforcement
