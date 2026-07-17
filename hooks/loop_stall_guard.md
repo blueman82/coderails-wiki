@@ -12,7 +12,8 @@ sources:
   - sources/pr_118-123_self-improving-loops.md
   - sources/pr_184_185_186_loop-cost-tracking.md
   - sources/pr_194_198_loop-complete-deferral-and-proof-gates.md
-tags: [hook, agentic-loop, anti-stall, stop-hook, loop-stop, loop-state, hook-owned-counter, malformed-transcript, retro-gate, schema-version-2, cost-tracking, deferral-gate, proof-gate, work-units, anti-gaming]
+  - sources/pr_204_cost-reporter.md
+tags: [hook, agentic-loop, anti-stall, stop-hook, loop-stop, loop-state, hook-owned-counter, malformed-transcript, retro-gate, schema-version-2, cost-tracking, deferral-gate, proof-gate, work-units, anti-gaming, cost-reporter, reporter-not-gate, system-message]
 ---
 
 # loop_stall_guard.sh (C2)
