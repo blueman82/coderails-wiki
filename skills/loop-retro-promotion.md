@@ -5,6 +5,7 @@ created: 2026-07-17
 last_updated: 2026-07-17
 sources:
   - sources/pr_36-41-33-53-65_verified-routines.md
+  - sources/pr_201_202_203_routine-followups.md
 tags: [skill, routines, agentic-loop, retro, promotion, machine-run, agentic-os]
 ---
 
