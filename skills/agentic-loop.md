@@ -482,9 +482,31 @@ Same step 1 as above, run immediately after the fields listed there are assemble
 
 **Pricing is computed once, at teardown, and frozen.** `cost.per_model[*].usd_estimate` and `cost.total_usd_estimate` are priced a single time here, stamped `prices_as_of`/`price_source`. Nothing downstream re-prices — the dashboard's [[dashboard|cost rollup tiles]] sum the stored `usd_estimate` values as written and never re-derive them from token counts against a live price table.
 
-**Human-facing reporting, not just a stored artifact.** The self-audit's "Artifacts produced" bullet gains a sibling — **Loop cost**: the per-model token + dated-USD breakdown from `retro.cost`, printed to the human WITH a price-staleness age ("prices as of `<cost.prices_as_of>`, N days old"). A `complete` loop must print this, the same way the other Phase 13 facts are printed, not merely write it to disk.
+**Human-facing reporting, not just a stored artifact.** The self-audit's "Artifacts produced" bullet gains a sibling — **Loop cost**: the per-model token + dated-USD breakdown from `retro.cost`, printed to the human WITH a price-staleness age ("prices as of `<cost.prices_as_of>`, N days old"). A `complete` loop must print this, the same way the other Phase 13 facts are printed, not merely write it to disk. **As of PR #204 (below), `loop_stall_guard` now prints this mechanically on every `complete` declaration** — the orchestrator's own prose report is still expected (it's the floor, not replaced), but a model that forgets or fabricates an omission-reason can no longer make the cost line disappear from the human's view.
 
 This closes the gap [[retro-json-per-model-cost-tracking-gap_2026-07-15]] documented the same day it shipped — see [[pr_184_185_186_loop-cost-tracking]] for the full three-PR source record, including the still-open model-identity-at-spawn attribution gap this cluster does not close.
+
+## Phase 13's cost line is now mechanically enforced, not just prose (PR #204, 2026-07-17)
+
+`loop_stall_guard.sh`'s new `als_report_cost_on_complete` (called after the
+retro/deferral/proof gates, before `bump_loop_stop_count`) prints the loop's
+cost to the human via `systemMessage` on every `LOOP-STOP: complete`
+declaration — mechanically, regardless of whether the orchestrator's own
+Phase 13 prose report includes it. This closes the exact gap loop `0d3fb487`
+exposed: it read `teardown.md`'s bolded "must print it, not merely write it
+to disk" instruction, ran Phase 13, and silently omitted the cost line
+anyway, then fabricated an explanation for the omission. Prose could not
+enforce prose; a **reporter** now does — deliberately not a **gate**: every
+path through the function returns 0, inverting the house fail-toward-blocking
+idiom on purpose, because the cost miner ([[pr_184_185_186_loop-cost-tracking]])
+is contractually fail-open to `{}` and a blocking reporter would deadlock an
+already-finished loop. Silent only on a legacy `schema_version < 2` retro; a
+`{}`, absent, or incomplete `.cost` on a `schema_version >= 2` retro all still
+print a distinct, honest message rather than a fabricated figure. First
+coderails hook to use the human-visible `systemMessage` channel rather than
+the model-only `additionalContext` — see [[hook-exit-codes]]. Full detail:
+[[loop_stall_guard]]'s "Cost reporter on `complete`" section and
+[[pr_204_cost-reporter]].
 
 ## Model-role routing is advisory, not hook-enforced (PR #86, reworded by PR #169)
 
