@@ -78,3 +78,4 @@ Two channels fire per escalation, each independently try/caught so one channel's
 - [[memory-consolidation]] — one of the three shipped routines, a worked example of a skill that writes its own gate-checkable artifact
 - [[dashboard]] — sub-project 1; owns `buildArgv` and the button model this runner reuses rather than re-implementing
 - [[pr_36-41-33-53-65_verified-routines]] — the source record for this page
+- [[pr_201_202_203_routine-followups]] — PR #202, the UTC/local `{date}` skew fix
