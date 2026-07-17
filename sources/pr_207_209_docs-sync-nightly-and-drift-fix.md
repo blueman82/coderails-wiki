@@ -20,7 +20,7 @@ dead for 9 days. The second PR only makes sense in light of the first —
 error:** the routine did **not** fail silently. It went red on 2026-07-15 with
 `failureClass: skill-missing` and escalated correctly, to a vault-note and a
 macOS notification. Nobody was watching those channels. The distinction is the
-whole lesson — see [[the wrong-surface trap]] below.
+whole lesson — see Finding 1 below.
 
 ## PR metadata
 
