@@ -592,3 +592,6 @@ the substantive change this terminology update accompanies.
 - [[pr_169_model-routing-step]] — PR #169 (2026-07-14) source record: new unconditional Phase 2.8 model-role routing, the vacated-then-reused 2.8 number, the ~13-site sonnet/opus terminology reconciliation across this skill
 - [[writing-plans]] — also gains a mandatory per-task `Model:` stamp from the same PR (below the existing four cross-refs to this page)
 - [[enforcement-model]] — "Model-role routing ... advisory, not hook-enforced" bullet reworded by PR #169 for the new vocabulary and a precise hook-matcher claim (only `Bash` and `Write|Edit|MultiEdit`)
+- [[pr_194_198_loop-complete-deferral-and-proof-gates]] — PRs #194/#198 (2026-07-17) source record: Phase 2.7e blind-authored `proof.json` + the Phase 13 teardown's new first step (run every proof verbatim, foreground, orchestrator session); the deferral gate's `work_units` terminal-status enforcement; the `als_count_invocations` non-object-line fix that closed a full complete-gate-family bypass
+- [[loop_stall_guard]] — the hook hosting all three `complete`-branch gates now: retro, deferral (`work_units`), and proof (`proof.json` vs. transcript)
+- [[task-evals]] — the grader-independence rule (rule 4/oracle-independence) that Phase 2.7e's blind proof authorship generalises from grading to authoring
