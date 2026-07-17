@@ -2,7 +2,7 @@
 title: "Verified routines (scheduling convention)"
 type: design
 created: 2026-07-07
-last_updated: 2026-07-13
+last_updated: 2026-07-17
 sources:
   - sources/pr_36-41-33-53-65_verified-routines.md
   - sources/pr_88_93_dashboard-launchd.md
@@ -39,7 +39,7 @@ An unrecognised `cadence` string, or a routine whose `buttonRef` resolves to no 
 Routines live in the `routines` array of `~/.claude/coderails-dashboard.json`, validated by `validateRoutines()` at config-load time (`skills/dashboard/lib/src/config.ts`):
 
 - **`name`** — the routine's own identifier, must be unique.
-- **`skillCommand` / `buttonRef`** — exactly one, never both, never neither. `buttonRef` reuses an existing button's `command`/`cwd`/`profile` — all three shipped routines take this path.
+- **`skillCommand` / `buttonRef`** — exactly one, never both, never neither. `buttonRef` reuses an existing button's `command`/`cwd`/`profile` — every shipped routine takes this path.
 - **`foreignSkillPath`** (optional) — an absolute path to a skill living outside the coderails repo (e.g. `sync-docs`'s personal-plugin location). The runner checks this path exists *before* spawning `claude`, escalating `skill-missing` rather than spawning and letting it fail inside the sandbox.
 - **`cadence`** — `"nightly"` or `"weekly"` only; see Due-ness above.
 - **`expectedArtifact`** — `{ artifactPath, maxAgeSeconds, predicate }`, the artifact gate [[dashboard-runner]] evaluates. `artifactPath` supports `{date}`/`{runId}`/`{vault}` tokens. `predicate` is `exists`, `contains: marker`, or `json-field: path/value`.
@@ -62,15 +62,22 @@ Worked example, the shipped `wiki-lint` routine (`examples/dashboard-config.json
 }
 ```
 
-`maxAgeSeconds` should sit comfortably above the cadence interval — the nightly example above uses 129600s (36h); the two weekly routines use 691200s (8 days) — so a slightly-late run doesn't fail its own gate on staleness alone `(verified, docs/routines.md)`.
+`maxAgeSeconds` should sit comfortably above the cadence interval — the nightly example above uses 129600s (36h); all four weekly routines use 691200s (8 days) — so a slightly-late run doesn't fail its own gate on staleness alone `(verified, docs/routines.md)`.
 
-## The three shipped routines
+## The five shipped routines
 
-All `"profile": "read-only"` (`examples/dashboard-config.json`, PR #53):
+The first three are all `"profile": "read-only"` (`examples/dashboard-config.json`, PR #53):
 
 - **`wiki-lint`** (nightly) — gates on `{vault}/log.md` containing `## [{date}] lint`.
 - **`sync-docs-weekly`** (weekly) — the `sync-docs` skill, referenced via `foreignSkillPath` (lives outside this repo).
 - **`memory-consolidation-weekly`** (weekly) — see [[memory-consolidation]]; gates on that skill's own report file existing.
+
+Two more were added later, both `buttonRef`-backed, weekly, `maxAgeSeconds` 691200 (8 days), escalating via `notification` + `vault-note` `(verified, ~/.claude/coderails-dashboard.json, read 2026-07-17)`:
+
+- **`loop-retro-promotion-weekly`** (weekly, added 2026-07-10) — see [[loop-retro-promotion]]; gates on an `exists` predicate over `promotion-runs.log` under the loop-state dir. Born red; see the born-red incident note below for the two deploy causes and their fixes (PRs #151 + #152).
+- **`workflow-audit-weekly`** (weekly, added 2026-07-17, PRs #195 + #196) — see [[workflow-audit]]; queue-mode, gating on `routines/workflow-audit/run-{date}.md` containing the marker `## [{date}] workflow-audit complete`. Live-fired green. Its **first** fire went red on a real defect — the button's command never named the run-note path the gate checks for, so the note was never written — the artifact gate catching a genuinely broken routine on its first run, exactly as designed `(verified, live config + PR #195/#196 merge at 80f5969)`.
+
+> **Note (lint, 2026-07-17):** the `artifactPath` of both later routines is templated with `{date}`, which the runner resolves in **local time** while a `claude -p` run stamps UTC — a correct run between 00:00–01:00 IST can therefore be graded red against tomorrow's path. Known open defect, not yet fixed; affects all four dated routines.
 
 ## launchd wiring
 

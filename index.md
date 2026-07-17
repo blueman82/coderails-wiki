@@ -2,7 +2,7 @@
 title: Coderails Wiki Index
 type: index
 created: 2026-05-30
-last_updated: 2026-07-15
+last_updated: 2026-07-17
 sources: []
 tags: [index, catalog]
 ---
@@ -111,6 +111,7 @@ Skills in `coderails/skills/*/SKILL.md`.
 | `dashboard` | Live local observability HUD (Next.js/R3F web + Obsidian command centre); sub-project 1 of 5 in the agentic-OS evolution | [[dashboard]] |
 | `workflow-audit` | Mines transcripts for repeated tool-use patterns, judges skill candidates, creates every `propose`-verdict candidate (in-session `AskUserQuestion` gate removed 2026-07-15; queue-mode dashboard Approve is the opt-in human gate); sub-project 3 of 5 in the agentic-OS evolution | [[workflow-audit]] |
 | `verify-merged-pr` | Re-derives a "PR #N is merged" claim (state + content on origin/main + sibling PRs) before relying on it; the first skill built end-to-end by the dashboard Approve→build pipeline | [[verify-merged-pr]] |
+| `loop-retro-promotion` | Machine-run only (not interactive): mines accumulated loop retros for repo-agnostic lessons and promotes them into `learned-failure-modes.md`; dormant until its graduation predicate is met, manifest-locked to one file | [[loop-retro-promotion]] |
 
 ---
 
