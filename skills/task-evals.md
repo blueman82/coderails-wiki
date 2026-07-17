@@ -66,7 +66,7 @@ Concrete predicates, same design rationale as agentic-loop Phase 2.6's "what nam
 
 ## Schema (schema_version 1)
 
-Scope is `pr` or `loop`. Each eval carries an ID, `priority` (`P0` blocks the gate, `P1` doesn't), `mode` (`scripted` or `agent-run`), `surface`, an `assert` one-liner, a `cmd` or verifier instruction, a `negative_control` (required for scripted), `status`, and `evidence`. GO requires **all P0 evals pass**; P1 failures don't block but must be listed unresolved. See [[task-evals-gate]] for the full JSON shape and how the two enforcement seams consume it.
+Scope is `pr` or `loop`. Each eval carries an ID, `priority` (`P0` blocks the gate, `P1` doesn't), `mode` (`scripted` or `agent-run`), `surface`, an `assert` one-liner, a `cmd` or verifier instruction, a `negative_control` (required for scripted), `status`, and `evidence`. A scripted eval may also carry an **optional** `fixtures` object (`{good, bad, formula?}`, [[pr_218_discriminating-check-gate|PR #218]], 2026-07-17) — when present, `/coderails:post-evals` Step 3b mechanically proves the check's formula can both pass (on `good`) and fail (on `bad`) before the artifact is posted; absent `fixtures` means the eval is grandfathered, validated exactly as before that gate existed. GO requires **all P0 evals pass**; P1 failures don't block but must be listed unresolved. See [[task-evals-gate]] for the full JSON shape, the discriminating-check gate's full mechanism, and how the enforcement seams consume it.
 
 ## Where evals.json lives
 
