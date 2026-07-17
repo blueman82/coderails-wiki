@@ -158,3 +158,6 @@ The runner's `writeRunNote` (`type: routine-run` frontmatter) and the Obsidian p
 - [[dashboard]] — sub-project 1; owns the `ButtonDef`/`buildArgv` machinery a `buttonRef` routine reuses; its own launchd agent reuses this page's boot-persistence fix
 - [[pr_36-41-33-53-65_verified-routines]] — the source record for this page
 - [[pr_88_93_dashboard-launchd]] — the dashboard's own launchd agent + uninstall bootout-race fix, reusing this page's copy-then-bootstrap-from-copy pattern
+- [[docs-sync]] — the skill page for `sync-docs-nightly`'s self-merging pipeline
+- [[sync-docs]] — the separate, older audit skill `docs-sync` invokes as its first step
+- [[pr_207_209_docs-sync-nightly-and-drift-fix]] — source record: `sync-docs-weekly`'s root cause + wrong-surface correction, the `foreignSkillPath`/`maxAgeSeconds` fixes, and the self-governance security findings
