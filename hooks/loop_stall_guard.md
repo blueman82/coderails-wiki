@@ -111,6 +111,103 @@ This hook additionally hosts the **retro gate** (`als_gate_retro_on_complete` in
 
 **`retro.json` is now `schema_version` 2 as of the same cluster** — Phase 13's teardown write contract gained a cost-mining sub-step (`hooks/scripts/lib/loop_cost.sh`'s `dc_mine_token_usage`) that writes `retro.cost` (the miner's frozen per-model token/USD breakdown) and lifts its `models_used` array to top-level `retro.models_used`. This gate itself is unchanged by that addition beyond the version-check widening above — it still checks presence + `schema_version`, never the cost field's correctness, so a miner failure (which fails open to empty `cost`/`models_used`) cannot stall a loop. See [[agentic-loop]]'s Phase 13 section for the full field contract and [[pr_184_185_186_loop-cost-tracking]] for the source record.
 
+## Deferral gate on `complete` (PR #194)
+
+`als_gate_work_units_on_complete` in the shared lib, called immediately
+after the retro gate above. On a `LOOP-STOP: complete` declaration only,
+every `progress.json` `work_unit` must be `"done"` or `"dropped"` with a
+non-empty `dropped_reason` — an offender list of unit ids is built and
+printed in the block message so the model knows exactly which units to
+finish or explicitly drop.
+
+**Fail-open at the file level, fail-closed per unit** — this is the
+opposite asymmetry from the retro gate on purpose: `work_units` is
+optional (a trivial or legacy loop may never populate it, so its *absence*
+must never block), but once an entry exists it must be provably terminal,
+so a malformed or ambiguous entry blocks rather than passing by default.
+Fails open on: absent `jq`, unset/missing `ALS_PATH`, absent/null/empty
+`work_units`, or a `progress.json` that doesn't parse. The allowlist is
+deliberately narrow — `{done, dropped}` only, not the wider vocabulary
+(`merged`, `complete`, etc.) seen in historical loops; widening it would
+rebuild the non-enforcement this gate exists to remove. `"blocked"` is
+explicitly NOT a terminal status here — a blocked unit must resolve to
+`awaiting-input` or `hard-stop` at the loop-declaration level, never ride
+through as an implicitly-finished work unit (recorded design decision,
+[[pr_194_198_loop-complete-deferral-and-proof-gates]]).
+
+Review found and fixed two jq type-guard fail-open bypasses before merge:
+a non-object `work_unit` value and a non-string `dropped_reason` could
+each slip past the terminal check via type coercion rather than an
+explicit missing-field read. Both closed with `type == "object"`/`type ==
+"string"` guards before any field is read off an entry. See
+[[loop-progress-fields]] for `work_units`' full schema and its other
+consumer (the eval-threshold gate in [[loop_state_guard]]).
+
+## Proof gate on `complete` (PR #198)
+
+`als_gate_proofs_on_complete` in the shared lib, called after the
+deferral gate above. A new enforcement **class**, distinct from every
+other gate in this hook: instead of checking artifact presence/shape, it
+**re-derives a pass/fail verdict from the session transcript's raw Bash
+`tool_use`/`tool_result` pairs** (exact trimmed-command match, last
+execution wins, `is_error` decides) and checks that verdict against a
+`proof.json` frozen earlier — at Phase 2.7e — by a **separate blind
+agent** that saw only `progress.json.authorising_prompt_raw`. `proof.json`
+carries its own `.status` field but the gate **never consults it** — a
+proof cannot be marked passing by self-report; only a matching, non-error
+transcript execution satisfies it. This is the anti-gaming design:
+blind authorship (Phase 2.7e) generalises [[task-evals]]'s
+grader-independence principle from grading to *authoring*, and
+transcript-only verdicts close the loophole a self-written `"status":
+"pass"` would otherwise open.
+
+**Orchestrator-session scope is deliberate.** A dispatched worker's Bash
+calls never appear in the orchestrator's own transcript, so a proof
+satisfied only inside a worker's session proves nothing to this gate —
+proofs MUST be run by the orchestrator itself, in the foreground, per
+Phase 13 teardown step 1 in [[agentic-loop]]. A backgrounded Bash launch
+(`run_in_background: true`) is excluded from the transcript miner
+entirely, closing a gaming route where merely starting a process (not
+completing it) could count as satisfying a proof.
+
+**Fail-open on absent `proof.json`** (optional, voluntarily adopted, same
+posture as task-evals). **Fail-closed** on: malformed JSON, missing/invalid
+`schema_version` (`>= 1` required), a non-array `.proofs`, an unparseable
+proof count, or a proof count exceeding a **100-proof cap**.
+
+Review found and fixed three issues before merge, beyond the type-guard
+class above:
+1. **O(proofs × executions) DoS-to-bypass.** An earlier revision rescanned
+   the whole transcript once per proof. This hook runs under a 15s
+   `hooks.json` timeout, and a timed-out hook never exits 2 — the Stop
+   proceeds unblocked. A model-writable, uncapped `proof.json` (~2,000
+   proofs × ~2,000 Bash calls ≈ 15s, reproduced) could defeat the gate by
+   making the check itself time out, not by satisfying it. Fixed with a
+   single-pass command-match index (executions grouped by trimmed command,
+   last wins, built once) plus the 100-proof cap checked *before* any
+   transcript mining starts — O(proofs + executions) instead of
+   O(proofs × executions).
+2. **A full complete-gate-family bypass via one malformed transcript
+   line.** `als_count_invocations`'s tolerant parse accepted any
+   valid-JSON line, including a non-object. A `.type` access on such a
+   line threw, collapsing the invocation count to 0 — which reads as "not
+   a loop," skipping every downstream Stop-hook gate, this one and the
+   deferral gate included. Fixed with an explicit `select(type ==
+   "object")` guard before `.type` is read, both at the top-level record
+   and inside nested content arrays (`hooks/scripts/lib/loop_state_common.sh:169`).
+3. **Two transient-jq fail-opens**, closed by numerically validating the
+   proof-count string before either downstream comparison, instead of
+   letting a jq read failure fall through to the same `return 0` as the
+   legitimate "zero proofs" case.
+
+**Trust boundary (stated explicitly in the gate's own source comment):**
+this gate defends against the *observed* failure class — honest
+self-deception and lazy self-reporting — not adversarial transcript
+forgery. A session that deliberately appends forged
+`tool_use`/`tool_result` records to its own transcript file can defeat it;
+no transcript-reading hook can close that, and this gate makes no stronger
+claim.
+
 ## Stdin read convention (PR #76)
 
 This hook reads its payload via `IFS= read -r -d '' -t 5 input || true`. See [[pr_76_harden-hook-stdin-read]] for the full convention and the fail-open rationale.
