@@ -126,12 +126,39 @@ Any Bash command matching the regex above is denied. The hook emits a JSON respo
   "hookSpecificOutput": {
     "hookEventName": "PreToolUse",
     "permissionDecision": "deny",
-    "permissionDecisionReason": "Destructive pattern detected: <matched fragment>\nFull command: <cmd>\nThis command is permanently blocked. To allow it, add a Bash permission rule to settings.json or use a non-destructive alternative."
+    "permissionDecisionReason": "Destructive pattern detected: <matched fragment>\nFull command: <cmd>\nThis command is permanently blocked. <route>"
   }
 }
 ```
 
 There is no approval path built into the hook. The reason field tells Claude to add a `settings.json` permission rule or choose a safer alternative — but that requires a deliberate human configuration change, not just re-asking.
+
+## Deny messages name a concrete safe route (added 2026-07-17, PR #203)
+
+Before this PR, `<route>` above was a single generic sentence appended
+regardless of which pattern matched ("use a non-destructive alternative"
+without naming one) — this caused a real stall in practice (an orchestrator
+blocked on `git reset --hard` with no named way forward). `deny()` now looks
+up a `route` string keyed on the matched pattern's own text (lowercased,
+whitespace-collapsed for the lookup only — the reported `$pat` is unchanged):
+
+| Blocked pattern | Named safe route |
+|---|---|
+| `git reset --hard` | `git branch backup/<desc> <ref>` first, then `git reset --keep <ref>` — `--keep` refuses rather than clobbers when it would discard uncommitted changes |
+| `rm -rf` / recursive-force-remove | `unlink <file>` for a single file; move to a temp dir (`mkdir -p /tmp/trash && mv <target> /tmp/trash/`) for a directory |
+| `git push --force`/`-f` | `--force-with-lease` — **with an explicit disclosure that fwl is itself denied by default**, naming the exact opt-in line (`git-push-force-with-lease` in `.claude/destructive_allowlist`) |
+| No specific mapping (e.g. `git clean -fdx`) | Generic fallback text — not a false claim of a specific route |
+
+This is **message text only** — the paired test file asserts the same
+DENY/ALLOW verdict set as before, unchanged; only `permissionDecisionReason`'s
+content changed. **bash 3.2 gotcha caught by the hook's own test suite
+during this work:** the lowercase-normalisation step was first tried with
+`${pat,,}` (bash 4+), which **aborts the hook** on this machine's bash 3.2
+(macOS default) — an abort here is a fail-open (denies nothing). Fixed with
+`tr '[:upper:]' '[:lower:]'`. See [[pr_201_202_203_routine-followups]] for
+the full incident record, including two other durable lessons from the same
+cluster (a handoff memory's claims need live-state re-verification; a frozen
+eval command must be smoke-run once at freeze).
 
 **Why JSON deny and not exit 2:** For `PreToolUse`, both mechanisms block the tool call, but the JSON form carries `permissionDecisionReason`, delivering a useful explanation rather than a bare stderr string. JSON output is only processed at exit 0, so the hook exits 0 after emitting JSON. See [[hook-exit-codes]] for the full rationale.
 
