@@ -14,12 +14,13 @@ sources:
   - sources/pr_92_2026-07-08_reference-drift-and-lookalike-fp.md
   - sources/pr_201_202_203_routine-followups.md
   - sources/pr_216_217_safe-routes-and-cost-miner-diagnostics.md
-tags: [hook, pretooluse-hook, enforcement, destructive-bash, block]
+  - sources/pr_224_231_233_235_loop-tooling-hardening.md
+tags: [hook, pretooluse-hook, enforcement, destructive-bash, block, pattern-id, mention-safe]
 ---
 
 # Hook: destructive_bash_gate
 
-A `PreToolUse (Bash)` lifecycle hook that permanently blocks a fixed set of destructive shell commands before they run, with **one narrow conditional-allow carve-out** (`git push --force-with-lease`, opt-in, see below). Extended in PR #59 to cover additional force-clean, truncate, shred commands plus a best-effort branch-aware gate on in-Bash source file edits. Hardened again in a same-day, five-PR arc on 2026-07-08 (#69, #72+#75, #84, #92) that closed three independent bypasses and one false-positive — see "2026-07-08 adversarial-hardening arc" below. Deny messages gained a per-pattern named safe route on 2026-07-17, first for 3 patterns (PR #203), then extended to **all ~13 blockable patterns** the same day (PR #216) — see "Deny messages name a concrete safe route" below.
+A `PreToolUse (Bash)` lifecycle hook that permanently blocks a fixed set of destructive shell commands before they run, with **one narrow conditional-allow carve-out** (`git push --force-with-lease`, opt-in, see below). Extended in PR #59 to cover additional force-clean, truncate, shred commands plus a best-effort branch-aware gate on in-Bash source file edits. Hardened again in a same-day, five-PR arc on 2026-07-08 (#69, #72+#75, #84, #92) that closed three independent bypasses and one false-positive — see "2026-07-08 adversarial-hardening arc" below. Deny messages gained a per-pattern named safe route on 2026-07-17, first for 3 patterns (PR #203), then extended to **all ~13 blockable patterns** the same day (PR #216) — see "Deny messages name a concrete safe route" below. Each route arm also gained a mention-safe `patternId` output field the same day (PR #233) — see "Mention-safe `patternId` per case arm" below.
 
 Source: `hooks/scripts/destructive_bash_gate.sh`
 
@@ -185,6 +186,32 @@ the full incident record, including two other durable lessons from the same
 cluster (a handoff memory's claims need live-state re-verification; a frozen
 eval command must be smoke-run once at freeze).
 
+### Mention-safe `patternId` per case arm (PR #233)
+
+Each named-route case arm above now also sets a hyphenated `pattern_id`
+(e.g. `git-reset-hard`, `chmod-r-777`, `rm-rf`), surfaced in the hook's JSON
+output as `hookSpecificOutput.patternId` (`null` for the unmapped generic
+fallback arm). **Message-only** — the matcher regexes and DENY/ALLOW verdict
+set are unchanged; only the output shape gained a field.
+
+The id is deliberately hyphenated so it can never itself match the gate's
+own whitespace-based regexes — `"chmod-r-777"` does not match
+`chmod[[:space:]]+-R[[:space:]]+777`. This exists so a test or artifact can
+reference a blocked pattern by id instead of quoting its literal text, which
+previously risked this same gate denying the line that documents the block
+(see [[pr_216_217_safe-routes-and-cost-miner-diagnostics]]'s "Lessons" #4,
+the standing mention-vs-invocation tension). Every id is tested both
+directions: the id string alone must ALLOW (mention-safety), the real
+blocked literal must DENY and carry that same `patternId`.
+
+The "Deliverable B" source-drift tripwire (below) gained a companion check,
+`assert_every_route_arm_has_pattern_id`: it walks the `case "$pat_lc" in
+... esac` block via `awk` and fails if any non-fallback `route=` assignment
+isn't immediately followed by a `pattern_id=` assignment — so a future route
+arm added without an id is caught here, not just a future *pattern* added
+without a route. See [[pr_224_231_233_235_loop-tooling-hardening]] for the
+full source record.
+
 ### Sync enforcement — a test, not a scheduled routine (PR #216)
 
 Keeping this table from silently rotting as new patterns are added needed a
@@ -258,3 +285,4 @@ This hook reads its payload via `IFS= read -r -d '' -t 5 input || true`. See [[p
 - [[pr_92_2026-07-08_reference-drift-and-lookalike-fp]] — REFERENCE.md drift fix + plugin_src anchor fix
 - [[pr_201_202_203_routine-followups]] — PR #203, first 3 named safe routes in deny messages + the bash 3.2 `${pat,,}` fail-open incident
 - [[pr_216_217_safe-routes-and-cost-miner-diagnostics]] — PR #216, extends named routes to all ~13 blockable patterns + the source-drift tripwire + two discriminating-check fixes
+- [[pr_224_231_233_235_loop-tooling-hardening]] — PR #233, the mention-safe `patternId` field documented above + the tripwire's companion id-presence check

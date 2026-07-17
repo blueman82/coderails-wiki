@@ -14,7 +14,8 @@ sources:
   - sources/pr_194_198_loop-complete-deferral-and-proof-gates.md
   - sources/pr_204_cost-reporter.md
   - sources/pr_206_208_loop-state-common-docs-and-robustness.md
-tags: [hook, agentic-loop, anti-stall, stop-hook, loop-stop, loop-state, hook-owned-counter, malformed-transcript, retro-gate, schema-version-2, cost-tracking, deferral-gate, proof-gate, work-units, anti-gaming, cost-reporter, reporter-not-gate, system-message, als_extract_last_text]
+  - sources/pr_224_231_233_235_loop-tooling-hardening.md
+tags: [hook, agentic-loop, anti-stall, stop-hook, loop-stop, loop-state, hook-owned-counter, malformed-transcript, retro-gate, schema-version-2, cost-tracking, deferral-gate, proof-gate, work-units, anti-gaming, cost-reporter, reporter-not-gate, system-message, als_extract_last_text, withdrawn-proofs, als-pending-sysmsg]
 ---
 
 # loop_stall_guard.sh (C2)
@@ -210,6 +211,51 @@ forgery. A session that deliberately appends forged
 no transcript-reading hook can close that, and this gate makes no stronger
 claim.
 
+## Proof withdrawal — `withdrawn_proofs` (PR #224)
+
+`proof.json` may also carry a `withdrawn_proofs` array — a way to say "I ran
+this proof, it failed, and I'm not fixing it, here's why" instead of the
+only two prior options (satisfy the proof, or never declare `complete`).
+Mined by the **same** single-pass `$exec_index` the `.proofs` check above
+builds, not a second scan — same DoS-to-bypass mitigation.
+
+A `withdrawn_proofs` entry must have **actually executed** in-session, its
+**last execution's `is_error` strictly `true`** (stricter than `.proofs`,
+which tolerates `is_error: null`; a withdrawal claims a *witnessed* failure,
+so `null`/`false` both fail), a **non-empty `withdrawn_reason` and `cmd`**,
+and **no double-dip** against `.proofs` (the same id can't be both pending
+and withdrawn). The cap from the proof gate above is **combined**:
+`len(.proofs) + len(.withdrawn_proofs) <= 100`, not 100 each — both arrays
+feed the same mining pass, so splitting the cap per-array would recreate the
+~100×100 timeout shape the cap exists to rule out.
+
+**Edge case fixed by this PR:** the pre-withdrawal gate's `.proofs`
+absent/null path was a bare `return 0` ("nothing to prove"). That's wrong
+once `withdrawn_proofs` exists — a loop whose only proof was withdrawn
+produces exactly `.proofs` absent + `withdrawn_proofs` populated, which the
+old early-return would let sail through unvalidated. The true "nothing to
+prove" allow now requires **both** arrays empty; either one alone still runs
+the full mining pass.
+
+Fail-closed throughout, same posture as `.proofs` — a withdrawal that fails
+any check blocks `exit 2`. Only the final human-visible message (naming
+which ids were successfully withdrawn) inherits a never-block posture, and
+only because it runs after every validation already passed.
+
+## `ALS_PENDING_SYSMSG` — one merged systemMessage, not two colliding ones (PR #224)
+
+This hook's `als_gate_proofs_on_complete` (withdrawal notices, above) and
+`als_report_cost_on_complete` (below) both need to tell the human something
+on a `complete` declaration, but two top-level `{systemMessage: ...}` JSON
+objects concatenated on one hook's stdout is not valid as a single document
+under a whole-buffer parse. Both functions now append their text to a
+shared global accumulator, `ALS_PENDING_SYSMSG` (defined in
+`loop_state_common.sh`, appended via `als_append_pending_sysmsg`,
+newline-joined) instead of emitting JSON directly. `loop_stall_guard.sh`'s
+call site emits the single merged `{systemMessage: ...}` only after both
+gates have had their chance to append — the only place either message
+reaches the human's terminal.
+
 ## Cost reporter on `complete` (PR #204) — the one step here that never blocks
 
 `als_report_cost_on_complete` in the shared lib, called after the proof gate
@@ -273,6 +319,15 @@ the human's terminal — verified empirically with a live smoke test, rendering
 as `Stop says: <msg>`. See [[hook-exit-codes]] for the fuller channel-mechanics
 treatment. See [[pr_204_cost-reporter]] for the full source record.
 
+**Emission mechanism changed by PR #224** (see the `ALS_PENDING_SYSMSG`
+section above): this function no longer emits its own `{systemMessage: ...}`
+JSON directly — it appends its message text to the shared
+`ALS_PENDING_SYSMSG` accumulator via `als_append_pending_sysmsg`, and
+`loop_stall_guard.sh`'s call site emits the single merged JSON after both
+this function and the proof gate's withdrawal-notice path have run. The
+behaviour-matrix table below is unchanged; only how the resulting string
+reaches the human's terminal changed.
+
 ## `als_extract_last_text` malformed-line fix (PR #208) — the extraction path, not the count path
 
 The declaration-detection gate (step 5 above) depends on `als_extract_last_text`
@@ -329,3 +384,4 @@ This hook reads its payload via `IFS= read -r -d '' -t 5 input || true`. See [[p
 - [[loop-progress-fields]] — `work_units`' full schema; now has two consumers (the eval-threshold gate here documented and the deferral gate above)
 - [[pr_204_cost-reporter]] — PR #204: `als_report_cost_on_complete`, the non-blocking reporter that mechanically prints the loop's cost via `systemMessage` — the fourth complete-only step, after the three gates above
 - [[pr_206_208_loop-state-common-docs-and-robustness]] — PR #206: corrected REFERENCE.md's `loop_state_common.sh` function-inventory row (was 9/20 functions, missing `als_gate_proofs_on_complete` entirely); PR #208: the `als_extract_last_text` malformed-line fix documented above, and its comparison against the earlier `als_count_invocations` fix (PR #198)
+- [[pr_224_231_233_235_loop-tooling-hardening]] — PR #224: `withdrawn_proofs` (proof withdrawal) documented above, and the `ALS_PENDING_SYSMSG` shared accumulator that changed how this hook and the cost reporter emit `systemMessage`
