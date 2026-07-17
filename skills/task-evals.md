@@ -54,6 +54,12 @@ Generation requirements, not descriptions of an ideal — an eval failing any on
 
 **Gameability self-check** (run once per eval, immediately before freezing): *"Can the implementer pass this by (a) editing the eval, (b) asserting on the working tree, (c) self-reporting, or (d) reusing its own oracle? Any yes → rewrite."* No partial pass — a failing eval is rewritten, not annotated.
 
+## Discriminating-check gate (optional, `fixtures`-only, [[pr_218_discriminating-check-gate|PR #218]])
+
+A frozen, blind-authored scripted check can be broken in itself — incapable of ever passing (false alarm) or ever failing (vacuous) — and neither rule 2 nor `validate_structure`'s vacuous-relative-to-cmd check catches this, because both operate on text (does `negative_control` differ from `cmd`), not on whether the formula's *verdict* actually tracks its input. Real instance: loop 8b69e779's awk formula exited 1 unconditionally regardless of pass/fail input, because a field-split pattern landed on the literal word `"suites"` instead of the numerator.
+
+A scripted eval may carry an optional `fixtures: {good, bad, formula?}` object. When present, `scripts/post_evals.sh validate-discriminating` (run by `/coderails:post-evals` Step 3b) pipes `good`/`bad` into the formula and requires opposite exit codes — good exits 0, bad exits non-zero — rejecting the eval by id if it can't. **Honest boundary, stated plainly**: this validates only checks that carry `fixtures` — no retroactive validation of the corpus, and even a pass proves only that the formula discriminates between these two specific inputs, not that it tests the right claim. Full mechanism, env-guard, and design rationale: [[task-evals-gate]].
+
 ## Tier rules (self-exemption defence)
 
 Concrete predicates, same design rationale as agentic-loop Phase 2.6's "what named thing does this remove?" test:
