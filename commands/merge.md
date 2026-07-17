@@ -154,7 +154,7 @@ The `protected` check uses the GitHub API directly rather than relying on `gh pr
 - [[task-evals]] — the skill that generates the evals.json posted as the eval artifact
 - [[push]] — creates the PR that this command merges
 - [[workflow]] — calls /merge in Phase 6, then wiki-ingest/lint
-- [[config-resolution]] — merge is the only workflow command that does NOT read workflow.config.yaml
+- [[config-resolution]] — merge previously read no config; since [[pr_232_tier-review-gate|PR #232]] (2026-07-17) it reads one field, `tier_review.machine_user` (see "Config fields read" above), the only workflow.config.yaml key merge.sh consumes
 - [[repo-hosting]] — github.com remote requirement
 - [[enforce_pr_workflow]] — PreToolUse hook that blocks `gh pr merge` unless `/pr-review-toolkit:review-pr` ran this session (NO_CONFIG opt-in; separate from the artifact gate)
 - [[enforcement-model]] — the honest-ceiling framework both gates sit within
