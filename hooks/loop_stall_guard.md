@@ -60,7 +60,7 @@ Gates 1–4 are implemented as named `als_gate_*` functions in `loop_state_commo
 2. **`als_gate_stop_hook_active`** — allow (avoid stop-loop).
 3. **`als_gate_not_a_loop`** — allow (not a loop). Same structured `jq` detection as C1, via `loop_state_common.sh`. This gate's underlying transcript parse is the same one made malformed-line-tolerant by [[pr_86-107_2026-07-08_loop-lib-residuals|PRs #91/#107]] — see [[loop_state_guard]]'s "Malformed-transcript tolerance" section for the fix detail; this hook shares the fix via the common lib, nothing local changed.
 4. **`als_load_progress` / done-and-not-rearmed check** — allow if `status == "complete"` AND not re-armed AND session-owned (shared off-switch with C1).
-5. **Last assistant message contains a valid `LOOP-STOP` line** — allow (regex built from `LOOP_STOP_VOCAB`; category must be followed by a non-alphanumeric char or end-of-line so "completed" doesn't match "complete").
+5. **Last assistant message contains a valid `LOOP-STOP` line** — allow (regex built from `LOOP_STOP_VOCAB`; category must be followed by a non-alphanumeric char or end-of-line so "completed" doesn't match "complete"). On a valid declaration, three `complete`-only sub-gates run in order before the allow: `als_gate_retro_on_complete` → `als_gate_work_units_on_complete` (PR #194) → `als_gate_proofs_on_complete` (PR #198) — see their own sections below. Each can itself `exit 2` and block, so "allow" here means "declaration present AND every `complete`-only sub-gate passed."
 6. **BLOCK (exit 2)** — active + incomplete + no valid declaration.
 
 ## Block message design
