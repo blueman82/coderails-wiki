@@ -2,11 +2,12 @@
 title: "Dashboard runner"
 type: design
 created: 2026-07-07
-last_updated: 2026-07-17
+last_updated: 2026-07-18
 sources:
   - sources/pr_36-41-33-53-65_verified-routines.md
   - sources/pr_201_202_203_routine-followups.md
-tags: [design, dashboard, runner, routines, artifact-gate, escalation, agentic-os, sub-project-2-of-5]
+  - sources/pr_240_lrp-last-marker-gate.md
+tags: [design, dashboard, runner, routines, artifact-gate, escalation, agentic-os, sub-project-2-of-5, last-marker]
 ---
 
 # Dashboard runner
@@ -31,10 +32,11 @@ Each sweep (`sweepOnce()`, `skills/dashboard/runner/src/sweep.ts`):
 
 ## The artifact-gate predicate evaluator
 
-`checkArtifact()` (`skills/dashboard/runner/src/artifactGate.ts`) is what makes a routine's success mean more than `claude` exiting 0. It supports three predicate kinds against a routine's `expectedArtifact`:
+`checkArtifact()` (`skills/dashboard/runner/src/artifactGate.ts`) is what makes a routine's success mean more than `claude` exiting 0. It supports four predicate kinds against a routine's `expectedArtifact` `(verified, artifactGate.ts, corrected 2026-07-18 — this section previously listed only three)`:
 
 - `exists` — file present and fresh (within `maxAgeSeconds`), nothing more.
-- `contains: marker` — file present, fresh, and contains a literal marker string.
+- `contains: marker` — file present, fresh, and contains a literal marker string, anywhere in the file.
+- `last-marker: success/failures` — added by PR #227 (2026-07-17), a stricter successor to `contains` for **append-only logs that accumulate many runs' worth of terminal markers**. Scans the file's lines for anything matching the marker set (`success` ∪ `failures`, substring match) and grades the run on the **last** matching line — not the literal last line of the file, since a routine may append a non-terminal trailing note after its real terminal marker within the same run. Passes iff that last terminal marker is the success marker; a file with no terminal marker at all reads NOT passed with an explicit "no terminal marker" reason, distinguishable from "file does not exist." This exists because a plain `contains: success-marker` check false-passes an aborted run whenever an *earlier* run that same file already wrote the success marker — the stale line is still `contains`-true even though the current run failed. First applied to `docs-sync-nightly`'s run log (PR #227); a second routine, `loop-retro-promotion-weekly`, adopted it a day later (PR #240, `success: "run=ok"`, `failures: ["abort=", "delivery=started"]`) for the identical append-log false-green reason — see [[loop-retro-promotion]]. A sibling routine, `memory-consolidation-weekly`, was evaluated against the same defect class by PR #240 and correctly left on `exists`, because its artifact is one unconditional file per run rather than a shared append-only log — see [[memory-consolidation]].
 - `json-field: path/value` — file parses as JSON and a dotted path resolves to exactly the given value.
 
 `artifactPath` supports `{date}` (`YYYY-MM-DD`), `{runId}`, and `{vault}` (the first entry of `wikiPaths`) template tokens, substituted at check time. See [[routines]] for the full field contract and worked example.
@@ -77,5 +79,7 @@ Two channels fire per escalation, each independently try/caught so one channel's
 - [[routines]] — the scheduling convention (cadence, config shape, launchd wiring) that seeds intents this runner processes
 - [[memory-consolidation]] — one of the three shipped routines, a worked example of a skill that writes its own gate-checkable artifact
 - [[dashboard]] — sub-project 1; owns `buildArgv` and the button model this runner reuses rather than re-implementing
+- [[loop-retro-promotion]] — a worked example of `last-marker` adopted for its own routine's false-green fix (PR #240)
 - [[pr_36-41-33-53-65_verified-routines]] — the source record for this page
 - [[pr_201_202_203_routine-followups]] — PR #202, the UTC/local `{date}` skew fix
+- [[pr_240_lrp-last-marker-gate]] — the predicate-kind staleness correction on this page (three kinds → four, `last-marker` described) and the second `last-marker` application

@@ -2,10 +2,11 @@
 title: "Skill: memory-consolidation"
 type: skill
 created: 2026-07-07
-last_updated: 2026-07-07
+last_updated: 2026-07-18
 sources:
   - sources/pr_36-41-33-53-65_verified-routines.md
-tags: [skill, memory, routines, agentic-os, sub-project-2-of-5]
+  - sources/pr_240_lrp-last-marker-gate.md
+tags: [skill, memory, routines, agentic-os, sub-project-2-of-5, artifact-gate]
 ---
 
 # Skill: memory-consolidation
@@ -39,7 +40,11 @@ Not part of the `/workflow` command chain. It runs standalone on demand, or as o
 
 Step 5 writes `~/.claude/coderails-dashboard/routines/memory-consolidation/report-{date}.md` **unconditionally** — even when Step 3 found nothing to merge or flag. This unconditional write is the property that lets the `memory-consolidation-weekly` routine gate on the report's existence rather than on `claude`'s exit code: a run that legitimately found nothing to change still produces the artifact, so "nothing changed" and "the skill never ran" stay distinguishable `(verified, skills/memory-consolidation/SKILL.md)`. This makes it the reference example the routines doc itself points to for "a routine whose own skill writes its artifact-gate report natively" (`docs/routines.md`'s See Also section).
 
-The report has a fixed shape (summary counts, merges list, flagged-not-auto-resolved list, whether `MEMORY.md`'s index was updated) — a predictable structure a future `contains`/`json-field` predicate could check against, though the shipped `memory-consolidation-weekly` routine config (per [[routines]]) is not independently confirmed here to use anything beyond an `exists`-class check.
+The report has a fixed shape (summary counts, merges list, flagged-not-auto-resolved list, whether `MEMORY.md`'s index was updated) — a predictable structure a future `contains`/`json-field` predicate could check against. The shipped `memory-consolidation-weekly` routine config uses a plain `exists` predicate today, and — per the analysis below — that is the *correct*, not merely adequate, choice for this routine's artifact shape.
+
+## Why `exists` is correct here, not just adequate (confirmed 2026-07-18, PR #240)
+
+[[loop-retro-promotion]]'s companion routine, `loop-retro-promotion-weekly`, needed its `exists` predicate replaced with a stricter `last-marker` predicate because its artifact (`promotion-runs.log`) is an **append-only log accumulating many runs' worth of terminal markers** — a stale success line from an earlier run can make a later, genuinely-failed run's file still read "exists." PR #240's own scope included checking whether `memory-consolidation-weekly` shares that same defect class, and it does not: this skill's Step 5 writes a **date-keyed report file, one per run** (`report-{date}.md`), never an append to a shared multi-run log. Because each run's artifact is freshly named, there is no stale-prior-run content for `exists` to be confused by — file-absence genuinely is this routine's failure signal, and `exists` is the right predicate, not a placeholder for a future stricter one. The decline was deliberate and recorded, not an oversight.
 
 ## Failure modes encoded
 
@@ -51,4 +56,6 @@ The report has a fixed shape (summary counts, merges list, flagged-not-auto-reso
 
 - [[routines]] — the scheduling convention this skill runs under as `memory-consolidation-weekly`
 - [[dashboard-runner]] — the executor that evaluates this routine's artifact gate after each scheduled run
+- [[loop-retro-promotion]] — the sibling routine whose append-log artifact shape DID need the stricter `last-marker` predicate; this page's own "Why `exists` is correct here" section documents the contrast
 - [[pr_36-41-33-53-65_verified-routines]] — the source record for this page
+- [[pr_240_lrp-last-marker-gate]] — the source record that considered and declined applying `last-marker` to this routine

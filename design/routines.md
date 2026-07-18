@@ -2,13 +2,14 @@
 title: "Verified routines (scheduling convention)"
 type: design
 created: 2026-07-07
-last_updated: 2026-07-17
+last_updated: 2026-07-18
 sources:
   - sources/pr_36-41-33-53-65_verified-routines.md
   - sources/pr_88_93_dashboard-launchd.md
   - sources/pr_201_202_203_routine-followups.md
   - sources/pr_207_209_docs-sync-nightly-and-drift-fix.md
-tags: [design, routines, cadence, artifact-gate, launchd, escalation, agentic-os, sub-project-2-of-5, security, self-governance]
+  - sources/pr_240_lrp-last-marker-gate.md
+tags: [design, routines, cadence, artifact-gate, launchd, escalation, agentic-os, sub-project-2-of-5, security, self-governance, last-marker]
 ---
 
 # Verified routines
@@ -44,7 +45,7 @@ Routines live in the `routines` array of `~/.claude/coderails-dashboard.json`, v
 - **`skillCommand` / `buttonRef`** — exactly one, never both, never neither. `buttonRef` reuses an existing button's `command`/`cwd`/`profile` — every shipped routine takes this path.
 - **`foreignSkillPath`** (optional) — an absolute path to a skill living outside the coderails repo. The runner checks this path exists *before* spawning `claude`, escalating `skill-missing` rather than spawning and letting it fail inside the sandbox. **`loadConfig()`'s validator (`skills/dashboard/lib/src/config.ts:102-111`) only checks the value is a non-empty absolute string — never that the path exists on disk** `(verified, code read directly)`. A dead path therefore loads clean and only fails later, per-run, at `runner/src/sweep.ts:243`. This is exactly what happened to the former `sync-docs-weekly` routine (see the `sync-docs-nightly` section below) — as of that routine's replacement, **zero of the five shipped example routines use `foreignSkillPath`**; every routine whose skill lives in-repo should prefer no `foreignSkillPath` at all (same as [[loop-retro-promotion]]), since that's the only way to have no path left to rot.
 - **`cadence`** — `"nightly"` or `"weekly"` only; see Due-ness above.
-- **`expectedArtifact`** — `{ artifactPath, maxAgeSeconds, predicate }`, the artifact gate [[dashboard-runner]] evaluates. `artifactPath` supports `{date}`/`{runId}`/`{vault}` tokens. `predicate` is `exists`, `contains: marker`, or `json-field: path/value`.
+- **`expectedArtifact`** — `{ artifactPath, maxAgeSeconds, predicate }`, the artifact gate [[dashboard-runner]] evaluates. `artifactPath` supports `{date}`/`{runId}`/`{vault}` tokens. `predicate` is one of four kinds — `exists`, `contains: marker`, `last-marker: success/failures`, or `json-field: path/value` `(verified, artifactGate.ts, corrected 2026-07-18 — this row previously omitted last-marker, added by PR #227)`. `last-marker` is the append-only-log-safe successor to `contains`: it grades a run on the LAST line matching its terminal marker set (success ∪ failures), not merely on whether the success marker appears anywhere in the file — closing a false-green where an earlier run's stale success line makes a later failed run's file still read as passing. See [[dashboard-runner]] for the full mechanics.
 - **`escalation`** — array drawn from `["notification", "vault-note"]`. An empty array means a routine fails silently except in the runlog — rarely what you want.
 
 Worked example, the shipped `wiki-lint` routine (`examples/dashboard-config.json`):
@@ -78,7 +79,7 @@ The first three shipped in `examples/dashboard-config.json` at PR #53, all `"pro
 
 Two more were added to that same example config later, and are also live on this machine. Both are `buttonRef`-backed, weekly, `maxAgeSeconds` 691200 (8 days), escalating via `notification` + `vault-note` `(verified, examples/dashboard-config.json and ~/.claude/coderails-dashboard.json, both read 2026-07-17 — 5 routines in each)`:
 
-- **`loop-retro-promotion-weekly`** (weekly, added 2026-07-10) — see [[loop-retro-promotion]]; gates on an `exists` predicate over `promotion-runs.log` under the loop-state dir. Born red; see the born-red incident note below for the two deploy causes and their fixes (PRs #151 + #152).
+- **`loop-retro-promotion-weekly`** (weekly, added 2026-07-10) — see [[loop-retro-promotion]]; gates on a `last-marker` predicate (`success: "run=ok"`, `failures: ["abort=", "delivery=started"]`) over `promotion-runs.log` under the loop-state dir, switched from a plain `exists` predicate by PR #240 (2026-07-18) after `exists` was found to false-green a run that died mid-delivery whenever an earlier run's `run=ok` was still present in the same append-only log. Born red; see the born-red incident note below for the two deploy causes and their fixes (PRs #151 + #152) — a separate, earlier incident from the predicate-kind fix.
 - **`workflow-audit-weekly`** (weekly, added 2026-07-17, PRs #195 + #196) — see [[workflow-audit]]; queue-mode, gating on `routines/workflow-audit/run-{date}.md` containing the marker `## [{date}] workflow-audit complete` `(verified, both configs)`. Reported live-fired green, with its **first** fire going red on a real defect (the button's command never named the run-note path the gate checks for, so the note was never written — the artifact gate catching a genuinely broken routine on its first run, as designed) `(inferred, session memory of loop 0d3fb487 — the configs and the #195/#196 merge establish the routine exists, not this narrative)`.
 
 > **✅ Both defects noted by the 2026-07-17 lint pass above are now fixed or corrected (same-day cluster, PRs #201/#202 — [[pr_201_202_203_routine-followups]]):**
@@ -153,11 +154,13 @@ The runner's `writeRunNote` (`type: routine-run` frontmatter) and the Obsidian p
 ## See also
 
 - [[intent-queue-runner-contract]] — the schema and lifecycle a routine's intent travels through once seeded
-- [[dashboard-runner]] — the executor that evaluates a routine's artifact gate and escalates on failure
-- [[memory-consolidation]] — one of the three shipped routines, a worked example
+- [[dashboard-runner]] — the executor that evaluates a routine's artifact gate and escalates on failure; owns the `last-marker` predicate-kind mechanics this page's field contract only summarises
+- [[loop-retro-promotion]] — its own routine row above was switched from `exists` to `last-marker` by PR #240; full marker-write contract (`run=ok`/`delivery=started`/`abort=`) documented on that page
+- [[memory-consolidation]] — one of the three shipped routines, a worked example; also the routine PR #240 correctly declined to switch to `last-marker`
 - [[dashboard]] — sub-project 1; owns the `ButtonDef`/`buildArgv` machinery a `buttonRef` routine reuses; its own launchd agent reuses this page's boot-persistence fix
 - [[pr_36-41-33-53-65_verified-routines]] — the source record for this page
 - [[pr_88_93_dashboard-launchd]] — the dashboard's own launchd agent + uninstall bootout-race fix, reusing this page's copy-then-bootstrap-from-copy pattern
 - [[docs-sync]] — the skill page for `sync-docs-nightly`'s self-merging pipeline
 - [[sync-docs]] — the separate, older audit skill `docs-sync` invokes as its first step
 - [[pr_207_209_docs-sync-nightly-and-drift-fix]] — source record: `sync-docs-weekly`'s root cause + wrong-surface correction, the `foreignSkillPath`/`maxAgeSeconds` fixes, and the self-governance security findings
+- [[pr_240_lrp-last-marker-gate]] — the `RoutineDef` predicate-kind staleness correction on this page (three kinds → four) and `loop-retro-promotion-weekly`'s predicate switch
