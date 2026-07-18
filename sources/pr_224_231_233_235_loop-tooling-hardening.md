@@ -2,7 +2,7 @@
 title: "PR #224, #231, #233, #235 — loop tooling hardening cluster"
 type: source
 created: 2026-07-17
-last_updated: 2026-07-17
+last_updated: 2026-07-18
 sources:
   - hooks/scripts/lib/loop_state_common.sh
   - hooks/scripts/loop_stall_guard.sh
@@ -159,6 +159,12 @@ floor — non-zero + WARNING); and three negative controls — exit 1, exit 2,
 and exit 4 must each still report FAILED, never SKIPPED, pinning the exact
 `== 3` boundary from both sides (ruling out a mutant `-ge 3` or `-ne 0` skip
 check).
+
+**Follow-up:** `run_all_skip.test.sh` — this PR's own new test file — was at
+risk of silently dropping out of the PR under `push.sh`'s then-current
+staging (`git add -u` stages tracked-modified only; a genuinely new file
+still needed a separate explicit `git add`). Caught by the worker, not an
+automated gate. Fixed by [[pr_239_push-sh-add-flag|PR #239]]'s opt-in `--add <path>` flag.
 
 ## PR #233 — mention-safe `patternId` per `destructive_bash_gate.sh` deny() arm
 
