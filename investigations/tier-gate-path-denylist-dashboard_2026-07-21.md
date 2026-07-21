@@ -112,9 +112,11 @@ path is on the list is the outward-surface predicate, not this.
 
 Because the leash blocks at every tier and cannot be tier-exempted, any PR
 touching `scripts/tier-gate/` posts `verdict=self_edit` before judgement.
-PR #245 hit exactly this and required human force-merge/close — correct by
-design, not a bug. The same holds for a dashboard PR: the daemon will post
-`self_edit` on it regardless of the claimed tier.
+PR #245 ("docs/tier gate plist env comments") hit exactly this and could only
+be resolved by a human — it was **closed unmerged** on 2026-07-18 (verified:
+`gh pr view 245` → `state=CLOSED`, `mergedAt=null`). Correct by design, not a
+bug. The same holds for a dashboard PR: the daemon will post `self_edit` on it
+regardless of the claimed tier.
 
 ## Known ceiling
 
