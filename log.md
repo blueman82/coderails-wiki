@@ -1027,3 +1027,31 @@ place independently: a 160-file Next.js app with served endpoints, including
 the unauthenticated `POST /api/run` exec surface.
 
 Filed as [[tier-gate-path-denylist-dashboard_2026-07-21]].
+
+## [2026-07-21] ingest | PR #254 (install.sh run log) + PR #256 (runner transcript persistence)
+
+Two merged PRs ingested together.
+
+**#254** adds `docs/INSTALL-RUN-LOG.md`, closing a manual check outstanding since
+the public-release work. The durable content is the tier correction, not the doc:
+filed tier 0 on size alone, judge returned `verdict=illegitimate`. Tier 0 also
+requires an EXISTING verify-criterion (`judge-prompt.md` predicate 3), which a
+brand-new file structurally cannot satisfy at any size. Passing the visible size
+cap says nothing about the coverage predicate.
+
+**#256** fixes routine runs leaving no transcript on disk — `runClaude()` returned
+output in memory only and never wrote the `outputPath` already in the ledger.
+Review found the shipped tests didn't prove the fix: deleting the persist call
+turned 3 of 4 red, but *moving* it past the SIGKILL early-return left all 125
+green, since the timeout and ENOENT tests never supplied an `outputPath`. Three
+tests added, one assertion tightened to the exact ledger path, no production-code
+change (125 → 128), each mutation-proved.
+
+Also the **first live firing of the tier-gate DENY path** — `verdict=self_edit`
+on `skills/dashboard/`, refusing to judge before reaching the `GO` eval artifact.
+Surfaced a legibility defect: `self_edit` posts as `FAILURE` with an empty
+description, indistinguishable from a broken build.
+
+Pages: created `sources/pr_254_install-run-log.md`,
+`sources/pr_256_runner-transcript-persistence.md`; updated
+`design/dashboard-runner.md` (new "Run transcript persistence" section), `index.md`.

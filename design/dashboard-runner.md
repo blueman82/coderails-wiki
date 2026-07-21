@@ -2,12 +2,13 @@
 title: "Dashboard runner"
 type: design
 created: 2026-07-07
-last_updated: 2026-07-18
+last_updated: 2026-07-21
 sources:
   - sources/pr_36-41-33-53-65_verified-routines.md
   - sources/pr_201_202_203_routine-followups.md
   - sources/pr_240_lrp-last-marker-gate.md
-tags: [design, dashboard, runner, routines, artifact-gate, escalation, agentic-os, sub-project-2-of-5, last-marker]
+  - sources/pr_256_runner-transcript-persistence.md
+tags: [design, dashboard, runner, routines, artifact-gate, escalation, agentic-os, sub-project-2-of-5, last-marker, run-transcript, diagnosability]
 ---
 
 # Dashboard runner
@@ -29,6 +30,38 @@ Each sweep (`sweepOnce()`, `skills/dashboard/runner/src/sweep.ts`):
 ## Per-intent failure boundary
 
 **One bad intent quarantines, doesn't crash the sweep.** The entire claim-through-execute sequence for a single intent runs inside one `try`/`catch`; any uncaught exception — a malformed `buildArgv` input, an `appendRun` write failure, anything — results in a best-effort quarantine, a best-effort failed-run record, and a best-effort `runner-error` escalation, then the loop continues to the next file `(verified, skills/dashboard/runner/src/sweep.ts)`. This is deliberately separate from the claim step itself (losing a claim race to another sweeper instance isn't a failure of this intent — there's simply nothing left to process).
+
+## Run transcript persistence
+
+**Every settle path writes the run's stdout+stderr to the `outputPath` already in the ledger.**
+`sweep.ts` builds `startRecord.outputPath = join(runsDir, "<runId>.log")` and records it; since
+PR #256 (2026-07-21) `runClaude()` actually creates that file. The `persistOutput()` call sits
+first inside the `execFile` callback, **before any branch returns**, so it covers success,
+non-zero exit, SIGKILL timeout, and ENOENT-style spawn failure alike
+`(verified, skills/dashboard/runner/src/exec.ts)`.
+
+Before that fix the output was returned in memory only, so a routine that ran RED left no
+transcript on disk and the ledger pointed at a file that never existed — the failure was
+undiagnosable. The motivating case was `sync-docs-nightly` showing RED with nothing to inspect.
+Only the sweeper path had this gap; the live-run path in `app/src/app/api/run/route.ts` already
+persisted its output.
+
+Two deliberate properties:
+
+- **Plain text, not stream-json.** The sweep path uses buffered `execFile` with a single post-hoc
+  write, and its only consumer is a human diagnosing a failed routine. `route.ts`'s stream-json
+  flags exist for its live SSE path and buy nothing here. Safe with both readers — `extractResultText`
+  falls back to the raw log and `projectAssistantText`'s machinery-strip leaves plain text intact.
+- **The write is fail-open by design.** `persistOutput` catches and logs its own failures rather
+  than rethrowing. An escaping EACCES/ENOSPC would reject the promise the sweeper awaits at
+  `sweep.ts`, converting a run's real outcome into a generic `runner-error` plus quarantine via
+  the per-intent boundary above. Losing the transcript must never mask the `ExecResult` that
+  gates the run. The cost: a persistently failing write degrades silently back to the original
+  symptom, with a `console.error` line as the only signal.
+
+The tests pin the exact ledger path, not merely a path under `runsDir` — asserting only the
+directory would let the transcript land somewhere the ledger doesn't point, which is the original
+failure in a new costume. See [[pr_256_runner-transcript-persistence]].
 
 ## The artifact-gate predicate evaluator
 
