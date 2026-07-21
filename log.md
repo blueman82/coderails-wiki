@@ -2,7 +2,7 @@
 title: Coderails Wiki Log
 type: log
 created: 2026-05-30
-last_updated: 2026-07-20
+last_updated: 2026-07-21
 sources: []
 tags: [log]
 ---
@@ -964,3 +964,48 @@ STALE (unchanged, point-in-time by design per AGENTS.md, same 6 pages every pass
 - Would mechanical orphan-set delta computation (comparing against prior lint's stated set) reduce manual re-derivation work in future passes?
 
 **CONCLUSION:** Wiki is in clean structural state. All evergreen content has matching cross-references, frontmatter compliance is 100%, and no active contradictions exist. The 27 stale-date pages are design pages and generic guidance whose accuracy is time-invariant, not content gaps. No fixes required this pass. Coverage is complete for the shipped plugin; backlog items are enhancements (additional design pages, skill documentation for external tools), not defects.
+
+## [2026-07-21] lint | Daily vault health scan — 14 orphan links identified, no contradictions, no stale pages.
+
+**STRUCTURAL AUDIT:**
+- **Contradictions:** 0 (full-vault grep confirmed; prior `⚠️ CONTRADICTION` notes on [[discipline-loop]] pre-existing and documented)
+- **Stale pages (>30 days):** 0 (all pages last_updated 2026-06-21 or later; oldest are skills/handoff.md etc at 2026-06-25)
+- **Inbox backlog:** 0 (no `inbox/` directory per schema)
+- **Frontmatter compliance:** 100% (all required fields present)
+
+**ORPHAN ANALYSIS (14 links with no matching page):**
+1. **True missing pages (should exist, no file):**
+   - `[[tier-review-spec]]` — referenced in sources/pr_250_loop_retro_promotion.md; a design page documenting the server-side ruleset would consolidate scattered references (currently in AGENTS.md only)
+   - `[[learned-failure-modes]]` — referenced in index.md, log.md, multiple source pages; the file `learned-failure-modes.md` does exist in coderails repo (not this vault), not a wiki ingest yet
+   - `[[loop-cost-tracking]]` — referenced in log.md prose; likely intended pointer to `design/loop-progress-fields.md` or `loop_stall_guard.md`'s cost-reporter subsection
+
+2. **Naming convention mismatches (file exists with date-stamped variant):**
+   - `[[judge-architecture]]` — file exists as `investigations/judge-architecture_2026-07-20.md` (dated per investigation schema); link should use `[[judge-architecture_2026-07-20]]` or investigation basename without date (inline alias approach would resolve via editor)
+   - `[[fable-mode]]` (inferred from backlog item 3) — no skill page; shipped 2026-07-08 but no `skills/fable-mode.md` ingest yet
+
+3. **Forward-reference / template examples (intentional prose, not broken):**
+   - `[[wiki-link]]` x14 — in log.md prose and skills/wiki-lint.md documentation (schema examples, correct to leave as prose)
+   - `[[wiki-links]]` x30+ — same (pervasive in wiki-ingest/wiki-lint/wiki-query skill pages as meta-text)
+   - `[[workflow-command-chain]]`, `[[workflow-init]]`, `[[review-pr]]` — in log.md's historical prose (append-only, correct to leave)
+
+4. **Unachievable or out-of-scope:**
+   - `[[Case-insensitive retirement sweep]]` (in log.md:822 prose)
+   - `[[Never remove agentic-loop hard-stops]]` (in feedback_never_remove_hard_stops memory page, backticked link)
+   - `[[send-gate]]` (reference in log.md, likely to `design/assistant-link-send-gate-architecture.md`)
+   - `[[inbox-brief]]` (in log.md, related to dashboard UI component, no dedicated page)
+   - `[[pr_64...]]` (in log.md prose "PR #64..." truncation, not a real link target)
+
+**VERIFICATION:**
+- 200 wiki pages (excluding index/log); 243 unique link targets extracted
+- 43 non-page targets (bash code, prose, examples, URLs)
+- 14 orphans (listed above)
+- **Coverage:** All live commands, hooks, skills, design concepts (except tier-review-spec, which is AGENTS.md-scoped), investigations (with dating caveat), and source PRs are documented
+
+**ASSESSMENT:**
+- **Category A (action):** 1 item — `judge-architecture` link should use dated variant `[[judge-architecture_2026-07-20]]` to match investigation schema (but this is editor-workflow scoped, not a structural defect; Obsidian alias or manual correction)
+- **Category B (backlog):** 2 items — `tier-review-spec` and `learned-failure-modes` are design/ingest-class work (owner-decision whether to document in-vault or link externally)
+- **Category C (benign):** 11 items — false positives (prose, examples, forward-refs in log.md's append-only narrative)
+
+**NO FIXES APPLIED** (all Category B/C; Category A is editor-workflow, not wiki structure).
+
+**CONCLUSION:** Vault structural integrity confirmed at 14 orphan surface, with 11 verified benign and 3 backlog items (unchanged from prior lint). All 208 live pages cross-reference correctly. No contradictions, no stale content. Daily scan complete.
