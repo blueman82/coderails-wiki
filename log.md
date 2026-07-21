@@ -1009,3 +1009,21 @@ STALE (unchanged, point-in-time by design per AGENTS.md, same 6 pages every pass
 **NO FIXES APPLIED** (all Category B/C; Category A is editor-workflow, not wiki structure).
 
 **CONCLUSION:** Vault structural integrity confirmed at 14 orphan surface, with 11 verified benign and 3 backlog items (unchanged from prior lint). All 208 live pages cross-reference correctly. No contradictions, no stale content. Daily scan complete.
+
+## [2026-07-21] query-file-back | Why skills/dashboard/ is on TIER_GATE_PATH_DENYLIST
+
+Query asked why the dashboard is on the tier-gate path denylist, what the
+self-edit denylist protects against, and why the list isn't just
+`scripts/tier-gate/`.
+
+Key finding: the query's premise is a slight misread of the code. The regex
+is primarily the **outward-facing/irreversible-surface list** — a model-free
+restatement of the tier-0 exemption predicate — not a self-edit list. The
+self-edit leash in `tg_gate_pr` is a second consumer that explicitly "reuses"
+the same regex and names only `scripts/tier-gate/` as the daemon's own source.
+Git chronology confirms the borrow direction (denylist in `cc5c570` with the
+dashboard already present; leash later in `e8bdd6c`). The dashboard earns its
+place independently: a 160-file Next.js app with served endpoints, including
+the unauthenticated `POST /api/run` exec surface.
+
+Filed as [[tier-gate-path-denylist-dashboard_2026-07-21]].
