@@ -3,7 +3,18 @@ title: "PR #265/#266/#268/#270/#271 — SYSTEM VITALS LINT FINDINGS tile activat
 type: source
 created: 2026-07-22
 last_updated: 2026-07-22
-sources: []
+sources:
+  - skills/dashboard/app/src/lib/collect/lint.ts
+  - skills/dashboard/app/src/lib/collect/health.ts
+  - skills/dashboard/app/src/lib/collect/usage.ts
+  - skills/dashboard/app/src/components/RailLeft.tsx
+  - skills/dashboard/app/src/styles/hud.css
+  - skills/dashboard/app/test/lint.test.ts
+  - skills/dashboard/app/test/health.test.ts
+  - skills/dashboard/app/test/usage.test.ts
+  - skills/dashboard/app/test/events.test.ts
+  - skills/dashboard/SKILL.md
+  - skills/wiki-lint/SKILL.md
 tags: [source, dashboard, system-vitals, lint-findings, health, usage, performance, memo-cache, single-flight, loading-state, test-flake, wiki-lint]
 ---
 
@@ -19,7 +30,7 @@ tags: [source, dashboard, system-vitals, lint-findings, health, usage, performan
 | PR #266 | `fix/health-test-flake` — merge `b951d983`, 2026-07-22 |
 | PR #268 | `fix/health-test-cleanup-safety` — merge `c088f3c8`, 2026-07-22 |
 | PR #270 | `docs/dashboard-loading-state` — merge `6b917645`, 2026-07-22 |
-| PR #271 | `perf/usage memo cache` — direct commit `cdfbf759` on `main`, 2026-07-22 (no merge commit; commit message cites `(#271)`) |
+| PR #271 | `perf/usage memo cache` — merge `cdfbf759`, 2026-07-22 |
 
 ## Summary
 
@@ -208,10 +219,11 @@ re-derived from a review artifact)`.
   `collectLintFindings` actually reads — not `workflow.config.yaml`'s
   `wiki_path`. Easy to confuse; the two are unrelated config surfaces for
   unrelated tools (dashboard vs. `/wiki-ingest` et al).
-- PR #271 landed as a direct commit to `main` (`cdfbf759`), not a squash-merged
-  PR — `gh pr view 271` returns a title and an auto-generated Edit-log body,
-  no merge commit exists for it. Verified via `git log --oneline -1 cdfbf759`
-  showing it as a direct, non-merge commit.
+- PR #271 was squash-merged (`cdfbf759`) — `gh pr view 271` confirms
+  `state=MERGED`, `mergedAt=2026-07-22T21:24:37Z`, `mergeCommit=cdfbf759`. The
+  commit has a single parent (`6b91764`) because GitHub squash merges produce
+  one commit with one parent; that single-parent shape is what a squash merge
+  looks like, not evidence of a direct unreviewed push to `main`.
 - The SQLite-rejected design rationale above is reported, not independently
   verified from a durable artifact — no review doc or PR description carries it
   on this repo as of this ingest.
