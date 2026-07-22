@@ -2,8 +2,9 @@
 title: "Task-evals gate — dual-scope (pr + loop) enforcement over frozen, oracle-independent success evals"
 type: design
 created: 2026-07-06
-last_updated: 2026-07-17
+last_updated: 2026-07-22
 sources:
+  - sources/pr_261_freeze_before_build_gate.md
   - sources/pr_1-4_task-evals-feature.md
   - sources/pr_7-10_task-evals-followups.md
   - sources/pr_11-14_gate-hardening-followups.md
@@ -55,13 +56,15 @@ Both consume the identical `schema_version: 1` shape (`scope: "pr" | "loop"` is 
 
 `eval_artifact::compute_go` (`scripts/lib/eval-artifact.sh`) is the ONE place `result` is derived: a pure `jq` predicate requiring every `.priority == "P0"` eval to have `.status == "pass"`. An eval with no `priority` field is simply excluded from the P0 gate by design (not a bug — `post_evals::validate_structure` check 7 is the layer that refuses a tier≥1 artifact with zero real P0 evals, keeping `compute_go` itself an unopinionated pure gate).
 
+**Check 8 — freeze-before-build, added by [[pr_261_freeze_before_build_gate|PR #261]] (2026-07-22).** Until then, rule 1 (freeze before implementation) was the one anti-gaming rule with no mechanism: `frozen_sha` was written into every artifact and read by nothing — `grep -rn frozen_sha hooks/ scripts/` returned zero hits. Check 8 (`post_evals::validate_freeze`) requires `frozen_sha` to be an ancestor of the branch's merge-base with the default branch. It **refuses** a `frozen_sha` pointing at one of the branch's own commits (froze after building) and refuses one git can't resolve; it **skips** when the field is absent (back-compat — every prior artifact omits it) or the file sits outside a work tree. Pr scope only, matching where the merge gate reads. A *disclosed* late freeze passes via explicit prose in `tier_justification` or an amendment `why` — deliberately not a boolean, since a flag can be set silently while a sentence is visible to a reader; the substring match (`freeze`/`frozen`) is an acknowledged coarse heuristic. Same PR fixed a **fail-open**: with `jq` absent the `frozen_sha` read returns empty, which is indistinguishable from "field absent" and took the skip path, so the gate passed while verifying nothing — now guarded explicitly on `command -v jq`. Generalises to any check whose skip path keys on an empty read.
+
 `grading` is optional and additive — added by [[pr_144-149_agentic-loop-hardening-from-loop-engineering|PR #144]], 2026-07-12. Only `post_evals.sh grade-loop` (loop scope) writes it; pr-scope files and every pre-existing reader tolerate its absence. See "Loop-scope gate: the `grade-loop` stamp" below. It is write-time provenance, absent at freeze — PR #153 (2026-07-13) added `amendments_at_grade` to the stamp and moved the SKILL.md schema block to show the frozen shape only, after review caught that a file frozen literally from a grading-bearing template would false-refuse its first grade under the regrade-on-amendment backstop (below).
 
 ## The six anti-gaming rules (generation-time discipline)
 
-Full detail on [[task-evals]]. Named here because they're what the two enforcement gates below are trusting was followed at generation time — the gates themselves cannot re-verify oracle independence, grader independence, or strongest-surface coverage; they can only verify structural shape and P0 pass/fail:
+Full detail on [[task-evals]]. Named here because they're what the two enforcement gates below are trusting was followed at generation time — the gates themselves cannot re-verify oracle independence, grader independence, or strongest-surface coverage. **Rule 1 is the exception as of [[pr_261_freeze_before_build_gate|PR #261]]**: it is now mechanically checked at pr scope (check 8 above), so the "structural shape and P0 pass/fail only" framing below no longer covers the whole set. Rules 2-6 remain generation-time discipline:
 
-1. Freeze-before-build
+1. Freeze-before-build — **no longer discipline-only.** Check 8 (pr scope) verifies `frozen_sha` is an ancestor of the branch base, refusing a freeze that happened after implementation began unless the lateness is disclosed in prose. Loop scope still trusts the rule.
 2. Negative controls
 3. End-state surfaces
 4. Oracle independence — extended by [[pr_155-158_ceremony_noise_envelope_anchoring|PR #158]] (2026-07-13) with a loop-scope **precedence rule**: the eval author's goal-state anchor is `progress.json`'s `authorising_prompt_raw` — the post-Phase-0 envelope, exactly one canonical string, no judgement call about which version of the prompt counts. `spec.md` restates the loop's success criteria at Phase 2.7a and `plan.md` restates it per-task, but this is precedence, not content denial: `spec.md`/`plan.md` supply constraints and concrete assertable surfaces useful for writing evals, and their restated criteria never override the envelope as the anchor. `progress.json`'s field is canonical; `spec.md`'s Phase-2.7a copy is a derived restatement. Wired into [[agentic-loop]] at four points: the Phase -2 stub schema comment, the mid-loop re-stub carry-forward rule (now covers `authorising_prompt_raw` alongside `loop_stop_counts`), an explicit Phase 2.7c cross-reference, and Phase 13's `retro.json` `envelope` field (now sourced from the named field, not "verbatim from `progress.json`" generically).
