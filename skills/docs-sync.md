@@ -2,9 +2,10 @@
 title: "Skill: docs-sync"
 type: skill
 created: 2026-07-17
-last_updated: 2026-07-17
+last_updated: 2026-07-22
 sources:
   - sources/pr_207_209_docs-sync-nightly-and-drift-fix.md
+  - sources/pr_262_runner-stdin-stall.md
 tags: [skill, docs-sync, sync-docs, routines, machine-run, self-merge, security, agentic-os]
 ---
 
@@ -116,6 +117,16 @@ self-merge chain (`promotion-runs.log` shows one `predicate=unmet` line) —
 so `docs-sync` is this repo's first real production test of the complete
 headless task-evals→push→review→merge chain.
 
+**Update (2026-07-22): the routine HAS since fired with a real failure mode.** An
+investigation behind [[pr_262_runner-stdin-stall|PR #262]] observed `docs-sync` running
+**6 red / 3 green**, the dominant cause being routines exiting 0 without writing their
+run-log artifact `(inferred — the run ledger was not read for this ingest)`. So the "not
+exercised" framing above is stale for the *run-scheduling* path: the routine fires and fails;
+what remains unexercised is the successful full self-merge chain. The exit-0-without-artifact
+failure is one of five [[dashboard-runner#Known open runner defects|open runner defects]]
+surfaced by that same investigation — its root cause was out of scope for PR #262 and is
+unfixed.
+
 ## Scope narrower than the literal ask
 
 The original ask was "no human involved." The shipped routine instead
@@ -133,3 +144,4 @@ narrowing.
 - [[routines]] — `sync-docs-nightly`'s full routine-config treatment, the `maxAgeSeconds`/`foreignSkillPath` fixes, and the security warning this page cites
 - [[loop-retro-promotion]] — the precedent pattern this skill's self-merge chain and manifest-lock idea both copy
 - [[pr_207_209_docs-sync-nightly-and-drift-fix]] — source record: root cause, all findings, live-fire verification
+- [[pr_262_runner-stdin-stall]] — the investigation that observed this routine's real 6-red/3-green failure mode and catalogued five open runner defects
