@@ -2,7 +2,9 @@
 title: "PR #261 — freeze-before-build becomes mechanical (validate_structure check 8)"
 type: source
 origin: "coderails PR #261 (merged b10bdfb, 2026-07-22)"
-date: 2026-07-22
+created: 2026-07-22
+last_updated: 2026-07-22
+sources: ["scripts/post_evals.sh", "hooks/scripts/tests/post_evals.test.sh", "scripts/lib/eval-artifact.sh"]
 tags: [source, task-evals, gate, post-evals, freeze-before-build, fail-open]
 ---
 
