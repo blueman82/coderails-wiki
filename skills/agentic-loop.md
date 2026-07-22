@@ -5,6 +5,7 @@ created: 2026-05-31
 last_updated: 2026-07-22
 sources:
   - skills/agentic-loop/SKILL.md
+  - sources/pr_275_phase_minus1_auto_adopt_crack_on.md
   - sources/session_2026-05-31_prompting-doc-alignment.md
   - sources/session_2026-06-01_agentic-loop-delegate-all-impl.md
   - sources/session_2026-06-25_agentic-loop-upgrade-arc.md
@@ -76,7 +77,7 @@ citations (see the caveat below) made the churn disproportionate to the benefit.
 | Phase | Name | Core action | Added by |
 |---|---|---|---|
 | -2 | Stub `progress.json` first | Literal first action; write the stub at the helper-resolved path | C1 |
-| -1 | Sharpen the authorising prompt | Run `/coderails:improve-prompt`, ask once | (pre-arc) |
+| -1 | Sharpen the authorising prompt | Run `/coderails:improve-prompt`, then **branch on envelope class**: full-autonomous auto-adopts outcome A (no ask); every other class asks A/B/C once — PR #275 | (pre-arc) + PR #275 |
 | 0 | Read the authorisation envelope | `<thinking>`: verbatim quote, envelope class, in/out-of-scope, **+ explicit yes/no on clean-break auto-demote authority (quoted, not inferred) — PR #86** | (pre-arc) + PR #86 |
 | 0.4 | Pin the orchestrator's own model at loop launch | Pin via `/model` (`opus`/`sonnet`) at launch, alongside the Phase 0 envelope read — never an unpinned default; distinct from Phase 2.8's worker-role routing | PR #228 (token-burn row 2 of 4) |
 | 0.5 | Orchestrator operating rules | Stop-ceremony: labels + DNV + `LOOP-STOP` (as the FINAL line) together; the two discipline hooks demote to warn in-loop as of PR #155 | C2, warn-era prose PR #157 |
@@ -141,6 +142,8 @@ Four touch points wire this through the skill:
 1. **Phase -2 stub schema comment** — `authorising_prompt_raw`'s inline comment now notes Phase -1 may update it if an improved prompt is adopted.
 2. **Phase -2 mid-loop re-stub rule** — the existing rule carrying `loop_stop_counts` forward verbatim on a mid-loop re-stub (recovery after a restart) now also covers `authorising_prompt_raw`: "a re-stub refilled from conversation memory instead of the prior file's value would silently drift the eval author's canonical anchor." Same memory-vs-durable-record concern the `decisions_absorbed` carry-forward rule already applies elsewhere in this skill.
 3. **Phase -1 (sharpen the authorising prompt)** — on adopting an improved envelope (outcome A: improved prompt adopted, or B: user tweak applied), the orchestrator updates `progress.json.authorising_prompt_raw` to the adopted text. Outcome C (proceed with the original prompt unchanged) needs no update since the Phase -2 stub already wrote it verbatim.
+
+   **PR #275 — full-autonomous auto-adopt.** Step 2 now branches on envelope class. In a full-autonomous envelope ("crack on", "human is dead", "ship N PRs without asking", "no human gates"), the A/B/C `AskUserQuestion` is itself a gate the envelope has forbidden — so the orchestrator auto-adopts outcome A without asking, rather than skipping Phase -1 to dodge the contradiction. Order is load-bearing: write `authorising_prompt_raw`, append `{phase: "-1", decision: ...}` to `decisions_absorbed`, *then* emit the improved prompt as the turn's final text, and begin Phase 0 on the next turn. Emitting before the writes would make the prompt invisible under the Delivery constraint. The turn break is a rendering requirement, not an approval gate — the loop continues without input. Principle: the envelope withdraws consent for the gate, not for the record. See [[pr_275_phase_minus1_auto_adopt_crack_on]].
 4. **Phase 13 teardown enrichment** — the `retro.json` assembly step's `envelope` field is now specified as sourced from `progress.json`'s `authorising_prompt_raw` specifically, not "verbatim from `progress.json`" generically.
 
 `SKILL.md`'s `progress.json` lifecycle section (its "Enrich at Phase 0" bullet, describing when the envelope is first recorded) is worded consistently by the same PR: "record the envelope verbatim in `authorising_prompt_raw`."
