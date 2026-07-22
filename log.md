@@ -1077,3 +1077,19 @@ Pages: created `sources/pr_254_install-run-log.md`,
 - **Process suggestion with teeth:** PR #250's stale `OPEN` status is a repeatable ingest failure mode, not a one-off — any page written while a PR is in flight can outlive its own state. Worth a lint check that re-reads `gh pr view` for every `sources/pr_*` page whose body asserts a non-merged status.
 
 **VERIFICATION:** 205 pages. Post-fix re-run of the link graph: 0 dead links from any content page, 6 orphans (all index-covered, all benign). Committed directly to vault (`git.worktree: false`).
+
+### [2026-07-22] lint addendum | stale-status sweep across all 120 wiki-documented PRs — 0 further contradictions, 1 durable gotcha recorded
+
+Having found PR #250's stale `OPEN` above, the sweep for siblings was run rather than deferred (it is the "claims superseded by newer sources" check, not future work). Every PR number appearing in a `sources/pr_*.md` filename (120 distinct) was reconciled against live GitHub state.
+
+**Result: 0 further stale-status contradictions.** PR #250 was the only genuine instance.
+
+**Two probe defects worth recording, both mine, both caught before they became findings:**
+1. **cwd drift.** The first sweep ran `gh pr list` from inside the wiki vault, so it resolved against `blueman82/coderails-wiki` (12 PRs) instead of `blueman82/coderails` (257) — producing 115 false `NOT_FOUND` hits including PR #250, which had been directly verified as MERGED minutes earlier. That contradiction with a known-good fact is what exposed the broken probe. The trap is that a wrong-repo `gh` query returns a *plausible* answer, not an error. Anchor `gh` with `--repo` from a vault shell.
+2. **Truncated page.** `--limit 400` on a 257-PR repo was fine, but the vault query's 12-row result made the truncation invisible. Check the row count against the expected population before trusting a set-difference.
+
+**The durable gotcha — PR numbers before 2026-07-05 do not resolve on GitHub.** After the two true hits (#74, #79) came back `CLOSED` with titles totally unrelated to their wiki pages (`dashboard: make side rails scrollable`, `fix(dashboard): sync package-lock` vs. the pages' watchdog-stall and sync-docs-drift subjects), the cause is the 2026-07-05 repo recreation recorded in the repo's own local notes: the old repo was **deleted and recreated** to strip `refs/pull/*` carrying a retired author identity, so PR numbering restarted and the current #74/#79 are different, later PRs that happen to reuse the numbers. The wiki pages are **correct** — `git log` shows `6fe5f94 Merge pull request #74 from blueman82/bug/config-test-watchdog-slow` and `68ce312 Merge pull request #79 from blueman82/docs/sync-docs-drift-fixes`, both on main, both matching their pages' subjects. No page edited.
+
+Corollary for future lints and any `gh`-based audit: **`gh pr view <N>` is only authoritative for PRs merged after 2026-07-05.** Below that boundary, verify by merge commit (`git log --grep="Merge pull request #<N>"`) and branch name, never by PR number — and the commit SHAs cited in pre-2026-07-05 source pages are equally dead, since the same operation rewrote every SHA (a `git filter-repo` mailmap pass). A page citing a SHA that `git log` cannot resolve is not evidence of a wrong page.
+
+This retires lint suggestion #4 above (the proposed `gh pr view` re-read check): it is worth running, but only above the 2026-07-05 boundary, or it manufactures ~110 false positives.
