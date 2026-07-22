@@ -56,7 +56,10 @@ downstream to catch a vague envelope.
 ## Wiki pages updated
 
 - [[agentic-loop]] — phase table row -1, and the `authorising_prompt_raw` write rule
-- [[improve-prompt]] — the skill whose output Phase -1 consumes
+
+## Related
+
+- [[improve-prompt]] — the skill whose output Phase -1 consumes (not modified by this PR; its "Relationship to agentic-loop" section predates the auto-adopt behaviour)
 
 ## Caveats / gotchas
 
