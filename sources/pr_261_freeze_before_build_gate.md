@@ -90,9 +90,11 @@ That control was itself **vacuous on first write**: it put the mutated copy in `
 any git work tree, where the check correctly skips — so it reported PASS while exercising
 nothing. Fixed to write inside the repo. This is a live instance of the same failure class that drove
 the evals-system redesign: **a negative control that passes for an irrelevant reason is
-indistinguishable from one that passes for the right one.** That work is PR #264 (open as of
-this ingest, no wiki page yet — ingest it when it merges); the four catalogued failure
-instances live in the `project_evals_system_redesign` handoff memory.
+indistinguishable from one that passes for the right one.** That work merged as [[pr_264_smoke_run_executor_and_check9|PR #264]] (checks 9 +
+the `smoke-run` executor) and [[pr_269_gate_time_smoke_execution|PR #269]] (check 10,
+gate-time re-execution) later the same day; the four catalogued failure
+instances live in the `project_evals_system_redesign` handoff memory and are recorded on the
+#264 page.
 
 ## Verification
 

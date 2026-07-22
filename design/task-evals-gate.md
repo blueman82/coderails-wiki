@@ -5,6 +5,8 @@ created: 2026-07-06
 last_updated: 2026-07-22
 sources:
   - sources/pr_261_freeze_before_build_gate.md
+  - sources/pr_264_smoke_run_executor_and_check9.md
+  - sources/pr_269_gate_time_smoke_execution.md
   - sources/pr_1-4_task-evals-feature.md
   - sources/pr_7-10_task-evals-followups.md
   - sources/pr_11-14_gate-hardening-followups.md
@@ -13,7 +15,7 @@ sources:
   - sources/pr_138_remove-specs-plans-tracking.md
   - sources/pr_218_discriminating-check-gate.md
   - sources/pr_232_tier-review-gate.md
-tags: [design, task-evals, evals-json, merge-gate, loop-gate, truth-seam, sha-bound, work-units, oracle-independence, comment-spoofing, tier-justification, trust-floor, viewerPermission, grade-loop, unstamped, discriminating-check, fixtures, tier-review, root-daemon]
+tags: [design, task-evals, evals-json, merge-gate, loop-gate, truth-seam, sha-bound, work-units, oracle-independence, comment-spoofing, tier-justification, trust-floor, viewerPermission, grade-loop, unstamped, discriminating-check, fixtures, tier-review, root-daemon, smoke-run, freeze-before-build, re-execution]
 ---
 
 # Task-evals gate
@@ -47,6 +49,7 @@ Both consume the identical `schema_version: 1` shape (`scope: "pr" | "loop"` is 
   "evals": [ { "id": "E1", "priority": "P0", "mode": "scripted",
     "surface": "merged-state | fresh-clone | artifact-path | deployed",
     "assert": "...", "cmd": "...", "negative_control": "...",
+    "smoke": { "cmd_exit": 1, "negative_control_exit": 1, "cmd_output": "...", "negative_control_output": "..." },
     "status": "pending | pass | fail", "evidence": "..." } ],
   "amendments": [ { "eval": "E1", "when": "<ISO8601>", "why": "<reason>", "regraded_by": "<fresh grader run — required only for post-verdict amendments>" } ],
   "result": null, "graded_at": null, "head_sha": "<SHA graded against>",
@@ -58,6 +61,19 @@ Both consume the identical `schema_version: 1` shape (`scope: "pr" | "loop"` is 
 
 **Check 8 — freeze-before-build, added by [[pr_261_freeze_before_build_gate|PR #261]] (2026-07-22).** Until then, rule 1 (freeze before implementation) was the one anti-gaming rule with no mechanism: `frozen_sha` was written into every artifact and read by nothing — `grep -rn frozen_sha hooks/ scripts/` returned zero hits. Check 8 (`post_evals::validate_freeze`) requires `frozen_sha` to be an ancestor of the branch's merge-base with the default branch. It **refuses** a `frozen_sha` pointing at one of the branch's own commits (froze after building) and refuses one git can't resolve; it **skips** when the field is absent (back-compat — every prior artifact omits it) or the file sits outside a work tree. Pr scope only, matching where the merge gate reads. A *disclosed* late freeze passes via explicit prose in `tier_justification` or an amendment `why` — deliberately not a boolean, since a flag can be set silently while a sentence is visible to a reader; the substring match (`freeze`/`frozen`) is an acknowledged coarse heuristic. Same PR fixed a **fail-open**: with `jq` absent the `frozen_sha` read returns empty, which is indistinguishable from "field absent" and took the skip path, so the gate passed while verifying nothing — now guarded explicitly on `command -v jq`. Generalises to any check whose skip path keys on an empty read.
 
+**Checks 9 and 10 — freeze-time smoke evidence, recorded then re-executed. Added by [[pr_264_smoke_run_executor_and_check9|PR #264]] and [[pr_269_gate_time_smoke_execution|PR #269]] (both 2026-07-22, two hours apart — one feature in two commits).** [[task-evals]]'s freeze-time smoke-run was a prose mandate with nothing recording or checking its result, so eval commands could name scripts that were only ever *intended* to exist, paired with negative controls that passed without testing anything.
+
+- **Check 9 (`post_evals::validate_smoke`, #264)** requires every pr-scope tier≥1 *scripted* eval to carry a `smoke` object with numeric `cmd_exit` and `negative_control_exit`. Absent or non-numeric fails closed. **`smoke-run` (`post_evals::smoke_run`) is the sanctioned writer** — it executes both commands under a 10s `perl alarm` wrapper and writes the object, so the codes are computed, never typed. That is rule 5 ("a neutral script computes it, the author never hand-writes it") applied to smoke evidence. **Recording is not judging**: `smoke_run` returns 0 even when what it observed is damning, because refusing is check 9's job.
+- **Check 10 (`post_evals::validate_smoke_execution`, #269)** never reads the recorded numbers at all: at the gate it **executes** `cmd` and `negative_control` itself and judges only what it observes.
+
+**The load-bearing constraint — shape, not polarity — and why it survives at the gate.** Check 8 makes it mechanical that the feature is *not built at freeze*, so `cmd` is EXPECTED to exit non-zero; a gate keyed on `cmd` polarity would contradict check 8 and block every honest freeze. So `cmd` is judged on the **shape** of its outcome (126/127/142/≥128 — `post_evals::_is_environmental_rc` — meaning it never reached the artifact it claims to test), while `negative_control`, defined to fail *regardless of build state*, is judged on **polarity AND shape**. Non-zero alone is insufficient for the control: **a control that errors out on its own tooling is the same vacuous pass one level up.** This is the pass/skip/fail distinction applied exactly where it is load-bearing, deliberately not refactored through every check in the system — the motivating instance was a negative control living outside git, where the validator *skipped* and returned 0, and the skip read as compliance.
+
+**Why check 9 alone was insufficient — the generalisable lesson.** A validator that merely *reads* recorded exit codes is not enough, because the agent writes those numbers. An honest-but-optimistic author records the code they *expect* (`1`, "it fails until I build it") having never run the command. Proven empirically both ways: with check 9 alone, an artifact whose `cmd` really exits 127 but carries a hand-written `cmd_exit: 1` passes `validate-structure` at **rc=0** — *an author who never ran the commands shipped green while only honest authors got checked*. Check 10 closes it by decomposing #264's "cannot be recomputed at the gate" claim, which held for **one** dimension and failed for **two**: `cmd` *polarity* is genuinely build-dependent and stays ungated, but **resolvability** (either leg can execute at all) and **control polarity** are build-independent and are now recomputed. Generalises past this gate: *"can't be recomputed" is rarely true of a whole artifact — decompose it, and usually only one dimension really is.*
+
+Executing author-supplied command strings at the gate was considered and accepted: no privilege delta (the same principal already runs arbitrary Bash, and `smoke-run` executes these exact strings at freeze), and the alternative — statically resolving the command's target path — means parsing shell, where any parser shortfall becomes an accepted-without-checking path, i.e. #261's fail-open lesson relocated. Cost is ≤20s per scripted eval.
+
+**Residual, honestly narrowed to one dimension:** an author whose commands resolve and whose control fails *at gate time* but who never ran anything at freeze still passes — the freeze-time `cmd` content code is unrecoverable at merge. Closing that needs an unforgeable freeze stamp or an attestor outside the agent's trust domain ([[pr_232_tier-review-gate|the tier-review daemon pattern]]). Also open: an eval whose `cmd` resolves but checks nothing useful (semantic quality stays review territory), and creating the missing script between freeze and merge. Both checks are **pr scope only**, tier 0 and agent-run evals exempt, loop scope untouched — a deliberate boundary matching check 8, not a technical limit, since [[loop_state_guard]] is a separate surface with its own callers to migrate. `smoke` is additive and carries **no `schema_version` bump**.
+
 `grading` is optional and additive — added by [[pr_144-149_agentic-loop-hardening-from-loop-engineering|PR #144]], 2026-07-12. Only `post_evals.sh grade-loop` (loop scope) writes it; pr-scope files and every pre-existing reader tolerate its absence. See "Loop-scope gate: the `grade-loop` stamp" below. It is write-time provenance, absent at freeze — PR #153 (2026-07-13) added `amendments_at_grade` to the stamp and moved the SKILL.md schema block to show the frozen shape only, after review caught that a file frozen literally from a grading-bearing template would false-refuse its first grade under the regrade-on-amendment backstop (below).
 
 ## The six anti-gaming rules (generation-time discipline)
@@ -65,7 +81,7 @@ Both consume the identical `schema_version: 1` shape (`scope: "pr" | "loop"` is 
 Full detail on [[task-evals]]. Named here because they're what the two enforcement gates below are trusting was followed at generation time — the gates themselves cannot re-verify oracle independence, grader independence, or strongest-surface coverage. **Rule 1 is the exception as of [[pr_261_freeze_before_build_gate|PR #261]]**: it is now mechanically checked at pr scope (check 8 above), so the "structural shape and P0 pass/fail only" framing below no longer covers the whole set. Rules 2-6 remain generation-time discipline:
 
 1. Freeze-before-build — **no longer discipline-only.** Check 8 (pr scope) verifies `frozen_sha` is an ancestor of the branch base, refusing a freeze that happened after implementation began unless the lateness is disclosed in prose. Loop scope still trusts the rule.
-2. Negative controls
+2. Negative controls — **partly mechanical as of [[pr_264_smoke_run_executor_and_check9|PR #264]]/[[pr_269_gate_time_smoke_execution|PR #269]]** at pr scope: checks 9 and 10 refuse a control observed exiting 0 (vacuous) or exiting non-zero for an *environmental* reason (vacuous one level up). The rule's semantic half — that the control fails for the *right* reason — stays generation-time discipline.
 3. End-state surfaces
 4. Oracle independence — extended by [[pr_155-158_ceremony_noise_envelope_anchoring|PR #158]] (2026-07-13) with a loop-scope **precedence rule**: the eval author's goal-state anchor is `progress.json`'s `authorising_prompt_raw` — the post-Phase-0 envelope, exactly one canonical string, no judgement call about which version of the prompt counts. `spec.md` restates the loop's success criteria at Phase 2.7a and `plan.md` restates it per-task, but this is precedence, not content denial: `spec.md`/`plan.md` supply constraints and concrete assertable surfaces useful for writing evals, and their restated criteria never override the envelope as the anchor. `progress.json`'s field is canonical; `spec.md`'s Phase-2.7a copy is a derived restatement. Wired into [[agentic-loop]] at four points: the Phase -2 stub schema comment, the mid-loop re-stub carry-forward rule (now covers `authorising_prompt_raw` alongside `loop_stop_counts`), an explicit Phase 2.7c cross-reference, and Phase 13's `retro.json` `envelope` field (now sourced from the named field, not "verbatim from `progress.json`" generically).
 5. Grader independence — extended by PR #153 (2026-07-13): an eval amended after a grader verdict returns to a fresh grader; the orchestrator never writes a per-eval `status` that flips an existing verdict. Structurally backstopped by `grade-loop`'s regrade-on-amendment refusal (below), the one rule 2-5 exception to "generation-time discipline only".
@@ -93,7 +109,12 @@ Full detail on [[task-evals]]. Named here because they're what the two enforceme
 
 **Second, hook-level consumer added 2026-07-08 ([[pr_96-98_evals-gate-uniform-enforcement_2026-07-08|PR #97]]):** `enforce_pr_workflow.sh`'s `PreToolUse` hook gains `gate_eval_artifact_for_merge`, applying the identical `pr::has_coderails_eval_for_head` check (same rc semantics: 0/GO allow, non-zero NO-GO/absent deny, rc=2 fetch-failure fail-closed) directly to a raw `gh pr merge <N>` Bash call, not just inside `merge.sh`'s script body. This closes the gap [[evals-gate-enforcement-gap_2026-07-08]] identified: previously nothing forced a merge to actually route through `merge.sh`, so this gate is config-dependent (inactive under `NO_CONFIG`, same as the rest of `enforce_pr_workflow`) where `merge.sh`'s own gate is config-independent — full mechanism and gate-ordering detail on [[enforce_pr_workflow]], not duplicated here.
 
-### Structural refusals (`post_evals::validate_structure`, 7 checks)
+### Structural refusals (`post_evals::validate_structure`, 10 checks)
+
+Checks 1-7 are the original set; 8 ([[pr_261_freeze_before_build_gate|PR #261]]), 9
+([[pr_264_smoke_run_executor_and_check9|PR #264]]) and 10
+([[pr_269_gate_time_smoke_execution|PR #269]]) are all **pr scope only** and detailed above —
+freeze-before-build ancestry, recorded smoke evidence, and gate-time re-execution respectively.
 
 1. File exists + valid JSON.
 2. Every tier requires a non-blank `tier_justification` (owner directive, [[pr_7-10_task-evals-followups|PR #10]]: tightened from tier-0-only to all tiers — see "tier_justification required at every tier" below).
@@ -105,7 +126,7 @@ Full detail on [[task-evals]]. Named here because they're what the two enforceme
 
 ## Discriminating-check gate ([[pr_218_discriminating-check-gate|PR #218]], 2026-07-17)
 
-A second, distinct pr-scope freeze-time gate, additive to the seven structural refusals above — added at `/coderails:post-evals` Step 3b, between structural validation and result computation. Catches a defect class rule 2 (negative controls) does not: a scripted check whose `cmd` and `negative_control` are both present and textually distinct, but whose formula is **itself broken** — incapable of ever passing (false alarm) or ever failing (vacuous). Motivating real instance: loop 8b69e779's awk formula split `"39/39 suites passed"` under `-F'[ /]'` and landed `$(NF-2)` on the literal word `"suites"`, exiting 1 unconditionally — a genuine pass and a genuine fail produced identical exit codes.
+A second, distinct pr-scope freeze-time gate, additive to the structural refusals above — added at `/coderails:post-evals` Step 3b, between structural validation and result computation. Catches a defect class rule 2 (negative controls) does not: a scripted check whose `cmd` and `negative_control` are both present and textually distinct, but whose formula is **itself broken** — incapable of ever passing (false alarm) or ever failing (vacuous). Motivating real instance: loop 8b69e779's awk formula split `"39/39 suites passed"` under `-F'[ /]'` and landed `$(NF-2)` on the literal word `"suites"`, exiting 1 unconditionally — a genuine pass and a genuine fail produced identical exit codes.
 
 ### Mechanism
 
@@ -121,7 +142,7 @@ An eval with no `fixtures` field is validated **exactly as it was before this ga
 
 ### Honest boundary — do not overclaim
 
-This gate validates only checks that **carry** `fixtures` — it does not retroactively validate the ~46% of the corpus that already has scripted checks without fixtures (a figure re-derived after an earlier, badly broken classifier in the building loop had claimed 91% and used that number to conclude the whole feature was unbuildable — see "Design history" below), and it does nothing for prose/judgement-mode evals. Even where `fixtures` is present, a pass proves only that the formula **can discriminate between these two specific synthetic inputs** — it proves nothing about whether the formula tests the **right** claim, whether `cmd` and `fixtures.formula` stay in sync after later edits, or whether the fixtures are representative of real pass/fail states. This closes the "never fails" (or "never passes") class of defect; it is not a general correctness proof of the check, and it is a narrower claim than the seven pr-scope structural refusals above, which apply to every scripted eval unconditionally.
+This gate validates only checks that **carry** `fixtures` — it does not retroactively validate the ~46% of the corpus that already has scripted checks without fixtures (a figure re-derived after an earlier, badly broken classifier in the building loop had claimed 91% and used that number to conclude the whole feature was unbuildable — see "Design history" below), and it does nothing for prose/judgement-mode evals. Even where `fixtures` is present, a pass proves only that the formula **can discriminate between these two specific synthetic inputs** — it proves nothing about whether the formula tests the **right** claim, whether `cmd` and `fixtures.formula` stay in sync after later edits, or whether the fixtures are representative of real pass/fail states. This closes the "never fails" (or "never passes") class of defect; it is not a general correctness proof of the check, and it is a narrower claim than the ten pr-scope structural refusals above, which apply to every scripted eval unconditionally.
 
 ### Design fork: formula-against-fixtures vs. real-surface execution
 

@@ -2,7 +2,7 @@
 title: "Skill: task-evals"
 type: skill
 created: 2026-07-06
-last_updated: 2026-07-17
+last_updated: 2026-07-22
 sources:
   - sources/pr_1-4_task-evals-feature.md
   - sources/pr_7-10_task-evals-followups.md
@@ -11,7 +11,9 @@ sources:
   - sources/pr_144-149_agentic-loop-hardening-from-loop-engineering.md
   - sources/pr_218_discriminating-check-gate.md
   - sources/pr_232_tier-review-gate.md
-tags: [skill, task-evals, anti-gaming, evals-json, tiering, verify-criteria, oracle-independence, tier-justification, eval-freeze, strongest-surface, grade-loop, discriminating-check, fixtures, tier-review, root-daemon]
+  - sources/pr_264_smoke_run_executor_and_check9.md
+  - sources/pr_269_gate_time_smoke_execution.md
+tags: [skill, task-evals, anti-gaming, evals-json, tiering, verify-criteria, oracle-independence, tier-justification, eval-freeze, strongest-surface, grade-loop, discriminating-check, fixtures, tier-review, root-daemon, smoke-run, vacuous-control]
 ---
 
 # Skill: task-evals
@@ -47,13 +49,28 @@ Three invocation points (verified: SKILL.md "Invocation contract"): **agentic-lo
 Generation requirements, not descriptions of an ideal — an eval failing any one is not valid:
 
 1. **Freeze-before-build** — frozen (`frozen_at` + `frozen_sha`) before implementation starts; post-freeze edits are recorded `amendments` with reasons.
-2. **Negative controls** — every scripted eval carries a command proving it *can* fail. An eval that never fails proves nothing. This rule and the structural check enforcing it are text-level (does `negative_control` differ from `cmd`) — they cannot catch a check whose formula is behaviourally broken even though the two commands are textually distinct. The optional `fixtures` gate ([[pr_218_discriminating-check-gate|PR #218]]) closes that gap at freeze time: see "Discriminating-check gate" below.
+2. **Negative controls** — every scripted eval carries a command proving it *can* fail. An eval that never fails proves nothing. This rule and the structural check enforcing it are text-level (does `negative_control` differ from `cmd`) — they cannot catch a check whose formula is behaviourally broken even though the two commands are textually distinct. The optional `fixtures` gate ([[pr_218_discriminating-check-gate|PR #218]]) closes that gap at freeze time: see "Discriminating-check gate" below. Separately, checks 9/10 ([[pr_264_smoke_run_executor_and_check9|PR #264]] + [[pr_269_gate_time_smoke_execution|PR #269]]) mechanically refuse a control observed exiting 0, or exiting non-zero for an *environmental* reason — see "Freeze-time smoke-run" below.
 3. **End-state surfaces** — assertions run against merged state, fresh clone, deployed artifact, or a locally built artifact driven directly (rule 6's pr-scope `artifact-path`; admitted by PR #154, 2026-07-13) — never working-tree self-reports: driving a locally run artifact observes end-state behaviour, a self-report just quotes the diff.
 4. **Oracle independence** — must not share an oracle with the implementation (same regex, same fixture, same test the implementation writes).
 5. **Grader independence** — judgement evals graded by a fresh subagent that receives only `evals.json` + artifact references — never the implementation conversation. The orchestrator never hand-writes `result`. Extended by PR #153 (2026-07-13): an eval amended after a grader verdict returns to a fresh grader; the orchestrator never writes a per-eval `status` that flips an existing verdict (structurally backstopped by `grade-loop`'s regrade-on-amendment refusal — see [[task-evals-gate]]).
 6. **Strongest surface** ([[pr_144-149_agentic-loop-hardening-from-loop-engineering|PR #145]], 2026-07-12) — if the task's goal state names something a human sees or interacts with (a UI, CLI output, a rendered artifact, a served endpoint), at least one P0 eval must exercise that surface directly — drive the running artifact (browser, CLI invocation, HTTP request), never only code-greps of merged state. At pr scope pre-merge this means the locally-run artifact (surface: `artifact-path` — a file path, a local CLI invocation, or a locally served endpoint; the same endpoint on the live post-merge instance is `deployed`; named by PR #154, 2026-07-13); at loop scope, the deployed surface. Writer-side only: no script can detect "user-facing," so this is enforced at generation and by review, not by either enforcement gate. Exemplar named in the skill: the run-output noise-strip loop (PRs #139-141), where merged-state greps passed while the live streaming window still leaked injected preamble text — only an in-browser eval across the streaming lifecycle caught it.
 
 **Gameability self-check** (run once per eval, immediately before freezing): *"Can the implementer pass this by (a) editing the eval, (b) asserting on the working tree, (c) self-reporting, or (d) reusing its own oracle? Any yes → rewrite."* No partial pass — a failing eval is rewritten, not annotated.
+
+## Freeze-time smoke-run (mandatory — now computed and gated, [[pr_264_smoke_run_executor_and_check9|PR #264]] + [[pr_269_gate_time_smoke_execution|PR #269]], 2026-07-22)
+
+Immediately before freezing, every scripted eval's `cmd` and `negative_control` are executed once for real. This asks a **different question** from rule 2 and from the gameability self-check: the negative control proves a check *can fail*; the smoke-run proves the check *can execute at all*. A control can pass cleanly while the `cmd` it pairs with never runs, so neither step substitutes for the other. A broken instrument's tell is always the same shape — a reporter-loading error instead of a test summary, a module-resolution error (`ERR_MODULE_NOT_FOUND`) instead of an install log, a stack trace where an assertion result should be, a gate/policy denial instead of the command's own output: the output shows the command never reached the artifact it claims to check, **even though the process exited non-zero and would otherwise read as a passing "fail."**
+
+**The result is computed, not attested.** Run `scripts/post_evals.sh smoke-run <evals.json>` immediately before freezing — it executes both commands under a 10s alarm wrapper and writes a `smoke` object (`cmd_exit`, `negative_control_exit`, plus output excerpts) onto each eval, overwriting whatever was there. This is **rule 5 applied to smoke evidence**: a neutral script computes it, the author never hand-writes it. `smoke-run` records without judging — it returns 0 even when what it observed is damning, because refusing is the gate's job.
+
+Then `post_evals.sh validate-structure` enforces it at pr scope in two layers:
+
+- **Check 9** refuses any tier≥1 scripted eval lacking a `smoke` object, and refuses three recorded outcomes: `cmd` exiting 126/127/142/≥128 (it never reached the artifact — this is what catches a `cmd` naming a script that was only ever *intended* to exist); `negative_control` exiting 0 (a control that passes proves nothing — this catches a control whose file sat outside the tree, or one that "removed" a tool still on `PATH`); and `negative_control` exiting non-zero for an *environmental* reason (a control that errors on its own tooling is just as vacuous as one that passes).
+- **Check 10** never reads those numbers at all — it **executes** both commands at the gate and judges only what it observes.
+
+**Deliberately permitted: `cmd` exiting non-zero for a content reason.** Freeze-before-build (check 8) means the feature is not built at freeze, so a failing `cmd` is the expected case. The gate keys on the **shape** of the outcome, never its polarity — requiring `cmd` to pass would contradict check 8 and block every honest freeze. This is the pass/skip/fail distinction applied where it is load-bearing: "did not run" is separated from "ran and failed", so a skip can no longer read as compliance.
+
+**Honest boundary, stated plainly.** What checks 9+10 close: a `cmd` or control that cannot execute at the gate (the never-created-script fabrication), and a control that does not actually fail — regardless of what the recorded smoke claims, because the gate recomputes both. What remains open: the freeze-time *content* exit code of `cmd` is build-dependent and genuinely cannot be recomputed at merge, so an author who never ran the commands at freeze — but whose commands resolve and whose control fails at gate time — has typed a `cmd_exit` not mechanically distinguishable from a recorded one. Closing that residue needs an unforgeable freeze stamp or an attestor outside the agent's trust domain (the [[pr_232_tier-review-gate|tier-review daemon]] pattern). Pr scope only; loop scope keeps its separate [[loop_state_guard]] surface. Full mechanism and rationale: [[task-evals-gate]].
 
 ## Discriminating-check gate (optional, `fixtures`-only, [[pr_218_discriminating-check-gate|PR #218]])
 
@@ -75,7 +92,7 @@ Concrete predicates, same design rationale as agentic-loop Phase 2.6's "what nam
 
 ## Schema (schema_version 1)
 
-Scope is `pr` or `loop`. Each eval carries an ID, `priority` (`P0` blocks the gate, `P1` doesn't), `mode` (`scripted` or `agent-run`), `surface`, an `assert` one-liner, a `cmd` or verifier instruction, a `negative_control` (required for scripted), `status`, and `evidence`. A scripted eval may also carry an **optional** `fixtures` object (`{good, bad, formula?}`, [[pr_218_discriminating-check-gate|PR #218]], 2026-07-17) — when present, `/coderails:post-evals` Step 3b mechanically proves the check's formula can both pass (on `good`) and fail (on `bad`) before the artifact is posted; absent `fixtures` means the eval is grandfathered, validated exactly as before that gate existed. GO requires **all P0 evals pass**; P1 failures don't block but must be listed unresolved. See [[task-evals-gate]] for the full JSON shape, the discriminating-check gate's full mechanism, and how the enforcement seams consume it.
+Scope is `pr` or `loop`. Each eval carries an ID, `priority` (`P0` blocks the gate, `P1` doesn't), `mode` (`scripted` or `agent-run`), `surface`, an `assert` one-liner, a `cmd` or verifier instruction, a `negative_control` (required for scripted), a `smoke` object (required on pr-scope tier≥1 scripted evals as of [[pr_264_smoke_run_executor_and_check9|PR #264]] — written by `post_evals.sh smoke-run`, never by hand; additive, **no `schema_version` bump**, and loop-scope files tolerate its absence), `status`, and `evidence`. A scripted eval may also carry an **optional** `fixtures` object (`{good, bad, formula?}`, [[pr_218_discriminating-check-gate|PR #218]], 2026-07-17) — when present, `/coderails:post-evals` Step 3b mechanically proves the check's formula can both pass (on `good`) and fail (on `bad`) before the artifact is posted; absent `fixtures` means the eval is grandfathered, validated exactly as before that gate existed. GO requires **all P0 evals pass**; P1 failures don't block but must be listed unresolved. See [[task-evals-gate]] for the full JSON shape, the discriminating-check gate's full mechanism, and how the enforcement seams consume it.
 
 ## Where evals.json lives
 
@@ -99,6 +116,9 @@ A fresh sonnet subagent grades judgement evals. Its prompt contains ONLY the `ev
 
 - An eval whose oracle is the implementation's own test or regex (oracle non-independence).
 - A scripted check with no negative control — passes trivially, proves nothing.
+- **A `cmd` naming a script that was only ever *intended* to exist** — exits 127, never reaches the artifact it claims to test, but reads as a passing "fail" (checks 9/10).
+- **A negative control that fails for an environmental reason** rather than a content one — the vacuous pass relocated one level up (check 9).
+- **A skip that reads as compliance** — e.g. a control whose file sits outside the tree being validated, so the validator skips and returns 0 (checks 9/10 separate "did not run" from "ran and failed").
 - Working-tree self-reports standing in for merged/deployed-state assertions.
 - The implementer grading its own judgement evals instead of a fresh, context-blind verifier.
 - A tier-justification-free artifact at **any** tier, not only tier 0 — silence is never an acceptable substitute for the artifact (extended from tier-0-only by [[pr_7-10_task-evals-followups|PR #10]]).
