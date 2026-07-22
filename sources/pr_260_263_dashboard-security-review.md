@@ -5,9 +5,14 @@ created: 2026-07-22
 last_updated: 2026-07-22
 origin: PRs #260 (merge commit 900c740, merged 2026-07-22T18:28:08Z) and #263 (merge commit 7ff7967, merged 2026-07-22T18:37:25Z)
 sources:
-  - PR #260 (fix/dashboard-security)
-  - PR #263 (chore/remove-security-review-doc)
-tags: [dashboard, security-review, path-traversal, timing-safe-compare, permissions, threat-model, launchd, deployment-gap]
+  - skills/dashboard/app/src/app/api/run/route.ts
+  - skills/dashboard/runner/src/sweep.ts
+  - skills/dashboard/app/src/lib/collect/queueActions.ts
+  - skills/dashboard/app/src/lib/build/spawn.ts
+  - skills/dashboard/app/src/lib/config.ts
+  - skills/dashboard/app/src/lib/requestGuard.ts
+  - docs/DASHBOARD-SECURITY-REVIEW.md (removed from tracking by PR #263, readable from history at b32686f)
+tags: [source, dashboard, security-review, path-traversal, timing-safe-compare, permissions, threat-model, launchd, deployment-gap]
 ---
 
 # PRs #260, #263 — dashboard security review

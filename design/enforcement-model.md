@@ -2,7 +2,7 @@
 title: Enforcement Model
 type: design
 created: 2026-05-30
-last_updated: 2026-07-17
+last_updated: 2026-07-22
 sources:
   - commands/workflow.md
   - CLAUDE.md
@@ -20,6 +20,7 @@ sources:
   - sources/pr_179_dashboard-lan-access.md
   - sources/pr_204_cost-reporter.md
   - sources/pr_232_tier-review-gate.md
+  - sources/pr_260_263_dashboard-security-review.md
 tags:
   - hooks
   - enforcement
@@ -178,6 +179,12 @@ Every hook in this page's Hook Map runs **inside the agent's own process**: same
 
 This closes a narrow but real gap for tier-0 self-exemption specifically: [[task-evals-gate]]'s tier-0 predicate was, until this PR, entirely self-graded, with literally nothing checking whether a `tier=0` claim was honest. Stated with the same honesty this page applies elsewhere: this daemon is **defence-in-depth for one classification claim**, not a general solution to the Law's core tension — it does not judge whether tier-1/2 evals were run honestly, does not judge code quality or correctness, and (per the PR's own framing) raises the cost of a dishonest tier-0 claim from free to expensive, not to impossible — an LLM judging a diff remains fallible. And it inherits its own new honest boundary: it is **available, not active** — dormant in this repo until the owner completes a credentials-file population, a branch-protection ruleset, and a live-fire validation pass. See [[pr_232_tier-review-gate]] for the full mechanism and its own PR-internal fixes (the judge-injection channel deletion, the verdict-laundering closure, the root-owned-curl routing).
 
+## A source-tree property is not a running-process property (PRs #260, #263)
+
+[[pr_260_263_dashboard-security-review]]'s security review of `skills/dashboard/` found the same shape of gap this page already documents for the tier-gate daemon (root-owned config path, root-owned network tool) and for [[routines]]'s boot-persistence finding, one layer more concrete: a fix merged to `main` was **not running**. The routine-sweeper launchd jobs execute the sweeper directly from the working checkout path, not an installed copy of the plugin; that checkout was 57 commits behind `origin/main` at review time, so a queue-path authorization check (F1) fixed and merged to `main` was verifiably absent from the code launchd actually invoked. Proven live-fire, not by static analysis or unit test: an unauthorized-input queue intent against a `bypass`-profile button reached a real `claude --dangerously-skip-permissions` invocation (argv captured in `runs.jsonl`) — no damage resulted only because the invoked skill's own judgement flagged the prompt as anomalous, not because the gate stopped it, since the gate was not running at all.
+
+The review's threat-model reframing is the second reusable finding: `~/.claude` and `~/.claude/coderails-dashboard/` are both `drwx------`, so nothing the six findings touched crosses a privilege boundary — any process able to reach the queue could already run `claude --dangerously-skip-permissions` directly. Findings were graded down accordingly, the same posture this page applies to the tier-gate daemon's own boundary claims (checked against actual uid/permission state, not assumed from an architecture diagram). See [[pr_260_263_dashboard-security-review]] for the full six-finding/eight-defence record.
+
 ## Positive-control testing for gates with a conditional-allow path (2026-07-08)
 
 A gate that is otherwise fail-closed can still ship a broken *allow* path silently, because "everything stays denied" looks identical to "the allowlist carve-out is dead" in ordinary testing — only a positive control (assert the allowlisted case actually ALLOWs on a clean payload) catches it. This surfaced concretely in [[destructive_bash_gate]]'s 2026-07-08 hardening arc: PR #72 added a `git push --force-with-lease` allowlist carve-out, but shipped with a live tab-separator regression in an unrelated boundary check in the same regex — caught only because the fix (PR #75) included a positive-control test proving the allowlist path was actually live, not just that denied shapes stayed denied. The broader lesson generalises to any gate in this file's Hook Map that has a conditional-allow branch, not just this one hook: narrowing a regex to close a bypass always risks reopening an adjacent hole, and a fail-closed default masks that risk rather than catching it. See [[destructive_bash_gate]]'s "2026-07-08 adversarial-hardening arc" section for the full incident and the five-PR pattern it established.
@@ -204,3 +211,5 @@ A gate that is otherwise fail-closed can still ship a broken *allow* path silent
 - [[pr_179_dashboard-lan-access]] — PR #179 source record: opt-in `DASHBOARD_HOST` LAN exposure, the trust-boundary-preserving framing above, and the deliberate unauthenticated-command-exec security posture that framing depends on
 - [[pr_232_tier-review-gate]] — PR #232 source record: the root-owned daemon that is the first enforcement layer entirely outside the agent's own trust domain, and its own honest "available, not active" boundary
 - [[task-evals-gate]] — the tier-0 self-exemption gap this daemon narrows, documented in that page's "honest ceiling" section
+- [[pr_260_263_dashboard-security-review]] — PRs #260/#263 source record: six Low findings, eight defences held, and the MERGED ≠ DEPLOYED live-fire proof this page's "source property is not a running-process property" section instantiates
+- [[routines]] — the boot-persistence finding (repo-path vs. installed-copy launchd bootstrap) that is the same drift class as the MERGED ≠ DEPLOYED finding above

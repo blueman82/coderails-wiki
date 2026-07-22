@@ -2,13 +2,14 @@
 title: "Verified routines (scheduling convention)"
 type: design
 created: 2026-07-07
-last_updated: 2026-07-18
+last_updated: 2026-07-22
 sources:
   - sources/pr_36-41-33-53-65_verified-routines.md
   - sources/pr_88_93_dashboard-launchd.md
   - sources/pr_201_202_203_routine-followups.md
   - sources/pr_207_209_docs-sync-nightly-and-drift-fix.md
   - sources/pr_240_lrp-last-marker-gate.md
+  - sources/pr_260_263_dashboard-security-review.md
 tags: [design, routines, cadence, artifact-gate, launchd, escalation, agentic-os, sub-project-2-of-5, security, self-governance, last-marker]
 ---
 
@@ -130,6 +131,8 @@ Two jobs, both installed idempotently by `launchd/install-routines.sh` / removed
 
 **This fix's pattern was reused, not rediscovered, for the dashboard server itself ([[pr_88_93_dashboard-launchd]], same day):** the dashboard's own launchd agent (`skills/dashboard/scripts/*` → [[dashboard]]'s "Surviving reboots" section) adopts the identical copy-then-bootstrap-from-copy shape in its own `launchd/install-dashboard-agent.sh`, plus a follow-up fix for an uninstall-time `launchctl bootout` race (async unload, ~2s observed) that this routines system's own uninstaller does not need to handle the same way, since its jobs aren't typically uninstalled while actively mid-run the way a `KeepAlive` dashboard server is.
 
+**A second, distinct instance of "merged ≠ what's actually running": the routine-sweeper ran 57 commits stale (PRs #260/#263, 2026-07-22).** The boot-persistence fix above guarantees the plists *load*; it says nothing about whether the checkout they point at is current. `com.coderails.routine-sweeper.calendar`/`.watch`'s `ProgramArguments` point at `skills/dashboard/runner/bin/{seed-and-sweep,sweeper}.sh` in the **working checkout**, not an installed copy of the plugin — [[pr_260_263_dashboard-security-review]]'s security review found that checkout 57 commits behind `origin/main`, so a queue-path authorization fix (F1) merged to `main` was verifiably absent from the code launchd actually ran. Proven live-fire: an unauthorized-input queue intent against a `bypass`-profile button reached a real `claude --dangerously-skip-permissions` invocation, with no damage only because the invoked skill's own judgement flagged the prompt as anomalous. Different mechanism from the boot-persistence fix above (that's an unloaded-on-reboot gap; this is a stale-checkout gap with the job still correctly loaded and running) but the same drift class: a property proven true of the source tree is not automatically true of the running process, with no error, crash, or log entry marking the divergence. See [[enforcement-model]]'s "A source-tree property is not a running-process property" section.
+
 **A routine's skill must be slash-invocable AND deployed — the born-red `loop-retro-promotion-weekly` incident (2026-07-13, PRs #151 + #152).** The fourth routine (see [[loop-retro-promotion]]) was added (2026-07-10) without ever being live-fired, and failed its artifact gate every run with exit 0 in ~4–9s. Two stacked causes, both invisible to the runner: (a) the skill had merged to the repo *after* the last plugin version bump, so the installed plugin cache (which is what a headless `claude -p` actually loads) did not contain it — fixed by version bump PR #151 (`claude plugin update` compares versions, not content; repo content shipped without a bump never deploys); (b) the skill's frontmatter declared `user-invocable: false`, which removes the plugin slash command entirely — so the routine's `claude -p "/coderails:loop-retro-promotion"` produced empty stdout and exit 0 even once the skill was in the cache. The flag is incompatible with slash-command routines by construction: "machine-run only" was authored using the exact mechanism that disables the machine's invocation path. Fixed by PR #152 (flag removed; the description's "NOT for interactive use" warning retained as the guard). Live re-test after deploy: artifact written (`predicate=unmet retros=14 lifecycle=1 decay=0` — pipeline correctly dormant), sweep 1/1 succeeded, vault note green `(verified, live run 85b2b7b50d889571, 2026-07-12T23:32Z)`. Two lessons for routine authors: **live-fire once before enabling** (the artifact gate catches a broken routine, but only after it has already failed on schedule), and every failure here was the artifact gate working as designed — exit 0 with no artifact was recorded FAILED and escalated, never silent.
 
 ## Escalation channels: where to look when something fails
@@ -164,3 +167,5 @@ The runner's `writeRunNote` (`type: routine-run` frontmatter) and the Obsidian p
 - [[sync-docs]] — the separate, older audit skill `docs-sync` invokes as its first step
 - [[pr_207_209_docs-sync-nightly-and-drift-fix]] — source record: `sync-docs-weekly`'s root cause + wrong-surface correction, the `foreignSkillPath`/`maxAgeSeconds` fixes, and the self-governance security findings
 - [[pr_240_lrp-last-marker-gate]] — the `RoutineDef` predicate-kind staleness correction on this page (three kinds → four) and `loop-retro-promotion-weekly`'s predicate switch
+- [[pr_260_263_dashboard-security-review]] — the routine-sweeper's 57-commits-stale checkout finding above, and the six-finding/eight-defence dashboard security review it comes from
+- [[enforcement-model]] — the "source-tree property is not a running-process property" framing this page's own boot-persistence and stale-checkout findings both instantiate
