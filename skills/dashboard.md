@@ -26,7 +26,8 @@ sources:
   - sources/pr_181_183_dashboard-run-output-wrap-and-inbox-brief-clean-modal.md
   - sources/pr_184_185_186_loop-cost-tracking.md
   - sources/pr_260_263_dashboard-security-review.md
-tags: [skill, dashboard, observability, nextjs, r3f, sse, obsidian, agentic-os, sub-project-1-of-5, queue-contract, builder, ask-button, argv, run-output, streaming, launchd, reboot-persistence, npm-ci, lockfile, permission-mode, enter-to-submit, decisions-absorbed, loop-decisions-tile, deck-trim, multi-loop, gates-freshness, headless-exemption, inbox-brief, rachel, lan-access, dashboard-host, request-guard, security-posture, cost-tile, cost-rollup, retro-json, security-review, path-traversal, timing-safe-compare, deployment-gap]
+  - sources/pr_265_266_268_270_271_dashboard-vitals-lint-tile-and-usage-perf.md
+tags: [skill, dashboard, observability, nextjs, r3f, sse, obsidian, agentic-os, sub-project-1-of-5, queue-contract, builder, ask-button, argv, run-output, streaming, launchd, reboot-persistence, npm-ci, lockfile, permission-mode, enter-to-submit, decisions-absorbed, loop-decisions-tile, deck-trim, multi-loop, gates-freshness, headless-exemption, inbox-brief, rachel, lan-access, dashboard-host, request-guard, security-posture, cost-tile, cost-rollup, retro-json, security-review, path-traversal, timing-safe-compare, deployment-gap, lint-findings-tile, loading-state, usage-memo-cache, single-flight, cross-file-dedup]
 ---
 
 # Skill: dashboard
@@ -63,6 +64,72 @@ DIRECTIVES now renders **one card per live loop** instead of a single tracked "a
 `HealthTile.key` gains `"costWeek" | "costMonth"`, joining the existing `usage5h`/`usageWeek`/`hooksFired`/`lintFindings` tiles. A new collector, `collect/cost.ts`'s `collectLoopCost(baseDir, now)`, walks the same `~/.claude/agentic-loop`-shaped tree `collectLoops` reads and sums each loop's frozen `retro.json` `cost.total_usd_estimate` — **completed loops only**, a different denominator from the usage tiles above (which sum every local transcript regardless of loop completion). It **never re-prices**: pricing is frozen once at Phase 13 teardown (see [[agentic-loop]]'s cost-mining sub-step), and this collector only sums the stored `usd_estimate` values as written.
 
 Two windows: **week** (rolling 7 days from now) and **month** (current calendar month, boundaries by month not a fixed day count). `CostBucket.usd`/`tokens` are `number | null` — `null` means zero completed loops fell in the window (renders `unavailable: no completed loops in this window`, not a misleading `$0.00`), distinct from a real `$0` spend from a completed loop with an empty/unpriced `cost: {}`, mirroring the existing `UsageTotals | null` pattern in `usage.ts`. The tile's note shows the summed token count plus "completed loops only", with a `prices_as_of` staleness suffix appended only when every summed loop's `retro.json` agrees on that date — a mix of dates (e.g. spanning the sonnet-5 intro-rate cutoff) is omitted rather than picked arbitrarily. `RailLeft.tsx` labels the two tiles "Cost (Week)" / "Cost (Month)" and is the only pair of KPI tiles that renders a note line under the value. See [[pr_184_185_186_loop-cost-tracking]] for the full miner + dashboard source record and [[retro-json-per-model-cost-tracking-gap_2026-07-15]] for the gap this closes.
+
+### SYSTEM VITALS: LINT FINDINGS tile activated, then made fast (PRs #265, #266, #268, #270, #271, 2026-07-22)
+
+The `lintFindings` tile previously hardcoded `unavailable: wiki-lint persists no
+report file` — a false premise: `wiki-lint`'s Step 5 has always appended a
+`## [YYYY-MM-DD] lint | <summary>` heading to `$vault/log.md`. [[pr_265_266_268_270_271_dashboard-vitals-lint-tile-and-usage-perf|PR #265]]
+adds a real collector, `collect/lint.ts`'s `collectLintFindings(vaultPaths, now)`,
+that reads the vault's `log.md`, selects the most recent lint heading by **max
+date** (not file position), and prefers a structured `<!-- lint-findings: N -->`
+record over the prose summary — the prose is **never** regex-scanned for a
+count, since a paragraph reporting "999 orphan links" would otherwise surface
+999 as a real, current number. Falls back to `"Nd since last lint"` recency,
+clamped to 0 against a future-dated heading. `skills/wiki-lint/SKILL.md` Step 5
+now appends that structured record itself, immediately after the summary
+heading. Vault paths resolve from `~/.claude/coderails-dashboard.json`'s
+`wikiPaths[]` — **not** `workflow.config.yaml`'s `wiki_path`, a genuinely easy
+mix-up between two config surfaces for different tools.
+
+**Third tile state — "loading…" vs "unavailable".** `collectHealth()` always
+returns all six `HealthTile` keys once it resolves; the initial SSE snapshot
+ships `health: []` before the first async collect finishes. `RailLeft.tsx`
+previously rendered "unavailable" for both that not-yet-loaded case and a tile
+whose collector genuinely couldn't produce a value, making a dashboard that
+simply hadn't finished loading look broken. It now hoists
+`healthNotYetLoaded = health.length === 0` once and renders "loading…" for
+every tile while true, documented in `skills/dashboard/SKILL.md` by PR #270.
+
+**Two follow-up fixes to #265's own test suite.** #266: the no-options
+`collectHealth()` test walked the real `~/.claude/projects` tree (this
+machine: ~1.7GB, ~3750 files, 1.6–5.5s depending on CPU contention) against
+vitest's 5000ms default, flaking under load — split into a deterministic
+fixture test (keeps the never-throws contract) and a separate 30s-timeout
+residual documented as a **hang detector**, not a speed gate. #268: that
+fixture test's `chmodSync(dir, 0o000)` restore ran only after the assertion,
+so a failing assertion left the dir un-restored and `afterEach`'s
+`rmSync(..., {force:true})` then also threw `EACCES` (force suppresses
+missing-path errors, not permission errors) — turning one failure into two
+plus an undeletable directory. Fixed with `try`/`finally`.
+
+**Separately, in the same cluster: `collectUsage` performance ([[pr_265_266_268_270_271_dashboard-vitals-lint-tile-and-usage-perf|PR #271]]).**
+The pre-existing usage-window collector re-parsed ~407MB across ~998 candidate
+transcript files on every refresh. Measured: directory walk 94ms, stat
+prefilter 9ms, streaming-with-zero-parsing 3,960ms — I/O and `readline`
+dominate, not `JSON.parse`. Measured churn: 6/998 files (1.16%) change per 20s;
+transcripts are append-only in practice (a 40s watch of all 1002 candidates
+saw 7 grow, 0 shrink). Fix: a module-scope `Map<path, {mtimeMs, size,
+events}>` memo (module-scope deliberately — an aggregator is created per SSE
+connection, so a narrower memo would be cold on every browser tab), reusing
+cached events only when both mtime and size match; plus single-flight
+(concurrent calls share one in-flight promise) and a
+`line.includes('"type":"assistant"')` prefilter before `JSON.parse`. Cold
+5,824ms → warm 197ms (29.5×), totals byte-identical against unmodified code.
+A database (SQLite) was considered and rejected — the working set is ~36k
+events (7–14MB) needing no query engine, `node:sqlite` prints an
+`ExperimentalWarning` on every start of a public plugin, and the machine
+already has a recorded JSON-corruption incident from concurrent writes.
+
+**The trap this fix had to avoid: cross-file dedup must never be persisted.**
+If a message id first counted from file A were cached as "seen" at module
+scope, and A later aged out of the 7-day window, that cached state would go on
+suppressing the id from file B even though B is still in-window — a silent,
+permanent undercount growing over days. Cross-file dedup is instead rebuilt
+from scratch every `collectUsage` call, over the current candidate set only.
+Mutation-proved: swapping the merge-time fresh `Set` for a persisted
+module-level `Set` makes the dedicated age-out test fail, returning
+`0/0/0` instead of the correct `10/20/30`.
 
 ## Architecture
 
@@ -372,3 +439,4 @@ This is the first sub-project to give the task-evals gate a real production catc
 - [[pr_184_185_186_loop-cost-tracking]] — the three-PR cluster adding the two SYSTEM VITALS cost tiles: the fail-open token/USD miner (#186), the `retro.json` schema_version 2 write contract (#184), and this panel's never-re-prices rollup collector (#185)
 - [[retro-json-per-model-cost-tracking-gap_2026-07-15]] — the same-day investigation that found zero cost/token tracking anywhere in coderails, closed by the cluster above
 - [[pr_260_263_dashboard-security-review]] — six Low findings fixed (queue-path authorization gap, hash path-traversal, config schema validation, directory/file permissions, vault-token doc note, timing-safe token compare), eight defences attacked and held, and a MERGED ≠ DEPLOYED gap: the launchd routine-sweeper ran 57 commits behind `origin/main`, proven live-fire against the F1 fix
+- [[pr_265_266_268_270_271_dashboard-vitals-lint-tile-and-usage-perf]] — LINT FINDINGS tile activated from a dead stub via a real `log.md` collector (`<!-- lint-findings: N -->` structured record, never a prose regex-scan), a third "loading…" tile state distinct from "unavailable", two test-suite fixes (flake, cleanup crash-safety), and a separate `collectUsage` performance fix (module-scope memo + single-flight, 29.5x warm speedup) with a mutation-proved never-persist-cross-file-dedup guarantee
