@@ -2,8 +2,10 @@
 title: Discipline Loop
 type: design
 created: 2026-05-30
-last_updated: 2026-07-17
+last_updated: 2026-07-22
 sources:
+  - sources/pr_108_2026-07-08_offload-push-guard.md
+  - sources/pr_238_crack-on-prose-gate.md
   - sources/pr_63_remove-failure-log.md
   - hooks/scripts/check_confidence_labels.sh
   - hooks/scripts/check_verify_loop.sh
@@ -146,24 +148,29 @@ The **Stop hooks** enforce a *floor* that is intentionally lower than the prose 
 
 **What this means in practice:** following the hook floor is necessary but not sufficient. A response can satisfy both hooks (≥1 label, no untagged DNV bullet, header present if required) while still falling short of the prose standard (many unlabelled claims, a DNV section that exists but under-covers what was actually deferred). The prose standard is the real target. The hooks are the backstop for clear failures — and PR #156 moved the floor closer to the standard for the specific "omitted the section entirely" failure mode.
 
-## The Stop hook composition (6 Stop hooks; 2 SubagentStop hooks)
+## The Stop hook composition (8 Stop hooks; 3 SubagentStop hooks)
+
+**Correction (2026-07-22, wiki-lint):** the two array walkthroughs below (originally written PR #57/#71-era and last touched PR #175, 2026-07-14) fell out of date without a matching content edit — `crack_on_prose_gate.sh` (PR #238, 2026-07-17) and `offload_push_guard.sh` (PR #108, predates this page's last edit) are both live in `hooks/hooks.json` but were never added to either enumerated list. Verified directly against `hooks/hooks.json` on origin/main (2026-07-22): the `Stop` array has **8** entries, the `SubagentStop` array has **3**. Both are corrected below in place; the surrounding prose (gate-chain mechanics, enforcement-ceiling table, cross-references) was already accurate for these two hooks elsewhere on this page and needed no change.
 
 **Retirement note (PR #159, 2026-07-13):** `discipline_catchup.sh`, the sole `UserPromptSubmit`-event discipline hook, was retired clean-break — file and test both deleted, `hooks.json`'s `UserPromptSubmit` array is now `inject_context.sh` only. Reason: a flat 23–26% first-attempt miss rate held steady since block-mode shipped 2026-05-05 — the warn-mode catchup nudge measurably added nothing on top of the two block-mode Stop hooks below. See [[discipline_catchup]] (now marked retired) and [[pr_159_retire-catchup-add-telemetry]]. The composition below is unaffected — it was always Stop/SubagentStop-only.
 
 **New `UserPromptSubmit` + `PreToolUse` addition (PR #175, 2026-07-14):** [[crack_on_gate]] adds a second `UserPromptSubmit` hook alongside `inject_context.sh` (stamps a session-scoped `crack_on_active` flag on a raw-prompt match for "crack on") plus a new `PreToolUse` matcher scoped to `AskUserQuestion` (denies while the flag is stamped). This is a different discipline axis from the Stop/SubagentStop confidence-label and DNV gates documented in this page's core sections below — it governs *when the model may ask the human a question at all*, not what a completed response must contain. See [[crack_on_gate]] for the full raw-prompt-only detection rationale and the deliberate divergence from `agentic_loop_path.sh`'s resolver.
 
-The coderails Stop hook array has six hooks, running in order:
+The coderails Stop hook array has eight hooks, running in order:
 
 1. `voice_announce` — **observe-only, always exits 0** — speaks a loop lifecycle event (complete / waiting / stopped / stall) via macOS `say`; runs first specifically because it cannot affect the other gates and must not be short-circuited by one of them (added PR #71, [[pr_70-71_2026-07-07_dashboard-input-fix-and-voice-announcements]]; see [[voice_announce]])
 2. `check_confidence_labels` — confidence labels gate; demotes to loop-warn inside an active incomplete loop as of PR #155
 3. `check_verify_loop` — DNV resolution gate (untagged-bullet check) plus DNV-presence gate (missing header after `>= 3` files this turn, PR #156, 2026-07-13); both demote to loop-warn inside an active incomplete loop
-4. `loop_state_guard` — `progress.json` presence/ownership gate ([[agentic-loop]] sessions only)
-5. `loop_stall_guard` — `LOOP-STOP` declaration gate (agentic-loop sessions only)
-6. `unregistered_loop_guard` — nudge (never blocks) when a loop looks unregistered: ≥3 distinct agent-dispatch turns, no `progress.json`, no `agentic-loop` Skill invocation (added PR #17, [[pr_15-17_loop-hardening-registration-eval-freeze-ledger-dry]]). **Nudges at most once per session (PR #99, [[pr_99_unregistered-loop-guard-nudge-once]]):** the original version re-emitted the nudge on every Stop for a session that kept meeting the trip conditions, which self-perpetuated for a genuinely one-off dispatch sequence (nudge → honest "no action needed" turn → Stop → nudge again, observed live 2026-07-08). The fix greps the existing discipline log for a prior `nudged=1` line for this session id (BRE-escaped before interpolation, closing a wildcard-match regression) before emitting again; the first nudge for a session is unaffected, and a missing/unreadable log still fails open (nudges rather than wrongly suppresses).
+4. `crack_on_prose_gate` — **block** (exit 2) a final message that hands a question to the user in prose while the session's crack-on flag is stamped; the prose-half counterpart to [[crack_on_gate]]'s tool-deny on `AskUserQuestion`, deterministic two-tier heuristic, fail-closed, capped at 3 blocks per turn (added PR #238, 2026-07-17; see [[crack_on_prose_gate]])
+5. `loop_state_guard` — `progress.json` presence/ownership gate ([[agentic-loop]] sessions only)
+6. `loop_stall_guard` — `LOOP-STOP` declaration gate (agentic-loop sessions only)
+7. `unregistered_loop_guard` — nudge (never blocks) when a loop looks unregistered: ≥3 distinct agent-dispatch turns, no `progress.json`, no `agentic-loop` Skill invocation (added PR #17, [[pr_15-17_loop-hardening-registration-eval-freeze-ledger-dry]]). **Nudges at most once per session (PR #99, [[pr_99_unregistered-loop-guard-nudge-once]]):** the original version re-emitted the nudge on every Stop for a session that kept meeting the trip conditions, which self-perpetuated for a genuinely one-off dispatch sequence (nudge → honest "no action needed" turn → Stop → nudge again, observed live 2026-07-08). The fix greps the existing discipline log for a prior `nudged=1` line for this session id (BRE-escaped before interpolation, closing a wildcard-match regression) before emitting again; the first nudge for a session is unaffected, and a missing/unreadable log still fails open (nudges rather than wrongly suppresses).
+8. `offload_push_guard` — nudge (never blocks) when the final message both names a `git push` targeting main/master AND carries an offload-to-user cue ("run this yourself", a leading `! `, etc.) — the case where a session hands the user a push that `enforce_pr_workflow.sh` would have gated, sidestepping the gate by proxy; runs last in the array (added PR #108, [[pr_108_2026-07-08_offload-push-guard]]; see [[offload_push_guard]])
 
-The SubagentStop hook array has two hooks (wired PR #57), both always block-enforced regardless of loop state (the PR #155/#156 loop-demotion is Stop-only):
+The SubagentStop hook array has three hooks, both `check_confidence_labels`/`check_verify_loop` wired PR #57 and `offload_push_guard` added later (PR #108) — all always block/nudge-enforced regardless of loop state (the PR #155/#156 loop-demotion is Stop-only; a nudge hook has no block state to demote):
 1. `check_confidence_labels` — reads `.last_assistant_message`; same MIN_LEN/label logic as Stop
 2. `check_verify_loop` — reads `.last_assistant_message`; untagged-bullet DNV enforcement same as Stop; the presence check (PR #156) structurally cannot fire on this path — `file_count` is never computed for SubagentStop and is always `0`, so its `>= 3` condition never trips
+3. `offload_push_guard` — same nudge logic as the Stop-path entry above, reading `.last_assistant_message` directly on this path (same rationale as `check_confidence_labels.sh`)
 
 Both hooks log `event=SubagentStop` on this path as of PR #159 (2026-07-13), distinguishing these log lines from the Stop-path equivalents.
 
@@ -216,6 +223,8 @@ This means: edits to transcript-extraction logic now go in `discipline_common.sh
 - [[pr_155-158_ceremony_noise_envelope_anchoring]] — PR #155's full warn-demotion mechanism (predicate truth table, lazy evaluation, fail-toward-blocking `jq` emission) and the retro-mining log-line metric (`blocked=1` count, not `would_block=1`), plus the accepted cosplay-loop residual
 - [[pr_163-168_dashboard-rethink]] — PR #167's `CODERAILS_HEADLESS_RUN` Stop-only exemption on both hooks, the third condition alongside plain-block and loop-warn-demote
 - [[crack_on_gate]] — the newest `UserPromptSubmit` + `PreToolUse` (AskUserQuestion) hook (PR #175, 2026-07-14); a different discipline axis (gating human-asks during a crack-on envelope) from the Stop/SubagentStop content gates this page centers on
+- [[crack_on_prose_gate]] — the prose-half of `crack_on_gate`'s tool-deny; Stop-only, blocks a final message that asks the user a question in prose during a crack-on envelope (PR #238, 2026-07-17)
+- [[offload_push_guard]] — nudge-only Stop + SubagentStop hook catching a push-to-main handed off to the user by proxy (PR #108, 2026-07-08)
 - [[loop_state_guard]] — `progress.json` presence/ownership Stop hook (C1, added 2026-06-24)
 - [[loop_stall_guard]] — `LOOP-STOP` declaration Stop hook (C2, added 2026-06-24)
 - [[unregistered_loop_guard]] — unregistered-loop nudge Stop hook (added 2026-07-06, PR #17; nudges at most once per session as of PR #99)

@@ -115,6 +115,7 @@ Skills in `coderails/skills/*/SKILL.md`.
 | `workflow-audit` | Mines transcripts for repeated tool-use patterns, judges skill candidates, creates every `propose`-verdict candidate (in-session `AskUserQuestion` gate removed 2026-07-15; queue-mode dashboard Approve is the opt-in human gate); sub-project 3 of 5 in the agentic-OS evolution | [[workflow-audit]] |
 | `verify-merged-pr` | Re-derives a "PR #N is merged" claim (state + content on origin/main + sibling PRs) before relying on it; the first skill built end-to-end by the dashboard Approve→build pipeline | [[verify-merged-pr]] |
 | `loop-retro-promotion` | Machine-run only (not interactive): mines accumulated loop retros for repo-agnostic lessons and promotes them into `learned-failure-modes.md`; dormant until its graduation predicate is met, manifest-locked to one file | [[loop-retro-promotion]] |
+| `memory-consolidation` | Dedupes/flags/refreshes `MEMORY.md`; writes its durable report artifact unconditionally so a routine can gate on the report's existence rather than exit code; sub-project 2 of 5 in the agentic-OS evolution | [[memory-consolidation]] |
 
 ---
 
