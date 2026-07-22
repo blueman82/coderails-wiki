@@ -2,13 +2,14 @@
 title: "Dashboard runner"
 type: design
 created: 2026-07-07
-last_updated: 2026-07-21
+last_updated: 2026-07-22
 sources:
   - sources/pr_36-41-33-53-65_verified-routines.md
   - sources/pr_201_202_203_routine-followups.md
   - sources/pr_240_lrp-last-marker-gate.md
   - sources/pr_256_runner-transcript-persistence.md
-tags: [design, dashboard, runner, routines, artifact-gate, escalation, agentic-os, sub-project-2-of-5, last-marker, run-transcript, diagnosability]
+  - sources/pr_262_runner-stdin-stall.md
+tags: [design, dashboard, runner, routines, artifact-gate, escalation, agentic-os, sub-project-2-of-5, last-marker, run-transcript, diagnosability, open-defects]
 ---
 
 # Dashboard runner
@@ -63,6 +64,29 @@ The tests pin the exact ledger path, not merely a path under `runsDir` — asser
 directory would let the transcript land somewhere the ledger doesn't point, which is the original
 failure in a new costume. See [[pr_256_runner-transcript-persistence]].
 
+**Caveat: the transcript is 0 bytes exactly when you need it most.** `persistOutput` writes a
+file on *every* settle path including SIGKILL timeout, but `claude -p` buffers all output until
+completion, so a run killed at the 30-minute ceiling has an empty buffer and the persisted
+"transcript" is 0 bytes `(inferred from the buffered-execFile behaviour, PR #262 investigation —
+open runner defect #2 below)`. PR #256 made the timeout path write *a* file; it did not make that
+file useful for the timeout case.
+
+## `runClaude()` closes the child's stdin — and why `stdio` can't
+
+`runClaude()` captures the child returned by `execFile` and calls `child.stdin.end()` to send
+EOF immediately (PR #262, 2026-07-22). Without it, `execFile`'s default stdio hands the child a
+stdin PIPE the parent never writes to and never closes; the `claude` CLI blocks on it and after
+3 seconds emits `Warning: no stdin data received in 3s, proceeding without it` — a mandatory ~3s
+stall on **every** scheduled routine run (measured 6.9s → 3.58s per invocation once closed).
+
+**Passing `stdio: ["ignore", "pipe", "pipe"]` does NOT work** — `execFile` silently drops the
+`stdio` option and always pipes all three fds `(verified 2026-07-22 — child.stdin is still an
+open pipe)`. Ending the returned child's stdin is the only remedy. The stdout/stderr pipes stay
+untouched: they are the [[dashboard-runner#Run transcript persistence|ExecResult and persisted
+transcript]]. The first fix attempt used the `stdio` approach, passed the unit test, and left the
+warning live — only an eval driving the real binary caught it (a recurring dashboard lesson: shape
+checks can't prove delivery). See [[pr_262_runner-stdin-stall]].
+
 ## The artifact-gate predicate evaluator
 
 `checkArtifact()` (`skills/dashboard/runner/src/artifactGate.ts`) is what makes a routine's success mean more than `claude` exiting 0. It supports four predicate kinds against a routine's `expectedArtifact` `(verified, artifactGate.ts, corrected 2026-07-18 — this section previously listed only three)`:
@@ -106,6 +130,27 @@ Two channels fire per escalation, each independently try/caught so one channel's
 
 `bin/sweeper.sh` runs `src/main.ts` directly via Node 24's built-in TypeScript type-stripping (no build step) — a fix within this same PR cluster, since the script's previous `../dist/main.js` target never existed (`dist/` is gitignored, no build step produces it), so every watch-plist fire had been dying `MODULE_NOT_FOUND` `(verified, skills/dashboard/runner/bin/sweeper.sh` code comment)`.
 
+## Known open runner defects
+
+The stdin stall (above) was ONE defect surfaced by an investigation into why a nightly
+`docs-sync` run produced no output. **The runner is not healthy after PR #262** — five related
+defects were found and left OPEN `(inferred — recorded from the PR #262 investigation notes, not
+independently re-derived here; see [[pr_262_runner-stdin-stall]])`:
+
+1. **30-minute SIGKILL timeout writes no terminal marker.** `DEFAULT_TIMEOUT_MS` kills a hung
+   run, but nothing records a terminal marker on the kill — the outcome is legible only as a
+   generic timeout.
+2. **Killed runs leave a 0-byte output log** — see the transcript-persistence caveat above.
+3. **The 1 MB `maxBuffer` default TERMINATES runs mid-execution**, not just truncates — an
+   `execFile` whose combined output exceeds the default is killed with an error, so a chatty
+   routine dies partway rather than completing.
+4. **The same open-stdin bug lives in the dashboard web path**
+   (`skills/dashboard/app/src/app/api/run/route.ts`) — PR #262 fixed only this sweeper path.
+5. **Routines exit 0 without writing their run-log artifact** — the dominant observed failure
+   (**6 red / 3 green on `docs-sync`** `(inferred — run ledger not read for this ingest)`). The
+   artifact gate above exists to *catch* this class; the underlying exit-0-with-no-artifact
+   behaviour is unfixed.
+
 ## See also
 
 - [[intent-queue-runner-contract]] — the schema and lifecycle this runner consumes
@@ -116,3 +161,5 @@ Two channels fire per escalation, each independently try/caught so one channel's
 - [[pr_36-41-33-53-65_verified-routines]] — the source record for this page
 - [[pr_201_202_203_routine-followups]] — PR #202, the UTC/local `{date}` skew fix
 - [[pr_240_lrp-last-marker-gate]] — the predicate-kind staleness correction on this page (three kinds → four, `last-marker` described) and the second `last-marker` application
+- [[pr_256_runner-transcript-persistence]] — the run-transcript persistence source record
+- [[pr_262_runner-stdin-stall]] — the stdin-stall fix and the five open runner defects catalogued above
