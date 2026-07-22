@@ -1167,4 +1167,30 @@ Pages: new [[pr_260_263_dashboard-security-review]]; updated [[dashboard]] (new
 "Security review cluster" section, frontmatter sources/tags/last_updated,
 See-also entry), `index.md` (Sources table entry).
 
+## [2026-07-22] removal | PR #228's mandatory phase-boundary compaction rule deleted from `skills/agentic-loop/SKILL.md` — 0/162 real-session compliance, gate never shipped
+
+Owner-authorised deletion. The rule (added by PR #228, 2026-07-17; documented
+on this wiki as token-burn rule "row 1 of 4," self-described in the skill text
+as "the single largest saving") mandated running `/compact` at every PR-merge
+boundary in an agentic loop. Measured against 2911 real transcripts: 162
+sessions had ≥2 merges (the population where the rule was eligible to fire);
+**zero of those 162 ever complied** (compliance defined as manual compactions
+≥ merges in the session; every session in the corpus with any manual
+compaction had exactly one, including one session with 11 merges — nowhere
+close to per-merge cadence). The rule's own enforcement gate never shipped to
+`main`. It fired zero times and saved zero tokens in production, so it was
+removed from the skill outright rather than retained as unenforceable prose.
+
+Removed: the row-1 table row and its "Reconciliation — row 1 lands inside a
+documented no-touch region" paragraph from [[agentic-loop]] (rows 2/3/4 of the
+token-burn table are untouched and unrenumbered). Amended, not deleted: the
+row-1 table entry and two caveat bullets on
+[[pr_228_229_230_token-burn-reduction-and-agents-split]] (a historical source
+record of merged PRs #228/#229/#230 — it now states plainly, in past tense,
+that the rule was removed and why, rather than being rewritten to hide that it
+ever existed) and the row-1 clause in this vault's `index.md` PR #228 entry.
+This log entry is itself the append-only record of the removal; no prior
+dated entry in this file (including the 2026-07-17 ingest/lint entries for the
+same PR cluster) was edited or deleted.
+
 ## [2026-07-22] lint | Scope: pages touched by today's PR #260/#263 ingest — `sources/pr_260_263_dashboard-security-review.md`, `skills/dashboard.md`, `index.md`. Checked links, orphans, index coverage, frontmatter conformance and cross-references. **Two findings, both fixed:** (1) the new source page's `sources:` frontmatter field held PR identifiers with branch names (`PR #260 (fix/dashboard-security)`, `PR #263 (...)`) — duplicating what `origin:` already correctly states — instead of the repo file paths every comparable multi-PR source page in the vault uses (`pr_181_183`, `pr_216_217`, `pr_218`, `pr_224_231_233_235`, `pr_228_229_230`, `pr_259`); replaced with the six touched source files plus the removed review doc, and added the missing leading `source` tag. (2) the source page cites `[[enforcement-model]]` and `[[routines]]` as documenting "the same class of gap" (MERGED ≠ DEPLOYED / source-tree-vs-running-process) but neither page carried a reciprocal link or frontmatter update — breaking the pattern PR #179's own ingest established (that page added a reciprocal "LAN access" section to `enforcement-model.md` rather than a one-way citation); added a new section to each (`enforcement-model.md`: "A source-tree property is not a running-process property"; `routines.md`: a second stale-checkout instance beside the existing boot-persistence finding, explicitly distinguishing the two mechanisms) plus See-also entries and frontmatter `sources`/`last_updated`. No dead links (the two `[[...]]`-shaped hits a link-resolution pass flagged are false positives: a pre-existing, out-of-scope slug mismatch in `index.md`, and a literal `[[wiki-links]]` markup mention in `routines.md`'s own prose). `pr_260_263_dashboard-security-review` has solid inbound links (`index.md`, `dashboard.md` ×3, now also `enforcement-model.md` and `routines.md`). No contradictions found — `pr_179_dashboard-lan-access`'s DNS-rebinding exact-match account matches the security review's re-verification of it exactly.

@@ -2,7 +2,7 @@
 title: "Skill: agentic-loop"
 type: skill
 created: 2026-05-31
-last_updated: 2026-07-17
+last_updated: 2026-07-22
 sources:
   - skills/agentic-loop/SKILL.md
   - sources/session_2026-05-31_prompting-doc-alignment.md
@@ -30,7 +30,7 @@ sources:
   - sources/pr_204_cost-reporter.md
   - sources/pr_228_229_230_token-burn-reduction-and-agents-split.md
   - sources/pr_224_231_233_235_loop-tooling-hardening.md
-tags: [skill, agentic-loop, multi-agent, orchestration, context-window, delegation, artifact-chain, loop-state, post-review, review-artifact, self-attestation, enforcement-ceiling, session-keying, frontmatter, description-cap, task-evals, work-units, teamcreate-purge, sdd-ledger, retry-until-green, hard-stops, decisions-absorbed, grade-loop, review-tier-ladder, warn-demotion, envelope-anchoring, loop-stop-final-line, finishing-out, verification-before-completion, model-routing, capability-roles, effort-routing, cost-tracking, schema-version-2, loop-cost-miner, proof-json, blind-authorship, deferral-gate, proof-gate, cost-reporter, reporter-not-gate, system-message, token-burn, compaction-cadence, model-pinning, probe-discipline, tool-output-diet]
+tags: [skill, agentic-loop, multi-agent, orchestration, context-window, delegation, artifact-chain, loop-state, post-review, review-artifact, self-attestation, enforcement-ceiling, session-keying, frontmatter, description-cap, task-evals, work-units, teamcreate-purge, sdd-ledger, retry-until-green, hard-stops, decisions-absorbed, grade-loop, review-tier-ladder, warn-demotion, envelope-anchoring, loop-stop-final-line, finishing-out, verification-before-completion, model-routing, capability-roles, effort-routing, cost-tracking, schema-version-2, loop-cost-miner, proof-json, blind-authorship, deferral-gate, proof-gate, cost-reporter, reporter-not-gate, system-message, token-burn, model-pinning, probe-discipline, tool-output-diet]
 ---
 
 # Skill: agentic-loop
@@ -319,12 +319,9 @@ Phase 3 and Phase 3a reference `coderails:test-driven-development` (code-guarded
 
 | Row | Where | Rule |
 |---|---|---|
-| 1 of 4 (**"the single largest saving"**) | New Phase 4b sub-step + `## Context-window persistence` | **Mandatory compaction at every PR-merge boundary.** Immediately after a work-unit's worktree teardown: write the phase summary into `progress.json`, run `/compact`, re-read `progress.json` + `plan.md` to re-orient. Not optional, not skippable for "still has headroom" — orchestrator context grows linearly and is re-read in full every turn at orchestrator rates, so the merge boundary (already the moment `progress.json` is current) is the cheapest cut point. |
 | 2 of 4 | New Phase 0.4 | **Pin the orchestrator's own model at loop launch** via `/model`, alongside the Phase 0 envelope read — an unpinned default can silently resolve to a costlier frontier tier (2x cache-read rate cited) and the cost compounds across the whole session. Distinct from Phase 2.8's worker-role routing table. |
 | 3 of 4 | Phase 4 (probe discipline) | **Batch the probe battery into ONE compound Bash call**, not one call per check — 4 probes as 4 separate turns costs "roughly 4x the cache-read volume" of the same 4 chained and read once. Applies to the Phase 4 idle-worker battery and any similar battery (Phase 12 artifact checks, gate-state reads). Compound the reads, not the decisions — still reason once over the combined output. |
 | 4 of 4 | Phase 4 (tool-output diet) + Phase 3 | **Cap probe output before it enters context** (`jq -c`, `head`, or equivalent) so a large `git diff --stat`/`gh pr view` payload doesn't re-inflate every later turn's re-read. **Plus:** the orchestrator's own `Write`/`Edit` calls are for loop-state only (`progress.json`, `spec.md`, `plan.md`, `retro.json`) — every deliverable artifact is authored by a spawned worker, never typed inline in main context; workers report back a short confidence-labelled verdict, not narrative prose. |
-
-**Reconciliation — row 1 lands inside a documented no-touch region.** The "Slimming (Spec B)" section below documents `## Context-window persistence` as one of six byte-stable no-touch regions (protected because the Stop hooks teach exact behaviour off it, so drift there turns a safety net into a stall generator). PR #228 added its "Compaction cadence" paragraph *inside* that exact section. This is the same shape as PR #86's earlier supersession of the Phase 13 KPI no-touch region (see "Phase 13 — terminal self-audit" below): the no-touch convention guards against *accidental* drift, not a deliberate, reviewed rule addition — a genuine exception, not a violation, and now two precedents deep.
 
 ## Delegation rung: single agent vs. spawned team
 
@@ -638,5 +635,5 @@ the substantive change this terminology update accompanies.
 - [[task-evals]] — the grader-independence rule (rule 4/oracle-independence) that Phase 2.7e's blind proof authorship generalises from grading to authoring
 - [[pr_204_cost-reporter]] — PR #204 (2026-07-17) source record: `als_report_cost_on_complete`, the mechanical, never-blocking cost print that closes the "must print it" prose gap; first coderails hook use of the `systemMessage` human-visible channel
 - [[hook-exit-codes]] — the `systemMessage`-vs-`additionalContext` channel distinction PR #204 established
-- [[pr_228_229_230_token-burn-reduction-and-agents-split]] — PR #228 (2026-07-17) source record: the 4 token-burn rules (mandatory PR-merge-boundary compaction, orchestrator model pinning at Phase 0.4, batched probe batteries, tool-output diet + orchestrator-never-authors-inline); same cluster also covers PR #229 (AGENTS.md split, see [[loop_cost]] for PR #230's honest headless-cost-accounting sibling)
+- [[pr_228_229_230_token-burn-reduction-and-agents-split]] — PR #228 (2026-07-17) source record: originally 4 token-burn rules, one (its PR-merge-boundary rule) deleted 2026-07-22 for 0/162 compliance; 3 remain (orchestrator model pinning at Phase 0.4, batched probe batteries, tool-output diet + orchestrator-never-authors-inline); same cluster also covers PR #229 (AGENTS.md split, see [[loop_cost]] for PR #230's honest headless-cost-accounting sibling)
 - [[loop_cost]] — gains `headless_children_excluded_count` + a numeric-input guard + a zsh stdout-corruption fix from the same 2026-07-17 cluster (PR #230)

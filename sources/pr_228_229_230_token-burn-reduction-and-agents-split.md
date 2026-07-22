@@ -53,7 +53,7 @@ the four are traceable as one set even though they land in different phases:
 
 | Row | Phase | Rule |
 |---|---|---|
-| 1 of 4 | **New Phase 4b sub-step** + `## Context-window persistence` | **Mandatory phase-boundary compaction.** Immediately after a work-unit's PR merges and its worktree is torn down: (a) write the phase summary into `progress.json`, (b) run `/compact`, (c) re-read `progress.json` + `plan.md` to re-orient. Called "the single largest saving" in the skill text — not optional, not skippable because the loop "still has headroom": orchestrator context grows linearly across work-units and is re-read in full on every turn at orchestrator rates, so the PR-merge boundary (the moment `progress.json` is already guaranteed current) is the cheapest place to cut it back. Explicitly distinguished from the pre-existing "don't stop early because context is filling" guidance in the same section — that rule is about not halting the *loop*; this rule is about not letting context grow *unbounded between merges* in the first place. |
+| 1 of 4 | **New Phase 4b sub-step** + `## Context-window persistence` | **Mandatory phase-boundary compaction (REMOVED 2026-07-22).** Originally: immediately after a work-unit's PR merges and its worktree is torn down, (a) write the phase summary into `progress.json`, (b) run `/compact`, (c) re-read `progress.json` + `plan.md` to re-orient — billed in the skill text as "the single largest saving." Removed after a measurement across 2911 real transcripts found zero of 162 sessions with ≥2 merges ever complied (compliance defined as manual compactions ≥ merges; every session in the corpus with any manual compaction had exactly one, including a session with 11 merges), and the rule's enforcement gate never shipped to `main`. The rule never fired in practice and saved nothing, so it was deleted from the skill rather than kept as unenforceable prose. See the removal note in [[agentic-loop]] and the new dated entry in `log.md`. |
 | 2 of 4 | **New Phase 0.4** (between Phase 0 and Phase 0.5) | **Orchestrator model pinning at loop launch.** Pin the orchestrator's own model explicitly via `/model` (`opus` or `sonnet`) at loop launch, alongside Phase 0's envelope read — never leave it on an unpinned default, which "can silently resolve to a costlier frontier tier (e.g. 2x the cache-read rate of a pinned mid-tier model)" and compounds because the orchestrator re-reads its whole growing context every turn for the loop's life. Explicitly distinct from Phase 2.8's worker model routing — 2.8 assigns roles to *spawned workers*; 0.4 is the orchestrator's own pin, decided once at launch. |
 | 3 of 4 | **Phase 4** (probe discipline) | **Batch the probe battery.** The Phase 4 idle-worker verification battery (git status, `gh pr view`, prod log, artifact check) — and any similar battery (Phase 12 artifact checks, gate-state reads, `gh pr view` sequences) — goes in ONE compound Bash call (`&&`/`;`-joined or piped), not one call per check. Rationale given: 4 probes as 4 separate turns costs "roughly 4x the cache-read volume" of the same 4 chained and read once, because each orchestrator turn re-reads the full accumulated context. Compound the *reads*, not the *decisions* — still reason once over the combined output. |
 | 4 of 4 | **Phase 4** (tool-output diet, same paragraph as row 3) + **Phase 3** | **Cap probe output; orchestrator never authors deliverable files inline.** (a) Pipe probe output through `jq -c`, `head`, or an equivalent limiter before it enters context, so a large `git diff --stat` or `gh pr view` payload doesn't sit in the transcript re-inflating every later turn's re-read. (b) New Phase 3 rule: the orchestrator's own `Write`/`Edit` calls are for **loop-state only** (`progress.json`, `spec.md`, `plan.md`, `retro.json`). Every deliverable artifact (code, docs, config — anything that ends up in a PR) is authored by a spawned worker, never typed inline in main context. Workers report back structured, confidence-labelled verdicts — a short claim plus the verifying command — "not long narrative prose; a verbose report re-inflates the same context this rule is trying to keep small." |
@@ -172,9 +172,11 @@ an adjacent theme (cost/context discipline for the orchestrator).
 ## Wiki pages updated
 
 - [[agentic-loop]] — the 4 token-burn rules (PR #228) added under their
-  respective phases; the `## Context-window persistence` no-touch-region
-  claim reconciled against the new "Compaction cadence" content PR #228 added
-  inside that exact section (see the reconciliation note added to that page).
+  respective phases. **Update 2026-07-22:** row 1 (the mandatory phase-boundary
+  compaction rule) and its no-touch-region reconciliation note were removed
+  from that page after 0/162 real-session compliance and a gate that never
+  shipped — rows 2/3/4 remain, unrenumbered. See this page's row-1 table entry
+  above.
 - [[loop_cost]] — `headless_children_excluded_count`, the numeric guard, and
   the zsh stdout-corruption fix (PR #230) added to its existing sections.
 - No dedicated `AGENTS.md` structure page existed before this ingest and none
@@ -185,20 +187,23 @@ an adjacent theme (cost/context discipline for the orchestrator).
 
 ## Caveats / gotchas
 
-- **PR #228's Phase 4b compaction rule and the `## Context-window
-  persistence` section's new "Compaction cadence" paragraph are two mentions
-  of the same rule, not two different rules** — Phase 4b states the
-  mechanical trigger (right after per-unit worktree teardown), and
-  `## Context-window persistence` restates the same cadence for readers who
-  land on that section first. Do not wiki-document them as if they were
-  independent decisions.
-- **The `## Context-window persistence` section is one of the skill's six
-  documented "no-touch regions"** (byte-stable, per the Slimming-era
-  convention documented on [[agentic-loop]]) — PR #228 edited it anyway. This
-  is the same kind of intentional supersession PR #86 made to the Phase 13
-  KPI no-touch region: the no-touch convention protects content from
-  *accidental* drift, not from a deliberate, reviewed rule addition. Treat
-  this as documented precedent, not a violation.
+- **(Historical, superseded 2026-07-22) PR #228's Phase 4b compaction rule
+  and the `## Context-window persistence` section's "Compaction cadence"
+  paragraph were two mentions of the same rule, not two different rules** —
+  Phase 4b stated the mechanical trigger (right after per-unit worktree
+  teardown), and `## Context-window persistence` restated the same cadence
+  for readers who landed on that section first. Both mentions were removed
+  from `skills/agentic-loop/SKILL.md` on 2026-07-22 (0/162 real-session
+  compliance; enforcement gate never shipped) — this bullet is kept only as a
+  historical note on how the now-removed rule was structured across the
+  skill.
+- **(Historical) The `## Context-window persistence` section is one of the
+  skill's six documented "no-touch regions"** (byte-stable, per the
+  Slimming-era convention documented on [[agentic-loop]]) — PR #228 edited it
+  anyway, treated at the time as the same kind of intentional supersession PR
+  #86 made to the Phase 13 KPI no-touch region. Moot as of the 2026-07-22
+  removal: the "Compaction cadence" paragraph PR #228 added inside that
+  section is gone, and the no-touch region reverts to its pre-#228 content.
 - PR #230's `headless_children_excluded_count` is a **candidate count**, not
   a resolved attribution — it can overcount (any unrelated session active in
   the same project dir within the time window) or undercount (a headless
