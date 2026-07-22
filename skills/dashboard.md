@@ -2,7 +2,7 @@
 title: "Skill: dashboard"
 type: skill
 created: 2026-07-06
-last_updated: 2026-07-15
+last_updated: 2026-07-22
 sources:
   - sources/pr_25_observability-dashboard.md
   - sources/pr_43-44-46_workflow-audit-queue-seam.md
@@ -25,7 +25,8 @@ sources:
   - investigations/dashboard-run-output-rendering-gap_2026-07-15.md
   - sources/pr_181_183_dashboard-run-output-wrap-and-inbox-brief-clean-modal.md
   - sources/pr_184_185_186_loop-cost-tracking.md
-tags: [skill, dashboard, observability, nextjs, r3f, sse, obsidian, agentic-os, sub-project-1-of-5, queue-contract, builder, ask-button, argv, run-output, streaming, launchd, reboot-persistence, npm-ci, lockfile, permission-mode, enter-to-submit, decisions-absorbed, loop-decisions-tile, deck-trim, multi-loop, gates-freshness, headless-exemption, inbox-brief, rachel, lan-access, dashboard-host, request-guard, security-posture, cost-tile, cost-rollup, retro-json]
+  - sources/pr_260_263_dashboard-security-review.md
+tags: [skill, dashboard, observability, nextjs, r3f, sse, obsidian, agentic-os, sub-project-1-of-5, queue-contract, builder, ask-button, argv, run-output, streaming, launchd, reboot-persistence, npm-ci, lockfile, permission-mode, enter-to-submit, decisions-absorbed, loop-decisions-tile, deck-trim, multi-loop, gates-freshness, headless-exemption, inbox-brief, rachel, lan-access, dashboard-host, request-guard, security-posture, cost-tile, cost-rollup, retro-json, security-review, path-traversal, timing-safe-compare, deployment-gap]
 ---
 
 # Skill: dashboard
@@ -267,6 +268,55 @@ Both serving paths (`start-dashboard.sh` for a manual run, `runner/bin/dashboard
 
 **Stale-build gotcha, observed live 2026-07-11.** A production dashboard server (`npm run start`, no pidfile — started ad hoc, not via `start-dashboard.sh`) kept running for ~7 hours while 7 PRs merged to `main`, including all 6 right-rail UX fixes below. Screenshotting it after the merges showed no visible change, because `next build`'s output isn't hot-reloaded — the `.next/BUILD_ID` timestamp (16:16) predated the last merge (23:39) by over 7 hours. The untracked orphan process (no pidfile, so `stop-dashboard.sh` couldn't find it) had to be killed manually and `start-dashboard.sh` re-run to pick up current `main`. Lesson: before trusting a running dashboard's screenshot as evidence of a shipped UI change, check `.next/BUILD_ID`'s mtime against the last relevant merge commit's timestamp, not just whether the server answers HTTP 200.
 
+## Security review cluster (PRs #260, #263, 2026-07-22)
+
+[[pr_260_263_dashboard-security-review]] — six Low-severity findings, all fixed in
+PR #260: (F1) `runner/src/sweep.ts` skipped the `inputAllowed` authorization check
+that `api/run/route.ts` already enforced, letting a queue intent carry arbitrary
+prompt text into a `bypass`-profile button — fixed by mirroring `route.ts`'s
+condition in the sweep path. (F2) `lib/collect/queueActions.ts`'s object spread
+carried the file's own hash instead of the validated parameter, reaching
+`lib/build/spawn.ts`'s `join(buildsDir, entry.hash)` unvalidated — a file-write
+primitive only, since `run-builder.sh` re-validates and fails closed; fixed at both
+layers. (F3) `lib/config.ts` had no array guard on `data.buttons` and no
+charset check on button `name` (which becomes a lock filename) — fixed with an
+array guard, type checks, and an anchored `BUTTON_NAME_PATTERN`; a `cwd` allowlist
+was considered and explicitly rejected as buying nothing against a same-user
+attacker. (F4) runtime dirs were `0755`/logs `0644` under a `0700` parent, because
+`mkdirSync`'s mode is a no-op on an existing directory — fixed with explicit modes
+plus a `statSync`/`chmodSync` convergence block so live installs tighten on next
+launch. (F5) `artifactGate.escapesRoot`'s vault-token skip is documentation-only,
+config being the same trust tier as code. (F6) three `!==` token comparisons
+replaced with a shared `tokensEqual` (`crypto.timingSafeEqual`, length-checked
+first) — honest severity: the 256-bit token is already in page HTML, so this is
+hygiene not the weak link. PR #263 removed the review doc
+(`docs/DASHBOARD-SECURITY-REVIEW.md`) from the repo and gitignored the path; it
+remains readable from history at `b32686f` (no force-push authorised to erase it).
+
+**Threat-model reframing**: the review checked `~/.claude`/`~/.claude/coderails-dashboard/`
+permissions directly (`drwx------`) and found nothing here crosses a privilege
+boundary — any process able to write those files can already run
+`claude --dangerously-skip-permissions` directly, so routing through the queue
+gains an attacker nothing. Findings were graded down accordingly rather than
+inflated to match the review brief's local-privilege-escalation framing.
+
+**Eight defences attacked and held**: argv flag injection (the PR #70 fix above),
+DNS rebinding including the LAN-IP-substring suffix attack, output-route path
+traversal, the exec lock's `wx`-flag TOCTOU-free create, osascript argv-not-source
+passing, run-builder hash re-validation + symlink rejection, SSE
+`JSON.stringify` framing, and the read-only profile's tool allowlist blocking any
+queue write.
+
+**MERGED ≠ DEPLOYED.** The routine-sweeper launchd jobs run the sweeper directly
+from the working checkout path, not an installed copy — and that checkout was 57
+commits behind `origin/main` at review time, so the F1 fix was verifiably absent
+from the code launchd actually runs despite being merged to `main`. Proven by
+live-fire: an unauthorized-input queue intent against the `sync-docs` bypass
+button reached a real `claude --dangerously-skip-permissions` invocation (argv
+captured in `runs.jsonl`); no damage only because the invoked skill's own judgement
+recognised the prompt as anomalous, not because the gate stopped it. See
+[[pr_260_263_dashboard-security-review]] for the full record.
+
 ## Right-rail UX cluster (PRs #130-136, 2026-07-10)
 
 [[pr_130-136_dashboard-right-rail-ux]] — six independent PRs fixing UX/IA findings on the right rail: panel separation (bordered cards + rose accent spine on the shared `.hud-block` class, affecting both rails), input affordance (boxed input fields + an "ARG" tag on input-capable buttons), label wrapping (ellipsis truncation instead of layout-breaking two-line wrap), run-history structure (filled/hollow status glyphs replacing a uniform dot, in both of the two intentionally-duplicated run-history list implementations), output-viewer context (a header bar identifying which run produced the currently-shown output), and button-state differentiation (a new `lastOutcome` field driving a transient green/rose bullet-flash on run completion — the only finding needing new component state, and the first PR in this codebase to add React Testing Library / jsdom test infrastructure). Shipped under a registered [[agentic-loop]] run with a mid-loop skill edit — see [[pr_134_agentic-loop-retry-until-green]].
@@ -321,3 +371,4 @@ This is the first sub-project to give the task-evals gate a real production catc
 - [[pr_179_dashboard-lan-access]] — opt-in LAN exposure via `DASHBOARD_HOST`: bind + request-guard change together from one var, fail-loud validation in both serving scripts, launchd plist's new `EnvironmentVariables` dict, and the deliberate unauthenticated-command-exec security posture (Host/Origin guard blocks hostile-web-page/DNS-rebinding, does not authenticate LAN devices; trusted-home-network-only)
 - [[pr_184_185_186_loop-cost-tracking]] — the three-PR cluster adding the two SYSTEM VITALS cost tiles: the fail-open token/USD miner (#186), the `retro.json` schema_version 2 write contract (#184), and this panel's never-re-prices rollup collector (#185)
 - [[retro-json-per-model-cost-tracking-gap_2026-07-15]] — the same-day investigation that found zero cost/token tracking anywhere in coderails, closed by the cluster above
+- [[pr_260_263_dashboard-security-review]] — six Low findings fixed (queue-path authorization gap, hash path-traversal, config schema validation, directory/file permissions, vault-token doc note, timing-safe token compare), eight defences attacked and held, and a MERGED ≠ DEPLOYED gap: the launchd routine-sweeper ran 57 commits behind `origin/main`, proven live-fire against the F1 fix

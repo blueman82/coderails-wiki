@@ -1143,3 +1143,26 @@ paragraph, rule 1 reclassified from generation-time discipline to mechanically c
 pr scope, frontmatter), `index.md`.
 
 ## [2026-07-22] lint | Scope: pages touched by today's PR #261 ingest — `sources/pr_261_freeze_before_build_gate.md`, `design/task-evals-gate.md`, `index.md`. Checked links, orphans, index coverage, frontmatter conformance and cross-references. **One finding, fixed:** the new source page used a `date:` frontmatter field instead of the schema-mandated `created:`/`last_updated:` pair and omitted `sources:` — `AGENTS-wiki-schema.md`'s Page format requires all three, and every other `sources/pr_*` page carries them (the same slip appeared on assistant-agent-wiki's PR #55 page in the same session; fixed there too). Fixed to `created:`/`last_updated:` plus a populated `sources:` list; `origin:` and `tags:` left as-is. Note on that list: the page body names `post_evals::validate_freeze` without a path, and the obvious guess (`hooks/scripts/post_evals.sh`) is wrong — the function lives in `scripts/post_evals.sh` (verified against `origin/main`, check 8 at line 131, `validate_freeze` at 166); `hooks/scripts/` holds only the test file. No contradictions, no dead links, no orphans — `pr_261_freeze_before_build_gate` has inbound links from `index.md` and `design/task-evals-gate.md`, and the design page's check-8 paragraph is consistent with the source page's own account (rule 1 reclassified from discipline-only to mechanically checked at pr scope, loop scope still trusting).
+
+## [2026-07-22] ingest | PRs #260 (`900c740`), #263 (`7ff7967`) — dashboard security review
+
+Six Low-severity findings in `skills/dashboard/`, all fixed in #260: queue-path
+`inputAllowed` check missing in the sweep path (F1), a hash path-traversal via an
+object spread carrying the wrong field (F2), a config loader missing array/type
+guards on a value used as a lock filename (F3), loose directory/file permissions
+from `mkdirSync`'s mode being a no-op on an existing dir (F4), a documentation-only
+config-trust-tier note (F5), and a non-timing-safe token compare (F6). #263 removed
+the review doc from the tracked tree (still readable from history). Threat-model
+reframing: nothing here crosses a privilege boundary (`~/.claude` dirs are
+`drwx------`), so findings were graded down rather than inflated. Eight defences
+attacked and held (argv injection, DNS rebinding, path traversal, exec-lock TOCTOU,
+osascript escalation, hash re-validation, SSE framing, read-only tool allowlist).
+Most consequential finding: MERGED ≠ DEPLOYED — the launchd routine-sweeper ran the
+sweeper from a working checkout 57 commits behind `origin/main`, so F1's fix was
+absent from the code actually running; proven live-fire (unauthorized queue intent
+reached a real `--dangerously-skip-permissions` invocation, no damage only by the
+invoked skill's own judgement, not by any gate).
+
+Pages: new [[pr_260_263_dashboard-security-review]]; updated [[dashboard]] (new
+"Security review cluster" section, frontmatter sources/tags/last_updated,
+See-also entry), `index.md` (Sources table entry).
