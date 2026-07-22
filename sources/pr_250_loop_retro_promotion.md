@@ -2,14 +2,14 @@
 title: "PR #250: Loop retro promotion — 4 repo-agnostic lessons promoted"
 type: source
 created: 2026-07-20
-last_updated: 2026-07-20
+last_updated: 2026-07-22
 sources: []
 tags: [retro-promotion, judge-architecture, bypass-design, lessons, learned-failure-modes]
 ---
 
 ## Summary
 
-PR #250 promotes four repo-agnostic failure-mode lessons from `standing-orders.md` to `learned-failure-modes.md`, sourced from 46 retros across 46 coderails sessions. The PR completed all automated gates (tier-review verdict: legitimate tier=1) but demonstrates a design constraint: routine PRs cannot auto-merge due to branch-protection ruleset design ("bypass actors: none"), forcing human approval between completion and merge.
+PR #250 promotes four repo-agnostic failure-mode lessons from `standing-orders.md` to `learned-failure-modes.md`, sourced from 46 retros across 46 coderails sessions. The PR completed all automated gates (tier-review verdict: legitimate tier=1) but demonstrates a design constraint: routine PRs cannot auto-merge due to branch-protection ruleset design ("bypass actors: none"), so a human had to merge it — which happened 2026-07-20T14:39:27Z (`e865cc1`).
 
 ## The four promoted lessons
 
@@ -42,7 +42,7 @@ PR #250 promotes four repo-agnostic failure-mode lessons from `standing-orders.m
 
 ## Design constraint: why routine PRs don't auto-merge
 
-The branch-protection ruleset on `main` enforces `bypass actors: none` (verified — [[tier-review-spec]]), implementing the judge architecture principle: "a check performed by the party with motive to pass it is not a check." (verified — [[judge-architecture]])
+The branch-protection ruleset on `main` enforces `bypass actors: none` (verified — the tier-review spec at `docs/coderails/specs/tier-review-spec.md` in the plugin repo; no wiki page yet), implementing the judge architecture principle: "a check performed by the party with motive to pass it is not a check." (verified — [[judge-architecture_2026-07-20]])
 
 - The daemon (coderails-blueman82-judge) posts unforgeable tier-review verdicts as an independent evaluator
 - The ruleset requires that verdict to merge
@@ -60,12 +60,11 @@ Four durable, compounding lessons are now in `learned-failure-modes.md`, raising
 ## PR state
 
 - **Created:** 2026-07-20T02:07:42Z
-- **Status:** OPEN (awaiting human merge approval)
+- **Status:** MERGED 2026-07-20T14:39:27Z (`e865cc1`) — corrected by the 2026-07-22 lint, which found this page still claiming `OPEN`; the page was written while the PR awaited the manual merge described above, and the merge was never reflected back. The design constraint that section documents is unchanged and still real: the merge did require a human, it just happened.
 - **Commits:** 4 (all edits to learned-failure-modes.md)
 - **Review:** 3 issues corrected by code-reviewer (evidence citations verified and amended)
 - **Evals:** 4/4 PASS (manifest check, promotion criteria, field structure, repo-agnostic principle confirmed)
-- **Blocker:** Routine cannot merge without human approval (ruleset design); awaiting manual merge to resume post-merge automation
 
 ---
 
-**Related:** [[tier-review-spec]], [[judge-architecture]], [[learned-failure-modes]], [[loop-retro-promotion]]
+**Related:** [[judge-architecture_2026-07-20]], [[loop-retro-promotion]] · the tier-review spec and `learned-failure-modes.md` live in the plugin repo and have no wiki pages yet (see the 2026-07-22 lint suggestions)

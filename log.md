@@ -1055,3 +1055,25 @@ description, indistinguishable from a broken build.
 Pages: created `sources/pr_254_install-run-log.md`,
 `sources/pr_256_runner-transcript-persistence.md`; updated
 `design/dashboard-runner.md` (new "Run transcript persistence" section), `index.md`.
+
+## [2026-07-22] lint | Orphan check run correctly for the first time; found and fixed a stale-state contradiction on PR #250 and 2 dead links.
+
+**METHOD CORRECTION (the main finding of this pass).** The 2026-07-20 and 2026-07-21 lints both reported "orphans" that were actually **dead links** — outbound `[[x]]` with no page `x`. The skill defines an orphan as the inverse: a page with zero *inbound* links. That check had never been run in this vault. Both checks were run separately this pass, with `index.md`/`log.md` excluded as link *sources* — including them makes the orphan count trivially zero (index catalogs everything) and the check theatre.
+
+**FINDINGS:**
+- **Contradictions: 1 found, 1 fixed.** `sources/pr_250_loop_retro_promotion.md` claimed `**Status:** OPEN (awaiting human merge approval)`. Verified against the live PR: MERGED 2026-07-20T14:39:27Z (`e865cc1`). The page was written pre-merge and the merge was never reflected back — the first case in this vault of a source page outliving the state it recorded. Corrected in three places (Summary, PR state, Related). The design constraint the page documents (ruleset `bypass actors: none` blocks routine self-merge) is unchanged and still real; only the terminal state was wrong.
+- **The pre-existing `⚠️ CONTRADICTION` on [[discipline-loop]] re-verified, still accurate.** Read `hooks/scripts/lib/discipline_common.sh` on current main: `dc_extract_last_text` still runs the two-stage `jq -R 'fromjson? // empty' | jq -s` with **no** `select(type == "object")` guard. Flag is live, not stale — do not clear it. Owned by the parked jq-slurp round-2 arc.
+- **True orphans: 6, all benign.** `skills/handoff.md`, `sources/pr_19-30_...`, `pr_215_...`, `pr_250_...`, `pr_254_...`, `pr_49_...`. Every one is catalogued in `index.md`; they lack only content-page-to-content-page inbound links. For `sources/` pages that is the expected shape — a PR record is reached via the index, not cited by peers, unless a later PR builds on it. No action.
+- **Dead links: 2 fixed, rest classified.** `sources/pr_204_cost-reporter.md` used `[[design/enforcement-model|enforcement-model]]` — a path-prefixed target that does not resolve by basename; corrected to `[[enforcement-model]]`. `sources/pr_250_...` linked `[[judge-architecture]]`, but investigation pages are date-stamped per schema; corrected to `[[judge-architecture_2026-07-20]]`, which also cleared that page's orphan status. Remaining dead targets are in `log.md` only (append-only, correctly left) or are genuine non-page prose: bash fragments (`[[-n "$untracked"]]`), schema meta-text (`[[wiki-links]]`, `[[link]]`, `[[page_name]]`), and deliberate cross-vault pointers into assistant-agent-wiki (`[[capabilities/send-gate]]`, `[[capabilities/inbox-brief]]`) — carried forward from the 2026-07-21 classification, unchanged.
+- **Index gap: 1 fixed.** `pr_250_loop_retro_promotion` had **zero** inbound links including from `index.md` — the only vault page entirely absent from the catalog. Added to the Sources section in merge-date order (between #240 and #254).
+- **Stale pages: 0.** Six pages predate the 30-day cutoff (2026-06-22), all date-stamped point-in-time records — 2 `investigations/` and 4 `sources/session_*`, immutable by schema. Not staleness.
+- **Frontmatter: 100% compliant.** All 205 pages carry `last_updated`.
+- **Missing cross-references: swept, none actionable.** A bare-mention scan flagged 105 pages, spot-checked and rejected as heuristic noise: the hits are slash-command references in prose and tables (`/wiki-ingest`, `coderails:systematic-debugging`), which are correctly not wiki-linked.
+
+**SUGGESTIONS (ingest-class, not lint fixes — deliberately not authored here):**
+- `learned-failure-modes.md` and `docs/coderails/specs/tier-review-spec.md` both live in the plugin repo and are referenced across several pages with no wiki page. The tier-review spec is the higher-value ingest: it is cited as the authority for the ruleset's `bypass actors: none` design, and that claim currently has no in-vault target.
+- `skills/fable-mode.md` — shipped 2026-07-08, still no skill page.
+- The 2026-07-15 `workflow-audit` SKILL rewrite (commit `a6d0142`, removed the approval gate) has no `sources/` page; carried from the 2026-07-16 lint.
+- **Process suggestion with teeth:** PR #250's stale `OPEN` status is a repeatable ingest failure mode, not a one-off — any page written while a PR is in flight can outlive its own state. Worth a lint check that re-reads `gh pr view` for every `sources/pr_*` page whose body asserts a non-merged status.
+
+**VERIFICATION:** 205 pages. Post-fix re-run of the link graph: 0 dead links from any content page, 6 orphans (all index-covered, all benign). Committed directly to vault (`git.worktree: false`).

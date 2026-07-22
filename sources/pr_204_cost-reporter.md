@@ -2,7 +2,7 @@
 title: "PR #204 — mechanical cost-reporter on LOOP-STOP: complete"
 type: source
 created: 2026-07-17
-last_updated: 2026-07-17
+last_updated: 2026-07-22
 sources: []
 tags: [hook, agentic-loop, loop-stall-guard, complete-gate, cost-tracking, reporter-not-gate, system-message, anti-fabrication, schema-version-2]
 ---
@@ -142,4 +142,4 @@ channel-mechanics writeup this PR's discovery was folded into.
 - [[pr_184_185_186_loop-cost-tracking]] — the cost-mining sub-step and `retro.json` `schema_version` 2 this reporter reads; the prose "must print it" instruction this PR mechanises
 - [[pr_194_198_loop-complete-deferral-and-proof-gates]] — the two blocking gates this reporter runs immediately after
 - [[loop_stall_guard]] — hosts the call site
-- [[design/enforcement-model|enforcement-model]] — hooks vs. commands; this is a hook that deliberately never enforces, a third category alongside block/nudge
+- [[enforcement-model]] — hooks vs. commands; this is a hook that deliberately never enforces, a third category alongside block/nudge
