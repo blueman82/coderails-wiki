@@ -2,7 +2,7 @@
 title: Install and Cache Trap
 type: design
 created: 2026-05-30
-last_updated: 2026-07-13
+last_updated: 2026-07-22
 sources:
   - design/agentic-loop-path-keying.md
   - .claude-plugin/plugin.json
@@ -139,9 +139,29 @@ Everything above is about coderails' *own* local-directory dev loop (repo vs. ca
 
 The same update also changed [[agentic-loop-path-keying]]'s slug scheme underneath any session still on the old cache (1.0.0 predates that keying change entirely) — a second, undocumented-until-now migration gap this one auto-update triggered. See that page's caveats section for the mechanism and workaround.
 
+## The same trap on a FOREIGN plugin (PR #259, 2026-07-22)
+
+Everything above concerns coderails' own cache. The identical mechanism bites
+when the perishable file belongs to **another maintainer's** plugin. The
+2026-07-17 token-burn effort's row 5 patched the **remember** plugin's
+`session-start-hook.sh` inside `~/.claude/plugins/cache/<marketplace>/remember/<version>/scripts/`
+— a version-pinned directory, so a bump (`remember/0.8.3` → `0.9.0`) installs a
+fresh unpatched copy and the cap silently disappears. Unlike coderails' own
+trap there is no repo copy to diff against: the patch existed *only* in the
+cache, in no repo at all, and was nearly lost.
+
+[[remember_inject_cap_guard]] closes the detection half (a `SessionStart` hook
+that notices the cap's absence) and [[plugin-boundary-writes]] governs what it
+may do about it — warn-only by default, writing only on explicit opt-in, because
+rewriting someone else's package unasked is a different act from resyncing your
+own cache. (verified — [[pr_259_remember-inject-cap-guard]])
+
 ## Cross-References
 
 - [[enforcement-model]] — hooks only enforce what the cache contains
+- [[plugin-boundary-writes]] — what coderails may do when the perishable cached file belongs to *another* plugin
+- [[remember_inject_cap_guard]] — the hook that detects a foreign plugin's wiped patch
+- [[pr_259_remember-inject-cap-guard]] — PR #259: the foreign-cache case and the row-5 recovery
 - [[discipline-loop]] — if a hook fix is in the repo but not the cache, the discipline enforcement is running the old version
 - [[install-bash32-bad-substitution_2026-06-01]] — the bash 3.2 syntax bug and fix
 - [[pr_96-98_mode-aware-install-argument-injection-guard-hook-owned-counter]] — PR #96: the exec-bit sweep becomes git-index-mode-aware

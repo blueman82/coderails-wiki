@@ -2,7 +2,7 @@
 title: "PR #228 + #229 + #230 — token-burn reduction for agentic loops, AGENTS.md split, honest headless-child cost accounting"
 type: source
 created: 2026-07-17
-last_updated: 2026-07-17
+last_updated: 2026-07-22
 sources:
   - skills/agentic-loop/SKILL.md
   - AGENTS.md
@@ -37,6 +37,19 @@ empty — the merge commit's content is byte-identical to what's on
 
 Four rules added, each explicitly numbered "row N of 4" in the skill text so
 the four are traceable as one set even though they land in different phases:
+
+> ⚠️ CONTRADICTION: the "of **4**" denominator is wrong, and its wrongness is
+> itself a recorded incident. The 2026-07-17 token-burn effort was **seven**
+> measures, rows 1–7. PR #228 carried rows **1–4 of 7**; row 5 was an ops leg
+> applied by hand to a file inside the remember plugin's cache directory and
+> committed nowhere; PR #229 was row 6 and PR #230 was row 7. The
+> `skills/agentic-loop/SKILL.md` text this table quotes had been renumbered to
+> "of 4", erasing the record that there were ever seven — which is how row 5
+> was nearly lost outright on 2026-07-22, recoverable only from a planning
+> transcript. Nothing on this page about *what #228 shipped* is wrong: #228
+> genuinely added four rules. Only the denominator is. See
+> [[pr_259_remember-inject-cap-guard]] and [[plugin-boundary-writes]].
+> (verified — PR #259, 2026-07-22)
 
 | Row | Phase | Rule |
 |---|---|---|
