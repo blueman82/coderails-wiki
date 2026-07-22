@@ -105,7 +105,7 @@ shipped fix anchors each check on the exact normative sentence and adds
 `neg_check` negative controls that strip that sentence from a scratch copy
 and assert the check goes RED without it.
 
-## Not yet exercised end-to-end
+## End-to-end: fires and fails; the full success chain is still unexercised
 
 Live-fired 2026-07-17: seeder queued it, sweeper claimed and ran it
 successfully, frozen loop evals E6/E7 passed against the live config. But
