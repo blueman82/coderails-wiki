@@ -10,6 +10,26 @@ tags: [log]
 
 # Log
 
+## [2026-07-22] ingest | tier-gate daemon: judges every tier, now active (PR #267)
+
+Corrected a stale tier-0-only description of the tier-gate daemon in
+[[design/enforcement-model]]. The daemon judges and posts a tier-review status
+at every tier, not just tier 0 — `tg_gate_pr`'s twelve `tg_post_status` calls
+all stamp `tier=${tier}` and none is tier-gated, and `merge.sh` runs its gate
+at every tier. It is also now installed and running for both coderails and
+assistant-agent, closing the "available, not active" boundary from PR #232.
+
+Source: coderails PR #267 (merged), which fixed the same claim in the daemon's
+own header comments. Notable because that comment is where an agent this
+session drew the wrong conclusion that non-tier-0 PRs post no status, then
+repeated it. A wrong comment produced a wrong belief — the argument for fixing
+comments, not just code.
+
+Recorded rough edge, not yet investigated: the judge is non-reproducible —
+~20 runs on one identical assistant-agent commit split across legitimate,
+illegitimate, and parse-error, with ~1/4 failing to parse.
+
+
 Append-only chronological record. Format: `## [YYYY-MM-DD] operation | description`
 
 ---
