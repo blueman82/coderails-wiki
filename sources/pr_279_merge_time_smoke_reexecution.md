@@ -173,7 +173,13 @@ recurring genre in this gate's history, not a one-off.
 - Full affected suites reported green, run directly (not trusted from a sub-agent's own report):
   `post_evals`, `merge`, `merge_evals_gate`, `merge_tier_review_gate`, `enforce_pr_workflow`,
   `git-common`.
-- `commands/post-evals.md`'s stale "checks 1-7" corrected to reflect the now-10-check set.
+- [[post-evals]]'s structural-guarantees prose gained a "`post_evals::smoke_verify`'s gate-time
+  re-execution at merge" clause. (Correction: GitHub's PR-diff view shows this hunk as "checks 1-7"
+  → "checks 1-10", which looks like this PR fixed a stale count — it did not. That count was already
+  corrected to "1-10" on 2026-07-17, six days before #279 branched from a stale base; #279's diff is
+  against that older `baseRefOid`, not against what was actually on `main` when it merged. Verified
+  via `git log --oneline -- commands/post-evals.md`: `196009e`/`aad9acd` (2026-07-17) already carry
+  "1-10"; #279's head commit `baa5bbd` only adds the `smoke_verify` clause on top.)
 
 ## Honest boundary — unchanged from #264/#269, narrowed further
 

@@ -81,7 +81,7 @@ The block message for `git merge` on main now leads with the actual resolution (
 
 ## Named gate functions (PR #49)
 
-PR #49 replaced positional `# Gate N` comments with named bash functions, making each gate's purpose self-documenting and greppable. The seven functions, in evaluation order:
+PR #49 replaced positional `# Gate N` comments with named bash functions, making each gate's purpose self-documenting and greppable. Originally seven functions; now nine, in evaluation order (Gate 8 added by [[pr_279_merge_time_smoke_reexecution|PR #279]], 2026-07-23; Gate 9 by [[pr_232_tier-review-gate|PR #232]], 2026-07-17 — see the sections below the table for both):
 
 | Function | Gate | Purpose |
 |---|---|---|
@@ -93,6 +93,8 @@ PR #49 replaced positional `# Gate N` comments with named bash functions, making
 | `gate_have_transcript` | 5 | Pass if no transcript path in payload |
 | `enforce_required_step` | 6 | Scan transcript; pass if evidence found, deny if not |
 | `gate_eval_artifact_for_merge` | 7 | For `merge` subcommand only, after Gate 6 passes: pass if a SHA-bound `GO` coderails eval artifact exists for the PR's current head, deny if not (added PR #97) |
+| `gate_smoke_verify` | 8 | For `merge` subcommand only, after Gate 7 passes: pass if `post_evals::smoke_verify` re-executes every scripted eval successfully against the trusted head SHA, deny if not (added PR #279) |
+| `gate_tier_review_status` | 9 | For `merge` subcommand only, after Gate 8 passes, tier-0 artifacts only: pass if a matching `tier-review` commit status exists, deny if not; inactive no-op unless `tier_review.machine_user` is configured (added PR #232) |
 
 `gate_targets_main` is the headline rename: the former label "Gate 4b" conveyed only position; the name now states the decision the gate makes. Mirrors the `require::` / `pr::` naming idiom in `scripts/lib/git-common.sh`. (verified — PR #49)
 
