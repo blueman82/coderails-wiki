@@ -221,3 +221,5 @@ under "Why NOT a call into check 10" above.
 - [[enforce_pr_workflow]] — the hook's new `gate_smoke_verify`, ordered before Gate 8
 - [[pr_232_tier-review-gate]] — the attestor-outside-trust-domain pattern this PR's honest boundary
   points to as the only further mechanical closure
+- [[pr_286_smoke_verify_array_guard]] — PR #286 (2026-07-23): hardens `smoke_verify`'s `.evals` shape
+  assumption, closing a fail-open where a non-array `.evals` skipped re-execution entirely
