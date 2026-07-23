@@ -232,10 +232,16 @@ Tests (+~770 lines): `test/contextTrend.test.ts`,
   only in an untracked file and in this page. Anyone re-tuning them has no
   in-repo source to check against. (See the memory feedback *freehand
   constants are claims*.)
-- **The 2026-07-17 token-reduction cutover itself has no wiki page.** PRs
-  #228/#229/#230 are the measures under audit; the vault has no coverage of
-  them and no page for the audit's method or verdict. This panel is currently
-  the wiki's only record that the cutover happened at all.
+- **The audit's method and verdict have no wiki page** — though the cutover
+  itself does. PRs #228/#229/#230, the measures under audit, are covered by
+  [[pr_228_229_230_token-burn-reduction-and-agents-split]] (corrected by lint
+  2026-07-23: this page originally claimed the cutover had no coverage at
+  all). `CUTOVER_MS` (`2026-07-17T20:22:00Z`) lines up with #228's merge at
+  `20:22:29Z` (verified — `gh pr view 228`), so the constant is anchored to a
+  documented event even though the audit that chose it is not. What remains
+  genuinely uncovered is the audit's *method and INDETERMINATE verdict* —
+  that lives only in the untracked `docs/TOKEN-REDUCTION-AUDIT.md` and in
+  this page.
 - **Debounce cadence is new load.** `scheduleContextTrendRefresh` fires on
   every `projectsDir` write at the 2s activity debounce, so during an active
   loop the collector re-stats every transcript every couple of seconds. The

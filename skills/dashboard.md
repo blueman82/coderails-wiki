@@ -202,8 +202,10 @@ it.
 > files but is **not tracked in the repo** (verified at `43af8046`). The
 > collector's hardcoded constants — the cutover instant, the window start, and
 > `MIN_READABLE_N` — therefore have no in-repo justification for a future
-> reader re-tuning them. The 2026-07-17 cutover (PRs #228/#229/#230) has no
-> wiki page either.
+> reader re-tuning them. The cutover *event* is covered by
+> [[pr_228_229_230_token-burn-reduction-and-agents-split]] and `CUTOVER_MS`
+> matches #228's merge instant; what has no page is the audit's **method and
+> INDETERMINATE verdict**.
 
 ## Architecture
 
