@@ -1280,3 +1280,29 @@ Pages: new [[sources/pr_285_wiki_taxonomy_gate_doc]]; updated `index.md` (added 
 cleared the #257 'un-ingested' flag now that the hook is documented).
 
 ## [2026-07-23] lint | Scope: this session's three source pages ([[sources/pr_282_tier_gate_error_retry]], [[sources/pr_284_check10_hardening]], [[sources/pr_285_wiki_taxonomy_gate_doc]]) plus their `index.md` entries (lines 288-290), the `log.md` ingest entries, and the #257 un-ingested-flag clearance on index.md line 128. **1 finding fixed, 0 dead links, 0 orphans, 0 stale, 0 contradictions.** All 5 SHAs re-derived against `coderails` (`git cat-file -t`): #282 `c1101b6`, #284 `46550b4`, #285 `2bd1bce`, #257 `71a2e45`, all commits; #285 and #276 states confirmed via `gh` — #285 MERGED at `2bd1bce`, title "supersedes #276"; #276 CLOSED (2026-07-23T14:54:35Z), so "supersedes closed #276" on both the page and index line 290 is accurate. Every `[[wiki-link]]` across the three pages resolves (14 distinct targets checked: the six pr_* cross-refs, plus `agentic-loop`, `enforcement-model`, `merge`, `enforce_pr_workflow`, `task-evals-gate`). No orphans — each page has inbound links from `index.md`+`log.md`, and #282/#284 also gain a content-page inbound (#284→#282, #285→#284). **#285's central claim re-derived, not trusted from prose**: `git show 2bd1bce -- AGENTS.md` confirms it is exactly a 1-file/1-insertion docs change adding the `wiki_taxonomy_gate.sh` Hook-Matrix row, and the merged row carries the **structural-not-namelist** final form ("the allowance is structural, not a fixed name list") — so the "review caught the doc-precision defect before merge" claim and the page's entire behaviour summary (Page-types-table parse, file's-own-repo-root identification, `wiki-vault: true` marker, ≥2 dirs, fails-open, structural root allowance) are faithful to the actual merged text. The `:123-127` line citation on the #285 page is exact **at the merge SHA** (`git show 2bd1bce:` puts the vault-root `case "$rel"` block at 123-127; it reads 124-129 on today's `origin/main` — one-line drift, not an error). **#257-flag clearance is consistent**: index line 128 now reads the seventh `PreToolUse` hook as "first documented in AGENTS.md by [[pr_285_wiki_taxonomy_gate_doc|PR #285]]" rather than the prior "un-ingested" backlog flag, and line 290 matches — the AGENTS.md doc gap #257 opened is now closed and correctly attributed. **Fix (the one finding): page/index numeric mismatch on #284's fork-timeout.** The #284 source page reports "measured **31s** against a 10s cap" (measured wall-clock capture time); `index.md` line 289 read "blocked to its 30s exit" (the grandchild's nominal sleep). Same defect, two numbers — reconciled the index to the page's measured figure ("blocked to its exit (measured 31s against the 10s cap)") so a reader sees one number for one event. **Carried forward, not fixed (out of lint scope, per this vault's decline-and-surface discriminator, log 2026-07-22 lines 1230/1234):** #285 documented the hook via a `sources/` page + the coderails AGENTS.md row, which correctly clears the *AGENTS.md doc-gap* flag — but the separately-tracked **`hooks/wiki_taxonomy_gate.md` capability-page** coverage gap (one of the two known gaps the vault's `hooks/scripts/*.sh`→`hooks/*.md` coverage sweep enumerates, flagged 3x prior) still exists and remains owed ingest-class work; a future coverage lint will still surface it, and that is not a regression against line 128's #285 attribution. Frontmatter schema-compliant on all three pages; `index.md` `last_updated: 2026-07-23` correct; no `inbox/` dir so zero backlog.
+
+
+## [2026-07-23] ingest | PR #287 merged: dashboard Context Trend panel + decoupled SSE frame
+
+PR #287 (`43af8046`, merged 2026-07-23T22:36:45Z) adds the Context Trend panel to the
+dashboard's left rail — a hand-rolled SVG scatter of orchestrator cache-read tokens per
+assistant turn, per agentic-loop session, across the 2026-07-17 token-reduction cutover.
+Revived off the stale `worktree-token-work` branch (46 commits behind main) by extracting
+only the genuinely-unshipped panel onto a fresh branch off main.
+
+The compounding knowledge is the data path, not the chart. Collecting `contextTrend` inline
+on the activity slice made the KPI tiles wait on a collector that streams ~3,900 transcripts
+(~1.9GB) — a ~10s cold first paint, regressing #271's ~0.2s by ~50×. Fixed by giving the slow
+collector its own `"context-trend"` SSE event on the same `/api/events` connection: **one
+connection does not mean one frame**. Also captured: the `undefined`/`null`/summary tri-state
+(loading encoded as the absence of a frame), the `SSE_EVENT_NAMES` registration seam that unit
+tests structurally cannot catch (found by live-testing, now mutation-proven), the route-scope
+shared parse cache (a deliberate divergence from #271's module-scope memo), and a panel built
+to refuse a headline its INDETERMINATE audit never established.
+
+Flagged, not fixed: `docs/TOKEN-REDUCTION-AUDIT.md` — the spec two source files cite — is not
+tracked in the repo, leaving the collector's hardcoded constants unjustified in-repo; and the
+2026-07-17 cutover (PRs #228/#229/#230) has no wiki page.
+
+Pages: new [[sources/pr_287_dashboard-context-trend-panel]]; updated [[skills/dashboard]]
+(new "Context Trend panel" section, frontmatter, See also) and `index.md`.

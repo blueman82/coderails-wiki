@@ -2,7 +2,7 @@
 title: "Skill: dashboard"
 type: skill
 created: 2026-07-06
-last_updated: 2026-07-22
+last_updated: 2026-07-23
 sources:
   - sources/pr_25_observability-dashboard.md
   - sources/pr_43-44-46_workflow-audit-queue-seam.md
@@ -27,7 +27,8 @@ sources:
   - sources/pr_184_185_186_loop-cost-tracking.md
   - sources/pr_260_263_dashboard-security-review.md
   - sources/pr_265_266_268_270_271_dashboard-vitals-lint-tile-and-usage-perf.md
-tags: [skill, dashboard, observability, nextjs, r3f, sse, obsidian, agentic-os, sub-project-1-of-5, queue-contract, builder, ask-button, argv, run-output, streaming, launchd, reboot-persistence, npm-ci, lockfile, permission-mode, enter-to-submit, decisions-absorbed, loop-decisions-tile, deck-trim, multi-loop, gates-freshness, headless-exemption, inbox-brief, rachel, lan-access, dashboard-host, request-guard, security-posture, cost-tile, cost-rollup, retro-json, security-review, path-traversal, timing-safe-compare, deployment-gap, lint-findings-tile, loading-state, usage-memo-cache, single-flight, cross-file-dedup]
+  - sources/pr_287_dashboard-context-trend-panel.md
+tags: [skill, dashboard, observability, nextjs, r3f, sse, obsidian, agentic-os, sub-project-1-of-5, queue-contract, builder, ask-button, argv, run-output, streaming, launchd, reboot-persistence, npm-ci, lockfile, permission-mode, enter-to-submit, decisions-absorbed, loop-decisions-tile, deck-trim, multi-loop, gates-freshness, headless-exemption, inbox-brief, rachel, lan-access, dashboard-host, request-guard, security-posture, cost-tile, cost-rollup, retro-json, security-review, path-traversal, timing-safe-compare, deployment-gap, lint-findings-tile, loading-state, usage-memo-cache, single-flight, cross-file-dedup, context-trend, decoupled-sse-frame, tri-state-snapshot, honest-statistics]
 ---
 
 # Skill: dashboard
@@ -130,6 +131,79 @@ from scratch every `collectUsage` call, over the current candidate set only.
 Mutation-proved: swapping the merge-time fresh `Set` for a persisted
 module-level `Set` makes the dedicated age-out test fail, returning
 `0/0/0` instead of the correct `10/20/30`.
+
+### Context Trend panel — and the decoupled SSE frame it forced (PR #287, 2026-07-23)
+
+The left rail gains a **Context Trend panel** below System Vitals: a
+hand-rolled SVG scatter (no chart library), one dot per agentic-loop session,
+x = session start, y = orchestrator cache-read tokens per assistant turn, with
+the 2026-07-17 token-reduction cutover drawn as an annotation. The panel was
+unshipped work revived off the stale `worktree-token-work` branch (46 commits
+behind `main`), extracted onto a fresh branch rather than PR'd from the stale
+one. See [[pr_287_dashboard-context-trend-panel]].
+
+**The rule this PR established: one SSE *connection* does not mean one SSE
+*frame*.** The branch's original design collected `contextTrend` inline inside
+`collectActivitySlice`, so the System Vitals / KPI tiles waited on a collector
+that streams every coderails-slug transcript under `projectsDir` (~3,900 files
+/ ~1.9GB here) — a ~10s cold-cache first paint, regressing #271's ~0.2s by
+~50× (verified — PR body). The fix keeps the single-SSE-provider rule from
+[[pr_80-82_dashboard-stream-run-output-viewer|PRs #80–82]] intact (still one
+`/api/events` connection) while giving the slow collector **its own
+`"context-trend"` event**, its own `refreshContextTrend()`, and its own
+debounce timer off the same `projectsDir` watch. Generalises to: **a collector
+whose latency class differs by orders of magnitude from its neighbours gets
+its own frame, so it never gates them.**
+
+`refreshContextTrend()` is fired **unconditionally** in `start()`, independent
+of `refreshActivity()`, so a frame always arrives — including the `null`
+fallback on collect error. That unconditional fire is what stops the panel
+hanging in "loading" forever.
+
+**Tri-state, extending the #265 three-state pattern.**
+`Snapshot.contextTrend` is `ContextTrendSummary | null | undefined`:
+`undefined` = the frame hasn't arrived (loading), `null` = source unreadable
+(unavailable), summary = data. The emitted payload is never `undefined` — the
+loading state is encoded as **the absence of a frame**, not as a payload
+value. The panel keys off this field's own tri-state rather than health's load
+signal, which is what stops it flashing "unavailable" during the load window
+(the flash PR #283 removed for the KPI tiles). This is the same
+loading-vs-genuine-failure distinction #265 introduced for the LINT FINDINGS
+tile, promoted from a per-tile array-emptiness convention to a field-level
+tri-state on the snapshot.
+
+**A registration list is a seam.** `SSE_EVENT_NAMES` in `useDashboardState.ts`
+is what the hook loops over to `addEventListener`. An event can be in the
+`DashboardEvent` union *and* correctly handled by `mergeDashboardEvent` and
+still be silently dropped by the browser because its name was never
+registered — and **every unit test that calls `mergeDashboardEvent` directly
+still passes**. Live-testing caught this; the suite could not. Now guarded by
+a mutation-proven test that asserts `listeners.has("context-trend")` before
+firing anything, through the same `addEventListener` path production uses.
+
+**The parse cache moved into the route.** `route.ts` owns a
+`sharedContextTrendCache` `Map` passed to every aggregator via
+`AggregatorDeps.contextTrendCache`, because aggregators are per-SSE-connection
+and a module-scope cache "can be less reliable due to bundling" in production.
+Note the divergence from #271, which relies on module scope alone for
+`collectUsage`.
+
+**Built to refuse a headline.** The source audit's verdict is INDETERMINATE,
+and both layers preserve it: the collector reports the raw per-session series
+plus per-side n/median/Q1/Q3 and **never computes a saving percentage**; the
+panel runs the series straight through the cutover (no gap, no colour change,
+no causal claim) and below `MIN_READABLE_N = 20` renders a side's median in
+the caveat colour and says in words that it is uncallable. Same [[trust-floor]]
+discipline as #265's refusal to regex-scan lint prose for a count — a
+plausible-looking number must not be manufactured from data that doesn't carry
+it.
+
+> ⚠️ The panel's spec, `docs/TOKEN-REDUCTION-AUDIT.md`, is cited by two source
+> files but is **not tracked in the repo** (verified at `43af8046`). The
+> collector's hardcoded constants — the cutover instant, the window start, and
+> `MIN_READABLE_N` — therefore have no in-repo justification for a future
+> reader re-tuning them. The 2026-07-17 cutover (PRs #228/#229/#230) has no
+> wiki page either.
 
 ## Architecture
 
@@ -422,6 +496,7 @@ This is the first sub-project to give the task-evals gate a real production catc
 - [[pr_128_dashboard-ask-button-auto-profile]] — the "ask" button's `profile: "standard"` → `"auto"` switch: closes the headless permission-block hang on tools like `WebSearch`, but does not fix the separate, still-open tool-call-attempt non-determinism; third occurrence of independent reviewers converging on an identical finding
 - [[voice_announce]] — the sibling PR in the same cluster: a new observe-only Stop hook announcing loop lifecycle events via macOS `say`, unrelated to the dashboard's own code but merged in the same session
 - [[pr_80-82_dashboard-stream-run-output-viewer]] — the Run Output viewer: incremental stream-json capture, the `runOutputBus`/`"run-output"` SSE event, the path-traversal-safe `GET /api/run/output` route, and the two Critical review fixes (missing spawn-error handler, silently-swallowed fetch errors)
+- [[pr_287_dashboard-context-trend-panel]] — the Context Trend panel: the decoupled `"context-trend"` SSE frame (one connection, not one frame), the `undefined`/`null`/summary tri-state, the `SSE_EVENT_NAMES` registration-seam regression test, and a chart deliberately built to refuse a headline its audit never established
 - [[dashboard-run-log-streaming-viewer-gap_2026-07-07]] — the investigation this cluster closes; documents the pre-fix write-only log model and the cross-PR constraints (single-SSE-provider, strict-ID-validation, never-throw, token non-leakage) the fix had to respect
 - [[pr_130-136_dashboard-right-rail-ux]] — the six-PR right-rail UX cluster (panel separation, input affordance, label wrapping, run-history glyphs, output-viewer header, button-state flash)
 - [[pr_134_agentic-loop-retry-until-green]] — the mid-loop agentic-loop skill edit that shipped as a 7th PR in the same loop as the UX cluster
