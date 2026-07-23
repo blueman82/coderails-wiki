@@ -3,12 +3,20 @@ title: "PR #269 — gate-time re-execution of eval commands (check 10)"
 type: source
 origin: "coderails PR #269 (merged 44ad17e, 2026-07-22)"
 created: 2026-07-22
-last_updated: 2026-07-22
+last_updated: 2026-07-23
 sources: []
 tags: [source, task-evals, gate, post-evals, smoke-run, re-execution, fabricated-evidence, honest-boundary]
 ---
 
 # PR #269 — check 10, gate-time re-execution
+
+> **Narrowed by [[pr_279_merge_time_smoke_reexecution|PR #279]]** (2026-07-23, next day). This
+> page's own residual said check 10 only ever ran in the posting agent's own session at post
+> time — never re-checked at merge, so a hand-written `smoke` object still passed the merge gate.
+> #279 closes exactly that: it re-executes the same shape rules at merge, against the trusted
+> head SHA, making the property binding rather than advisory. The residual PR #279 does *not*
+> close — an unforgeable freeze-time stamp, or an attestor outside the agent's trust domain — is
+> stated below and still stands. **Current state is [[task-evals-gate]].**
 
 Merged 2026-07-22 at 21:25 UTC, two hours after [[pr_264_smoke_run_executor_and_check9|PR
 #264]] (19:30). The two are one feature landed in two commits — read them together.
@@ -126,5 +134,7 @@ executor, result computed by `compute-result` and never hand-written: **GO**.
 - [[pr_264_smoke_run_executor_and_check9]] — check 9 and the `smoke-run` executor
 - [[pr_261_freeze_before_build_gate]] — check 8, whose freeze-before-build constraint is why
   `cmd` polarity must stay ungated
+- [[pr_279_merge_time_smoke_reexecution]] — next day: makes this check's re-execution property
+  binding at merge, narrowing the residual below
 - [[task-evals-gate]] — the design page; current state of the check set
 - [[task-evals]] — the skill, whose honest-boundary section was updated by this PR

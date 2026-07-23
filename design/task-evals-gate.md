@@ -2,11 +2,12 @@
 title: "Task-evals gate — dual-scope (pr + loop) enforcement over frozen, oracle-independent success evals"
 type: design
 created: 2026-07-06
-last_updated: 2026-07-22
+last_updated: 2026-07-23
 sources:
   - sources/pr_261_freeze_before_build_gate.md
   - sources/pr_264_smoke_run_executor_and_check9.md
   - sources/pr_269_gate_time_smoke_execution.md
+  - sources/pr_279_merge_time_smoke_reexecution.md
   - sources/pr_1-4_task-evals-feature.md
   - sources/pr_7-10_task-evals-followups.md
   - sources/pr_11-14_gate-hardening-followups.md
@@ -15,7 +16,7 @@ sources:
   - sources/pr_138_remove-specs-plans-tracking.md
   - sources/pr_218_discriminating-check-gate.md
   - sources/pr_232_tier-review-gate.md
-tags: [design, task-evals, evals-json, merge-gate, loop-gate, truth-seam, sha-bound, work-units, oracle-independence, comment-spoofing, tier-justification, trust-floor, viewerPermission, grade-loop, unstamped, discriminating-check, fixtures, tier-review, root-daemon, smoke-run, freeze-before-build, re-execution]
+tags: [design, task-evals, evals-json, merge-gate, loop-gate, truth-seam, sha-bound, work-units, oracle-independence, comment-spoofing, tier-justification, trust-floor, viewerPermission, grade-loop, unstamped, discriminating-check, fixtures, tier-review, root-daemon, smoke-run, freeze-before-build, re-execution, binding-at-merge, worktree]
 ---
 
 # Task-evals gate
@@ -109,12 +110,18 @@ Full detail on [[task-evals]]. Named here because they're what the two enforceme
 
 **Second, hook-level consumer added 2026-07-08 ([[pr_96-98_evals-gate-uniform-enforcement_2026-07-08|PR #97]]):** `enforce_pr_workflow.sh`'s `PreToolUse` hook gains `gate_eval_artifact_for_merge`, applying the identical `pr::has_coderails_eval_for_head` check (same rc semantics: 0/GO allow, non-zero NO-GO/absent deny, rc=2 fetch-failure fail-closed) directly to a raw `gh pr merge <N>` Bash call, not just inside `merge.sh`'s script body. This closes the gap [[evals-gate-enforcement-gap_2026-07-08]] identified: previously nothing forced a merge to actually route through `merge.sh`, so this gate is config-dependent (inactive under `NO_CONFIG`, same as the rest of `enforce_pr_workflow`) where `merge.sh`'s own gate is config-independent — full mechanism and gate-ordering detail on [[enforce_pr_workflow]], not duplicated here.
 
+**Third addition, closing an advisory-only gap ([[pr_279_merge_time_smoke_reexecution|PR #279]], 2026-07-23):** until this PR, the eval-artifact gate above — at both consumers — only parsed the marker comment's `result=GO` text. Checks 1-10 in `post_evals::validate_structure` (including check 10's re-execution) never ran again at merge; they only ran once, in the posting agent's own `/coderails:post-evals` session. An agent could hand-write a plausible-shaped `smoke` object for a `cmd` naming a script that never existed and the merge path accepted it at rc=0. `post_evals::smoke_verify` closes this: given the embed extracted from the same trusted marker comment (`pr::coderails_eval_embed_for_head`, new), it checks out the trusted head SHA into a detached `git worktree` and re-executes every scripted eval's `cmd`/`negative_control` there, judging the same shape rules check 10 applies — as its own re-execution loop, not a call into check 10 (see [[pr_279_merge_time_smoke_reexecution]] for why). Wired into both `merge.sh` (directly after the eval-artifact gate) and `enforce_pr_workflow.sh` (`gate_smoke_verify`, ordered before Gate 8's tier-review status check). This makes checks 9/10's re-execution property **binding at merge**, closing the negligence/fabrication class the advisory-only version left open — full mechanism, the four bypasses found and closed in review, and the honest boundary on the source page.
+
 ### Structural refusals (`post_evals::validate_structure`, 10 checks)
 
 Checks 1-7 are the original set; 8 ([[pr_261_freeze_before_build_gate|PR #261]]), 9
 ([[pr_264_smoke_run_executor_and_check9|PR #264]]) and 10
 ([[pr_269_gate_time_smoke_execution|PR #269]]) are all **pr scope only** and detailed above —
 freeze-before-build ancestry, recorded smoke evidence, and gate-time re-execution respectively.
+[[pr_279_merge_time_smoke_reexecution|PR #279]] adds a distinct **`merge` scope**: runs checks 1-9
+identically to `pr` scope, then stops before check 10 — `post_evals::smoke_verify` (see "Merge gate
+placement" above) is the re-execution that replaces check 10 at the merge boundary, with its own
+worktree and its own (measured, 120s) timeout rather than check 10's caller-cwd/10s pairing.
 
 1. File exists + valid JSON.
 2. Every tier requires a non-blank `tier_justification` (owner directive, [[pr_7-10_task-evals-followups|PR #10]]: tightened from tier-0-only to all tiers — see "tier_justification required at every tier" below).
@@ -239,6 +246,7 @@ This gate proves a durable, SHA-bound (pr scope) or path-bound (loop scope), str
 - ~~**`gh` comment pagination** — the newest-wins scan does not paginate; a PR with enough comments to span pages could miss an older page's marker.~~ **Closed by the same [[pr_7-10_task-evals-followups|PR #8]]**: both readers now fetch via `gh api "repos/<repo>/issues/<n>/comments" --paginate`, replacing the `gh pr view --json comments` GraphQL call that was hard-capped at 100 comments.
 - ~~**`install.sh` inventory gap** — does not yet name `scripts/lib/eval-artifact.sh` or `scripts/post_evals.sh` in its own audit surface the way it tracks other core scripts.~~ **Closed by [[pr_1-4_task-evals-feature|PR #3]]** (`9ecbeae5`, 2026-07-06) — `install.sh`'s script-chmod loop now lists both files (verified: `install.sh:332`). **A related gap in the same loop — `scripts/lib/review-artifact.sh` and `scripts/lib/config.sh` were also missing — closed by [[pr_7-10_task-evals-followups|PR #9]]** (`ffe5ccc`, 2026-07-06). The loop still has no `scripts/lib/*.sh` glob, so any future addition under `scripts/lib/` needs the same manual literal-list update repeated — a structural gap, not fully closed.
 - **`tier_justification` now required at every tier, not just tier 0** — [[pr_7-10_task-evals-followups|PR #10]] (owner directive, `238f5e1`, 2026-07-06). See "tier_justification required at every tier" above for the mechanism.
+- ~~**Checks 9/10's re-execution property only ran advisory, in the posting agent's own session at post time — never re-checked at merge, so a hand-written `smoke` object for a script that never existed passed the merge gate at rc=0.**~~ **Closed by [[pr_279_merge_time_smoke_reexecution|PR #279]]** (`afa2f5b`, 2026-07-23): `post_evals::smoke_verify` re-executes every scripted eval against the trusted head SHA (detached worktree) at both merge consumers, making the property binding at merge, not just at post. Four bypasses found and closed in review (a `surface`-keyed exemption, empty-`id`, duplicate-`id`, a git-fetch gap) all reduced to the same root pattern: gate authority resting on a field the gated party controls. Honest boundary unchanged: this closes negligence/fabrication, not an adversary who edits `enforce_pr_workflow.sh` itself (`hooks/scripts/` is outside `TIER_GATE_PATH_DENYLIST`) — full closure against that still needs the [[pr_232_tier-review-gate|tier-review daemon]] pattern.
 - ~~**PR-scope gate enforced only inside `scripts/merge.sh`'s own body — nothing forced a merge to route through it, so a raw `gh pr merge` bypassed the eval check entirely** (documented same-day in [[evals-gate-enforcement-gap_2026-07-08]], the mechanism [[pr_95_slash-command-loop-detection|PR #95]] shipped through).~~ **Closed by [[pr_96-98_evals-gate-uniform-enforcement_2026-07-08|PR #97]]** (`5b96690`, 2026-07-08): `enforce_pr_workflow.sh` now gates raw `gh pr merge <N>` on the identical SHA-bound artifact check, config-dependent (`NO_CONFIG`-gated) where `merge.sh`'s own gate is config-independent — see "Merge gate placement" above. Companion invocation-path gap (`systematic-debugging` had no route to `task-evals` at all) closed prose-level by the same cluster's PR #96.
 
 ## Owner decisions recorded
@@ -278,6 +286,7 @@ gh pr merge
 - [[pr_1-4_task-evals-feature]] — the original cluster source page (PRs #1–4)
 - [[pr_7-10_task-evals-followups]] — the follow-up cluster closing comment-spoofing/pagination and adding tier_justification-everywhere (PRs #7–10)
 - [[pr_11-14_gate-hardening-followups]] — the gate-hardening cluster: explicit NO-GO wins at tier 0 (#11), HOME-sandboxed install test (#12), push.sh staging fix (#13), trust-floor widened to a permission check + merge.sh error-message split (#14)
+- [[pr_279_merge_time_smoke_reexecution]] — PR #279 (2026-07-23): makes checks 9/10's re-execution property binding at merge via `post_evals::smoke_verify`, closing the advisory-only gap; four bypasses found and closed in review
 - [[trust-floor]] — consolidating concept page for the trust-floor/OWNER-permission model this gate's comment-fetch reader relies on (SSOT for the mechanism is [[merge]]); extended with the `tempfile` failure-reason case by PR #21
 - [[pr_21-22_loop2-suggestion-tier-followups]] — Loop 2 follow-up: merge.sh's `tempfile` case arm (shared fetch helper, both gates) + test-coverage completions for `loop_state_guard_evals.test.sh` (final-else NO-GO fixture) and `install_mode_sweep.test.sh`
 - [[pr_96-98_evals-gate-uniform-enforcement_2026-07-08]] — closes the "nothing forces the merge through `merge.sh`" gap: adds a second, hook-level pr-scope gate on raw `gh pr merge` (PR #97) plus a `systematic-debugging` → `task-evals` invocation cross-reference (PR #96)
