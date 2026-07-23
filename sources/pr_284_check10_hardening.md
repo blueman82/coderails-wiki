@@ -57,7 +57,7 @@ as polarity witnesses that exit 1. The anti-vacuous-control rule from
 
 Two evals (the no-regression suite, and the fork-bound test) had to move `scripted → agent-run`
 because each runs >10s and check 10's own gate-time cap would kill them as 142 — the fork-bound
-eval verifies the very timeout that would kill it. Same handling as #282's E4.
+eval verifies the very timeout that would kill it. Same handling as [[sources/pr_282_tier_gate_error_retry|#282]]'s E4.
 
 ## Fresh-branch-not-force-push
 

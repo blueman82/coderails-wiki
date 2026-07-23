@@ -46,7 +46,7 @@ unconditionally terminal and the default still fails closed:
 
 The first implementation counted a *pure* run of `error` statuses. But the daemon posts a
 fresh `pending` status **before every judge call** (`tg_post_status ... pending` at
-`tier-gate-runner.sh:1042`, unconditional). So a repeatedly-crashing judge's real history is
+`tier-gate-runner.sh:1074`, unconditional). So a repeatedly-crashing judge's real history is
 **interleaved**: `[error, pending, error, pending, ...]`, newest-first — never
 `[error, error, error]`.
 
