@@ -1342,3 +1342,43 @@ Pages: new [[sources/pr_289_tier_gate_install_shared_root_warning]]; updated `in
 ## [2026-07-24] ingest | PR #288 (notify leak in tests) — VITEST guard on defaultNotify() stops sweep.test.ts firing real macOS notifications
 
 Pages: new [[sources/pr_288_notify-leak-in-tests]]; updated [[design/dashboard-runner]] (Injection-hardening section) and `index.md`.
+
+
+## [2026-07-24] ingest | PR #290 merged: SSE aggregator teardown on abort + jq valid-scalar object guard
+
+PR #290 (`f28d7b7`, merged 2026-07-24T00:15:25Z; head `8ed1dff`) carries three concerns
+related only by the session that found them.
+
+**(1) The SSE file-descriptor leak (the title).** `/api/events` tore down its per-connection
+aggregator only from `ReadableStream.cancel()`, which fires when the response *consumer*
+cancels — a client that just goes away does not reliably trigger it, so every abandoned
+connection leaked a recursive `fs.watch` handle per watched dir plus the gates `setInterval`.
+The compounding fact is the ceiling, not the leak: a launchd-spawned process inherits
+`launchctl limit maxfiles` (256 on stock macOS), NOT the shell's soft limit, so a handful of
+page loads wedged the server **silently** — HTTP 000, zero SSE frames, panels stuck on
+"loading…", nothing crashed, supervisor still reporting it running. Fixed with an idempotent
+`release()` reachable from three paths, including an explicit `signal?.aborted` re-check for
+the already-aborted-before-handler case. Plist `SoftResourceLimits = 4096` is defence in
+depth, explicitly not the fix. Proven by counting descriptors on a real process, not by the
+suite.
+
+**(2) The jq valid-scalar object guard.** This **resolves the ⚠️ CONTRADICTION open on
+[[discipline-loop]] since 2026-07-17** and re-verified as still-live by the 2026-07-24
+full-vault lint — that flag's own clearing condition was "a PR actually lands the guard".
+A malformed line and a valid scalar are different hazards on one pipeline: `fromjson?` drops
+what won't parse but keeps `42`, which then reaches `.type` and errors out silently.
+`select(type == "object")` added to both `dc_file_count` and `dc_extract_last_text`. All three
+family members now guarded (re-verified against `origin/main`), closing memory handoff
+`project_jq_slurp_round2_handoff`.
+
+**(3) Retiring a phantom spec.** #287's flagged residual — Context Trend constants citing
+`docs/TOKEN-REDUCTION-AUDIT.md`, which never existed on any ref — is resolved by moving each
+claim onto in-repo evidence and saying plainly that the file is gone.
+
+Pages: new [[sources/pr_290_sse_teardown_and_jq_object_guard]]; updated [[design/discipline-loop]]
+(CONTRADICTION resolved, jq family split into its two distinct hazards), [[skills/dashboard]]
+(new SSE-teardown section, constants-now-self-justifying rewrite of the phantom-spec callout,
+frontmatter, See also) and `index.md`.
+
+## [2026-07-24] lint | Scope: today's PR #288 ingest only — [[sources/pr_288_notify-leak-in-tests]], its `index.md` entry, its `log.md` ingest entry, and the [[design/dashboard-runner]] update. Not a full-vault pass. **1 finding fixed: 0 contradictions, 0 stale pages (per the skill's >30-day definition — this is frontmatter drift, not staleness), 0 orphans, 0 missing concepts, 0 missing cross-references, 0 data gaps, 0 inbox backlog.** Every load-bearing claim re-derived against `coderails` `origin/main`, not trusted from prose: `gh pr view 288` confirms title, `mergedAt: 2026-07-24T00:31:55Z`, merge commit `a3ba36c`, head `3406e64`, and the exact 3-file/+28/-9 diff (escalate.ts +9/-0, escalate.test.ts +17/-7 net, sweep.test.ts +2/-2 net) — all match the source page and `index.md` verbatim. `git diff 0f2605b a3ba36c` re-derived the actual code: `if (process.env.VITEST) return;` is the guard (first executable statement in `defaultNotify()`, after existing comments); `escalate.test.ts`'s argv-injection test deletes/restores `process.env.VITEST` around the one `escalate()` call inside a `try/finally`, safe because `node:child_process` is mocked file-wide in that test file; `sweep.test.ts` adds `notifyImpl: vi.fn()` to the previously-leaking per-intent failure-boundary test; the comment fix is exactly `ENOTDIR`→`EEXIST`. The page's "Scope note" claim (a local worktree carried unpushed `sweep.ts` timeout-marker + `docs-sync/SKILL.md` work not part of the merge) verified directly against the live worktree at `coderails/.worktrees/notify-leak`: `git diff 3406e64 HEAD --stat` shows exactly those two files (plus session-local `progress.json`/`proof.json`/`retro.json`/`standing-orders-draft.md` noise), confirming the merge commit is clean of them. All wiki-link targets resolve (`dashboard-runner`, `pr_262_runner-stdin-stall`, `pr_260_263_dashboard-security-review`). `index.md` `last_updated: 2026-07-24` correct, matches the ingest date. **The one finding:** `design/dashboard-runner.md`'s frontmatter had not been updated by the ingest — `last_updated` was still `2026-07-22` (2 days stale) and `sources:` was missing `sources/pr_288_notify-leak-in-tests.md`, despite the page body correctly gaining the "Test-environment guard (PR #288...)" section and a `## See also` link. This vault's own convention (every prior PR touching this page, e.g. `pr_262_runner-stdin-stall.md`, is listed in `sources:`) makes the omission a real drift, not a style choice. Fixed both in place. **Note on shared-vault state:** at analysis time the vault also carried a concurrent, unrelated in-progress ingest (uncommitted `design/discipline-loop.md` change + untracked `sources/pr_290_sse_teardown_and_jq_object_guard.md`, from the session's other active `coderails-wiki-ingest` agent) — left untouched and staged this commit by filename only, not `git add -A`, to avoid sweeping that WIP in.
+<!-- lint-findings: 1 -->

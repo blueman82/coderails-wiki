@@ -2,13 +2,14 @@
 title: "Dashboard runner"
 type: design
 created: 2026-07-07
-last_updated: 2026-07-22
+last_updated: 2026-07-24
 sources:
   - sources/pr_36-41-33-53-65_verified-routines.md
   - sources/pr_201_202_203_routine-followups.md
   - sources/pr_240_lrp-last-marker-gate.md
   - sources/pr_256_runner-transcript-persistence.md
   - sources/pr_262_runner-stdin-stall.md
+  - sources/pr_288_notify-leak-in-tests.md
 tags: [design, dashboard, runner, routines, artifact-gate, escalation, agentic-os, sub-project-2-of-5, last-marker, run-transcript, diagnosability, open-defects]
 ---
 
