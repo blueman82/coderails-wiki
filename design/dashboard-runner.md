@@ -124,6 +124,8 @@ Two channels fire per escalation, each independently try/caught so one channel's
 
 `defaultNotify()`'s `osascript` invocation passes `title`/`message` as trailing argv elements via AppleScript's `on run argv`, never interpolated into the AppleScript source string. This matters because an escalation `reason` can originate from artifact-derived text (e.g. an artifact-gate failure reason) — a real injection surface, not just defense-in-depth. Verified live in-repo (2026-07-07): a reason string containing an attempted `"; do shell script "..."` breakout produced a plain notification and did not execute the injected command `(verified, skills/dashboard/runner/src/escalate.ts` code comment)`.
 
+**Test-environment guard (PR #288, 2026-07-24).** `defaultNotify()`'s first statement is now `if (process.env.VITEST) return;`, added after a 2026-07-22 incident where a run of `sweep.test.ts` fired genuine macOS notifications (`Routine failed: run-a`/`run-b`) — any test exercising a failure path without its own `notifyImpl` had fallen through to the real `osascript` call. One test (`escalate.test.ts`'s argv-injection test, which asserts on `defaultNotify`'s own body) deliberately deletes `process.env.VITEST` around its call and restores it in a `finally` block, so it still exercises the real notification path despite the guard — safe because `node:child_process` is mocked file-wide in that test file. `sweep.test.ts`'s leaking test also now passes an explicit `notifyImpl: vi.fn()` mock, so it no longer depends solely on the `VITEST` guard to stay silent. See [[pr_288_notify-leak-in-tests]].
+
 ## Exit contract
 
 `main.ts`'s `run()` returns one of three codes: **0** clean sweep, **1** one or more routine failures (`result.failed > 0`), **2** the sweeper itself crashed before or during producing a `SweepResult` at all — judged strictly worse than "some routines failed," since even the failure bookkeeping in that case isn't trustworthy. A last-resort crash notification fires on exit 2, itself guarded so a broken notification channel can't mask the real crash `(verified, skills/dashboard/runner/src/main.ts)`.
@@ -162,4 +164,5 @@ independently re-derived here; see [[pr_262_runner-stdin-stall]])`:
 - [[pr_201_202_203_routine-followups]] — PR #202, the UTC/local `{date}` skew fix
 - [[pr_240_lrp-last-marker-gate]] — the predicate-kind staleness correction on this page (three kinds → four, `last-marker` described) and the second `last-marker` application
 - [[pr_256_runner-transcript-persistence]] — the run-transcript persistence source record
+- [[pr_288_notify-leak-in-tests]] — the `VITEST` test-environment guard on `defaultNotify()`
 - [[pr_262_runner-stdin-stall]] — the stdin-stall fix and the five open runner defects catalogued above
