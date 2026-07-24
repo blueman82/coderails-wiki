@@ -1436,12 +1436,25 @@ where the text is correct, both silent (verified — executed). Fix in flight an
 from the title) (verified). No `[[wiki-link]]` written for #295: an unmerged PR
 has no `sources/` page, and a link to a non-existent target is a lint finding.
 
-**Not asserted here, deliberately:** whether `ulg_count_dispatch_turns` is now
-sound against the wrong-inner-shape hazard. PR #293 added an rc capture to its
-stage 2, but `ULG_PARSE_REASON` is set inside a function this session only ever
-called in a `$(...)` subshell, so the variable never reached the observation
-point — the harness cannot show detection either way. Out of this correction's
-scope and left unclaimed rather than guessed.
+**One claim nearly shipped unverified, caught in review and then resolved from
+source.** This entry first said `ulg_count_dispatch_turns`'s wrong-inner-shape
+status was unassessable here: PR #293 added an rc capture to its stage 2, but
+`ULG_PARSE_REASON` is set inside a function this session only ever called in a
+`$(...)` subshell, so the variable never reached the observation point and the
+fixture could not show detection either way. Meanwhile the `design/discipline-loop.md`
+Part 3 text asserted flatly that "an abort there surfaces rather than being
+laundered into a plain `0`" — **the exact claim this entry said it was leaving
+unclaimed**, stated untagged on the more durable of the two surfaces. That is
+this arc's own failure class, one surface removed. Resolved the way it should
+have been from the start, by **reading the source instead of re-running the
+probe**: `unregistered_loop_guard.sh:131-136` on `origin/main` shows a nonzero
+`agg_rc` setting `ULG_PARSE_REASON="jq_parse_error"`, echoing to stderr,
+printing `0` and **returning before** the `case "$n" in (''|*[!0-9]*) n=0;;`
+laundering at `:137` (verified). The claim was true; it was just unverified when
+written. Part 3 now carries the line cite. **Method note worth keeping: a
+subshell-invisible variable is a limit of the harness, not of the evidence** —
+the control flow was readable the whole time, and "my instrument can't see it"
+was standing in for "I didn't look."
 
 **Pattern, fourth instance in one arc:** every one of these corrections turned on
 a claim about a file's contents that was cheap to check and wasn't. This one
