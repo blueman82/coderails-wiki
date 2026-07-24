@@ -86,9 +86,20 @@ precedence of its own — so an override placed before its base rule is silently
 dead. It looks correct in review, and it is inert. #296 later added a
 regression test pinning declaration **source order** with a negative control,
 which is the right instrument for this class — but that branch closed unmerged,
-so **that test is not on `origin/main`** (verified — only `hudRailScroll.test.ts`
-exists in `skills/dashboard/app/test/`). #299 ships the stylesheet change with
+so **that test is not on `origin/main`** (verified — `git show
+origin/main:skills/dashboard/app/test/hudTrendWidth.test.ts` returns nothing;
+the directory itself holds 36 other test files, so its absence is specific to
+that file, not an empty directory). #299 ships the stylesheet change with
 no test of its own.
+
+> ⚠️ **Correction 2026-07-24.** This paragraph originally cited its evidence as
+> "only `hudRailScroll.test.ts` exists in `skills/dashboard/app/test/`". That
+> was false — the directory holds 36 files. The *conclusion* was and remains
+> correct (`hudTrendWidth.test.ts` is genuinely not on `origin/main`, because
+> #296 closed unmerged), but it rested on a wrong supporting fact. Caught by a
+> scoped lint pass; the probe that produced the original claim was never
+> re-read. A true conclusion resting on false evidence is still a defect —
+> the next reader inherits the bad fact, not the good conclusion.
 
 ## Regression sweep
 
