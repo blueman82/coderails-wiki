@@ -191,9 +191,25 @@ only two functions #290 touched.
 `unregistered_loop_guard.sh`'s `ulg_count_dispatch_turns` carries its own
 two-stage **malformed-line** tolerant parse (lines 65/91) from
 [[pr_112-113_2026-07-08_jq-slurp-residuals-round2|PR #113]], but **no**
-`select(type == "object")` — #290 did not touch that file, and whether it is
-exposed to the valid-scalar hazard was not assessed here. Do not read "the
-family is guarded" as covering it. (verified — grep at ingest)
+`select(type == "object")` — #290 did not touch that file.
+
+> ⚠️ **OPEN DEFECT, found during this ingest (2026-07-24): the same
+> valid-scalar hazard is still live in `ulg_count_dispatch_turns`.**
+> Its stage-2 slurp is `[ .[]? | select(.type == "assistant") | ... ]` over an
+> unfiltered `fromjson? // empty` stage 1 — the exact unguarded shape #290 just
+> removed from both `discipline_common.sh` functions. Reproduced against a
+> 3-line fixture (`{assistant/Agent}` / `42` / `{assistant/Agent}`): the
+> function's real pipeline emits `jq: error … Cannot index number with string
+> "type"` and returns **0**, while the same expression with
+> `select(type == "object")` returns the correct **2**. (verified — executed at
+> ingest) The failure is silent twice over: stderr is discarded, and the
+> trailing `case "$n" in (''|*[!0-9]*) n=0;;` coerces the empty result to `0`,
+> so `ULG_PARSE_REASON` stays **empty** — the guard reports "no dispatch turns"
+> rather than a parse failure, which is precisely the attribution distinction
+> PR #113 built. Impact is bounded: nudge-only hook, so the consequence is a
+> missed nudge, not a gate failure. Not fixed here — #290 is the PR being
+> ingested, not a place to land new code. **This is the third member of the
+> family and it is not guarded.**
 
 **On the memory handoff `project_jq_slurp_round2_handoff`:** that handoff is
 *not* about this hazard and is not closed by this PR. Read directly at ingest,
