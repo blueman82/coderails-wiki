@@ -1486,15 +1486,17 @@ the 30-day cutoff (2026-06-24) are two `investigations/` and four
 point-in-time records. No evergreen `design/`, `commands/`, `hooks/` or
 `skills/` page is stale; the newest evergreen edits are same-day.
 
-**Findings (7).** Data gaps (5): PRs **#291, #292, #293, #294** merged
+**Findings (7).** Data gaps (4): PRs **#291, #292, #293, #294** merged
 2026-07-24 with no `sources/` page and no prose coverage anywhere except #293,
 which is described only second-hand inside `design/discipline-loop.md`'s
 resolution note — notable because #293 is a mis-titled PR ("context trend panel
 styles") that actually landed the `ulg_count_dispatch_turns` object guard, so
-its title will not lead anyone to it; and the `docs/TOKEN-REDUCTION-AUDIT.md`
-method + INDETERMINATE verdict behind the Context Trend panel's hardcoded
-constants remains uncaptured (the spec is untracked in the repo, already flagged
-on `index.md` at the #287 entry). Missing pages (2): `hooks/wiki_taxonomy_gate.md`
+its title will not lead anyone to it. *(Not counted, already documented: the
+`docs/TOKEN-REDUCTION-AUDIT.md` method + INDETERMINATE verdict behind the
+Context Trend panel's hardcoded constants remains uncaptured as a wiki page, but
+the spec's absence from the repo is already flagged on `index.md` at the #287
+entry, so this is a known-open item rather than a new lint finding.)*
+Missing pages (2): `hooks/wiki_taxonomy_gate.md`
 — the hook ships on `origin/main` and is the 7th `PreToolUse` entry, but the only
 wiki record is the `sources/` page for the PR that documented it in AGENTS.md,
 so the hooks directory is 19 pages against 19 shipped scripts by coincidence, not
