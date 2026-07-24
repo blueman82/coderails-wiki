@@ -182,14 +182,27 @@ Two new tests, (k) and (l), each of which interleaves scalar lines (`42`,
 `"a bare json string"`) with genuine assistant turns and asserts the real
 answer survives — count 2 rather than 0, and `REAL ANSWER` rather than empty.
 
-### Status of the family (verified against `origin/main` this ingest)
+### Status of the family — and a scope correction worth recording
 
-All three of the known bare-`jq -s` slurps now carry a guard:
-`dc_file_count` (line 39), `dc_extract_last_text` (line 74), and
-`unregistered_loop_guard.sh` (its own tolerant parse, lines 65/91). This closes
-the concern tracked by the memory handoff `project_jq_slurp_round2_handoff`
-("2 remaining bare `jq -s` slurps") — both named functions are fixed. (The
-memory file itself is out of this ingest's scope and is not updated here.)
+Verified against `origin/main` at ingest: the **object guard** is present in
+`dc_file_count` (line 39) and `dc_extract_last_text` (line 74). Those are the
+only two functions #290 touched.
+
+`unregistered_loop_guard.sh`'s `ulg_count_dispatch_turns` carries its own
+two-stage **malformed-line** tolerant parse (lines 65/91) from
+[[pr_112-113_2026-07-08_jq-slurp-residuals-round2|PR #113]], but **no**
+`select(type == "object")` — #290 did not touch that file, and whether it is
+exposed to the valid-scalar hazard was not assessed here. Do not read "the
+family is guarded" as covering it. (verified — grep at ingest)
+
+**On the memory handoff `project_jq_slurp_round2_handoff`:** that handoff is
+*not* about this hazard and is not closed by this PR. Read directly at ingest,
+its "2 remaining bare `jq -s` slurps" are `dc_extract_last_text` **and**
+`ulg_count_dispatch_turns` (not `dc_file_count`), and its stated fix shape is
+the **malformed-line** two-stage parse mirroring `als_extract_last_text` — work
+that PRs #112/#113 completed on 2026-07-08. #290 closes a *different, later*
+hazard on one of the same functions. Recorded because the two are easy to
+conflate by function name: same file, same pipeline, different failure.
 
 ---
 
