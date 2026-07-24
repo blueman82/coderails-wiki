@@ -2,8 +2,9 @@
 title: "Skill: dashboard"
 type: skill
 created: 2026-07-06
-last_updated: 2026-07-23
+last_updated: 2026-07-24
 sources:
+  - sources/pr_290_sse_teardown_and_jq_object_guard.md
   - sources/pr_25_observability-dashboard.md
   - sources/pr_43-44-46_workflow-audit-queue-seam.md
   - sources/pr_36-41-33-53-65_verified-routines.md
@@ -28,7 +29,7 @@ sources:
   - sources/pr_260_263_dashboard-security-review.md
   - sources/pr_265_266_268_270_271_dashboard-vitals-lint-tile-and-usage-perf.md
   - sources/pr_287_dashboard-context-trend-panel.md
-tags: [skill, dashboard, observability, nextjs, r3f, sse, obsidian, agentic-os, sub-project-1-of-5, queue-contract, builder, ask-button, argv, run-output, streaming, launchd, reboot-persistence, npm-ci, lockfile, permission-mode, enter-to-submit, decisions-absorbed, loop-decisions-tile, deck-trim, multi-loop, gates-freshness, headless-exemption, inbox-brief, rachel, lan-access, dashboard-host, request-guard, security-posture, cost-tile, cost-rollup, retro-json, security-review, path-traversal, timing-safe-compare, deployment-gap, lint-findings-tile, loading-state, usage-memo-cache, single-flight, cross-file-dedup, context-trend, decoupled-sse-frame, tri-state-snapshot, honest-statistics]
+tags: [skill, dashboard, observability, nextjs, r3f, sse, obsidian, agentic-os, sub-project-1-of-5, queue-contract, builder, ask-button, argv, run-output, streaming, launchd, reboot-persistence, npm-ci, lockfile, permission-mode, enter-to-submit, decisions-absorbed, loop-decisions-tile, deck-trim, multi-loop, gates-freshness, headless-exemption, inbox-brief, rachel, lan-access, dashboard-host, request-guard, security-posture, cost-tile, cost-rollup, retro-json, security-review, path-traversal, timing-safe-compare, deployment-gap, lint-findings-tile, loading-state, usage-memo-cache, single-flight, cross-file-dedup, context-trend, decoupled-sse-frame, tri-state-snapshot, honest-statistics, sse-teardown, fd-leak, maxfiles, abortsignal, constant-justification]
 ---
 
 # Skill: dashboard
@@ -188,24 +189,78 @@ and a module-scope cache "can be less reliable due to bundling" in production.
 Note the divergence from #271, which relies on module scope alone for
 `collectUsage`.
 
-**Built to refuse a headline.** The source audit's verdict is INDETERMINATE,
-and both layers preserve it: the collector reports the raw per-session series
-plus per-side n/median/Q1/Q3 and **never computes a saving percentage**; the
-panel runs the series straight through the cutover (no gap, no colour change,
-no causal claim) and below `MIN_READABLE_N = 20` renders a side's median in
-the caveat colour and says in words that it is uncallable. Same [[trust-floor]]
-discipline as #265's refusal to regex-scan lint prose for a count — a
-plausible-looking number must not be manufactured from data that doesn't carry
-it.
+**Built to refuse a headline.** Whether the cutover's measures reduced token
+burn is **not established** — the before and after groups differ in size and
+composition, and no controlled comparison was run — and both layers preserve
+that: the collector reports the raw per-session series plus per-side
+n/median/Q1/Q3 and **never computes a saving percentage**; the panel runs the
+series straight through the cutover (no gap, no colour change, no causal claim)
+and below `MIN_READABLE_N = 20` renders a side's median in the caveat colour
+and says in words that it is uncallable. Same [[trust-floor]] discipline as
+#265's refusal to regex-scan lint prose for a count — a plausible-looking
+number must not be manufactured from data that doesn't carry it.
 
-> ⚠️ The panel's spec, `docs/TOKEN-REDUCTION-AUDIT.md`, is cited by two source
-> files but is **not tracked in the repo** (verified at `43af8046`). The
-> collector's hardcoded constants — the cutover instant, the window start, and
-> `MIN_READABLE_N` — therefore have no in-repo justification for a future
-> reader re-tuning them. The cutover *event* is covered by
-> [[pr_228_229_230_token-burn-reduction-and-agents-split]] and `CUTOVER_MS`
-> matches #228's merge instant; what has no page is the audit's **method and
-> INDETERMINATE verdict**.
+**The constants are now self-justifying (PR #290, 2026-07-24).** Until #290,
+both files attributed that INDETERMINATE verdict to a spec,
+`docs/TOKEN-REDUCTION-AUDIT.md`, which **has never existed on any ref** — so
+the hardcoded constants had no in-repo justification for a future reader
+re-tuning them. #290 rewrote the comments to say the file never existed and to
+move each claim onto its own evidence: `CUTOVER_MS` cites the three real merges
+(#228/#229/#230 at `20:22:29Z`/`20:25:46Z`/`20:27:27Z`) and names the command
+that checks it; `WINDOW_START_MS` states what it buys (≈10 days back, a
+before-span comparable to the after-span) and what it does not do (selects
+which sessions are plotted, never weights one); and `MIN_READABLE_N = 20` is
+re-labelled honestly as **a presentation threshold, not a statistical test**.
+The panel's "row 1 was documented as the largest saving" likewise becomes a
+checkable pointer: row 1 is *expected* to save the most and has been inert
+since it shipped, per PR #273 removing its gate after it fired zero times. The
+transferable move: **when a cited spec turns out not to exist, don't delete the
+citation — move each claim it was carrying onto in-repo evidence, and say the
+spec is gone.** The cutover *event* remains covered by
+[[pr_228_229_230_token-burn-reduction-and-agents-split]]. See
+[[pr_290_sse_teardown_and_jq_object_guard]].
+
+### SSE teardown: `cancel()` is not a disconnect signal (PR #290, 2026-07-24)
+
+The `/api/events` route tore down its per-connection aggregator **only** from
+`ReadableStream.cancel()`, which fires when the response *consumer* cancels — a
+client that simply goes away (tab closed, network drop, `curl` killed) does not
+reliably trigger it. Every abandoned connection therefore leaked a full
+aggregator: a recursive `fs.watch` handle on each of
+`projectsDir`/`loopsDir`/`runsDir`/`queueDir`/`buildsDir`, plus the gates
+`setInterval`.
+
+**Why that was fatal here and not merely untidy** — the fact worth carrying:
+**a launchd-spawned process inherits `launchctl limit maxfiles` (256 on stock
+macOS), not the interactive shell's much higher soft limit.** Since the
+dashboard runs under launchd ([[pr_88_93_dashboard-launchd]]), a handful of page
+loads exhausted the descriptor table. Past that point the process still accepts
+TCP but can no longer open files or watches, and it **wedges silently**: HTTP
+000 on every route, zero SSE frames, panels stuck on "loading…", nothing
+crashed and nothing logged. The supervisor still reports the job running — the
+same "running ≠ serving" trap as the restart discipline below, except here the
+process is genuinely alive and genuinely useless.
+
+The fix is an **idempotent `release()`** reachable from three paths: the
+`request.signal` `"abort"` listener, `cancel()` (now delegating rather than
+tearing down itself), and — the subtle one — an explicit `request.signal
+?.aborted` re-check at the end of `start()`. **A signal already aborted before
+the handler ran has fired its `abort` event in the past, so a listener
+registered inside the handler never fires**; the client can drop between
+connection-accept and handler execution. That re-check's placement is
+load-bearing: it must sit *after* the aggregator is started and `unsubscribe`
+is bound, or it would stop a not-yet-started aggregator and leave the
+subscription dangling. Generalises to: **registering on an `AbortSignal` is not
+enough; an already-aborted signal needs a post-registration re-check.**
+
+`launchd/com.coderails.dashboard.plist` also gains `SoftResourceLimits →
+NumberOfFiles = 4096`, explicitly commented as *defence in depth* rather than
+the fix — the limit raise alone would only have converted a fast wedge into a
+slow one. Proven empirically rather than by suite: 18 abandoned connections
+held fds flat at 39 with watch fds returning to 0 each round, against 114 fds
+(69 on the projects dir) climbing and never returning on the unfixed live
+server. Four regression tests in `test/eventsTeardown.test.ts` pin abort-only,
+abort+cancel idempotence, already-aborted-at-entry, and the no-signal fallback.
 
 ## Architecture
 
@@ -499,6 +554,7 @@ This is the first sub-project to give the task-evals gate a real production catc
 - [[voice_announce]] — the sibling PR in the same cluster: a new observe-only Stop hook announcing loop lifecycle events via macOS `say`, unrelated to the dashboard's own code but merged in the same session
 - [[pr_80-82_dashboard-stream-run-output-viewer]] — the Run Output viewer: incremental stream-json capture, the `runOutputBus`/`"run-output"` SSE event, the path-traversal-safe `GET /api/run/output` route, and the two Critical review fixes (missing spawn-error handler, silently-swallowed fetch errors)
 - [[pr_287_dashboard-context-trend-panel]] — the Context Trend panel: the decoupled `"context-trend"` SSE frame (one connection, not one frame), the `undefined`/`null`/summary tri-state, the `SSE_EVENT_NAMES` registration-seam regression test, and a chart deliberately built to refuse a headline its audit never established
+- [[pr_290_sse_teardown_and_jq_object_guard]] — the follow-on on the same `/api/events` route: the per-connection `fs.watch` leak that wedged the server against launchd's 256-descriptor ceiling, the idempotent three-path `release()`, and the ContextTrend constant re-justification that retired the phantom `TOKEN-REDUCTION-AUDIT.md` citation
 - [[dashboard-run-log-streaming-viewer-gap_2026-07-07]] — the investigation this cluster closes; documents the pre-fix write-only log model and the cross-PR constraints (single-SSE-provider, strict-ID-validation, never-throw, token non-leakage) the fix had to respect
 - [[pr_130-136_dashboard-right-rail-ux]] — the six-PR right-rail UX cluster (panel separation, input affordance, label wrapping, run-history glyphs, output-viewer header, button-state flash)
 - [[pr_134_agentic-loop-retry-until-green]] — the mid-loop agentic-loop skill edit that shipped as a 7th PR in the same loop as the UX cluster
