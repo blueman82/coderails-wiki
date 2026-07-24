@@ -211,6 +211,37 @@ two-stage **malformed-line** tolerant parse (lines 65/91) from
 > ingested, not a place to land new code. **This is the third member of the
 > family and it is not guarded.**
 
+> ✅ **CLOSED 2026-07-24 by PR #293** — the note above was true when written and
+> was overtaken within the hour. `gh pr view 293`: state **MERGED**, `mergedAt`
+> `2026-07-24T01:02:56Z`, merge commit `4340c4b`, branch
+> `fix/context-trend-panel-styles`, files `unregistered_loop_guard.sh` (+38/−1),
+> `tests/unregistered_loop_guard.test.sh` (+39), `styles/hud.css` (+66)
+> (verified). `git show origin/main:hooks/scripts/unregistered_loop_guard.sh`
+> now carries `select(type == "object")` at **line 105**, inside
+> `ulg_count_dispatch_turns`'s stage-2 slurp (verified). Re-run of **the same
+> 3-line fixture this note cites** (`{assistant/Agent}` / `42` /
+> `{assistant/Agent}`) against current `origin/main` returns **2**, not `0`
+> (verified — executed 2026-07-24). The valid-scalar hazard in
+> `ulg_count_dispatch_turns` is closed. Why #293 landed it: its title is the
+> dashboard CSS work, so the guard is invisible from the PR title — the reason
+> the note above, written from PR metadata, read the PR as unrelated.
+>
+> **This closes the valid-scalar hazard only. It is not family-wide closure**,
+> and the distinction is the same one this page exists to keep. A valid JSON
+> **object of the wrong inner shape** — e.g. `{"type":"assistant","message":"oops"}`,
+> where `.message` is a bare string — passes `select(type == "object")` and then
+> aborts the slurp on `.message.content`. That hazard is **still open on
+> `origin/main`** in `dc_file_count` and `dc_extract_last_text`: fixture
+> `{genuine assistant edit turn}` + `{"type":"assistant","message":"oops"}`
+> gives `dc_file_count` → **0** (should be 1) and `dc_extract_last_text` →
+> **empty** (should be the text), both silently (verified — executed against
+> `git show origin/main:hooks/scripts/lib/discipline_common.sh`, 2026-07-24).
+> A fix is in flight, unmerged at time of writing: **PR #295** ("discipline
+> common rc capture", branch `fix/discipline-common-rc-capture`, opened
+> `2026-07-24T01:43:54Z`, touching `discipline_common.sh` +94/−39 and its test
+> file +73) (verified). No wiki-link here deliberately — an unmerged PR has no
+> `sources/` page to link to.
+
 **On the memory handoff `project_jq_slurp_round2_handoff`:** that handoff is
 *not* about this hazard and is not closed by this PR. Read directly at ingest,
 its "2 remaining bare `jq -s` slurps" are `dc_extract_last_text` **and**
