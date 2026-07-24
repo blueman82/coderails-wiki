@@ -6,6 +6,7 @@ last_updated: 2026-07-24
 sources:
   - docs/TIER-GATE.md
   - scripts/tier-gate/judge-prompt.md
+  - scripts/tier-gate/tier-gate-runner.sh
 tags: [source, tier-gate, docs-drift, task-evals, ssot, verdict-taxonomy]
 ---
 
@@ -81,17 +82,32 @@ Everything above was already in the wiki. Two things in #297 were not:
 
 | Verdict | State | Meaning |
 |---|---|---|
-| `legitimate` | `success` | the only verdict that satisfies the merge gate |
-| `illegitimate` | `failure` | claim rejected — also what a **tier-0** claim over the size cap gets, because size is itself a tier-0 discriminator |
-| `insufficient` | — | blind inputs don't support a decision either way: empty/unreadable diff, or a **tier-1/tier-2** claim over the size cap |
-| `self_edit` | — | diff touches the tier-gate's own files; refuses to judge |
-| `pending` | — | judging in flight |
-| `error` | — | operational failure: unfetchable diff/files list, missing embedded `evals.json`, unusable judge response |
+| `legitimate` | `success` | the only verdict that satisfies the merge gate (`:1188`) |
+| `illegitimate` | `failure` | rejected by the judge — also a **tier-0** claim over the byte cap (`:1119`, `:1152`) |
+| `insufficient` | `failure` | judge can't decide either way on blind inputs — also a **tier-1/2** claim over the byte cap (`:1156`) |
+| `self_edit` | `failure` | diff touches the tier-gate's own files; posted *before* judging, so it never reaches the judge (`:1056`) |
+| `pending` | `pending` | posted unconditionally before **every** judge call, as a lease (`:1074`) |
+| `error` | `error` | operational failure: files-fetch failed, empty file list, missing embedded `evals.json`, diff-fetch failed, empty diff, nonzero judge rc (`:1031`, `:1039`, `:1084`, `:1140`, `:1145`, `:1173`) |
 
-   **Every non-`legitimate` status blocks.** The asymmetry inside the size cap
-   is the non-obvious part and is worth keeping: over the cap, a tier-0 claim
-   is `illegitimate` while a tier-1/2 claim is `insufficient`, because being
-   large is itself evidence against tier 0 but says nothing about tier 1 vs 2.
+   **Verified against `origin/main:scripts/tier-gate/tier-gate-runner.sh` at
+   ingest, not taken from the PR's own doc** — deliberately, because a
+   freshly-corrected doc is the least battle-tested text in the repo and this
+   PR exists precisely because that file was wrong for weeks. The runner
+   confirms it, and adds a distinction the doc doesn't draw: **only the first
+   three are verdicts the judge can return** (`TIER_GATE_JUDGE_SCHEMA` at
+   `:738` constrains its output to `enum: [legitimate, illegitimate,
+   insufficient]`, re-validated at `:804`); `self_edit`, `pending` and `error`
+   are **daemon-side dispositions the judge never emits**.
+
+   **Every non-`legitimate` status blocks.** The size-cap asymmetry is the
+   non-obvious part, and the runner states it in its own words (`:975-980`):
+   over the cap a tier-0 claim is `illegitimate` because **"size IS the tier-0
+   discriminator"**, while tier-1/2 gets `insufficient` because size is *not*
+   the tier-2 discriminator — a file/line cap is a worse proxy for the judge's
+   "how many work-units" question, so **tier 1/2 has no file/line cap at all**;
+   only the byte cap, bounding the judge's input size, applies. `tg_prefilter`'s
+   file/line caps run **only** when `tier == 0`, and the daemon never
+   truncates-and-judges at any tier.
 
    The vault had observed `self_edit` empirically three times
    ([[pr_256_runner-transcript-persistence|#256]],

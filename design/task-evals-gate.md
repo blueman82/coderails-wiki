@@ -247,14 +247,16 @@ This gate proves a durable, SHA-bound (pr scope) or path-bound (loop scope), str
 
 | Verdict | State | Meaning |
 |---|---|---|
-| `legitimate` | `success` | **the only verdict that satisfies the merge gate** |
-| `illegitimate` | `failure` | claim rejected — also what a **tier-0** claim over the size cap gets |
-| `insufficient` | — | blind inputs don't support a decision either way: an empty or unreadable diff, or a **tier-1/tier-2** claim over the size cap |
-| `self_edit` | — | the diff touches the tier-gate's own files; refuses to judge (see [[tier-gate-path-denylist-dashboard_2026-07-21]]) |
-| `pending` | — | judging in flight |
-| `error` | — | operational failure: unfetchable diff/files list, missing embedded `evals.json`, unusable judge response |
+| `legitimate` | `success` | **the only verdict that satisfies the merge gate** (`tier-gate-runner.sh:1188`) |
+| `illegitimate` | `failure` | claim rejected by the judge — also what a **tier-0** claim over the byte cap gets (`:1119`, `:1152`, `:1199`) |
+| `insufficient` | `failure` | the judge's own verdict when blind inputs don't support a decision either way — also what a **tier-1/tier-2** claim over the byte cap gets (`:1156`, `:1199`) |
+| `self_edit` | `failure` | the diff touches the tier-gate's own files; posted *before* any judging, so it never reaches the judge (`:1056`; see [[tier-gate-path-denylist-dashboard_2026-07-21]]) |
+| `pending` | `pending` | posted unconditionally before **every** judge call, as a lease (`:1074`) |
+| `error` | `error` | operational failure: files-fetch failed, empty file list, missing embedded `evals.json`, diff-fetch failed, empty diff, or a nonzero judge rc (`:1031`, `:1039`, `:1084`, `:1140`, `:1145`, `:1173`) |
 
-**Every non-`legitimate` status blocks.** The non-obvious part worth keeping is the size-cap asymmetry: over the cap a tier-0 claim is `illegitimate` while a tier-1/2 claim is `insufficient` — because being large is itself evidence *against* tier 0, but says nothing about tier 1 vs tier 2. This vault had observed `self_edit` empirically three times ([[pr_256_runner-transcript-persistence|#256]], [[pr_274_tier_gate_observability_fixes|#274]], [[pr_289_tier_gate_install_shared_root_warning|#289]]) without ever recording the taxonomy it belongs to; #256's "posts as FAILURE with an empty description, indistinguishable from a broken build" is exactly the legibility complaint this table answers.
+Only the first three are verdicts the **judge** can return — `TIER_GATE_JUDGE_SCHEMA` constrains its output to `enum: [legitimate, illegitimate, insufficient]` (`:738`, re-validated at `:804`). `self_edit`, `pending` and `error` are **daemon-side** dispositions the judge never emits. (verified — read on `origin/main:scripts/tier-gate/tier-gate-runner.sh` at ingest, not taken from the PR's doc)
+
+**Every non-`legitimate` status blocks.** The non-obvious part worth keeping is the size-cap asymmetry, which the runner states in its own words at `:975-980`: over the cap a tier-0 claim is `illegitimate` because **"size IS the tier-0 discriminator"**, while a tier-1/2 claim is `insufficient` because size is **not** the tier-2 discriminator — a file/line-count cap is a worse proxy for the judge's "how many work-units" question, so **tier 1/2 has no file/line cap at all**; only the byte cap, which merely bounds the judge's input size, applies. `tg_prefilter`'s file/line caps are called **only** when `tier == 0`. The daemon never truncates-and-judges at any tier or cap. This vault had observed `self_edit` empirically three times ([[pr_256_runner-transcript-persistence|#256]], [[pr_274_tier_gate_observability_fixes|#274]], [[pr_289_tier_gate_install_shared_root_warning|#289]]) without ever recording the taxonomy it belongs to; #256's "posts as FAILURE with an empty description, indistinguishable from a broken build" is exactly the legibility complaint this table answers.
 
 **`scripts/tier-gate/judge-prompt.md` is the authoritative SSOT for the tier predicates** — the repo doc now says so explicitly and defers to it on disagreement. It is what the daemon actually judges against; the prose doc is what a human reads. Executable over descriptive, made explicit for tiers.
 

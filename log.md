@@ -1569,6 +1569,25 @@ size-cap asymmetry (tier-0 over cap → `illegitimate`; tier-1/2 over cap →
 `insufficient`). The vault had observed `self_edit` three times without ever
 recording the taxonomy it belonged to.
 
+**Post-commit correction to the #297 work (same session, 2026-07-24):** the
+taxonomy above was first written from the PR's *changed doc* — which is the
+text least battle-tested in the repo, and this PR exists precisely because that
+file was wrong for weeks. Re-derived from
+`origin/main:scripts/tier-gate/tier-gate-runner.sh` instead. **The doc's claims
+hold**, and the runner adds a distinction the doc does not draw: **only three
+of the six are verdicts the JUDGE can return** — `TIER_GATE_JUDGE_SCHEMA`
+(`:738`) constrains its output to `enum: [legitimate, illegitimate,
+insufficient]`, re-validated at `:804`; `self_edit`, `pending` and `error` are
+**daemon-side dispositions the judge never emits**. All three previously-blank
+states filled in from the post sites (`self_edit` → `failure` at `:1056`,
+`pending` → `pending` at `:1074`, `error` → `error`). The size-cap asymmetry is
+confirmed in the runner's own words at `:975-980` ("size IS the tier-0
+discriminator"), with the corollary that **tier 1/2 has no file/line cap at
+all** — `tg_prefilter` runs only when `tier == 0`; only the byte cap, bounding
+the judge's input size, applies above tier 0. Lesson, and it is the same one
+this cluster's #299 entry records in another costume: **a check that reads a
+document is not a verification of the system the document describes.**
+
 **#298 (`8fba16d`) — `.env` was genuinely unguarded.** Zero `.env` matches in
 the gate beforehand (verified on the pre-merge tree), and a previously-removed
 hook that claimed to block it never worked. The durable argument is
