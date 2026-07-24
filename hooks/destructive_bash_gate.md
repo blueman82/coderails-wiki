@@ -2,9 +2,10 @@
 title: "Hook: destructive_bash_gate"
 type: hook
 created: 2026-05-31
-last_updated: 2026-07-17
+last_updated: 2026-07-24
 sources:
   - hooks/scripts/destructive_bash_gate.sh
+  - sources/pr_298_dotenv_bash_gate.md
   - sources/session_2026-05-31_prompting-doc-alignment.md
   - sources/pr_57-62_subagent-enforcement-gate-hardening.md
   - sources/pr_76_harden-hook-stdin-read.md
@@ -15,7 +16,7 @@ sources:
   - sources/pr_201_202_203_routine-followups.md
   - sources/pr_216_217_safe-routes-and-cost-miner-diagnostics.md
   - sources/pr_224_231_233_235_loop-tooling-hardening.md
-tags: [hook, pretooluse-hook, enforcement, destructive-bash, block, pattern-id, mention-safe]
+tags: [hook, pretooluse-hook, enforcement, destructive-bash, block, pattern-id, mention-safe, secrets, dotenv]
 ---
 
 # Hook: destructive_bash_gate
@@ -52,6 +53,7 @@ Handled with dedicated arg-extraction logic before the main regex:
 | `find ... -delete` / `find ... --delete` | Recursive deletion via find | Cross-separator anchored so the pattern doesn't cross `&&`/`;`/`\|` boundaries |
 | `truncate -s` / `truncate --size` | File-content truncation | Blocks size-destructive truncate |
 | `shred` | Secure file overwrite/deletion | |
+| `.env` secret-file access (added PR #298, 2026-07-24) | Any command naming a `.env` file, **read or write** | Command-agnostic — matches the path token, not a verb list. See ".env secret-file access" below |
 
 ### `git push --force`/`-f`/`--force-with-lease` — carved out of the main regex (2026-07-08)
 
@@ -119,6 +121,111 @@ git commit -m "reminder: don't use --no-verify"
 
 would match and be denied. The substring `--no-verify` in the commit message body triggers the pattern. This is a known limitation accepted as an acceptable tradeoff given the low frequency of such commit messages in practice. (inferred: no git-parsing logic in the hook to distinguish flag vs. message content)
 
+## `.env` secret-file access (added 2026-07-24, PR #298 — RCA item 12)
+
+Denies **read and write in one rule**: reading a `.env` exfiltrates live
+credentials into the transcript; writing one destroys or replaces them.
+
+`.env` was genuinely **unguarded** before this — the gate had zero `.env`
+matches, and a previously-removed hook that *claimed* to block `.env` access
+never actually worked. Folded into this file rather than shipped as a new hook
+because the deny plumbing already existed: it routes through `deny()` and
+carries `permissionDecisionReason` + `patternId` (`dotenv-access`) at exit 0,
+identical to every other pattern. No new JSON shape was invented.
+
+### The design call: match the path token, not a verb list
+
+The detector is deliberately **command-agnostic** — it matches the `.env` path
+token anywhere on the line rather than enumerating reader/writer verbs. The
+argument generalises past this hook: **a verb enumeration is unbounded and
+every omission is a silent bypass.** `cat`, `bat`, `less`, `more`, `view`,
+`vim`, `nano`, `awk`, `sed`, `xxd`, `python -c open(...)` has no closing
+condition, and such a gate fails silently at exactly the moment someone uses
+the verb nobody listed. Matching the **object** rather than the **action** has
+one enumeration point (what a `.env` path looks like).
+
+The cost is paid in boundary precision — this hook gates every Bash call, so a
+false positive is more disruptive than the gap it closes.
+
+| Boundary | Accepts | Consequence |
+|---|---|---|
+| **Left** | start-of-line, whitespace, quote, `/`, redirect char, `=`, `#` | `./.env`, `../.env`, `/abs/path/.env`, `>.env`, `VAR=.env` all match. A preceding **word char is deliberately NOT a boundary**, so `myapp.env`/`config.env` don't match — the spec is dotfile-shaped, and treating any `*.env` as secret would deny `cat myapp.env.example` |
+| **Right** | end-of-line, whitespace, quote, `;` `\|` `&`, `)`, redirect char, `~`, `#` | **Excluding word chars is the single thing that keeps `.envrc` (direnv, a different file) allowed.** `~` (vim) and `#` (emacs autosave) are included because `.env~`/`#.env#` hold a byte-identical copy of the secret, created by the *editor* rather than a deliberate act |
+
+### Case-insensitivity — four verified bypasses caught in review
+
+The first draft was case-sensitive; `cat .ENV`, `.Env`, `.ENV.LOCAL` were
+verified bypasses. **macOS (APFS) and Windows are case-insensitive by default,
+so `.ENV` opens the same inode as `.env`** — a case-sensitive matcher is
+defeated by pressing shift.
+
+Fixed by lowercasing the line **once** up front into `$dotenv_cmd` via `tr`,
+and **deliberately not** with a bare `grep -i`. The reason is a real
+interaction: the suffix branch does a case-**sensitive** `${tok#.env.}` strip
+against a lowercase allow-list, and neither parameter expansion nor `case`
+honours grep's `-i`. Matching case-blind while stripping case-sensitively
+would have flipped `.ENV.EXAMPLE` — the *same file* as `.env.example` on APFS,
+a benign template — from allowed to **over-blocked**. `tr`, not `${var,,}`,
+because bash 3.2 is this file's floor (the same constraint behind PR #203's
+fail-open above).
+
+**The lesson: a case-folding fix must be applied at the same layer as every
+consumer of the folded value**, or it fixes one branch and breaks another.
+
+### Why two branches, not one regex
+
+"Deny `.env.<suffix>` **except** example/sample/template/dist" is a negative
+lookahead, which POSIX ERE (`grep -E`, bash 3.2 — no PCRE) cannot express. So
+the suffixed case extracts each token and tests its suffix in bash. Only the
+**first** suffix segment is compared (`${suffix%%.*}`): `.env.example.md` (docs
+*about* the template) stays allowed, while `.env.local.bak` — a backup of a
+real secret file — denies. Comparing the whole multi-part suffix would deny the
+former, the over-block this branch was most at risk of.
+
+**Sharpest discriminator, both directions** — it kills the obvious wrong
+implementation:
+
+- `cp .env.example .env` → **DENY**. One line carrying both an allow-token and
+  a deny-token. Any "grep the line for a template name and exempt it wholesale"
+  approach gets this wrong and would permit *writing the real secret file*.
+- `cp .env.example .env.sample` → **ALLOW**. Template to template.
+
+### Mutation testing — 8 mutants, 8 killed, 0 survivors
+
+Each pattern was reverted individually against a **copy** of the gate (the live
+file untouched) to confirm the corresponding test actually fails, so kills are
+**isolated** and no pattern is covered only incidentally by another branch.
+Removing the bare-`.env` branch flips 28 checks; the suffixed branch exactly 3;
+widening the right boundary to word chars flips `.envrc` to allow; removing the
+template carve-out flips 6; comparing the whole suffix instead of the first
+segment flips exactly 1. The isolation is the point — it is the direct answer
+to the incidental-coverage defect PR #216 found in its own first draft
+(see [[pr_216_217_safe-routes-and-cost-miner-diagnostics]]).
+
+### Ceilings — deliberate, and stated as uncovered rather than closed
+
+Same class as this file's other documented ceilings:
+
+- **Shell-expansion forms are uncaught.** Matching runs before the shell
+  expands anything, so `cat .env*` and `cat .en?` glob onto the real file and
+  are **allowed**. Framed precisely by the PR itself: **no `.env` gate existed
+  at all beforehand, so these are uncovered cases, not a bypass the PR
+  introduced.** A follow-up should **invert the boundary rule** (any
+  non-filename char is a boundary) rather than patch `*`/`?` individually —
+  enumerating exceptions is the same open-ended shape the verb-list argument
+  above rejects.
+- **A variable-held path** (`F=.env; cat "$F"`) is uncaught once the literal is
+  off the line — the same ceiling the source-edit blocks carry.
+- **A template suffix off the closed list** (`.env.tpl`, `.env.defaults`)
+  denies — fails **closed**, costs one `settings.json` rule, leaks nothing.
+- **A real secret named to look like a template** (`.env.example` holding live
+  keys) is allowed — naming is the only signal a line-oriented matcher has.
+- **Admitting `#` as a boundary over-blocks** any literal `#.env` on the line,
+  including a URL fragment like `http://host#.env` — fails closed, on input no
+  real workflow emits.
+
+See [[pr_298_dotenv_bash_gate]] for the full record.
+
 ## Block condition
 
 Any Bash command matching the regex above is denied. The hook emits a JSON response on stdout at exit 0 (verified: destructive_bash_gate.sh:18–25):
@@ -163,6 +270,7 @@ unmapped). The full table, current as of PR #216:
 | `TRUNCATE TABLE` | **No safe equivalent** — removes all rows, not equivalent in safety to a scoped `DELETE`; take a backup/dump first; to allow, add a settings.json permission rule |
 | `dd if=` | **No safe equivalent** — writes raw bytes with no confirmation; double-check the `of=` target isn't a mounted disk; to allow, add a settings.json permission rule |
 | `mkfs.*` | **No safe equivalent** — reformats a filesystem, destroying existing data; confirm the target device isn't mounted/in-use; to allow, add a settings.json permission rule |
+| `.env` access (`dotenv-access`, PR #298) | Names several alternatives at different privilege levels, unusually for this table: test whether a key is **set** without revealing it (`set -a; . ./.env; set +a; [ -n "$MY_KEY" ]`) — while honestly noting that still needs an allow rule, so prefer asking the owner; read the committed template for the file's **shape** (`cat .env.example`, which this hook already permits); edit by hand outside the session; or add a settings.json rule |
 | No specific mapping (nothing currently falls here — the fallback is retained for any future unmapped pattern) | Generic fallback text — not a false claim of a specific route |
 
 **Six patterns (`find -delete`, `truncate`, `shred`, the three SQL DDL
@@ -286,3 +394,4 @@ This hook reads its payload via `IFS= read -r -d '' -t 5 input || true`. See [[p
 - [[pr_201_202_203_routine-followups]] — PR #203, first 3 named safe routes in deny messages + the bash 3.2 `${pat,,}` fail-open incident
 - [[pr_216_217_safe-routes-and-cost-miner-diagnostics]] — PR #216, extends named routes to all ~13 blockable patterns + the source-drift tripwire + two discriminating-check fixes
 - [[pr_224_231_233_235_loop-tooling-hardening]] — PR #233, the mention-safe `patternId` field documented above + the tripwire's companion id-presence check
+- [[pr_298_dotenv_bash_gate]] — PR #298, the `.env` secret-file deny: match-the-object-not-the-action, the APFS case-folding bypasses, and the isolated mutation kills

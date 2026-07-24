@@ -2,9 +2,10 @@
 title: "Hook: check_verify_loop"
 type: hook
 created: 2026-05-30
-last_updated: 2026-07-14
+last_updated: 2026-07-24
 sources:
   - hooks/scripts/check_verify_loop.sh
+  - sources/pr_295_discipline_common_inner_shape_guards.md
   - sources/session_2026-05-31_verify-loop-hardening.md
   - sources/session_2026-06-01_verify-loop-total-enforcement.md
   - sources/pr_57-62_subagent-enforcement-gate-hardening.md
@@ -55,6 +56,14 @@ Note: the previous "conversation only" gate (`file_count < 1`) was removed from 
 ## file_count is now TURN-scoped, not session-cumulative (PR #156)
 
 `dc_file_count()` (in `hooks/scripts/lib/discipline_common.sh`) used to count `Write`/`Edit`/`MultiEdit` targets across the whole transcript. As of PR #156 it finds the last "genuine user" record — a `user`-type record whose `message.content` is a non-empty string, or an array containing a text block (a tool-result-only array does not count as genuine) — and only counts files touched after that cutoff. This matches the CLAUDE.md self-checking-discipline wording, which is per-response ("after any response that edits files"), not per-session: a session that edited 5 files across turns 1–2 and then has a pure-conversation turn 3 no longer gets nagged for a missing DNV section on turn 3. Falls back to counting the whole transcript when no genuine user record exists (test fixtures). Also hardened with the same per-line tolerant jq parse (`jq -R 'fromjson? // empty' | jq -s ...`) the text extractors already used — a single malformed transcript line no longer zeroes the count for the rest of the turn. (verified: discipline_common.sh:11-24)
+
+### This hook's stderr is why `dc_file_count` fails open SILENTLY (PR #295, 2026-07-24)
+
+A constraint that lives in `discipline_common.sh` but is **caused by this hook**, and is easy to mistake for an inconsistency between siblings.
+
+`dc_file_count` is called **unconditionally on every Stop-hook turn** from this hook (via `dc_stable_text` for the text path, and directly for the count), and that call happens *ahead of* this hook's own block-message write to the **same stderr stream** (`>&2`, then `exit 2`). So when [[pr_295_discipline_common_inner_shape_guards|PR #295]] added a parse-abort net to `dc_file_count`/`dc_extract_last_text`, it deliberately gave it **no stderr write and no reason global** — unlike the structurally identical net in `ulg_count_dispatch_turns`, which does echo `ULG_PARSE_REASON`. An attribution echo here would land concatenated **ahead of the model-facing block message** on every blocked turn where the hazard existed anywhere in the transcript: visible noise, and nothing reads the token (`dc_file_count` has exactly one direct caller — this hook). (verified — the function's own comment, read on `origin/main`)
+
+The transferable rule: **a diagnostic channel is only worth adding where something reads it, and where it doesn't collide with a channel that is already load-bearing.** The same fix shape was right in a nudge-only hook and wrong here. See [[discipline-loop]] Part 3 for the full jq-slurp family, including the finding that the silent net is currently behaviourally inert.
 
 ## The escape hatch — the only way past
 

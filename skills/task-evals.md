@@ -2,8 +2,9 @@
 title: "Skill: task-evals"
 type: skill
 created: 2026-07-06
-last_updated: 2026-07-22
+last_updated: 2026-07-24
 sources:
+  - sources/pr_297_tier_gate_doc_semantics_drift.md
   - sources/pr_1-4_task-evals-feature.md
   - sources/pr_7-10_task-evals-followups.md
   - sources/pr_15-17_loop-hardening-registration-eval-freeze-ledger-dry.md
@@ -80,7 +81,9 @@ A scripted eval may carry an optional `fixtures: {good, bad, formula?}` object. 
 
 ## Tier rules (self-exemption defence)
 
-Concrete predicates, same design rationale as agentic-loop Phase 2.6's "what named thing does this remove?" test:
+Concrete predicates, same design rationale as agentic-loop Phase 2.6's "what named thing does this remove?" test.
+
+> **SSOT: `scripts/tier-gate/judge-prompt.md`** carries the authoritative statement of these predicates — it is what the tier-gate daemon actually judges against, so read it there when any prose doc disagrees ([[pr_297_tier_gate_doc_semantics_drift|PR #297]], 2026-07-24). That PR fixed `docs/TIER-GATE.md`, which had described the scale **backwards** (tier 0 as "user-facing/architecture/security", tier 2 as "risk-free... trivial config") and, with it, inverted the direction of the attack: **the forgery runs downward.** Claiming tier 0 buys an *exemption from the eval suite* the change hasn't earned; nobody gains anything by over-claiming tier 2. The predicates below were already correct on this page and did not change.
 
 - **Tier 0 (exempt, justified)** — single work-unit AND no outward/irreversible surface AND an existing test/verify-criterion already covers the goal state. Still a written artifact (`tier_justification` required) — the gates accept a justified exemption, never an absence. PR #154 (2026-07-13) reconciled this predicate with rule 6: anything rule 6 names (a UI, CLI output, a rendered artifact, a served endpoint) **is** an outward surface here, so a user-facing change is minimum tier 1 with rule 6's ≥1 P0 drive-the-artifact eval. This widens only the tier-0 test — tier 2's outward predicate stays scoped to its own parenthetical list, so user-facing alone does not escalate past tier 1.
 - **Tier 1 (standard)** — 3–5 end-state evals, ≥1 negative control, P0/P1 split.
@@ -147,6 +150,7 @@ Not itself part of the `/workflow` chain directly — invoked as writing-plans' 
 - [[pr_7-10_task-evals-followups]] — the follow-up cluster: wiki-first prerequisite, comment-spoofing/pagination closure, tier_justification everywhere (PRs #7–10)
 - [[pr_15-17_loop-hardening-registration-eval-freeze-ledger-dry]] — PR #15: fixes the invocation-point wording that let freeze-before-build collapse into the final task
 - [[pr_232_tier-review-gate]] — PR #232 (2026-07-17): opt-in root-daemon judge closing the tier-0 self-exemption gap named in "Tier rules" above
+- [[pr_297_tier_gate_doc_semantics_drift]] — PR #297 (2026-07-24): the repo doc's inverted tier scale, `judge-prompt.md` named as predicate SSOT, and the daemon's six-verdict taxonomy
 - [[pr_138_remove-specs-plans-tracking]] — removed this skill's design spec from repo tracking; this page's own content is now the durable record
 - [[dashboard]] / [[pr_25_observability-dashboard]] — PR #25 (2026-07-06): first production demonstration of this gate paying for itself — the frozen Tier-2 suite (10 evals, GO) caught two real bugs (a launch-script false-success and a statically-baked empty config) that every review round had missed
 - [[pr_144-149_agentic-loop-hardening-from-loop-engineering]] — PRs #144/#145 (2026-07-12) source record: `grade-loop` neutral grading + `UNSTAMPED` demotion, and rule 6 "Strongest surface"

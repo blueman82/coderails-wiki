@@ -1514,3 +1514,95 @@ above — the vault's linking discipline is strong, and the apparent dead
 blocks and literal `[[wiki-link]]` illustrations in schema prose, not real
 broken links.
 <!-- lint-findings: 7 -->
+
+## [2026-07-24] ingest | PRs #295, #297, #298, #299 merged — one cluster, four unrelated subsystems
+
+Four PRs merged 2026-07-24, ingested as a single cluster (one commit, one log
+entry) but as **four separate `sources/` pages**, because they are unrelated
+subsystems — `discipline_common.sh`, the tier-gate docs, the destructive-bash
+gate, and the dashboard stylesheet. The vault's existing cluster pages group
+*thematically related* PRs; these have nothing in common but a date. All four
+merge/head SHAs re-derived with `gh pr view` at ingest, not taken from the
+brief (verified) — note `87a0647` is #295's **head**, `4a5c237` its merge
+commit.
+
+**#295 (`4a5c237`, head `87a0647`) — closes an item this vault carried as
+OPEN.** [[discipline-loop]] Part 3 and [[pr_290_sse_teardown_and_jq_object_guard]]
+both recorded the wrong-inner-shape hazard as live with "a fix in flight,
+unmerged, not wiki-linked". Both records are now flipped, the pr_290 blockquote
+by an appended dated note rather than a rewrite (immutable source page).
+Verified against **merged `origin/main`**, not the PR diff, since this worktree
+sits on the pre-merge branch. The fix is two-layer: Layer 1 inline shape guards
+(per-line recovery), Layer 2 an `agg_rc` capture (whole-slurp net). **Layer 2
+deliberately writes nothing to stderr** — `dc_file_count` runs on every
+Stop-hook turn from [[check_verify_loop]] ahead of that hook's own block-message
+write to the same stream, so an attribution echo would land in front of the
+model-facing message. Recorded on the hook page too, since the constraint lives
+in the library but is *caused* by the hook.
+
+⚠️ **Open finding, found at ingest and not in the PR: Layer 2 is behaviourally
+INERT.** With the stderr write dropped, its abort branch reduces to
+`printf '0'; return` — byte-identical to what the trailing
+`case "$n" in (''|*[!0-9]*) n=0;; esac` laundering already produces. Proven by
+**mutation, not by reading**: deleting *both* early-return branches and
+re-running the exact fixtures the PR's own tests (p)/(q) use gives identical
+output before and after — `dc_file_count` → `0`, `dc_extract_last_text` → empty
+(verified — executed against `git show origin/main:...discipline_common.sh`).
+So (p)/(q) assert correct *behaviour* while attesting to a *mechanism* they
+don't exercise; they'd pass with the scaffolding gone. Not a live defect —
+fail-open is right either way, which is exactly why it survived review.
+Disposition owed. **Family status deliberately stated as three functions with
+three different treatments**, not "closed": saying "the family is closed" is the
+over-claim this log has already caught twice on this exact family.
+
+**#297 (`0b7262d`) — the repo doc caught up to what the wiki already had
+right.** `docs/TIER-GATE.md` had the tier scale backwards; the drift was found
+by this vault's own 2026-07-22 docs-drift pass before any PR existed. **No wiki
+page needed correcting** — [[task-evals]] and [[task-evals-gate]] already
+carried the correct predicates, so this ingest adds knowledge rather than fixing
+errors. Checked the whole vault for surviving inverted phrasing ("risk-free",
+"trivial config", "careful review"): the only hit is inside this log's
+2026-07-22 entry, which is *quoting the defect* — correct in context,
+deliberately left. Two genuinely new facts recorded: `judge-prompt.md` named as
+the predicate **SSOT**, and the **six-verdict** `tier-review` taxonomy, with the
+size-cap asymmetry (tier-0 over cap → `illegitimate`; tier-1/2 over cap →
+`insufficient`). The vault had observed `self_edit` three times without ever
+recording the taxonomy it belonged to.
+
+**#298 (`8fba16d`) — `.env` was genuinely unguarded.** Zero `.env` matches in
+the gate beforehand (verified on the pre-merge tree), and a previously-removed
+hook that claimed to block it never worked. The durable argument is
+**match-the-object-not-the-action**: a verb enumeration is unbounded and every
+omission is a silent bypass. Four case bypasses were caught in review because
+**APFS is case-insensitive** — `.ENV` is the same inode — and the fix had to
+lowercase at the same layer as the suffix-strip consumer, not via `grep -i`,
+or `.ENV.EXAMPLE` would have flipped from allowed to over-blocked. Ceilings
+recorded as **uncovered, not closed**: `cat .env*` / `cat .en?` glob onto the
+real file and are allowed, framed as an uncovered case rather than a regression
+because nothing pre-existed. Follow-up should invert the boundary rule rather
+than patch the glob chars.
+
+**#299 (`b4b0782`) — the reported cause was disproved by measurement.**
+`.hud-trend-value`'s `white-space: nowrap` was measured to move the geometry by
+**exactly zero**: the computed style genuinely flips and nothing moves. Real
+cause was `.hud-rail`'s default `min-width: auto` freezing the grid column at
+its 404.156px min-content width. Also recorded: the **equal-specificity cascade
+defect** that belongs to the superseded **#296** (closed unmerged) — a `@media`
+override placed before its base rule loses on source order and is silently
+dead, a rule present in the diff doing nothing. #296's source-order regression
+test was the right instrument for that class but closed with the branch, so
+**#299 ships with no test** — verified `hudTrendWidth.test.ts` is absent from
+`origin/main`.
+
+**Pages:** created `sources/pr_295_…`, `sources/pr_297_…`, `sources/pr_298_…`,
+`sources/pr_299_…`; updated `design/discipline-loop.md`,
+`design/task-evals-gate.md`, `hooks/check_verify_loop.md`,
+`hooks/destructive_bash_gate.md`, `skills/task-evals.md`, `skills/dashboard.md`,
+`sources/pr_290_…` (appended correction note), `index.md` (stale #295 clause
+fixed + 4 Sources entries).
+
+**Not in scope, left open:** PRs #291-#294 remain un-ingested (2026-07-24
+full-vault lint finding); the missing `design/tier-gate.md` evergreen page
+remains a standing finding; PR #296 gets no source page (closed, never merged).
+Staged explicit paths rather than `git add -A` — sibling sessions are active in
+this shared vault. Committed only, **not pushed**, per the ingest instruction.

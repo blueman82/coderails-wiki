@@ -242,6 +242,20 @@ two-stage **malformed-line** tolerant parse (lines 65/91) from
 > file +73) (verified). No wiki-link here deliberately — an unmerged PR has no
 > `sources/` page to link to.
 
+> ✅ **CLOSED 2026-07-24 by [[pr_295_discipline_common_inner_shape_guards|PR #295]]**
+> — the blockquote above was accurate when written; #295 merged
+> `2026-07-24T08:33:04Z` (merge commit `4a5c237`, head `87a0647`), so both its
+> "still open" claim and its "no `sources/` page to link to" rationale have
+> expired. The wrong-inner-shape hazard is closed in `dc_file_count` and
+> `dc_extract_last_text` by inline Layer 1 shape guards
+> (`((.message | type) == "object")`, plus `select(type == "object")` on each
+> content element), backed by a Layer 2 `agg_rc` capture that — per the ingest's
+> own mutation check — is currently **behaviourally inert**. Full treatment,
+> including the family status across all three functions and the disposition
+> owed on the inert layer, is on [[discipline-loop]] Part 3; the PR record is
+> [[pr_295_discipline_common_inner_shape_guards]]. This page's body above is
+> left as written — an immutable record of what was true at its own ingest.
+
 **On the memory handoff `project_jq_slurp_round2_handoff`:** that handoff is
 *not* about this hazard and is not closed by this PR. Read directly at ingest,
 its "2 remaining bare `jq -s` slurps" are `dc_extract_last_text` **and**

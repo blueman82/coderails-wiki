@@ -4,6 +4,7 @@ type: skill
 created: 2026-07-06
 last_updated: 2026-07-24
 sources:
+  - sources/pr_299_hud_rail_min_width.md
   - sources/pr_290_sse_teardown_and_jq_object_guard.md
   - sources/pr_25_observability-dashboard.md
   - sources/pr_43-44-46_workflow-audit-queue-seam.md
@@ -219,6 +220,45 @@ citation — move each claim it was carrying onto in-repo evidence, and say the
 spec is gone.** The cutover *event* remains covered by
 [[pr_228_229_230_token-burn-reduction-and-agents-split]]. See
 [[pr_290_sse_teardown_and_jq_object_guard]].
+
+### The rail could not shrink below its content — and the reported cause was disproved (PR #299, 2026-07-24)
+
+Below the `@media (max-width: 1100px)` breakpoint `.hud-stage` collapses to a
+single `1fr` column, making `.hud-rail` the grid item that has to track the
+viewport. **A grid item's automatic minimum size is its min-content width**, so
+with the default `min-width: auto` the column could not shrink past the widest
+content in the rail — measured at **404.156px**. It froze there and content ran
+past the viewport edge on anything narrower (+61.2px past at 320px). Fixed with
+one declaration, `min-width: 0` on `.hud-rail` — **symmetric with the
+`min-height: 0` on the very same rule**, whose existing comment already
+justifies the identical reasoning on the other axis. Above 1100px nothing
+changes; those tracks are fixed-width (`330px 1fr 300px`) so the rail's minimum
+never binds. Clean regression sweep 1400→280px across every rail panel.
+
+**The durable part is the disproof, not the CSS.** The obvious cause —
+`.hud-trend-value`'s `white-space: nowrap`, the longest string in the row —
+was measured and moves the geometry by **exactly zero**: at 320px the value sits
++61.2px past the viewport both with and without it, and the grid column stays
+404.156px, because the trend value is not what pins the layout (it sits 15px
+inside the rail at every width). The computed style genuinely flips to `normal`
+and nothing moves. **"The computed style changed" is not evidence the cause was
+found — only a measurement of the symptom is.**
+
+**A cascade defect hid this, and it belongs to the superseded PR #296**
+(`fix/context-trend-panel-width`, **closed unmerged**): its `@media` override of
+`.hud-trend-value` sat *before* the base rule at **equal specificity** (0,1,0),
+so it lost on source order and the computed value stayed `nowrap` at every
+width — a rule present in the diff doing nothing. A media query grants no
+precedence of its own. #296's source-order regression test was the right
+instrument for that class, but **it closed with that branch and is not on
+`origin/main`**; #299 ships the stylesheet change with no test of its own.
+
+Method note worth keeping: measurement used an **iframe** as the viewport,
+because `resize_window` on this machine returned "Successfully resized" for
+1400x900 / 1440x900 / 900x800 while `window.innerWidth` stayed 677 every time —
+**a tool reporting success for an operation it did not perform**, the same shape
+as [[pr_274_tier_gate_observability_fixes|#274]]'s `curl` exiting 0 on a 401.
+See [[pr_299_hud_rail_min_width]].
 
 ### SSE teardown: `cancel()` is not a disconnect signal (PR #290, 2026-07-24)
 
@@ -573,3 +613,4 @@ This is the first sub-project to give the task-evals gate a real production catc
 - [[retro-json-per-model-cost-tracking-gap_2026-07-15]] — the same-day investigation that found zero cost/token tracking anywhere in coderails, closed by the cluster above
 - [[pr_260_263_dashboard-security-review]] — six Low findings fixed (queue-path authorization gap, hash path-traversal, config schema validation, directory/file permissions, vault-token doc note, timing-safe token compare), eight defences attacked and held, and a MERGED ≠ DEPLOYED gap: the launchd routine-sweeper ran 57 commits behind `origin/main`, proven live-fire against the F1 fix
 - [[pr_265_266_268_270_271_dashboard-vitals-lint-tile-and-usage-perf]] — LINT FINDINGS tile activated from a dead stub via a real `log.md` collector (`<!-- lint-findings: N -->` structured record, never a prose regex-scan), a third "loading…" tile state distinct from "unavailable", two test-suite fixes (flake, cleanup crash-safety), and a separate `collectUsage` performance fix (module-scope memo + single-flight, 29.5x warm speedup) with a mutation-proved never-persist-cross-file-dedup guarantee
+- [[pr_299_hud_rail_min_width]] — PR #299 (2026-07-24): `.hud-rail { min-width: 0 }` unfreezes the rail below the 1100px breakpoint; the originally-reported cause was disproved by measurement, and the superseded #296 carried an equal-specificity cascade defect that made its rule inert

@@ -2,8 +2,9 @@
 title: "Task-evals gate — dual-scope (pr + loop) enforcement over frozen, oracle-independent success evals"
 type: design
 created: 2026-07-06
-last_updated: 2026-07-23
+last_updated: 2026-07-24
 sources:
+  - sources/pr_297_tier_gate_doc_semantics_drift.md
   - sources/pr_261_freeze_before_build_gate.md
   - sources/pr_264_smoke_run_executor_and_check9.md
   - sources/pr_269_gate_time_smoke_execution.md
@@ -240,6 +241,23 @@ This gate proves a durable, SHA-bound (pr scope) or path-bound (loop scope), str
 
 **One specific slice of this ceiling — the tier-0 exemption itself — gained an opt-in closer.** Tier 0's `tier_justification` is self-written by the same party it exempts; nothing in this gate, and nothing in [[task-evals]]'s own generation rules, ever reviewed whether a `tier=0` claim was honest — that stayed true until [[pr_232_tier-review-gate|PR #232]] (2026-07-17). Where a project opts in (`config.tier_review.machine_user` set), a separate root-owned daemon (`scripts/tier-gate/`) judges the PR's claimed tier against its real, capped diff — never the `tier_justification` prose itself, which the judge does not read at all — via a subscription-authenticated Claude call outside the agent's own trust domain, then posts a `tier-review` commit status that both [[merge]] and [[enforce_pr_workflow]] additionally check before allowing a tier-0 merge. This narrows the ceiling for tier-0 specifically; it does not touch the ceiling for tier 1/2 evals (a scripted `cmd` genuinely reflecting reality, or a verifier subagent genuinely being given clean context) at all — see [[pr_232_tier-review-gate]] for the full mechanism, its own honest boundary (available, not yet active in this repo), and why it raises the cost of a dishonest tier-0 from free to expensive rather than claiming impossibility.
 
+### `tier-review` posts on every outcome — the six-verdict taxonomy ([[pr_297_tier_gate_doc_semantics_drift|PR #297]], 2026-07-24)
+
+`docs/TIER-GATE.md` used to claim the daemon "only posts when the LLM agrees the tier is legitimate". That was wrong in a way that makes a blocked PR look like a broken daemon. It posts on **every** outcome, carrying a `verdict=` token alongside the claimed `tier=N`:
+
+| Verdict | State | Meaning |
+|---|---|---|
+| `legitimate` | `success` | **the only verdict that satisfies the merge gate** |
+| `illegitimate` | `failure` | claim rejected — also what a **tier-0** claim over the size cap gets |
+| `insufficient` | — | blind inputs don't support a decision either way: an empty or unreadable diff, or a **tier-1/tier-2** claim over the size cap |
+| `self_edit` | — | the diff touches the tier-gate's own files; refuses to judge (see [[tier-gate-path-denylist-dashboard_2026-07-21]]) |
+| `pending` | — | judging in flight |
+| `error` | — | operational failure: unfetchable diff/files list, missing embedded `evals.json`, unusable judge response |
+
+**Every non-`legitimate` status blocks.** The non-obvious part worth keeping is the size-cap asymmetry: over the cap a tier-0 claim is `illegitimate` while a tier-1/2 claim is `insufficient` — because being large is itself evidence *against* tier 0, but says nothing about tier 1 vs tier 2. This vault had observed `self_edit` empirically three times ([[pr_256_runner-transcript-persistence|#256]], [[pr_274_tier_gate_observability_fixes|#274]], [[pr_289_tier_gate_install_shared_root_warning|#289]]) without ever recording the taxonomy it belongs to; #256's "posts as FAILURE with an empty description, indistinguishable from a broken build" is exactly the legibility complaint this table answers.
+
+**`scripts/tier-gate/judge-prompt.md` is the authoritative SSOT for the tier predicates** — the repo doc now says so explicitly and defers to it on disagreement. It is what the daemon actually judges against; the prose doc is what a human reads. Executable over descriptive, made explicit for tiers.
+
 ## Known gaps — status
 
 - ~~**Comment-spoofing trust model** — inherited wholesale from the review-artifact gate; a sufficiently motivated cooperating agent could, in principle, post a structurally-valid artifact without the evals genuinely having been run as described.~~ **Closed for both PR-gate readers by [[pr_7-10_task-evals-followups|PR #8]]** (`62ad18d`, 2026-07-06): `scripts/lib/git-common.sh` now filters comments to the `gh`-authenticated login with `author_association == "OWNER"` before any marker matching, fail-closed on identity-fetch failure.
@@ -298,4 +316,5 @@ gh pr merge
 - [[pr_155-158_ceremony_noise_envelope_anchoring]] — PR #158 (2026-07-13): rule 4 "Oracle independence" extended with the loop-scope `authorising_prompt_raw` precedence rule, wired into [[agentic-loop]] at Phase -2/-1/2.7c/13
 - [[dashboard]] — the skill whose `sessions.ts`/`RailLeft.tsx` are the third schema consumer named above
 - [[pr_232_tier-review-gate]] — PR #232 (2026-07-17): root-daemon tier-0 honesty judge, opt-in, closes the tier-0-specific slice of the honest ceiling above
+- [[pr_297_tier_gate_doc_semantics_drift]] — PR #297 (2026-07-24): `docs/TIER-GATE.md` had the tier scale (and the direction of the attack) inverted; also names `judge-prompt.md` as the predicate SSOT and documents the six-verdict `tier-review` taxonomy above
 - [[pr_218_discriminating-check-gate]] — PR #218 (2026-07-17): the discriminating-check gate — `fixtures`-based freeze-time proof that a scripted check's formula can both pass and fail, closing the class rule 2's text-only negative-control check cannot
