@@ -1463,3 +1463,52 @@ minutes, so verification has a shelf life, and a claim's durability surface
 (three page bodies, one log line) determines how far a stale one travels before
 anyone re-reads it.
 <!-- lint-findings: 0 -->
+
+## [2026-07-24] lint | 226 pages, 7 findings — 4 un-ingested merged PRs (#291/#292/#293/#294), 2 missing pages (hooks/wiki_taxonomy_gate, skills/fable-mode), 1 missing design page (tier-gate)
+
+Full-vault pass over 226 pages (12 commands, 19 hooks, 35 skills, 20 design, 13
+investigations, 125 sources, index, log). `dashboard-runs/`, `logs/`,
+`templates/`, `.obsidian/` and `.remember/` excluded per schema — operational
+output, not wiki content.
+
+**Clean categories.** Orphans: **0** — every page in the six content
+directories has at least one inbound `[[wiki-link]]`, `index.md` carrying most
+of them. Contradictions: **0 open**. Six pages hold `⚠️ CONTRADICTION` prose,
+and every one is either resolved-and-annotated or a deliberate historical
+record: `design/discipline-loop.md`'s 2026-07-17 `dc_extract_last_text` flag was
+closed 2026-07-24 by PR #290 and carries a dated `✅ CONTRADICTION RESOLVED`
+line, and the token-burn "rows 1-4 of **4**" vs "of **7**" pair
+(`pr_228_229_230_...` / `pr_259_...`) is a mutually cross-linked erasure record
+that is supposed to stay. Inbox backlog: **0** — no `inbox/` directory exists in
+this vault. Stale: **6 mechanically, 0 actionably** — the six pages older than
+the 30-day cutoff (2026-06-24) are two `investigations/` and four
+`sources/session_*` pages, both types defined by the schema as immutable
+point-in-time records. No evergreen `design/`, `commands/`, `hooks/` or
+`skills/` page is stale; the newest evergreen edits are same-day.
+
+**Findings (7).** Data gaps (5): PRs **#291, #292, #293, #294** merged
+2026-07-24 with no `sources/` page and no prose coverage anywhere except #293,
+which is described only second-hand inside `design/discipline-loop.md`'s
+resolution note — notable because #293 is a mis-titled PR ("context trend panel
+styles") that actually landed the `ulg_count_dispatch_turns` object guard, so
+its title will not lead anyone to it; and the `docs/TOKEN-REDUCTION-AUDIT.md`
+method + INDETERMINATE verdict behind the Context Trend panel's hardcoded
+constants remains uncaptured (the spec is untracked in the repo, already flagged
+on `index.md` at the #287 entry). Missing pages (2): `hooks/wiki_taxonomy_gate.md`
+— the hook ships on `origin/main` and is the 7th `PreToolUse` entry, but the only
+wiki record is the `sources/` page for the PR that documented it in AGENTS.md,
+so the hooks directory is 19 pages against 19 shipped scripts by coincidence, not
+coverage; and `skills/fable-mode.md` — the sole skill in `skills/` on main with no
+wiki page, currently a dead `[[fable-mode]]` target. Missing concept (1):
+**tier-gate** has no evergreen `design/` page despite being the largest
+undocumented subsystem in the repo — `docs/TIER-GATE.md`, an installer, a runner,
+a judge prompt, a conf + plist template, five test files, and 11 `sources/` pages
+referencing it, with only a point-in-time
+`investigations/tier-gate-path-denylist-dashboard_2026-07-21.md` to anchor them.
+
+Missing cross-references: **0** found beyond those implied by the missing pages
+above — the vault's linking discipline is strong, and the apparent dead
+`[[...]]` targets in a raw scan are bash `[[ ]]` test syntax inside fenced code
+blocks and literal `[[wiki-link]]` illustrations in schema prose, not real
+broken links.
+<!-- lint-findings: 7 -->
